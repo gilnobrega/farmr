@@ -60,10 +60,9 @@ class Farm {
 
     //runs chia farm summary if it is a farmer
     if (config.type == ClientType.Farmer) {
-
-      var result = io.Process.runSync(
-          config.binPath, ["farm", "summary"]);
-      List<String> lines = result.stdout.toString().replaceAll("\r", "").split('\n');
+      var result = io.Process.runSync(config.binPath, ["farm", "summary"]);
+      List<String> lines =
+          result.stdout.toString().replaceAll("\r", "").split('\n');
 
       for (int i = 0; i < lines.length; i++) {
         String line = lines[i];
@@ -155,10 +154,12 @@ Future<List<Plot>> listPlots(List<String> paths) async {
     var path = paths[i];
 
     io.Directory dir = new io.Directory(path);
-    await dir.list(recursive: false).forEach((file) {
-      //Checks if file extension is .plot
-      if (extension(file.path) == ".plot") plots.add(new Plot(file));
-    });
+    if (dir.existsSync()) {
+      await dir.list(recursive: false).forEach((file) {
+        //Checks if file extension is .plot
+        if (extension(file.path) == ".plot") plots.add(new Plot(file));
+      });
+    }
   }
 
 //Sorts plots from oldest to newest

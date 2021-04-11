@@ -28,7 +28,7 @@ function runCommand(command, msg, chia = false) {
       return;
     }
 
-    output = stdout;    
+    output = stdout;
 
     const embed = new MessageEmbed()
       .setColor(0x00ff00)
@@ -122,87 +122,84 @@ function blockInfo(number, msg, luck, number2) {
 
 const prefix = "!"
 client.on('message', (msg) => {
-  if (!msg.content.startsWith === '!') return;
-  const commandBody = msg.content.slice(prefix.length); //something something stackoverflow
-  const args = commandBody.split(' '); //arguments 
-  const command = args.shift().toLowerCase();
+  if (msg.content.startsWith(prefix)) {
+    const commandBody = msg.content.slice(prefix.length); //something something stackoverflow
+    const args = commandBody.split(' '); //arguments 
+    const command = args.shift().toLowerCase();
 
-  if (command === "clown") {
-    msg.reply("Chris2 is a :clown:");
-  }
+    if (command === "clown") {
+      msg.reply("Chris2 is a :clown:");
+    }
 
-  //CHIA RELATED COMMAND
-  else if (command === "chia" && args.length == 0) {
-    runCommand("/usr/bin/dart chiabot_server.dart " + msg.author.id, msg, true);
-  }
-  else if (command ==="chia" && args.length == 1 && args[0] == "full")
-  {
-    runCommand("/usr/bin/dart chiabot_server.dart " + msg.author.id + " full", msg, true);
-  }
-  else if (command === 'chia' && args.length == 1 && args[0] == 'help')
-  {
-
-    const embed = new MessageEmbed()
-    .setColor(0x00ff00)
-    .setTitle("Available commands")
-    .setDescription("!chia link [client-id]   - links client to your discord account \n"
-                    + "!chia - shows your chia farm summary \n"
-                    + "!chia full - shows chia farm summary with plot statistics");
-
-    msg.channel.send(embed);
-  }
-  else if (command === "chia" && args[0] == "link" && args.length == 2)
-  {
-     var id = args[1];
-     var user = msg.author.id;
-
-     fetch("https://chiabot.znc.sh/assign.php?id=" + id + "&user=" + user);
+    //CHIA RELATED COMMAND
+    else if (command === "chia" && args.length == 0) {
+      runCommand("/usr/bin/dart chiabot_server.dart " + msg.author.id, msg, true);
+    }
+    else if (command === "chia" && args.length == 1 && args[0] == "full") {
+      runCommand("/usr/bin/dart chiabot_server.dart " + msg.author.id + " full", msg, true);
+    }
+    else if (command === 'chia' && args.length == 1 && args[0] == 'help') {
 
       const embed = new MessageEmbed()
-      .setColor(0x00ff00)
-      .setTitle("Linked ID to your Discord account successfully")
-      .setDescription("");
-     msg.channel.send(embed);
+        .setColor(0x00ff00)
+        .setTitle("Available commands")
+        .setDescription("!chia link [client-id]   - links client to your discord account \n"
+          + "!chia - shows your chia farm summary \n"
+          + "!chia full - shows chia farm summary with plot statistics");
+
+      msg.channel.send(embed);
+    }
+    else if (command === "chia" && args[0] == "link" && args.length == 2) {
+      var id = args[1];
+      var user = msg.author.id;
+
+      fetch("https://chiabot.znc.sh/assign.php?id=" + id + "&user=" + user);
+
+      const embed = new MessageEmbed()
+        .setColor(0x00ff00)
+        .setTitle("Linked ID to your Discord account successfully")
+        .setDescription("");
+      msg.channel.send(embed);
+    }
+
+    //If no block number is specified then it uses flexpool api to find the latest block's number (even if it's unconfirmed)
+    else if (command === "mev" && args.length == 0) {
+      let blocks;
+      //Flexpool API page, loads last 10 blocks
+      const flexurl = 'https://flexpool.io/api/v1/pool/blocks?page=0';
+
+      fetch(flexurl)
+        .then(function (u) { return u.json(); })
+        .then(function (json) {
+          blocks = json['result']['data'];
+
+          //loads last block
+          lastblock = blocks[0];
+
+          number = lastblock['number'];
+          totalreward = lastblock['total_rewards'];
+          mevreward = 0;
+          luck = lastblock['luck'];
+
+          console.log(number); //DELETE THIS LATER
+
+          blockInfo(number, msg, luck);
+        });
+
+    }
+    //IF a block number is specified next to the command then it searches etherscan directly for that block's info
+    else if (command === "mev" && args.length == 1) {
+      number = args[0];
+      blockInfo(number, msg);
+    }
+    else if (command === "mev" && args.length == 2) {
+      number = args[0];
+      number2 = args[1];
+      blockInfo(number, msg, undefined, number2);
+
+    }
+
   }
-
-  //If no block number is specified then it uses flexpool api to find the latest block's number (even if it's unconfirmed)
-  else if (command === "mev" && args.length == 0) {
-    let blocks;
-    //Flexpool API page, loads last 10 blocks
-    const flexurl = 'https://flexpool.io/api/v1/pool/blocks?page=0';
-
-    fetch(flexurl)
-      .then(function (u) { return u.json(); })
-      .then(function (json) {
-        blocks = json['result']['data'];
-
-        //loads last block
-        lastblock = blocks[0];
-
-        number = lastblock['number'];
-        totalreward = lastblock['total_rewards'];
-        mevreward = 0;
-        luck = lastblock['luck'];
-
-        console.log(number); //DELETE THIS LATER
-
-        blockInfo(number, msg, luck);
-      });
-
-  }
-  //IF a block number is specified next to the command then it searches etherscan directly for that block's info
-  else if (command === "mev" && args.length == 1) {
-    number = args[0];
-    blockInfo(number, msg);
-  }
-  else if (command === "mev" && args.length == 2) {
-    number = args[0];
-    number2 = args[1];
-    blockInfo(number, msg, undefined, number2);
-
-  }
-
-
 });
 
 
