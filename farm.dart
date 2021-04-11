@@ -63,10 +63,10 @@ class Farm {
 
       var result = io.Process.runSync(
           config.binPath, ["farm", "summary"]);
-      List<String> lines = result.stdout.toString().split('\n');
+      List<String> lines = result.stdout.toString().replaceAll("\r", "").split('\n');
 
       for (int i = 0; i < lines.length; i++) {
-        String line = lines[i].replaceAll("\\r", "");
+        String line = lines[i];
 
         if (line.startsWith("Total chia farmed: "))
           _balance = double.parse(line.split('Total chia farmed: ')[1]);
