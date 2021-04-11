@@ -1,7 +1,6 @@
 import 'dart:core';
 import 'dart:io' as io;
 import 'dart:convert';
-import 'package:dotenv/dotenv.dart';
 import 'package:uuid/uuid.dart';
 import 'package:yaml/yaml.dart';
 import 'package:path/path.dart';
@@ -59,20 +58,15 @@ class Farm {
     _config = config;
     _type = config.type;
 
-    load(); //loads dot env variables
-
     //runs chia farm summary if it is a farmer
     if (config.type == ClientType.Farmer) {
-      //NOT SURE IF I CAN COMMENT THESE lol 
-      //env['VIRTUAL_ENV'] = config.chiaPath + '/venv';
-      //env['PATH'] = env['VIRTUAL_ENV'] + "/bin:" + env['PATH'];
 
       var result = io.Process.runSync(
           config.binPath, ["farm", "summary"]);
       List<String> lines = result.stdout.toString().split('\n');
 
       for (int i = 0; i < lines.length; i++) {
-        String line = lines[i];
+        String line = lines[i].replaceAll("\\r", "");
 
         if (line.startsWith("Total chia farmed: "))
           _balance = double.parse(line.split('Total chia farmed: ')[1]);

@@ -3,7 +3,6 @@ import 'dart:io' as io;
 import 'dart:convert';
 
 import 'package:uuid/uuid.dart';
-import 'package:dotenv/dotenv.dart';
 
 class Config {
   ClientType _type;
@@ -17,7 +16,7 @@ class Config {
 
   //Sets config file path according to platform
   final String _configPath = (io.Platform.isLinux)
-      ? env['HOME'] + "/.chia/mainnet/config/"
+      ? io.Platform.environment['HOME'] + "/.chia/mainnet/config/"
       : (io.Platform.isWindows)
           ? io.Platform.environment['UserProfile'] + "\\.chia\\mainnet\\config\\"
           : "";
@@ -61,7 +60,7 @@ class Config {
 
       _binPath = (io.Platform.isLinux)
           ? _chiaPath + "/venv/bin/chia"
-          : _chiaPath + "\\chia.exe";
+          : _chiaPath + "\\daemon\\chia.exe";
 
       if (io.File(_binPath).existsSync())
         validDirectory = true;
