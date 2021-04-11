@@ -139,12 +139,30 @@ client.on('message', (msg) => {
   {
     runCommand("/usr/bin/dart chiabot_server.dart " + msg.author.id + " full", msg, true);
   }
+  else if (command === 'chia' && args.length == 1 && args[0] == 'help')
+  {
+
+    const embed = new MessageEmbed()
+    .setColor(0x00ff00)
+    .setTitle("Available commands")
+    .setDescription("!chia link [client-id]   - links client to your discord account \n"
+                    + "!chia - shows your chia farm summary \n"
+                    + "!chia full - shows chia farm summary with plot statistics");
+
+    msg.channel.send(embed);
+  }
   else if (command === "chia" && args[0] == "link" && args.length == 2)
   {
      var id = args[1];
      var user = msg.author.id;
 
      fetch("https://chiabot.znc.sh/assign.php?id=" + id + "&user=" + user);
+
+      const embed = new MessageEmbed()
+      .setColor(0x00ff00)
+      .setTitle("Linked ID to your Discord account successfully")
+      .setDescription("");
+     msg.channel.send(embed);
   }
 
   //If no block number is specified then it uses flexpool api to find the latest block's number (even if it's unconfirmed)

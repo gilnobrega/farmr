@@ -15,13 +15,21 @@ class Config {
   String _chiaPath;
   String get chiaPath => _chiaPath;
 
-  final String _configPath = env['HOME'] + "/.chia/mainnet/config/chiabot.json";
+  //Sets config file path according to platform
+  final String _configPath = (io.Platform.isLinux)
+      ? env['HOME'] + "/.chia/mainnet/config/"
+      : (io.Platform.isWindows)
+          ? env['UserProfile'] + "\.chia\mainnet\config\\"
+          : "";
   String get configPath => _configPath;
+
+  String _binPath;
+  String get binPath => _binPath;
 
   io.File _config;
 
   Config([isHarvester = false]) {
-    _config = new io.File(configPath);
+    _config = new io.File(configPath + "chiabot.json");
 
     //If file doesnt exist then create new config
     if (!_config.existsSync())
@@ -36,25 +44,38 @@ class Config {
 
     _id = Uuid().v4();
 
-    print(
-        "Specify your chia-blockchain directory below: (e.g.: /home/user/chia-blockchain)");
+    String exampleDir = (io.Platform.isLinux)
+        ? "/home/user/chia-blockchain"
+        : (io.Platform.isWindows)
+            ? "C:\Users\\user\%AppData%\Local\chia-blockchain"
+            : "";
+
+    print("Specify your chia-blockchain directory below: (e.g.: " +
+        exampleDir +
+        ")");
 
     bool validDirectory = false;
 
     while (!validDirectory) {
       _chiaPath = io.stdin.readLineSync();
 
-      if (io.File(chiaPath + "/venv/bin/chia").existsSync())
+      _binPath = (io.Platform.isLinux)
+          ? _chiaPath + "/venv/bin/chia"
+          : _chiaPath + "\chia.exe";
+
+      if (io.File(_binPath).existsSync())
         validDirectory = true;
       else if (io.Directory(chiaPath).existsSync())
-        print("Could not locate chia binary in your directory. Please try again." +
+        print("Could not locate chia binary in your directory.\n(" +
+            _binPath +
+            " not found)\nPlease try again." +
             "\nMake sure this folder has the same structure as Chia's GitHub repo.");
       else
         print("Uh oh, that directory could not be found! Please try again.");
     }
 
     String contents = jsonEncode([
-      {"id": id, "chiaPath": chiaPath, "type": type.index}
+      {"id": id, "chiaPath": chiaPath, "type": type.index, "binPath" : binPath}
     ]);
 
     _config.writeAsStringSync(contents);
@@ -69,6 +90,7 @@ class Config {
     _chiaPath = contents[0]['chiaPath'];
 
     _type = ClientType.values[contents[0]['type']];
+    _binPath = contents[0]['binPath'];
 
     info();
   }

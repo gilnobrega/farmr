@@ -10,6 +10,8 @@ import 'plot.dart';
 import 'config.dart';
 
 class Farm {
+  Config _config;
+
   final String id = Uuid().v4();
 
   String _status;
@@ -54,17 +56,19 @@ class Farm {
       };
 
   Farm(Config config) {
+    _config = config;
     _type = config.type;
 
     load(); //loads dot env variables
 
     //runs chia farm summary if it is a farmer
     if (config.type == ClientType.Farmer) {
-      env['VIRTUAL_ENV'] = config.chiaPath + '/venv';
-      env['PATH'] = env['VIRTUAL_ENV'] + "/bin:" + env['PATH'];
+      //NOT SURE IF I CAN COMMENT THESE lol 
+      //env['VIRTUAL_ENV'] = config.chiaPath + '/venv';
+      //env['PATH'] = env['VIRTUAL_ENV'] + "/bin:" + env['PATH'];
 
       var result = io.Process.runSync(
-          env['VIRTUAL_ENV'] + "/bin/chia", ["farm", "summary"]);
+          config.binPath, ["farm", "summary"]);
       List<String> lines = result.stdout.toString().split('\n');
 
       for (int i = 0; i < lines.length; i++) {
@@ -112,7 +116,7 @@ class Farm {
   }
 
   Future<void> init() async {
-    String configPath = env['HOME'] + "/.chia/mainnet/config/config.yaml";
+    String configPath = _config.configPath + "config.yaml";
 
     //LOADS CHIA CONFIG FILE AND PARSES PLOT DIRECTORIES
     var config = loadYaml(

@@ -38,7 +38,7 @@ Future<void> main(List<String> args) async {
     farmers.sort((farm1, farm2) => (farm1.lastUpdated.millisecondsSinceEpoch
         .compareTo(farm2.lastUpdated.millisecondsSinceEpoch)));
 
-    Farm farm = farmers[0]; //Selects newest farm as main farm
+    Farm farm = farmers.last; //Selects newest farm as main farm
 
     for (int j = 0; j < harvesters.length; j++)
       farm.addHarvester(harvesters[j]); //Adds harvesters plot to main farm
