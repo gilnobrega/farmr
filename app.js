@@ -143,10 +143,20 @@ client.on('message', (msg) => {
       const embed = new MessageEmbed()
         .setColor(0x00ff00)
         .setTitle("Available commands")
-        .setDescription("!chia link [client-id]   - links client to your discord account \n"
-          + "!chia - shows your chia farm summary \n"
-          + "!chia full - shows chia farm summary with plot statistics");
+        .setDescription("!chia link [client-id]      - links client to your discord account \n"
+          + "!chia      - shows your chia farm summary \n"
+          + "!chia full      - shows chia farm summary with plot statistics\n"
+          + "!chia donate     - shows developer's wallet address");
 
+      msg.channel.send(embed);
+    }
+    else if (command === 'chia' && args.length == 1 && args[0] == 'donate') {
+
+      const embed = new MessageEmbed()
+        .setColor(0x00ff00)
+        .setTitle("Donate to @joaquimguimaraes")
+        .setDescription("ETH: 0x340281CbAd30702aF6dCA467e4f2524916bb9D61 \n"
+          + "XCH: xch1z9wes90p356aqn9svvmr7du8yrr03payla02nkfpmfrtpeh23s4qmhx9q9 ");
       msg.channel.send(embed);
     }
     else if (command === "chia" && args[0] == "link" && args.length == 2) {
