@@ -19,7 +19,7 @@ class Config {
   final String _configPath = (io.Platform.isLinux)
       ? env['HOME'] + "/.chia/mainnet/config/"
       : (io.Platform.isWindows)
-          ? env['UserProfile'] + "\.chia\mainnet\config\\"
+          ? env['UserProfile'] + "\\.chia\\mainnet\\config\\"
           : "";
   String get configPath => _configPath;
 
@@ -47,7 +47,7 @@ class Config {
     String exampleDir = (io.Platform.isLinux)
         ? "/home/user/chia-blockchain"
         : (io.Platform.isWindows)
-            ? "C:\Users\\user\%AppData%\Local\chia-blockchain"
+            ? "C:\\Users\\user\\%AppData%\\Local\\chia-blockchain"
             : "";
 
     print("Specify your chia-blockchain directory below: (e.g.: " +
@@ -61,7 +61,7 @@ class Config {
 
       _binPath = (io.Platform.isLinux)
           ? _chiaPath + "/venv/bin/chia"
-          : _chiaPath + "\chia.exe";
+          : _chiaPath + "\\chia.exe";
 
       if (io.File(_binPath).existsSync())
         validDirectory = true;
