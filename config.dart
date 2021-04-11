@@ -19,7 +19,7 @@ class Config {
   final String _configPath = (io.Platform.isLinux)
       ? env['HOME'] + "/.chia/mainnet/config/"
       : (io.Platform.isWindows)
-          ? env['UserProfile'] + "\\.chia\\mainnet\\config\\"
+          ? io.Platform.environment['UserProfile'] + "\\.chia\\mainnet\\config\\"
           : "";
   String get configPath => _configPath;
 
