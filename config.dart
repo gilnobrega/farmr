@@ -42,7 +42,7 @@ class Config {
       loadConfig();
   }
 
-  void createConfig(bool isHarvester) {
+  Future<void> createConfig(bool isHarvester) async {
     _type = (!isHarvester) ? ClientType.Farmer : ClientType.Harvester;
 
     _id = Uuid().v4();
@@ -50,7 +50,7 @@ class Config {
     String exampleDir = (io.Platform.isLinux)
         ? "/home/user/chia-blockchain"
         : (io.Platform.isWindows)
-            ? "C:\\Users\\user\\%AppData%\\Local\\chia-blockchain"
+            ? "C:\\Users\\user\\AppData\\Local\\chia-blockchain or C:\\Users\\user\\AppData\\Local\\chia-blockchain\\app-1.0.3\\resources\\app.asar.unpacked"
             : "";
 
     print("Specify your chia-blockchain directory below: (e.g.: " +
@@ -58,6 +58,8 @@ class Config {
         ")");
 
     bool validDirectory = false;
+
+    if (io.Platform.isWindows) validDirectory = await tryDirectories();
 
     while (!validDirectory) {
       _chiaPath = io.stdin.readLineSync();
@@ -90,6 +92,27 @@ class Config {
     _config.writeAsStringSync(contents);
 
     info();
+  }
+
+  //If in windows, tries a bunch of directories
+  Future<bool> tryDirectories() async {
+    bool valid = false;
+
+    io.Directory chiaRootDir = io.Directory(
+        io.Platform.environment['UserProfile'] +
+            "\\AppData\\Local\\chia-blockchain");
+
+    if (chiaRootDir.existsSync()) {
+      chiaRootDir.list(recursive: true).forEach((dir) {
+        String trypath = dir.path + "\\daemon\\chia.exe";
+        if (io.File(trypath).existsSync()) {
+          _binPath = trypath;
+          valid = true;
+        }
+      });
+    }
+
+    return valid;
   }
 
   void loadConfig() {
