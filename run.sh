@@ -12,4 +12,4 @@ if [ ! -f "/usr/bin/dart" ]; then
 fi
 
 dart pub get;
-dart chiabot.dart $0 ;
+dart chiabot.dart $1 ;
