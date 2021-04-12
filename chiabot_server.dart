@@ -1,6 +1,7 @@
 import 'dart:core';
 import 'package:http/http.dart' as http;
 import 'package:filesize/filesize.dart';
+import 'package:decimal/decimal.dart';
 
 import 'farm.dart';
 import 'plot.dart';
@@ -52,11 +53,16 @@ Future<void> main(List<String> args) async {
     double chiaPerDay =
         (farm.balance / farmingTime(farm.plots).inMinutes) * (60 * 24);
 
+    String chiaPerDayString = (farm.balance < 0.0)
+        ? "\n" //for some reason needs a new line here
+        : "(" +
+            chiaPerDay.toStringAsFixed(2) +
+            " XCH per day)"; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
+
     print(":clock10: Farmed for " +
         durationToTime(farmedTime) +
-        " (" +
-        chiaPerDay.toStringAsFixed(2) +
-        " XCH per day)");
+        " " +
+        chiaPerDayString);
 
     lastPlotTime(farm.plots);
 
@@ -83,11 +89,16 @@ Future<void> main(List<String> args) async {
 
 //Output regarding info from "chia farm summary" command
 void farmStatus(Farm farm) {
+  String balanceText = (farm.balance < 0.0)
+      ? "???"
+      : farm.balance
+          .toString(); //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
+
   if (farm.status != "Farming") print(":warning: **NOT FARMING** :warning:");
   print(":seedling: **" +
-      farm.balance.toString() +
+      balanceText +
       " XCH** (next block in ~" +
-      farm.etw.inDays.toString() +
+      farm.estimateETW().toStringAsPrecision(2) +
       " days)");
   print(":farmer: **" +
       farm.plots.length.toString() +
@@ -106,7 +117,7 @@ lastPlotTime(List<Plot> plots) {
       ? "(moving to destination)"
       : ("(" + durationToTime(finishedAgo) + "ago)");
 
-  print(":hourglass: Last plot time: **" +
+  print(":hourglass: Last plot length: **" +
       durationToTime(lastPlot(plots).duration) +
       "** " +
       finishedAgoString);
@@ -160,7 +171,7 @@ averagePlotDuration(List<Plot> plots) {
 
   double plotsPerDay = (plots.length / farmed.inMinutes) * 60 * 24;
 
-  print("Avg plot time: " +
+  print("Average plot length: " +
       durationToTime(averageDuration) +
       " (" +
       plotsPerDay.toStringAsFixed(2) +

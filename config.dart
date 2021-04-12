@@ -18,12 +18,16 @@ class Config {
   final String _configPath = (io.Platform.isLinux)
       ? io.Platform.environment['HOME'] + "/.chia/mainnet/config/"
       : (io.Platform.isWindows)
-          ? io.Platform.environment['UserProfile'] + "\\.chia\\mainnet\\config\\"
+          ? io.Platform.environment['UserProfile'] +
+              "\\.chia\\mainnet\\config\\"
           : "";
   String get configPath => _configPath;
 
   String _binPath;
   String get binPath => _binPath;
+
+  bool _showBalance = true;
+  bool get showBalance => _showBalance;
 
   io.File _config;
 
@@ -74,7 +78,13 @@ class Config {
     }
 
     String contents = jsonEncode([
-      {"id": id, "chiaPath": chiaPath, "type": type.index, "binPath" : binPath}
+      {
+        "id": id,
+        "chiaPath": chiaPath,
+        "type": type.index,
+        "binPath": binPath,
+        "showBalance": showBalance
+      }
     ]);
 
     _config.writeAsStringSync(contents);
@@ -90,6 +100,9 @@ class Config {
 
     _type = ClientType.values[contents[0]['type']];
     _binPath = contents[0]['binPath'];
+
+    if (contents[0]['showBalance'] != null)
+      _showBalance = contents[0]['showBalance'];
 
     info();
   }

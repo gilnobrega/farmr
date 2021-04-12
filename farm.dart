@@ -1,9 +1,11 @@
 import 'dart:core';
 import 'dart:io' as io;
 import 'dart:convert';
+
 import 'package:uuid/uuid.dart';
 import 'package:yaml/yaml.dart';
 import 'package:path/path.dart';
+import 'package:decimal/decimal.dart';
 
 import 'plot.dart';
 import 'config.dart';
@@ -17,7 +19,7 @@ class Farm {
   String get status => _status;
 
   double _balance = 0;
-  double get balance => _balance;
+  double get balance => _balance; //hides balance if string
 
   String _size = "0";
   String get size => _size;
@@ -68,7 +70,9 @@ class Farm {
         String line = lines[i];
 
         if (line.startsWith("Total chia farmed: "))
-          _balance = double.parse(line.split('Total chia farmed: ')[1]);
+          _balance = (config.showBalance)
+              ? double.parse(line.split('Total chia farmed: ')[1])
+              : -1.0;
         else if (line.startsWith("Farming status: "))
           _status = line.split("Farming status: ")[1];
         else if (line.startsWith("Plot count: "))
@@ -129,6 +133,24 @@ class Farm {
     for (int i = 0; i < plots.length; i++) calcSize += plots[i].size;
 
     return calcSize;
+  }
+
+  //Estimates ETW in days
+  //Decimals are more precise (in theory)
+  Decimal estimateETW() {
+    Decimal size = Decimal.parse(sumSize().toString());
+    Decimal networkSizeBytes = Decimal.parse(
+            networkSize.replaceAll(" PiB", "")) *
+        Decimal.parse(1e15
+            .toString()); //THIS WILL BREAK ONE DAY 1 PIB = 140737488355328 bytes
+
+    int blockRewards = 2; //xch per block
+    double blocks = 32.0; //32 blocks per 10 minutes
+
+    Decimal calc = (networkSizeBytes / size) /
+        Decimal.parse((blocks * 6.0 * 24.0).toString());
+
+    return calc;
   }
 
   //Adds harvester's plots into farm's plots

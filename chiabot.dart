@@ -25,8 +25,6 @@ main(List<String> args) async {
     Farm farm = new Farm(config);
     await farm.init();
 
-    print(farm.status);
-
     //Throws exception in case no plots were found
     if (farm.plots.length == 0) throw Exception("No plots have been found!");
 
