@@ -30,8 +30,9 @@ main(List<String> args) async {
       if (farm.plots.length == 0) throw Exception("No plots have been found!");
 
       String serialFarm = jsonEncode(farm);
-    } catch (Exception) {
+    } catch (exception) {
       print("Oh no! Something went wrong.");
+      print(exception.toString());
     }
 
     //print(serialFarm); uncomment for debug purposes
@@ -47,8 +48,9 @@ main(List<String> args) async {
           " report to server!\nRetrying in " +
           delay.inMinutes.toString() +
           " minutes");
-    } catch (Exception) {
+    } catch (exception) {
       print("Oh no, failed to connect to server!");
+      print(exception.toString());
     }
 
     await Future.delayed(delay);
