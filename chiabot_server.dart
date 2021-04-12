@@ -14,7 +14,7 @@ Future<void> main(List<String> args) async {
   String contents =
       await http.read("https://chiabot.znc.sh/read.php?user=" + userID);
 
-  //try {
+  try {
   contents = contents.substring(
       0,
       contents.length -
@@ -80,9 +80,9 @@ Future<void> main(List<String> args) async {
 
   print("");
   lastUpdatedText(farm, harvesters.length);
-  //} catch (Exception) {
-  //print("User could not be found.");
-  //}
+  } catch (Exception) {
+  print("Farmer could not be found.\nMake sure your client is running.");
+  }
 }
 
 void fullText(Farm farm) {

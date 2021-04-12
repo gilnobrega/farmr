@@ -22,26 +22,34 @@ main(List<String> args) async {
   Duration delay = Duration(minutes: 10); //10 minutes delay between updates
 
   while (true) {
-    Farm farm = new Farm(config);
-    await farm.init();
+    try {
+      Farm farm = new Farm(config);
+      await farm.init();
 
-    //Throws exception in case no plots were found
-    if (farm.plots.length == 0) throw Exception("No plots have been found!");
+      //Throws exception in case no plots were found
+      if (farm.plots.length == 0) throw Exception("No plots have been found!");
 
-    String serialFarm = jsonEncode(farm);
+      String serialFarm = jsonEncode(farm);
+    } catch (Exception) {
+      print("Oh no! Something went wrong.");
+    }
 
     //print(serialFarm); uncomment for debug purposes
 
-    await http.post("https://chiabot.znc.sh/send.php?id=" + config.id,
-        body: {"data": serialFarm});
+    try {
+      await http.post("https://chiabot.znc.sh/send.php?id=" + config.id,
+          body: {"data": serialFarm});
 
-    String type = (config.type == ClientType.Farmer) ? "farmer" : "harvester";
+      String type = (config.type == ClientType.Farmer) ? "farmer" : "harvester";
 
-    print("Sent " +
-        type +
-        " report to server!\nRetrying in " +
-        delay.inMinutes.toString() +
-        " minutes");
+      print("Sent " +
+          type +
+          " report to server!\nRetrying in " +
+          delay.inMinutes.toString() +
+          " minutes");
+    } catch (Exception) {
+      print("Oh no, failed to connect to server!");
+    }
 
     await Future.delayed(delay);
   }
