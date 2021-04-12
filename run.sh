@@ -1,5 +1,5 @@
 #!/bin/sh
-if [ ! -f "/usr/bin/dart" ]; then
+if [ ! -f "/usr/bin/dart" || ! -f "/usr/bin/screen" || ! -f "/usr/bin/git"]; then
 
     echo "Installing dependencies (dart, git, screen)";
     sleep 2 ;
@@ -17,4 +17,4 @@ fi
 
 git stash; git pull;
 dart pub get;
-dart chiabot.dart $1 ;
+screen -d -R -S chiabot sh run.sh $1 ;
