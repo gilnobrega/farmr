@@ -33,6 +33,8 @@ class Config {
 
   Config([isHarvester = false]) {
     _config = new io.File(configPath + "chiabot.json");
+
+    _id = Uuid().v4();
   }
 
   Future<void> init (bool isHarvester) async{
@@ -47,8 +49,6 @@ class Config {
 
   Future<void> createConfig(bool isHarvester) async {
     _type = (!isHarvester) ? ClientType.Farmer : ClientType.Harvester;
-
-    _id = Uuid().v4();
 
     if (_binPath == null || !io.File(_binPath).existsSync())
       await askForBinPath();
@@ -106,15 +106,15 @@ class Config {
   Future<bool> tryDirectories() async {
     bool valid = false;
 
-    String chiaRootDir = io.Platform.environment['UserProfile'] +
-        "/AppData/Local/chia-blockchain";
+    io.Directory chiaRootDir = io.Directory(io.Platform.environment['UserProfile'] +
+        "/AppData/Local/chia-blockchain");
 
-    if (io.Directory(chiaRootDir).existsSync()) {
-      await io.Directory(chiaRootDir).list(recursive: false).forEach((dir) {
-        String trypath =
-            dir.path + "/resources/app.asar.unpacked/daemon/chia.exe";
-        if (io.File(trypath).existsSync()) {
-          _binPath = trypath;
+    if (chiaRootDir.existsSync()) {
+      await chiaRootDir.list(recursive: false).forEach((dir) {
+        io.File trypath =
+            io.File(dir.path + "/resources/app.asar.unpacked/daemon/chia.exe");
+        if (trypath.existsSync()) {
+          _binPath = trypath.path;
           valid = true;
         }
       });

@@ -65,23 +65,25 @@ class Farm {
       var result = io.Process.runSync(config.binPath, ["farm", "summary"]);
       List<String> lines =
           result.stdout.toString().replaceAll("\r", "").split('\n');
+      try {
+        for (int i = 0; i < lines.length; i++) {
+          String line = lines[i];
 
-      for (int i = 0; i < lines.length; i++) {
-        String line = lines[i];
-
-        if (line.startsWith("Total chia farmed: "))
-          _balance = (config.showBalance)
-              ? double.parse(line.split('Total chia farmed: ')[1])
-              : -1.0;
-        else if (line.startsWith("Farming status: "))
-          _status = line.split("Farming status: ")[1];
-        else if (line.startsWith("Plot count: "))
-          _plotNumber = int.parse(line.split("Plot count: ")[1]);
-        else if (line.startsWith("Total size of plots: "))
-          _size = line.split("Total size of plots: ")[1];
-        else if (line.startsWith("Estimated network space: "))
-          _networkSize = line.split("Estimated network space: ")[1];
-      
+          if (line.startsWith("Total chia farmed: "))
+            _balance = (config.showBalance)
+                ? double.parse(line.split('Total chia farmed: ')[1])
+                : -1.0;
+          else if (line.startsWith("Farming status: "))
+            _status = line.split("Farming status: ")[1];
+          else if (line.startsWith("Plot count: "))
+            _plotNumber = int.parse(line.split("Plot count: ")[1]);
+          else if (line.startsWith("Total size of plots: "))
+            _size = line.split("Total size of plots: ")[1];
+          else if (line.startsWith("Estimated network space: "))
+            _networkSize = line.split("Estimated network space: ")[1];
+        }
+      } catch (exception) {
+        print("Error parsing Farm info.");
       }
     }
 

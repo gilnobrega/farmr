@@ -24,7 +24,7 @@ main(List<String> args) async {
   while (true) {
     String serialFarm;
 
-    //try {
+    try {
       Farm farm = new Farm(config);
       await farm.init();
 
@@ -32,14 +32,12 @@ main(List<String> args) async {
       if (farm.plots.length == 0) throw Exception("No plots have been found!");
 
       serialFarm = jsonEncode(farm);
-    //} catch (exception) {
-      //print("Oh no! Something went wrong.");
-      //print(exception.toString());
-    //}
+    } catch (exception) {
+      print("Oh no! Something went wrong.");
+      print(exception.toString());
+    }
 
-    //print(serialFarm); uncomment for debug purposes
-
-    //try {
+    try {
       await http.post("https://chiabot.znc.sh/send.php?id=" + config.id,
           body: {"data": serialFarm});
 
@@ -51,10 +49,10 @@ main(List<String> args) async {
           delay.inMinutes.toString() +
           " minutes\n" +
           "Do NOT close this window.");
-    //} catch (exception) {
-      //print("Oh no, failed to connect to server!");
-      //print(exception.toString());
-    //}
+    } catch (exception) {
+      print("Oh no, failed to connect to server!");
+      print(exception.toString());
+    }
 
     await Future.delayed(delay);
   }
