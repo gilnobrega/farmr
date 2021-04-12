@@ -14,17 +14,19 @@ main(List<String> args) async {
   });
 
   //Initializes config, either creates a new one or loads a config file
-  Config config = await new Config(
+  Config config = new Config(
       (args.length == 1 && (args[0] == "harvester" || args[0] == '-h'))
           ? true
           : false); //checks if is harvester
+
+  await config.init( (args.length == 1 && (args[0] == "harvester" || args[0] == '-h')) );
 
   Duration delay = Duration(minutes: 10); //10 minutes delay between updates
 
   while (true) {
     String serialFarm;
 
-    try {
+    //try {
       Farm farm = new Farm(config);
       await farm.init();
 
@@ -32,14 +34,14 @@ main(List<String> args) async {
       if (farm.plots.length == 0) throw Exception("No plots have been found!");
 
       serialFarm = jsonEncode(farm);
-    } catch (exception) {
-      print("Oh no! Something went wrong.");
-      print(exception.toString());
-    }
+    //} catch (exception) {
+      //print("Oh no! Something went wrong.");
+      //print(exception.toString());
+    //}
 
     //print(serialFarm); uncomment for debug purposes
 
-    try {
+    //try {
       await http.post("https://chiabot.znc.sh/send.php?id=" + config.id,
           body: {"data": serialFarm});
 
@@ -51,10 +53,10 @@ main(List<String> args) async {
           delay.inMinutes.toString() +
           " minutes\n" +
           "Do NOT close this window.");
-    } catch (exception) {
-      print("Oh no, failed to connect to server!");
-      print(exception.toString());
-    }
+    //} catch (exception) {
+      //print("Oh no, failed to connect to server!");
+      //print(exception.toString());
+    //}
 
     await Future.delayed(delay);
   }

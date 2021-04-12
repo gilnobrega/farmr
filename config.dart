@@ -33,10 +33,13 @@ class Config {
 
   Config([isHarvester = false]) {
     _config = new io.File(configPath + "chiabot.json");
+  }
+
+  Future<void> init (bool isHarvester) async{
 
     //If file doesnt exist then create new config
     if (!_config.existsSync())
-      createConfig(isHarvester);
+      await createConfig(isHarvester);
     //If file exists then loads config
     else
       loadConfig();
@@ -47,37 +50,8 @@ class Config {
 
     _id = Uuid().v4();
 
-    String exampleDir = (io.Platform.isLinux)
-        ? "/home/user/chia-blockchain"
-        : (io.Platform.isWindows)
-            ? "C:\\Users\\user\\AppData\\Local\\chia-blockchain or C:\\Users\\user\\AppData\\Local\\chia-blockchain\\app-1.0.3\\resources\\app.asar.unpacked"
-            : "";
-
-    print("Specify your chia-blockchain directory below: (e.g.: " +
-        exampleDir +
-        ")");
-
-    bool validDirectory = false;
-
-    if (io.Platform.isWindows) validDirectory = await tryDirectories();
-
-    while (!validDirectory) {
-      _chiaPath = io.stdin.readLineSync();
-
-      _binPath = (io.Platform.isLinux)
-          ? _chiaPath + "/venv/bin/chia"
-          : _chiaPath + "\\daemon\\chia.exe";
-
-      if (io.File(_binPath).existsSync())
-        validDirectory = true;
-      else if (io.Directory(chiaPath).existsSync())
-        print("Could not locate chia binary in your directory.\n(" +
-            _binPath +
-            " not found)\nPlease try again." +
-            "\nMake sure this folder has the same structure as Chia's GitHub repo.");
-      else
-        print("Uh oh, that directory could not be found! Please try again.");
-    }
+    if (_binPath == null || !io.File(_binPath).existsSync())
+      await askForBinPath();
 
     String contents = jsonEncode([
       {
@@ -94,17 +68,51 @@ class Config {
     info();
   }
 
+  Future<void> askForBinPath() async {
+    String exampleDir = (io.Platform.isLinux)
+        ? "/home/user/chia-blockchain"
+        : (io.Platform.isWindows)
+            ? "C:\\Users\\user\\AppData\\Local\\chia-blockchain or C:\\Users\\user\\AppData\\Local\\chia-blockchain\\app-1.0.3\\resources\\app.asar.unpacked"
+            : "";
+
+    bool validDirectory = false;
+
+    if (io.Platform.isWindows) validDirectory = await tryDirectories();
+
+    while (!validDirectory) {
+      print("Specify your chia-blockchain directory below: (e.g.: " +
+          exampleDir +
+          ")");
+
+      _chiaPath = io.stdin.readLineSync();
+
+      _binPath = (io.Platform.isLinux)
+          ? _chiaPath + "/venv/bin/chia"
+          : _chiaPath + "\\daemon\\chia.exe";
+
+      if (io.File(_binPath).existsSync())
+        validDirectory = true;
+      else if (io.Directory(chiaPath).existsSync())
+        print("Could not locate chia binary in your directory.\n(" +
+            _binPath +
+            " not found)\nPlease try again." +
+            "\nMake sure this folder has the same structure as Chia's GitHub repo.");
+      else
+        print("Uh oh, that directory could not be found! Please try again.");
+    }
+  }
+
   //If in windows, tries a bunch of directories
   Future<bool> tryDirectories() async {
     bool valid = false;
 
-    io.Directory chiaRootDir = io.Directory(
-        io.Platform.environment['UserProfile'] +
-            "\\AppData\\Local\\chia-blockchain");
+    String chiaRootDir = io.Platform.environment['UserProfile'] +
+        "/AppData/Local/chia-blockchain";
 
-    if (chiaRootDir.existsSync()) {
-      chiaRootDir.list(recursive: true).forEach((dir) {
-        String trypath = dir.path + "\\daemon\\chia.exe";
+    if (io.Directory(chiaRootDir).existsSync()) {
+      await io.Directory(chiaRootDir).list(recursive: false).forEach((dir) {
+        String trypath =
+            dir.path + "/resources/app.asar.unpacked/daemon/chia.exe";
         if (io.File(trypath).existsSync()) {
           _binPath = trypath;
           valid = true;
@@ -115,7 +123,7 @@ class Config {
     return valid;
   }
 
-  void loadConfig() {
+  Future<void> loadConfig() async {
     var contents = jsonDecode(_config.readAsStringSync());
 
     _id = contents[0]['id'];
@@ -127,7 +135,7 @@ class Config {
     if (contents[0]['showBalance'] != null)
       _showBalance = contents[0]['showBalance'];
 
-    info();
+    await createConfig((_type == ClientType.Harvester));
   }
 
   void info() {
