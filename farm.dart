@@ -40,6 +40,9 @@ class Farm {
   DateTime _lastUpdated;
   DateTime get lastUpdated => _lastUpdated;
 
+  String _lastUpdatedString = "1971-01-01";
+  String get lastUpdatedString => _lastUpdatedString;
+
   //Farmer or Harvester
   ClientType _type;
   ClientType get type => _type;
@@ -53,6 +56,7 @@ class Farm {
         'plotNumber': plotNumber,
         'plots': plots,
         'lastUpdated': lastUpdated.millisecondsSinceEpoch,
+        'lastUpdatedString': lastUpdatedString,
         'type': type.index
       };
 
@@ -89,6 +93,7 @@ class Farm {
     }
 
     _lastUpdated = DateTime.now();
+    _lastUpdatedString = dateToString(_lastUpdated);
   }
 
   //Server side function to read farm from json file
@@ -108,6 +113,9 @@ class Farm {
     }
 
     _lastUpdated = DateTime.fromMillisecondsSinceEpoch(object['lastUpdated']);
+
+    if (object['lastUpdatedString'] != null)
+      _lastUpdatedString = object['lastUpdatedString'];
 
     _type = ClientType.values[object['type']];
   }
@@ -157,6 +165,11 @@ class Farm {
   void addHarvester(Farm harvester) {
     plots.addAll(harvester.plots);
   }
+
+  void sortPlots() {
+    plots.sort((plot1, plot2) => (plot1.begin
+        .compareTo(plot2.begin))); //Sorts plots from oldest to newest
+  }
 }
 
 //Converts a YAML List to a String list
@@ -184,7 +197,5 @@ Future<List<Plot>> listPlots(List<String> paths) async {
     }
   }
 
-//Sorts plots from oldest to newest
-  plots.sort((plot1, plot2) => (plot1.begin.compareTo(plot2.begin)));
   return plots;
 }

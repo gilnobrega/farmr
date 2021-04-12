@@ -11,6 +11,9 @@ class Plot {
   int _hour;
   int _minute;
 
+  String _date = "1971-01-01"; //plots finished date
+  String get date => _date; //plots finished date
+
   DateTime _begin;
   DateTime get begin => _begin;
 
@@ -39,6 +42,8 @@ class Plot {
     io.FileStat stat = io.FileStat.statSync(file.path);
     _end = stat.modified; // CHANGED OR MODIFIED??
 
+    _date = dateToString(end);
+
     _duration = _end.difference(_begin);
 
     _size = stat.size;
@@ -51,6 +56,9 @@ class Plot {
 
     _size = json['size'];
 
+    if (json['date'] != null)
+      _date = json['date'];
+
     _duration = _end.difference(_begin);
   }
 
@@ -58,6 +66,23 @@ class Plot {
   Map toJson() => {
         'begin': begin.millisecondsSinceEpoch,
         'end': end.millisecondsSinceEpoch,
-        'size': size
+        'size': size,
+        'date': date,
       };
+}
+
+String dateToString(DateTime date) {
+  return date.year.toString() +
+      "-" +
+      date.month.toString() +
+      "-" +
+      date.day.toString();
+}
+
+DateTime stringToDate(String input) {
+  var array = input.split('-');
+  return new DateTime(
+      int.parse(array[0]),
+      int.parse(array[1]),
+      int.parse(array[2]));
 }

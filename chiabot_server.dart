@@ -14,76 +14,132 @@ Future<void> main(List<String> args) async {
   String contents =
       await http.read("https://chiabot.znc.sh/read.php?user=" + userID);
 
-  try {
-    contents = contents.substring(
-        0,
-        contents.length -
-            2); //filters last , of send page, can be fixed on server side later
+  //try {
+  contents = contents.substring(
+      0,
+      contents.length -
+          2); //filters last , of send page, can be fixed on server side later
 
-    List<Farm> farmers = [];
-    List<Farm> harvesters = [];
+  List<Farm> farmers = [];
+  List<Farm> harvesters = [];
 
-    var clientsSerial = contents.split(';;');
+  var clientsSerial = contents.split(';;');
 
-    for (int i = 0; i < clientsSerial.length; i++) {
-      Farm f = Farm.fromJson(clientsSerial[i]);
+  for (int i = 0; i < clientsSerial.length; i++) {
+    Farm f = Farm.fromJson(clientsSerial[i]);
 
-      //If this object is a farmer then adds it to farmers list, if not adds it to harvesters list
-      if (f.type == ClientType.Farmer)
-        farmers.add(f);
-      else
-        harvesters.add(f);
-    }
+    //If this object is a farmer then adds it to farmers list, if not adds it to harvesters list
+    if (f.type == ClientType.Farmer)
+      farmers.add(f);
+    else
+      harvesters.add(f);
+  }
 
-    //Sorts farms by newest
-    farmers.sort((farm1, farm2) => (farm1.lastUpdated.millisecondsSinceEpoch
-        .compareTo(farm2.lastUpdated.millisecondsSinceEpoch)));
+  //Sorts farms by newest
+  farmers.sort((farm1, farm2) => (farm1.lastUpdated.millisecondsSinceEpoch
+      .compareTo(farm2.lastUpdated.millisecondsSinceEpoch)));
 
-    Farm farm = farmers.last; //Selects newest farm as main farm
+  Farm farm = farmers.last; //Selects newest farm as main farm
 
-    for (int j = 0; j < harvesters.length; j++)
-      farm.addHarvester(harvesters[j]); //Adds harvesters plot to main farm
+  for (int j = 0; j < harvesters.length; j++)
+    farm.addHarvester(harvesters[j]); //Adds harvesters plot to main farm
 
-    farmStatus(farm);
+  farm.sortPlots(); //VERY IMPORTANT TO SORT PLOTS BEFORE CALCULATING STATS
 
-    //Throws exception in case no plots were found
-    if (farm.plots.length == 0) throw Exception("No plots have been found!");
+  farmStatus(farm);
 
-    Duration farmedTime = farmingTime(farm.plots);
-    double chiaPerDay =
-        (farm.balance / farmingTime(farm.plots).inMinutes) * (60 * 24);
+  //Throws exception in case no plots were found
+  if (farm.plots.length == 0) throw Exception("No plots have been found!");
 
-    String chiaPerDayString = (farm.balance < 0.0)
-        ? "\n" //for some reason needs a new line here
-        : "(" +
-            chiaPerDay.toStringAsFixed(2) +
-            " XCH per day)"; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
+  Duration farmedTime = farmingTime(farm.plots);
+  double chiaPerDay =
+      (farm.balance / farmingTime(farm.plots).inMinutes) * (60 * 24);
 
-    print(":clock10: Farmed for " +
-        durationToTime(farmedTime) +
-        " " +
-        chiaPerDayString);
+  String chiaPerDayString = (farm.balance < 0.0)
+      ? "\n" //for some reason needs a new line here
+      : "(" +
+          chiaPerDay.toStringAsFixed(2) +
+          " XCH per day)"; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
 
-    lastPlotTime(farm.plots);
+  print(":clock10: Farmed for " +
+      durationToTime(farmedTime) +
+      " " +
+      chiaPerDayString);
 
-    //Shows statistics if full command is issued by discord bot
-    if (args.contains("full")) {
-      print("");
+  lastPlotTime(farm.plots);
 
-      print("*STATISTICS*");
-      averagePlotDuration(farm.plots);
-      print("");
-
-      //LAST 5 PLOT AVERAGE
-      List<Plot> last5plots = lastNPlots(farm.plots, 5);
-      print("*LAST " + last5plots.length.toString() + " PLOTS*");
-      averagePlotDuration(last5plots);
-    }
-
+  //Shows statistics if full command is issued by discord bot
+  if (args.contains("full")) {
     print("");
-    lastUpdatedText(farm, harvesters.length);
-  } catch (Exception) {
-    print("User could not be found.");
+
+    print("*STATISTICS*");
+    averagePlotDuration(farm.plots);
+
+    fullText(farm);
+  }
+
+  print("");
+  lastUpdatedText(farm, harvesters.length);
+  //} catch (Exception) {
+  //print("User could not be found.");
+  //}
+}
+
+void fullText(Farm farm) {
+  var n = [null, 5, 25, 50, 100, 200]; //last n plots, null represents all plots
+  var d = [null, 1, 2, 7, 14]; //last d days, null represents overall
+
+  for (int i = 0; i < n.length; i++) {
+    if (n[i] == null) {
+      Duration avg = averagePlotDuration(farm.plots);
+
+      print("All time plot length average: " + durationToTime(avg));
+    } else if (farm.plots.length > n[i]) {
+      //LAST N PLOT AVERAGE
+      Duration avg = averagePlotDuration(lastNPlots(farm.plots, n[i]));
+
+      print("Last " +
+          n[i].toString() +
+          " plot length average: " +
+          durationToTime(avg));
+    }
+  }
+
+  print("");
+
+  Duration farmed = farmedTime(farm.plots);
+
+  for (int j = 0; j < d.length; j++) {
+    double ppd = 0.0; //plots per day
+
+    //does overall plot per day if overPeriod average period is not defined,
+    //if this period is defined then it calculates plotsPerDay using its dedicated function
+    if (d[j] == null) {
+      ppd = (farm.plots.length / farmed.inMinutes) * 60.0 * 24.0;
+      print("All time:  " + ppd.toStringAsFixed(2) + " plots per day");
+    } else {
+      Duration overPeriod = Duration(days: d[j]);
+      ppd = plotsPerDay(farm.plots, overPeriod);
+
+      print("Last " +
+          d[j].toString() +
+          " days plot per day rate: " +
+          ppd.toStringAsFixed(2));
+    }
+  }
+
+  print("");
+
+  int daysAgo = 7; //Lists plots upto 7 days ago
+  for (int k = 0; k < daysAgo; k++) {
+    int count = plotsNDaysAgo(farm, k);
+
+    if (k == 0)
+      print(count.toString() + " plots finished today");
+    else if (k == 1 && count > 0)
+      print(count.toString() + " plots finished yesterday");
+    else if (count > 0)
+      print(count.toString() + " plots finished " + k.toString() + " days ago");
   }
 }
 
@@ -156,26 +212,19 @@ List<Plot> lastNPlots(List<Plot> plots, int n) {
       .toList();
 }
 
-averagePlotDuration(List<Plot> plots) {
+Duration averagePlotDuration(List<Plot> lastNPlots) {
   int totalTime = 0;
   int avgTime = 0;
 
-  plots.forEach((plot) {
+  lastNPlots.forEach((plot) {
     totalTime += plot.duration.inMilliseconds;
   });
 
-  avgTime = totalTime ~/ plots.length;
+  avgTime = totalTime ~/ lastNPlots.length;
 
   Duration averageDuration = Duration(milliseconds: avgTime);
-  Duration farmed = farmedTime(plots);
 
-  double plotsPerDay = (plots.length / farmed.inMinutes) * 60 * 24;
-
-  print("Average plot length: " +
-      durationToTime(averageDuration) +
-      " (" +
-      plotsPerDay.toStringAsFixed(2) +
-      " plots per day)");
+  return averageDuration;
 }
 
 //Converts a dart duration to something human-readable
@@ -218,4 +267,75 @@ String fileSize(int input) {
       .replaceAll("TB", "TiB")
       .replaceAll("GB", "GiB")
       .replaceAll("PB", "PiB");
+}
+
+//Calculates the plots per day average over a given period.
+//Starts counting from the PENULTIMATE plot completed time
+double plotsPerDay(List<Plot> plots, Duration overPeriod) {
+  DateTime end = lastPlot(plots.sublist(0, plots.length - 1))
+      .end; //PENUlTIMATE because its more accurate than last plot
+  DateTime begin = end.subtract(overPeriod);
+
+  //Plot number is the fractional number of plots which are within that duration
+  double plotNumber = 0.0;
+
+  //Filters plots which ended after start time, or began before period end time
+  for (int i = 0; i < plots.length; i++) {
+    Plot plot = plots[i]; //current plot being evaluated in iteration
+
+    //if whole plot was started and completed within that period
+    bool isFullyWithin =
+        plot.begin.millisecondsSinceEpoch >= begin.millisecondsSinceEpoch &&
+            plot.end.millisecondsSinceEpoch <= end.millisecondsSinceEpoch;
+
+    //if plot started before period began but got completed after period started
+    bool endedAfterPeriodBegan =
+        plot.end.millisecondsSinceEpoch >= begin.millisecondsSinceEpoch &&
+            plot.begin.millisecondsSinceEpoch < begin.millisecondsSinceEpoch;
+
+    //if plot started before period ended but got completed after period ended
+    bool startedBeforePeriodEnded =
+        plot.begin.millisecondsSinceEpoch <= end.millisecondsSinceEpoch &&
+            plot.end.millisecondsSinceEpoch > end.millisecondsSinceEpoch;
+
+    bool isPartial = endedAfterPeriodBegan || startedBeforePeriodEnded;
+
+    bool startedAfterPeriodBeganAndEndedBeforePeriodCompleted =
+        plot.begin.millisecondsSinceEpoch <= begin.millisecondsSinceEpoch &&
+            plot.end.millisecondsSinceEpoch >= end.millisecondsSinceEpoch;
+
+    double fraction = 0.0; //fraction of plot within period
+
+    if (isFullyWithin)
+      fraction = 1.0;
+    else if (endedAfterPeriodBegan)
+      fraction =
+          (plot.end.millisecondsSinceEpoch - begin.millisecondsSinceEpoch) /
+              overPeriod.inMilliseconds;
+    else if (startedBeforePeriodEnded)
+      fraction =
+          (end.millisecondsSinceEpoch - plot.begin.millisecondsSinceEpoch) /
+              overPeriod.inMilliseconds;
+    else if (startedAfterPeriodBeganAndEndedBeforePeriodCompleted)
+      fraction = overPeriod.inMilliseconds /
+          plot.duration.inMilliseconds; //CHECK THIS PART
+
+    plotNumber += fraction;
+  }
+
+  double plotsPerMinute = plotNumber / overPeriod.inMinutes;
+  double plotsPerDay = plotsPerMinute * 60 * 24;
+
+  return plotsPerDay;
+}
+
+//Returns number of plots finished n days ago
+int plotsNDaysAgo(Farm farm, int n) {
+  DateTime clientToday = stringToDate(farm.lastUpdatedString);
+
+  DateTime nDaysAgo = clientToday.subtract(Duration(days: n));
+
+  String nDaysAgoString = dateToString(nDaysAgo);
+
+  return farm.plots.where((plot) => plot.date == nDaysAgoString).length;
 }
