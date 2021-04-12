@@ -22,6 +22,8 @@ main(List<String> args) async {
   Duration delay = Duration(minutes: 10); //10 minutes delay between updates
 
   while (true) {
+    String serialFarm;
+
     try {
       Farm farm = new Farm(config);
       await farm.init();
@@ -29,7 +31,7 @@ main(List<String> args) async {
       //Throws exception in case no plots were found
       if (farm.plots.length == 0) throw Exception("No plots have been found!");
 
-      String serialFarm = jsonEncode(farm);
+      serialFarm = jsonEncode(farm);
     } catch (exception) {
       print("Oh no! Something went wrong.");
       print(exception.toString());
