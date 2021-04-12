@@ -15,9 +15,7 @@ main(List<String> args) async {
 
   //Initializes config, either creates a new one or loads a config file
   Config config = new Config(
-      (args.length == 1 && (args[0] == "harvester" || args[0] == '-h'))
-          ? true
-          : false); //checks if is harvester
+      (args.length == 1 && (args[0] == "harvester" || args[0] == '-h'))); //checks if is harvester
 
   await config.init( (args.length == 1 && (args[0] == "harvester" || args[0] == '-h')) );
 

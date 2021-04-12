@@ -27,9 +27,6 @@ class Farm {
   String _networkSize = "0";
   String get networkSize => _networkSize;
 
-  Duration _etw = Duration(seconds: 0);
-  Duration get etw => _etw;
-
   int _plotNumber = 0;
   int get plotNumber => _plotNumber;
 
@@ -52,7 +49,6 @@ class Farm {
         'balance': balance,
         'size': size,
         'networkSize': networkSize,
-        'etw': etw.inMilliseconds,
         'plotNumber': plotNumber,
         'plots': plots,
         'lastUpdated': lastUpdated.millisecondsSinceEpoch,
@@ -85,10 +81,7 @@ class Farm {
           _size = line.split("Total size of plots: ")[1];
         else if (line.startsWith("Estimated network space: "))
           _networkSize = line.split("Estimated network space: ")[1];
-        else if (line.startsWith("Expected time to win: "))
-          _etw = Duration(
-              days: int.parse(
-                  line.split("Expected time to win: ")[1].split(" days")[0]));
+      
       }
     }
 
@@ -104,7 +97,6 @@ class Farm {
     _balance = object['balance'];
     _size = object['size'];
     _networkSize = object['networkSize'];
-    _etw = Duration(milliseconds: object['etw']);
     _plotNumber = object['plotNumber'];
     _plots = [];
 
