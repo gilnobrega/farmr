@@ -47,9 +47,10 @@ main(List<String> args) async {
 
       print("Sent " +
           type +
-          " report to server!\nRetrying in " +
+          " report to server.\nRetrying in " +
           delay.inMinutes.toString() +
-          " minutes");
+          " minutes\n" +
+          "Do NOT close this window.");
     } catch (exception) {
       print("Oh no, failed to connect to server!");
       print(exception.toString());

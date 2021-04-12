@@ -1,7 +1,6 @@
 import 'dart:core';
 import 'package:http/http.dart' as http;
 import 'package:filesize/filesize.dart';
-import 'package:decimal/decimal.dart';
 
 import 'farm.dart';
 import 'plot.dart';
@@ -15,73 +14,73 @@ Future<void> main(List<String> args) async {
       await http.read("https://chiabot.znc.sh/read.php?user=" + userID);
 
   try {
-  contents = contents.substring(
-      0,
-      contents.length -
-          2); //filters last , of send page, can be fixed on server side later
+    contents = contents.substring(
+        0,
+        contents.length -
+            2); //filters last , of send page, can be fixed on server side later
 
-  List<Farm> farmers = [];
-  List<Farm> harvesters = [];
+    List<Farm> farmers = [];
+    List<Farm> harvesters = [];
 
-  var clientsSerial = contents.split(';;');
+    var clientsSerial = contents.split(';;');
 
-  for (int i = 0; i < clientsSerial.length; i++) {
-    Farm f = Farm.fromJson(clientsSerial[i]);
+    for (int i = 0; i < clientsSerial.length; i++) {
+      Farm f = Farm.fromJson(clientsSerial[i]);
 
-    //If this object is a farmer then adds it to farmers list, if not adds it to harvesters list
-    if (f.type == ClientType.Farmer)
-      farmers.add(f);
-    else
-      harvesters.add(f);
-  }
+      //If this object is a farmer then adds it to farmers list, if not adds it to harvesters list
+      if (f.type == ClientType.Farmer)
+        farmers.add(f);
+      else
+        harvesters.add(f);
+    }
 
-  //Sorts farms by newest
-  farmers.sort((farm1, farm2) => (farm1.lastUpdated.millisecondsSinceEpoch
-      .compareTo(farm2.lastUpdated.millisecondsSinceEpoch)));
+    //Sorts farms by newest
+    farmers.sort((farm1, farm2) => (farm1.lastUpdated.millisecondsSinceEpoch
+        .compareTo(farm2.lastUpdated.millisecondsSinceEpoch)));
 
-  Farm farm = farmers.last; //Selects newest farm as main farm
+    Farm farm = farmers.last; //Selects newest farm as main farm
 
-  for (int j = 0; j < harvesters.length; j++)
-    farm.addHarvester(harvesters[j]); //Adds harvesters plot to main farm
+    for (int j = 0; j < harvesters.length; j++)
+      farm.addHarvester(harvesters[j]); //Adds harvesters plot to main farm
 
-  farm.sortPlots(); //VERY IMPORTANT TO SORT PLOTS BEFORE CALCULATING STATS
+    farm.sortPlots(); //VERY IMPORTANT TO SORT PLOTS BEFORE CALCULATING STATS
 
-  farmStatus(farm);
+    farmStatus(farm);
 
-  //Throws exception in case no plots were found
-  if (farm.plots.length == 0) throw Exception("No plots have been found!");
+    //Throws exception in case no plots were found
+    if (farm.plots.length == 0) throw Exception("No plots have been found!");
 
-  Duration farmedTime = farmingTime(farm.plots);
-  double chiaPerDay =
-      (farm.balance / farmingTime(farm.plots).inMinutes) * (60 * 24);
+    Duration farmedTime = farmingTime(farm.plots);
+    double chiaPerDay =
+        (farm.balance / farmingTime(farm.plots).inMinutes) * (60 * 24);
 
-  String chiaPerDayString = (farm.balance < 0.0)
-      ? "\n" //for some reason needs a new line here
-      : "(" +
-          chiaPerDay.toStringAsFixed(2) +
-          " XCH per day)"; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
+    String chiaPerDayString = (farm.balance < 0.0)
+        ? "\n" //for some reason needs a new line here
+        : "(" +
+            chiaPerDay.toStringAsFixed(2) +
+            " XCH per day)"; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
 
-  print(":clock10: Farmed for " +
-      durationToTime(farmedTime) +
-      " " +
-      chiaPerDayString);
+    print(":clock10: Farmed for " +
+        durationToTime(farmedTime) +
+        " " +
+        chiaPerDayString);
 
-  lastPlotTime(farm.plots);
+    lastPlotTime(farm.plots);
 
-  //Shows statistics if full command is issued by discord bot
-  if (args.contains("full")) {
+    //Shows statistics if full command is issued by discord bot
+    if (args.contains("full")) {
+      print("");
+
+      print("*STATISTICS*");
+      averagePlotDuration(farm.plots);
+
+      fullText(farm);
+    }
+
     print("");
-
-    print("*STATISTICS*");
-    averagePlotDuration(farm.plots);
-
-    fullText(farm);
-  }
-
-  print("");
-  lastUpdatedText(farm, harvesters.length);
+    lastUpdatedText(farm, harvesters.length);
   } catch (Exception) {
-  print("Farmer could not be found.\nMake sure your client is running.");
+    print("Farmer could not be found.\nMake sure your client is running.");
   }
 }
 
@@ -93,14 +92,14 @@ void fullText(Farm farm) {
     if (n[i] == null) {
       Duration avg = averagePlotDuration(farm.plots);
 
-      print("All time plot length average: " + durationToTime(avg));
+      print("All time average plot length: " + durationToTime(avg));
     } else if (farm.plots.length > n[i]) {
       //LAST N PLOT AVERAGE
       Duration avg = averagePlotDuration(lastNPlots(farm.plots, n[i]));
 
       print("Last " +
           n[i].toString() +
-          " plot length average: " +
+          " average plot length: " +
           durationToTime(avg));
     }
   }
@@ -123,8 +122,8 @@ void fullText(Farm farm) {
 
       print("Last " +
           d[j].toString() +
-          " days plot per day rate: " +
-          ppd.toStringAsFixed(2));
+          " days: " +
+          ppd.toStringAsFixed(2) + " plots per day");
     }
   }
 
@@ -135,11 +134,11 @@ void fullText(Farm farm) {
     int count = plotsNDaysAgo(farm, k);
 
     if (k == 0)
-      print(count.toString() + " plots finished today");
+      print(count.toString() + " plots completed today");
     else if (k == 1 && count > 0)
-      print(count.toString() + " plots finished yesterday");
+      print(count.toString() + " plots completed yesterday");
     else if (count > 0)
-      print(count.toString() + " plots finished " + k.toString() + " days ago");
+      print(count.toString() + " plots completed " + k.toString() + " days ago");
   }
 }
 
@@ -297,8 +296,6 @@ double plotsPerDay(List<Plot> plots, Duration overPeriod) {
     bool startedBeforePeriodEnded =
         plot.begin.millisecondsSinceEpoch <= end.millisecondsSinceEpoch &&
             plot.end.millisecondsSinceEpoch > end.millisecondsSinceEpoch;
-
-    bool isPartial = endedAfterPeriodBegan || startedBeforePeriodEnded;
 
     bool startedAfterPeriodBeganAndEndedBeforePeriodCompleted =
         plot.begin.millisecondsSinceEpoch <= begin.millisecondsSinceEpoch &&
