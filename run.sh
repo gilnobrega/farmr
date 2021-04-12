@@ -28,4 +28,4 @@ git remote add origin https://github.com/joaquimguimaraes/chiabot.git;
 git stash; git pull;
 
 dart pub get;
-screen -d -R -S chiabot dart chiabot.dart $1 ;
+screen -q -d -R -S chiabot dart chiabot.dart $1 ;
