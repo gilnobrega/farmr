@@ -1,5 +1,5 @@
 #!/bin/sh
-if [ ! -f "/usr/bin/dart" || ! -f "/usr/bin/screen" || ! -f "/usr/bin/git"]; then
+if [ ! -f "/usr/bin/dart" ] || [ ! -f "/usr/bin/screen" ] || [ ! -f "/usr/bin/git"]; then
 
     echo "Installing dependencies (dart, git, screen)";
     sleep 2 ;
