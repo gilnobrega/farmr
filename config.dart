@@ -77,7 +77,7 @@ class Config {
 
     bool validDirectory = false;
 
-    if (io.Platform.isWindows) validDirectory = await tryDirectories();
+    //if (io.Platform.isWindows) validDirectory = await tryDirectories();
 
     while (!validDirectory) {
       print("Specify your chia-blockchain directory below: (e.g.: " +
