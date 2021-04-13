@@ -3,6 +3,8 @@ import 'dart:io' as io;
 import 'dart:convert';
 
 import 'package:uuid/uuid.dart';
+import 'package:dart_console/dart_console.dart';
+import 'package:qr/qr.dart';
 
 class Config {
   ClientType _type;
@@ -31,6 +33,9 @@ class Config {
 
   bool _sendPlotNotifications = true; //plot notifications
   bool get sendPlotNotifications => _sendPlotNotifications;
+
+  bool _sendBalanceNotifications = true; //balance notifications
+  bool get sendBalanceNotifications => _sendBalanceNotifications;
 
   io.File _config;
 
@@ -62,7 +67,8 @@ class Config {
         "type": type.index,
         "binPath": binPath,
         "showBalance": showBalance,
-        "sendPlotNotifications": sendPlotNotifications
+        "sendPlotNotifications": sendPlotNotifications,
+        "sendBalanceNotifications": sendBalanceNotifications
       }
     ]);
 
@@ -163,13 +169,59 @@ class Config {
     if (contents[0]['sendPlotNotifications'] != null)
       _sendPlotNotifications = contents[0]['sendPlotNotifications'];
 
+    if (contents[0]['sendBalanceNotifications'] != null)
+      _sendBalanceNotifications = contents[0]['sendBalanceNotifications'];
+
     await createConfig((_type == ClientType.Harvester));
   }
 
   void info() {
+    final console = Console();
+    console.clearScreen();
+
+    showQR(console);
+
+    String line = "";
+
+    for (int i = 0; i < console.windowWidth; i++) line += "=";
+
+    print(line);
     print("Your id is " + id + ", run");
+    print("");
     print("!chia link " + id);
+    print("");
     print("to link this client to your discord user");
+    print("You can interact with ChiaBot in its discord server.");
+    print(
+        "Open the following link to join the server: https://discord.gg/pxgh8tBzGU ");
+    print(line);
+    print("");
+  }
+
+  void showQR(Console console) {
+    final qrCode = new QrCode(3, QrErrorCorrectLevel.L);
+    qrCode.addData(id);
+    qrCode.make();
+
+    //If terminal is long enough to show a qr code
+    if (console.windowHeight > 2 * qrCode.moduleCount &&
+        console.windowWidth > 2 * qrCode.moduleCount) {
+      for (int x = 0; x < qrCode.moduleCount; x++) {
+        for (int y = 0; y < qrCode.moduleCount; y++) {
+          if (qrCode.isDark(y, x)) {
+            console.setBackgroundColor(ConsoleColor.black);
+            console.setForegroundColor(ConsoleColor.white);
+            console.write("  ");
+          } else {
+            console.setBackgroundColor(ConsoleColor.white);
+            console.setForegroundColor(ConsoleColor.black);
+            console.write("  ");
+          }
+        }
+        console.resetColorAttributes();
+        console.write("\n");
+      }
+    }
   }
 }
 

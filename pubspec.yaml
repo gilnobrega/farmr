@@ -10,3 +10,5 @@ dependencies:
   http: ^0.12.2
   filesize: ^1.0.4
   decimal: ^1.0.0
+  dart_console: ^1.0.0
+  qr: ^2.0.0

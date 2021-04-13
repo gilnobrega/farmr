@@ -5,20 +5,20 @@
 // Create new webhook in your Discord channel settings and copy&paste URL
 //=======================================================================================================
 
-$webhookurl = "";
+include ('db.php'); //loads $webhookurl
 
 //=======================================================================================================
 // Compose message. You can use Markdown
 // Message Formatting -- https://discordapp.com/developers/docs/reference#message-formatting
 //========================================================================================================
 
-if (isset($user) && $user != "none")
+if (isset($message) && isset($user) && $user != "none")
 {
 $timestamp = date("c", strtotime("now"));
 
 $json_data = json_encode([
     // Message
-    "content" => "<@" . $user . "> just completed a plot!",
+    "content" => $message,
     
     // Username
     "username" => "ChiaBot's hooker",
