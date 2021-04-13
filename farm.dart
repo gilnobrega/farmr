@@ -163,6 +163,14 @@ class Farm {
     plots.sort((plot1, plot2) => (plot1.begin
         .compareTo(plot2.begin))); //Sorts plots from oldest to newest
   }
+
+  //makes an id based on end and start timestamps for the last plot, necessary to call notifications webhook
+  String lastPlotID() {
+    Plot last = lastPlot(plots);
+
+    return last.begin.millisecondsSinceEpoch.toString() +
+        last.end.millisecondsSinceEpoch.toString();
+  }
 }
 
 //Converts a YAML List to a String list

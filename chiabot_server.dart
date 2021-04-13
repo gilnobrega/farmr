@@ -199,22 +199,6 @@ lastPlotTime(List<Plot> plots) {
       finishedAgoString);
 }
 
-//finds the last plot in a list of plots
-Plot lastPlot(List<Plot> plots) {
-  return plots.reduce((plot1, plot2) =>
-      (plot1.end.millisecondsSinceEpoch > plot2.end.millisecondsSinceEpoch)
-          ? plot1
-          : plot2);
-}
-
-//finds the first plot in a list of plots
-Plot firstPlot(List<Plot> plots) {
-  return plots.reduce((plot1, plot2) =>
-      (plot1.begin.millisecondsSinceEpoch < plot2.begin.millisecondsSinceEpoch)
-          ? plot1
-          : plot2);
-}
-
 //Duration between first plot started being plotted and last plot is completed
 Duration farmedTime(List<Plot> plots) {
   return lastPlot(plots).end.difference(firstPlot(plots).begin);

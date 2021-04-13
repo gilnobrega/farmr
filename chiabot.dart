@@ -14,15 +14,17 @@ main(List<String> args) async {
   });
 
   //Initializes config, either creates a new one or loads a config file
-  Config config = new Config(
-      (args.length == 1 && (args[0] == "harvester" || args[0] == '-h'))); //checks if is harvester
+  Config config = new Config((args.length == 1 &&
+      (args[0] == "harvester" || args[0] == '-h'))); //checks if is harvester
 
-  await config.init( (args.length == 1 && (args[0] == "harvester" || args[0] == '-h')) );
+  await config
+      .init((args.length == 1 && (args[0] == "harvester" || args[0] == '-h')));
 
   Duration delay = Duration(minutes: 10); //10 minutes delay between updates
 
   while (true) {
     String serialFarm;
+    String lastPlotID = "";
 
     try {
       Farm farm = new Farm(config);
@@ -31,6 +33,7 @@ main(List<String> args) async {
       //Throws exception in case no plots were found
       if (farm.plots.length == 0) throw Exception("No plots have been found!");
 
+      lastPlotID = farm.lastPlotID();
       serialFarm = jsonEncode(farm);
     } catch (exception) {
       print("Oh no! Something went wrong.");
@@ -38,7 +41,12 @@ main(List<String> args) async {
     }
 
     try {
-      await http.post("https://chiabot.znc.sh/send.php?id=" + config.id,
+      //send2.php is temporary
+      await http.post(
+          "https://chiabot.znc.sh/send.php?id=" +
+              config.id +
+              "&lastPlot=" +
+              lastPlotID,
           body: {"data": serialFarm});
 
       String type = (config.type == ClientType.Farmer) ? "farmer" : "harvester";
