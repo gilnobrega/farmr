@@ -13,14 +13,14 @@ Future<void> main(List<String> args) async {
   String contents =
       await http.read("https://chiabot.znc.sh/read.php?user=" + userID);
 
+  List<Farm> farmers = [];
+  List<Farm> harvesters = [];
+
   try {
     contents = contents.substring(
         0,
         contents.length -
             2); //filters last , of send page, can be fixed on server side later
-
-    List<Farm> farmers = [];
-    List<Farm> harvesters = [];
 
     var clientsSerial = contents.split(';;');
 
@@ -80,7 +80,9 @@ Future<void> main(List<String> args) async {
     print("");
     lastUpdatedText(farm, harvesters.length);
   } catch (Exception) {
-    print("Farmer could not be found.\nMake sure your client is running.");
+    if (harvesters.length > 0)
+      print(harvesters.length.toString() + " harvesters found.");
+    print("Farmer could not be found.\nMake sure your farmer client is running.");
   }
 }
 
@@ -123,7 +125,8 @@ void fullText(Farm farm) {
       print("Last " +
           d[j].toString() +
           " days: " +
-          ppd.toStringAsFixed(2) + " plots per day");
+          ppd.toStringAsFixed(2) +
+          " plots per day");
     }
   }
 
@@ -138,7 +141,8 @@ void fullText(Farm farm) {
     else if (k == 1 && count > 0)
       print(count.toString() + " plots completed yesterday");
     else if (count > 0)
-      print(count.toString() + " plots completed " + k.toString() + " days ago");
+      print(
+          count.toString() + " plots completed " + k.toString() + " days ago");
   }
 }
 

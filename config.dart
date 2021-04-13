@@ -37,8 +37,7 @@ class Config {
     _id = Uuid().v4();
   }
 
-  Future<void> init (bool isHarvester) async{
-
+  Future<void> init(bool isHarvester) async {
     //If file doesnt exist then create new config
     if (!_config.existsSync())
       await createConfig(isHarvester);
@@ -77,7 +76,7 @@ class Config {
 
     bool validDirectory = false;
 
-    if (io.Platform.isWindows) validDirectory = await tryDirectories();
+    validDirectory = await tryDirectories();
 
     while (!validDirectory) {
       print("Specify your chia-blockchain directory below: (e.g.: " +
@@ -106,18 +105,37 @@ class Config {
   Future<bool> tryDirectories() async {
     bool valid = false;
 
-    io.Directory chiaRootDir = io.Directory(io.Platform.environment['UserProfile'] +
-        "/AppData/Local/chia-blockchain");
+    io.Directory chiaRootDir;
+    String file;
 
-    if (chiaRootDir.existsSync()) {
-      await chiaRootDir.list(recursive: false).forEach((dir) {
-        io.File trypath =
-            io.File(dir.path + "/resources/app.asar.unpacked/daemon/chia.exe");
-        if (trypath.existsSync()) {
-          _binPath = trypath.path;
-          valid = true;
-        }
-      });
+    if (io.Platform.isWindows) {
+      chiaRootDir = io.Directory(io.Platform.environment['UserProfile'] +
+          "/AppData/Local/chia-blockchain");
+
+      file = "/resources/app.asar.unpacked/daemon/chia.exe";
+
+      if (chiaRootDir.existsSync()) {
+        await chiaRootDir.list(recursive: false).forEach((dir) {
+          io.File trypath = io.File(dir.path + file);
+          if (trypath.existsSync()) {
+            _binPath = trypath.path;
+            valid = true;
+          }
+        });
+      }
+    } else if (io.Platform.isLinux) {
+      chiaRootDir = io.Directory("/lib/chia-blockchain"); 
+      file = "/resources/app.asar.unpacked/daemon/chia";
+      io.File tryPath = io.File(chiaRootDir.path + file); // checks if binary exists in /lib/chia-blockchain/resources/app.asar.unpacked/daemon/chia
+      io.File tryPath2 = io.File("/usr" + chiaRootDir.path + file);   // Checks if binary exists in /usr/lib/chia-blockchain/resources/app.asar.unpacked/daemon/chia
+
+      if (tryPath.existsSync()) {
+        _binPath = tryPath.path;
+        valid = true;
+      } else if (tryPath2.existsSync()) {
+        _binPath = tryPath2.path;
+        valid = true;
+      }
     }
 
     return valid;
