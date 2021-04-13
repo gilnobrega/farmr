@@ -82,27 +82,38 @@ Future<void> main(List<String> args) async {
   } catch (Exception) {
     if (harvesters.length > 0)
       print(harvesters.length.toString() + " harvesters found.");
-    print("Farmer could not be found.\nMake sure your farmer client is running.");
+    print(
+        "Farmer could not be found.\nMake sure your farmer client is running.");
   }
 }
 
 void fullText(Farm farm) {
-  var n = [null, 5, 25, 50, 100, 200]; //last n plots, null represents all plots
-  var d = [null, 1, 2, 7, 14]; //last d days, null represents overall
+  var n = [
+    null,
+    5,
+    20,
+    50,
+    100,
+    200,
+    500
+  ]; //last n plots, null represents all plots
+  var d = [null]; //last d days, null represents overall
 
-  for (int i = 0; i < n.length; i++) {
-    if (n[i] == null) {
-      Duration avg = averagePlotDuration(farm.plots);
+  int daysAgo = 8; //Lists plots upto 8 days ago, including current day
+  int weekCount = 0; //counts plots in week of completed days
 
-      print("All time average plot length: " + durationToTime(avg));
-    } else if (farm.plots.length > n[i]) {
-      //LAST N PLOT AVERAGE
-      Duration avg = averagePlotDuration(lastNPlots(farm.plots, n[i]));
+  for (int k = 0; k < daysAgo; k++) {
+    int count = plotsNDaysAgo(farm, k);
 
-      print("Last " +
-          n[i].toString() +
-          " average plot length: " +
-          durationToTime(avg));
+    if (k == 0) {
+      print(count.toString() + " plots completed today");
+    } else if (k == 1 && count > 0) {
+      print(count.toString() + " plots completed yesterday");
+      weekCount += count;
+    } else if (count > 0) {
+      print(
+          count.toString() + " plots completed " + k.toString() + " days ago");
+      weekCount += count;
     }
   }
 
@@ -130,20 +141,26 @@ void fullText(Farm farm) {
     }
   }
 
+  print("Last 7 days: " + (weekCount/7.0).toStringAsFixed(2) + " plots per day" );
+
   print("");
 
-  int daysAgo = 7; //Lists plots upto 7 days ago
-  for (int k = 0; k < daysAgo; k++) {
-    int count = plotsNDaysAgo(farm, k);
+  for (int i = 0; i < n.length; i++) {
+    if (n[i] == null) {
+      Duration avg = averagePlotDuration(farm.plots);
 
-    if (k == 0)
-      print(count.toString() + " plots completed today");
-    else if (k == 1 && count > 0)
-      print(count.toString() + " plots completed yesterday");
-    else if (count > 0)
-      print(
-          count.toString() + " plots completed " + k.toString() + " days ago");
+      print("All time average plot length: " + durationToTime(avg));
+    } else if (farm.plots.length > n[i]) {
+      //LAST N PLOT AVERAGE
+      Duration avg = averagePlotDuration(lastNPlots(farm.plots, n[i]));
+
+      print("Last " +
+          n[i].toString() +
+          " average plot length: " +
+          durationToTime(avg));
+    }
   }
+
 }
 
 //Output regarding info from "chia farm summary" command
