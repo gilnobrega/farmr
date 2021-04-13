@@ -29,6 +29,9 @@ class Config {
   bool _showBalance = true;
   bool get showBalance => _showBalance;
 
+  bool _sendPlotNotifications = true; //plot notifications
+  bool get sendPlotNotifications => _sendPlotNotifications;
+
   io.File _config;
 
   Config([isHarvester = false]) {
@@ -58,7 +61,8 @@ class Config {
         "chiaPath": chiaPath,
         "type": type.index,
         "binPath": binPath,
-        "showBalance": showBalance
+        "showBalance": showBalance,
+        "sendPlotNotifications": sendPlotNotifications
       }
     ]);
 
@@ -124,10 +128,13 @@ class Config {
         });
       }
     } else if (io.Platform.isLinux) {
-      chiaRootDir = io.Directory("/lib/chia-blockchain"); 
+      chiaRootDir = io.Directory("/lib/chia-blockchain");
       file = "/resources/app.asar.unpacked/daemon/chia";
-      io.File tryPath = io.File(chiaRootDir.path + file); // checks if binary exists in /lib/chia-blockchain/resources/app.asar.unpacked/daemon/chia
-      io.File tryPath2 = io.File("/usr" + chiaRootDir.path + file);   // Checks if binary exists in /usr/lib/chia-blockchain/resources/app.asar.unpacked/daemon/chia
+      io.File tryPath = io.File(chiaRootDir.path +
+          file); // checks if binary exists in /lib/chia-blockchain/resources/app.asar.unpacked/daemon/chia
+      io.File tryPath2 = io.File("/usr" +
+          chiaRootDir.path +
+          file); // Checks if binary exists in /usr/lib/chia-blockchain/resources/app.asar.unpacked/daemon/chia
 
       if (tryPath.existsSync()) {
         _binPath = tryPath.path;
@@ -152,6 +159,9 @@ class Config {
 
     if (contents[0]['showBalance'] != null)
       _showBalance = contents[0]['showBalance'];
+
+    if (contents[0]['sendPlotNotifications'] != null)
+      _sendPlotNotifications = contents[0]['sendPlotNotifications'];
 
     await createConfig((_type == ClientType.Harvester));
   }

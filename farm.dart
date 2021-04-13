@@ -168,8 +168,13 @@ class Farm {
   String lastPlotID() {
     Plot last = lastPlot(plots);
 
-    return last.begin.millisecondsSinceEpoch.toString() +
-        last.end.millisecondsSinceEpoch.toString();
+    String id = "0"; //if plot notificationd are off then it will default to 0
+
+    if (_config.sendPlotNotifications)
+      id = last.begin.millisecondsSinceEpoch.toString() +
+          last.end.millisecondsSinceEpoch.toString();
+
+    return id;
   }
 }
 
