@@ -104,17 +104,29 @@ void fullText(Farm farm) {
   int weekCount = 0; //counts plots in week of completed days
 
   for (int k = 0; k < daysAgo; k++) {
-    int count = plotsNDaysAgo(farm, k);
+    List<Plot> plots = plotsNDaysAgo(farm, k);
 
-    if (k == 0) {
-      print(count.toString() + " plots completed today");
-    } else if (k == 1 && count > 0) {
-      print(count.toString() + " plots completed yesterday");
-      weekCount += count;
-    } else if (count > 0) {
-      print(
-          count.toString() + " plots completed " + k.toString() + " days ago");
-      weekCount += count;
+    int count = plots.length;
+    int sumSize = plotSumSize(plots);
+
+    String text = "";
+    //displays plot count for today even if it's 0
+    if (k == 0 || count > 0) {
+      if (k == 0) {
+        text += "Today: " + count.toString() + " plots completed ";
+      } else if (k == 1 && count > 0) {
+        text += "Yesterday: " + count.toString() + " plots completed ";
+        weekCount += count;
+      } else {
+        text += humanReadableDate(nDaysAgoString(farm, k)) +
+            ": " +
+            count.toString() +
+            " plots completed ";
+        weekCount += count;
+      }
+
+      text += " (" + fileSize(sumSize, 1) + ")";
+      print(text);
     }
   }
 
@@ -156,11 +168,9 @@ void fullText(Farm farm) {
     } else if (farm.plots.length > n[i]) {
       //LAST N PLOT AVERAGE
       Duration avg = averagePlotDuration(lastNPlots(farm.plots, n[i]));
-
-      print("Last " +
-          n[i].toString() +
-          " average plot length: " +
-          durationToTime(avg));
+      
+      print(
+          "Last " + n[i].toString() + " plots average: " + durationToTime(avg));
     }
   }
 }
@@ -181,7 +191,7 @@ void farmStatus(Farm farm) {
   print(":farmer: **" +
       farm.plots.length.toString() +
       " plots** (" +
-      fileSize(farm.sumSize()) +
+      fileSize(plotSumSize(farm.plots)) +
       ")");
 }
 
@@ -192,11 +202,16 @@ void lastPlotTime(List<Plot> plots) {
 
   //relative difference in % of plot duration vs average plot duration
   double ratio = 1 - (plot.duration.inMilliseconds / average.inMilliseconds);
-  String difference = (ratio > 0) ? (ratio*100).toStringAsFixed(0) + "% shorter"  : (-ratio*100).toStringAsFixed(0) + "% longer" ;
+  String difference = (ratio > 0)
+      ? (ratio * 100).toStringAsFixed(0) + "% shorter"
+      : (-ratio * 100).toStringAsFixed(0) + "% longer";
 
   print(":hourglass: Last plot length: **" +
       durationToTime(plot.duration) +
-      "** " + "(" + difference + ")");
+      "** " +
+      "(" +
+      difference +
+      ")");
 }
 
 //calculates plot size of last plot
@@ -208,9 +223,11 @@ void lastPlotSize(Farm farm) {
       ? "(moving to destination)"
       : ("(completed " + durationToTime(finishedAgo) + "ago)");
 
-  print(
-      ":cd: Size: " + fileSize(lastPlot(farm.plots).size) + " " + finishedAgoString);
-      print(":satellite: Network size: " + farm.networkSize);
+  print(":cd: Size: " +
+      fileSize(lastPlot(farm.plots).size, 1) +
+      " " +
+      finishedAgoString);
+  print(":satellite: Network size: " + farm.networkSize);
 }
 
 //Duration between first plot started being plotted and last plot is completed
@@ -280,8 +297,8 @@ void lastUpdatedText(Farm farm, int harvestersCount) {
   }
 }
 
-String fileSize(int input) {
-  return filesize(input, 3)
+String fileSize(int input, [int decimals = 3]) {
+  return filesize(input, decimals)
       .replaceAll("TB", "TiB")
       .replaceAll("GB", "GiB")
       .replaceAll("PB", "PiB");
@@ -346,12 +363,41 @@ double plotsPerDay(List<Plot> plots, Duration overPeriod) {
 }
 
 //Returns number of plots finished n days ago
-int plotsNDaysAgo(Farm farm, int n) {
+List<Plot> plotsNDaysAgo(Farm farm, int n) {
+  return farm.plots
+      .where((plot) => plot.date == nDaysAgoString(farm, n))
+      .toList();
+}
+
+//Makes an n days ago string based on farmer's timezone
+String nDaysAgoString(Farm farm, int n) {
   DateTime clientToday = stringToDate(farm.lastUpdatedString);
 
   DateTime nDaysAgo = clientToday.subtract(Duration(days: n));
 
-  String nDaysAgoString = dateToString(nDaysAgo);
+  return dateToString(nDaysAgo);
+}
 
-  return farm.plots.where((plot) => plot.date == nDaysAgoString).length;
+//Human readable n days ago string seen above
+String humanReadableDate(String ndaysago) {
+  List<String> months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec"
+  ];
+
+  String day = ndaysago.split('-')[2];
+
+  String month = months[int.parse(ndaysago.split('-')[1]) - 1];
+
+  return month + " " + day;
 }

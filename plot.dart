@@ -103,3 +103,11 @@ Plot firstPlot(List<Plot> plots) {
           : plot2);
 }
 
+//Returns sum of size of plots in a given list
+int plotSumSize(List<Plot> plots) {
+  int totalSize = 0;
+
+  for (int i = 0; i < plots.length; i++) totalSize += plots[i].size;
+
+  return totalSize;
+}

@@ -129,18 +129,10 @@ class Farm {
     _lastUpdated = DateTime.now();
   }
 
-  //sums file sizes of all plots in farm
-  int sumSize() {
-    int calcSize = 0;
-    for (int i = 0; i < plots.length; i++) calcSize += plots[i].size;
-
-    return calcSize;
-  }
-
   //Estimates ETW in days
   //Decimals are more precise (in theory)
   Decimal estimateETW() {
-    Decimal size = Decimal.parse(sumSize().toString());
+    Decimal size = Decimal.parse(plotSumSize(plots).toString());
     Decimal networkSizeBytes = Decimal.parse(
             networkSize.replaceAll(" PiB", "")) *
         Decimal.parse(1e15
