@@ -69,7 +69,7 @@ This is how it looks like:
 
 You may set ``sendPlotNotifications`` and ``sendBalanceNotifications`` to ``false`` if you do not wish to receive notifications.
 
-You may delete ``chiabot.json`` to reset settings and generate a new id once your start the client again.
+You may delete ``chiabot.json`` to reset settings and generate a new id once the client is started again.
 
 ### Troubleshooting
 If the client crashes:
