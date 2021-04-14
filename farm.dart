@@ -144,7 +144,8 @@ class Farm {
 
   Future<void> init() async {
     //LOADS CHIA CONFIG FILE AND PARSES PLOT DIRECTORIES
-    _plotDests = listPlotDest();
+    _plotDests =
+        listPlotDest().where((dir) => io.Directory(dir).existsSync()).toList();
 
     _plots = await listPlots(_plotDests);
 
@@ -236,7 +237,7 @@ class Farm {
           String splitChar = (dest.contains(":\\")) ? "\\" : "/";
 
           //Gets drive letter, example d:
-          String driveLetter = dest.split(splitChar)[0].toLowerCase();
+          String driveLetter = dest.split(splitChar)[0].toUpperCase();
 
           List<String> lines =
               result.stdout.toString().replaceAll("\r", "").split('\n');
@@ -251,7 +252,7 @@ class Farm {
             if (line.startsWith(driveLetter) &&
                 !usedDriveLetters.contains(driveLetter)) {
               List<String> values =
-                  line.split(' ').where((value) => value != "");
+                  line.split(' ').where((value) => value != "").toList();
 
               try {
                 _freeDiskSpace += int.parse(values[1]);
