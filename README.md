@@ -48,6 +48,21 @@ On Linux it is safe to close ``run.sh``, as it runs it in background and reopeni
 Press ``ctrl+c`` when you want to close the client. You must reopen ``run.sh`` after restarting your computer.
 
 ### Extra configuration
+ChiaBot stores your config in ``~/.chia/mainnet/config/chiabot.json``
+This is how it looks like:
+```json
+[{
+"id":"ea0186b0-1524-42a9-9e1e-3c4196a15b8b",
+"type":0,
+"binPath":"/lib/chia-blockchain/resources/app.asar.unpacked/daemon/chia",
+"showBalance":true,
+"sendPlotNotifications":true,
+"sendBalanceNotifications":true
+}]
+```
+``"type": 0`` means your client was initialized as a farmer, while ``"type": 1`` is for harvesters. You can change these values if you wish to convert your farmer into a harvester or otherwise.
+You may set ``sendPlotNotifications`` and ``sendBalanceNotifications`` to ``false`` if you do not wish to receive notifications.
+You may delete this file to reset settings and generate a new id.
 
 ### Troubleshooting
 If the client crashes:
