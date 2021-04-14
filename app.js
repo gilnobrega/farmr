@@ -32,7 +32,6 @@ function runCommand(command, msg, chia = false) {
 
     const embed = new MessageEmbed()
       .setColor(0x00ff00)
-      .setTitle("Chia Farm")
       .setDescription(output);
     msg.channel.send(embed);
 
