@@ -55,6 +55,7 @@ Press ``ctrl+c`` when you want to close the client. You must reopen ``run.sh`` a
 
 ### Configuration
 ChiaBot stores your config in ``~/.chia/mainnet/config/chiabot.json``
+You do not need to edit this file, as it's generated automatically. However, you may want to customize some of its options.
 This is how it looks like:
 ```json
 [{
