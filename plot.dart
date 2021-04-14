@@ -1,6 +1,7 @@
 import 'dart:core';
 import 'dart:io' as io;
 import 'package:path/path.dart';
+import 'package:filesize/filesize.dart';
 
 class Plot {
   String _plotSize;
@@ -56,8 +57,7 @@ class Plot {
 
     _size = json['size'];
 
-    if (json['date'] != null)
-      _date = json['date'];
+    if (json['date'] != null) _date = json['date'];
 
     _duration = _end.difference(_begin);
   }
@@ -82,9 +82,7 @@ String dateToString(DateTime date) {
 DateTime stringToDate(String input) {
   var array = input.split('-');
   return new DateTime(
-      int.parse(array[0]),
-      int.parse(array[1]),
-      int.parse(array[2]));
+      int.parse(array[0]), int.parse(array[1]), int.parse(array[2]));
 }
 
 //finds the last plot in a list of plots
@@ -110,4 +108,11 @@ int plotSumSize(List<Plot> plots) {
   for (int i = 0; i < plots.length; i++) totalSize += plots[i].size;
 
   return totalSize;
+}
+
+String fileSize(int input, [int decimals = 3]) {
+  return filesize(input, decimals)
+      .replaceAll("TB", "TiB")
+      .replaceAll("GB", "GiB")
+      .replaceAll("PB", "PiB");
 }

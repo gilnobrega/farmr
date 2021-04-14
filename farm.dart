@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 import 'package:yaml/yaml.dart';
 import 'package:path/path.dart';
 import 'package:decimal/decimal.dart';
+import 'package:unix_disk_space/unix_disk_space.dart';
 
 import 'plot.dart';
 import 'config.dart';
@@ -30,6 +31,8 @@ class Farm {
   int _plotNumber = 0;
   int get plotNumber => _plotNumber;
 
+  List<String> _plotDests = []; //plot destination paths
+
   List<Plot> _plots;
   List<Plot> get plots => _plots;
 
@@ -44,6 +47,18 @@ class Farm {
   ClientType _type;
   ClientType get type => _type;
 
+  //Total disk space in bytes
+  int _totalDiskSpace = 0;
+  int get totalDiskSpace => _totalDiskSpace;
+
+  //Free disk space in bytes
+  int _freeDiskSpace = 0;
+  int get freeDiskSpace => _freeDiskSpace;
+
+  //sets this to false if the farmer or one of the harvesters didnt report disk space
+  bool _supportDiskSpace = true;
+  bool get supportDiskSpace => _supportDiskSpace;
+
   Map toJson() => {
         'status': status,
         'balance': balance,
@@ -51,6 +66,8 @@ class Farm {
         'networkSize': networkSize,
         'plotNumber': plotNumber,
         'plots': plots,
+        'totalDiskSpace': totalDiskSpace,
+        'freeDiskSpace': freeDiskSpace,
         'lastUpdated': lastUpdated.millisecondsSinceEpoch,
         'lastUpdatedString': lastUpdatedString,
         'type': type.index
@@ -106,6 +123,17 @@ class Farm {
       _plots.add(Plot.fromJson(object['plots'][i]));
     }
 
+    if (object['totalDiskSpace'] != null && object['freeDiskSpace'] != null) {
+      _totalDiskSpace = object['totalDiskSpace'];
+      _freeDiskSpace = object['freeDiskSpace'];
+
+      //if one of these values is 0 then it will assume that something went wrong in parsing disk space
+      //or the client was outdated
+      if (_totalDiskSpace == 0 || _freeDiskSpace == 0)
+        _supportDiskSpace = false;
+    } else
+      _supportDiskSpace = false;
+
     _lastUpdated = DateTime.fromMillisecondsSinceEpoch(object['lastUpdated']);
 
     if (object['lastUpdatedString'] != null)
@@ -115,18 +143,24 @@ class Farm {
   }
 
   Future<void> init() async {
+    //LOADS CHIA CONFIG FILE AND PARSES PLOT DIRECTORIES
+    _plotDests = listPlotDest();
+
+    _plots = await listPlots(_plotDests);
+
+    _lastUpdated = DateTime.now();
+
+    await getDiskSpace();
+  }
+
+  //Parses chia's config.yaml and finds plot destionation paths
+  List<String> listPlotDest() {
     String configPath = _config.configPath + "config.yaml";
 
-    //LOADS CHIA CONFIG FILE AND PARSES PLOT DIRECTORIES
     var config = loadYaml(
         io.File(configPath).readAsStringSync().replaceAll("!!set", ""));
 
-    List<String> paths =
-        ylistToStringlist(config['harvester']['plot_directories']);
-
-    _plots = await listPlots(paths);
-
-    _lastUpdated = DateTime.now();
+    return ylistToStringlist(config['harvester']['plot_directories']);
   }
 
   //Estimates ETW in days
@@ -149,6 +183,13 @@ class Farm {
   //Adds harvester's plots into farm's plots
   void addHarvester(Farm harvester) {
     plots.addAll(harvester.plots);
+
+    if (harvester.totalDiskSpace == 0 || harvester.freeDiskSpace == 0)
+      _supportDiskSpace = false;
+
+    //Adds harvester total and free disk space when merging
+    _totalDiskSpace += harvester.totalDiskSpace;
+    _freeDiskSpace += harvester.freeDiskSpace;
   }
 
   void sortPlots() {
@@ -167,6 +208,62 @@ class Farm {
           last.end.millisecondsSinceEpoch.toString();
 
     return id;
+  }
+
+  //Gets info about total and available disk space, there's a library for each platform
+  Future<void> getDiskSpace() async {
+    //if it's linux then use unix_disk_space library
+    if (io.Platform.isLinux) {
+      for (int i = 0; i < _plotDests.length; i++) {
+        final dirSize = await diskSpace.file(_plotDests[i]);
+
+        _totalDiskSpace += dirSize.size;
+        _freeDiskSpace += dirSize.size - dirSize.used;
+      }
+      //if platform is windows then it uses fsutil.exe
+    } else if (io.Platform.isWindows) {
+      String wmicPath = "C:\\Windows\\System32\\wbem\\wmic.exe";
+
+      if (io.File(wmicPath).existsSync()) {
+        //wmic logicaldisk get freespace, size, caption:
+        var result = io.Process.runSync(
+            wmicPath, ["logicaldisk", "get", "freespace,", "size,", "caption"]);
+
+        for (int i = 0; i < _plotDests.length; i++) {
+          String dest = _plotDests[i];
+
+          //Detects if path is written with \ or /
+          String splitChar = (dest.contains(":\\")) ? "\\" : "/";
+
+          //Gets drive letter, example d:
+          String driveLetter = dest.split(splitChar)[0].toLowerCase();
+
+          List<String> lines =
+              result.stdout.toString().replaceAll("\r", "").split('\n');
+
+          // If there is an error parsing disk space then it will stop running this for iteration and set supportDiskSpace to false
+          for (int i = 0; i < lines.length && supportDiskSpace; i++) {
+            String line = lines[i];
+            if (line.startsWith(driveLetter)) {
+              List<String> values =
+                  line.split(' ').where((value) => value != "");
+
+              try {
+                _freeDiskSpace += int.parse(values[1]);
+                _totalDiskSpace += int.parse(values[2]);
+              } catch (e) {
+                _freeDiskSpace = 0;
+                _totalDiskSpace = 0;
+                _supportDiskSpace = false;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    //If it can't get one of those values then it will not show disk space
+    if (_totalDiskSpace == 0 || _freeDiskSpace == 0) _supportDiskSpace = false;
   }
 }
 
@@ -187,6 +284,7 @@ Future<List<Plot>> listPlots(List<String> paths) async {
     var path = paths[i];
 
     io.Directory dir = new io.Directory(path);
+
     if (dir.existsSync()) {
       await dir.list(recursive: false).forEach((file) {
         //Checks if file extension is .plot

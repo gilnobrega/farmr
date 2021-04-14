@@ -1,6 +1,6 @@
 import 'dart:core';
-import 'package:http/http.dart' as http;
 import 'package:filesize/filesize.dart';
+import 'package:http/http.dart' as http;
 
 import 'farm.dart';
 import 'plot.dart';
@@ -113,19 +113,17 @@ void fullText(Farm farm) {
     //displays plot count for today even if it's 0
     if (k == 0 || count > 0) {
       if (k == 0) {
-        text += "Today: " + count.toString() + " plots completed ";
-      } else if (k == 1 && count > 0) {
-        text += "Yesterday: " + count.toString() + " plots completed ";
-        weekCount += count;
+        text += "Today: completed " + count.toString() + " plots";
       } else {
         text += humanReadableDate(nDaysAgoString(farm, k)) +
-            ": " +
+            ": completed " +
             count.toString() +
-            " plots completed ";
+            " plots";
         weekCount += count;
       }
 
-      text += " (" + fileSize(sumSize, 1) + ")";
+      text += " (" + fileSize(sumSize, 1);
+      text += ")";
       print(text);
     }
   }
@@ -168,7 +166,7 @@ void fullText(Farm farm) {
     } else if (farm.plots.length > n[i]) {
       //LAST N PLOT AVERAGE
       Duration avg = averagePlotDuration(lastNPlots(farm.plots, n[i]));
-      
+
       print(
           "Last " + n[i].toString() + " plots average: " + durationToTime(avg));
     }
@@ -188,10 +186,14 @@ void farmStatus(Farm farm) {
       " XCH** (next block in ~" +
       farm.estimateETW().toStringAsPrecision(2) +
       " days)");
+
+  String plotInfo = "(using " + fileSize(plotSumSize(farm.plots));
+
+  if (farm.supportDiskSpace) plotInfo += " out of " + fileSize(farm.totalDiskSpace); //if farm supports disk space then
+
   print(":farmer: **" +
-      farm.plots.length.toString() +
-      " plots** (" +
-      fileSize(plotSumSize(farm.plots)) +
+      farm.plots.length.toString() + " plots** "
+       + plotInfo + 
       ")");
 }
 
@@ -203,8 +205,8 @@ void lastPlotTime(List<Plot> plots) {
   //relative difference in % of plot duration vs average plot duration
   double ratio = 1 - (plot.duration.inMilliseconds / average.inMilliseconds);
   String difference = (ratio > 0)
-      ? (ratio * 100).toStringAsFixed(0) + "% shorter"
-      : (-ratio * 100).toStringAsFixed(0) + "% longer";
+      ? (ratio * 100).toStringAsFixed(0) + "% below Ø"
+      : (-ratio * 100).toStringAsFixed(0) + "% above Ø";
 
   print(":hourglass: Last plot length: **" +
       durationToTime(plot.duration) +
@@ -295,13 +297,6 @@ void lastUpdatedText(Farm farm, int harvestersCount) {
     print(
         count + "updated " + difference.inSeconds.toString() + " seconds ago");
   }
-}
-
-String fileSize(int input, [int decimals = 3]) {
-  return filesize(input, decimals)
-      .replaceAll("TB", "TiB")
-      .replaceAll("GB", "GiB")
-      .replaceAll("PB", "PiB");
 }
 
 //Calculates the plots per day average over a given period.
@@ -396,6 +391,8 @@ String humanReadableDate(String ndaysago) {
   ];
 
   String day = ndaysago.split('-')[2];
+
+  if (day.length == 1) day = " " + day;
 
   String month = months[int.parse(ndaysago.split('-')[1]) - 1];
 
