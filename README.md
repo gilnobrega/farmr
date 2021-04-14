@@ -19,13 +19,13 @@ Download this repository, then proceed with the following platform-specific inst
    - `` run.bat `` if you're setting up your farmer (main machine) 
    - `` run_harvester.bat `` if it's a harvester.
 
-#### Ubuntu (16.04+), Debian and other Debian-based distros
+#### Ubuntu (16.04+), Debian, Ubuntu for Raspberry Pi and other Debian-based distros
 1. Open terminal in project's root directory and then run 
    - `` sh run.sh `` if you're setting up your farmer (main machine) 
    - ``sh run_harvester.sh `` if it's a harvester.
 The script will install dart, git, screen and setup the client for you.
 
-#### Raspberry Pi and other devices (running amd64/arm64 Linux)
+#### Other amd64/arm64 Linux distros
 1. Install dart, git and screen using your distro's package manager
 2. Run 
    - `` sh run.sh `` if you're setting up your farmer (main machine)
