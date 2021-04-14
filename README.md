@@ -53,8 +53,17 @@ If the client crashes:
 ##### Is your chia farm running? 
   You can check this by running ` chia farm summary `, if it shows "Status: Farming", then it is.
 ##### Are your plot drives mounted?
+  If they're not, then mount them.
 ##### Does your user have permission to access the folders where plots are stored?
+  ChiaBot will not be able to list your plots if their folder was mounted as root.
+
 
 ##### What if I have two farmers?
   Run one of them as a farmer and the other as a harvester.
+  
 ## Donate
+@joaquimguimaraes wallet addresses:
+```
+XCH: xch1z9wes90p356aqn9svvmr7du8yrr03payla02nkfpmfrtpeh23s4qmhx9q9
+ETH: 0x340281CbAd30702aF6dCA467e4f2524916bb9D61
+```
