@@ -15,7 +15,7 @@ Download this repository, then proceed with the following platform-specific inst
 
 #### Windows
 1. Open `` install.bat `` as an **administrator**
-2. Now as a regular user, open 
+2. As a regular user, open 
    - `` run.bat `` if you're setting up your farmer (main machine) 
    - `` run_harvester.bat `` if it's a harvester.
 
