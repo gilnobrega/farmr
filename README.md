@@ -4,6 +4,7 @@ A discord bot that monitors your chia farm summary and sends notifications when 
 The ChiaBot client is available for Linux and Windows. You can interact with the bot in [ChiaBot playground](https://discord.gg/fPjnWYYFmp) discord server.
 
 ![screenshot](https://i.imgur.com/EJElMdH_d.webp?maxwidth=400&fidelity=grand)
+
 ![notifications](https://i.imgur.com/ZxVmS0L_d.webp?maxwidth=400&fidelity=grand)
 
 ## Installation 
