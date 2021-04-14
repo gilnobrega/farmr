@@ -22,6 +22,7 @@ Download this repository, then proceed with the following platform-specific inst
 1. Open terminal in project's root directory and then run 
    - `` sh run.sh `` if you're setting up your farmer (main machine) 
    - ``sh run_harvester.sh `` if it's a harvester.
+   
 The script will install dart, git, screen and setup the client for you.
 
 #### Other amd64/arm64 Linux distros
@@ -29,6 +30,7 @@ The script will install dart, git, screen and setup the client for you.
 2. Run 
    - `` sh run.sh `` if you're setting up your farmer (main machine)
    - `` sh run_harvester.sh `` if it's a harvester.
+   
 If you have trouble running the script try running `` dart pub get`` and `` dart chiabot.dart `` manually.
 
 ### First time
