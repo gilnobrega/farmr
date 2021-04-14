@@ -2,13 +2,12 @@
 
 A discord bot that monitors your chia farm summary and sends notifications when blocks are found and new plots are completed. It can link multiple farmers/harvesters to your account.
 
-The ChiaBot client is available for Linux and Windows.
+The ChiaBot client is available for Linux and Windows. You can interact with the bot in [ChiaBot playground](https://discord.gg/fPjnWYYFmp) discord server.
 
-You can interact with the bot in [ChiaBot playground](https://discord.gg/fPjnWYYFmp) discord server.
-
-![screenshot](https://i.imgur.com/EJElMdH_d.webp?maxwidth=400&fidelity=grand)
-
-![notifications](https://i.imgur.com/ZxVmS0L_d.webp?maxwidth=400&fidelity=grand)
+### Main Features
+| ``!chia`` command: | Block and Plot notifications: |
+|------------------------|-------------------|
+|![screenshot](https://i.imgur.com/H8Du38Q_d.webp?maxwidth=450&fidelity=grand)|![notifications](https://i.imgur.com/ZxVmS0L_d.webp?maxwidth=450&fidelity=grand)|
 
 ## Installation 
 Download this repository, then proceed with the following platform-specific instructions:
