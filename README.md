@@ -37,7 +37,7 @@ ChiaBot will generate an id for your device. You can link this device to your di
 ```
 !chia link [your-client-id]
 ```
-ChiaBot will save your id, so you only need to do this once per device.
+ChiaBot will save your id, so you only need to run this command once per device.
 
 ### Upgrading
 To upgrade, download this repository again and replace the previous files. 
