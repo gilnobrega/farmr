@@ -6,24 +6,29 @@ The ChiaBot client is available for Linux and Windows. You can interact with the
 ## Installation 
 Download this repository, then proceed with the following platform-specific instructions:
 
-### Windows
+#### Windows
 1. Open `` install.bat `` as an **administrator**
 2. Now as a regular user, open `` run.bat `` if you're setting up your farmer (main machine) or `` run_harvester.bat `` if it's a harvester.
 
-### Ubuntu (16.04+), Debian and other Debian-based distros
+#### Ubuntu (16.04+), Debian and other Debian-based distros
 1. Open terminal in project's root directory and then run `` sh run.sh `` if you're setting up your farmer (main machine) or `` sh run_harvester.sh `` if it's a harvester.
 The script will install dart, git, screen and setup the client for you.
 
-### Raspberry Pi and other devices (running amd64/arm64 Linux)
+#### Raspberry Pi and other devices (running amd64/arm64 Linux)
 1. Install dart, git and screen using your distro's package manager
 2. Run `` sh run.sh `` if you're setting up your farmer (main machine) or `` sh run_harvester.sh `` if it's a harvester.
 If you have trouble running the script try running `` dart pub get`` and `` dart chiabot.dart `` manually.
 
-## Usage
 ### First time
-ChiaBot will generate an id for your device. You can link this to your discord account by heading to [ChiaBot playground](https://discord.gg/fPjnWYYFmp) and typing the following command:
-``` !chia link [your-client-id] ```
-The client will save your id, so you only need to do this once per device.
+ChiaBot will generate an id for your device. You can link this device to your discord account by heading to [ChiaBot playground](https://discord.gg/fPjnWYYFmp) and sending the following message:
+```
+!chia link [your-client-id]
+```
+ChiaBot will save your id, so you only need to do this once per device.
+
+## Usage
+If your device was linked sucessfully, you may use `` !chia `` to see your farm summary, or `` !chia full `` to display some statistics about it.
+To see the full list of commands you can use, type: `` !chia help ``
 
 ### Extra configuration
 
