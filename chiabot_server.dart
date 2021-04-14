@@ -54,6 +54,9 @@ Future<void> main(List<String> args) async {
     double chiaPerDay =
         (farm.balance / farmingTime(farm.plots).inMinutes) * (60 * 24);
 
+    lastPlotTime(farm.plots);
+    lastPlotSize(farm);
+
     String chiaPerDayString = (farm.balance < 0.0)
         ? "\n" //for some reason needs a new line here
         : "(" +
@@ -64,8 +67,6 @@ Future<void> main(List<String> args) async {
         durationToTime(farmedTime) +
         " " +
         chiaPerDayString);
-
-    lastPlotTime(farm.plots);
 
     //Shows statistics if full command is issued by discord bot
     if (args.contains("full")) {
@@ -141,7 +142,9 @@ void fullText(Farm farm) {
     }
   }
 
-  print("Last 7 days: " + (weekCount/7.0).toStringAsFixed(2) + " plots per day" );
+  print("Last 7 days: " +
+      (weekCount / 7.0).toStringAsFixed(2) +
+      " plots per day");
 
   print("");
 
@@ -160,7 +163,6 @@ void fullText(Farm farm) {
           durationToTime(avg));
     }
   }
-
 }
 
 //Output regarding info from "chia farm summary" command
@@ -181,22 +183,34 @@ void farmStatus(Farm farm) {
       " plots** (" +
       fileSize(farm.sumSize()) +
       ")");
-  print(":minidisc: Network size: " + farm.networkSize);
 }
 
 //calculates plot time of last plot
-lastPlotTime(List<Plot> plots) {
-  Duration finishedAgo = DateTime.now().difference(lastPlot(plots).end);
+void lastPlotTime(List<Plot> plots) {
+  Plot plot = lastPlot(plots);
+  Duration average = averagePlotDuration(plots);
+
+  //relative difference in % of plot duration vs average plot duration
+  double ratio = 1 - (plot.duration.inMilliseconds / average.inMilliseconds);
+  String difference = (ratio > 0) ? (ratio*100).toStringAsFixed(0) + "% shorter"  : (-ratio*100).toStringAsFixed(0) + "% longer" ;
+
+  print(":hourglass: Last plot length: **" +
+      durationToTime(plot.duration) +
+      "** " + "(" + difference + ")");
+}
+
+//calculates plot size of last plot
+void lastPlotSize(Farm farm) {
+  Duration finishedAgo = DateTime.now().difference(lastPlot(farm.plots).end);
 
   //If the finished timestamp is less than 1 minute ago then it assumes it's still copying the plot to the destination
   String finishedAgoString = (finishedAgo.inMinutes == 0)
       ? "(moving to destination)"
-      : ("(" + durationToTime(finishedAgo) + "ago)");
+      : ("(completed " + durationToTime(finishedAgo) + "ago)");
 
-  print(":hourglass: Last plot length: **" +
-      durationToTime(lastPlot(plots).duration) +
-      "** " +
-      finishedAgoString);
+  print(
+      ":cd: Size: " + fileSize(lastPlot(farm.plots).size) + " " + finishedAgoString);
+      print(":satellite: Network size: " + farm.networkSize);
 }
 
 //Duration between first plot started being plotted and last plot is completed
