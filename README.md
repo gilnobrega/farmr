@@ -46,7 +46,7 @@ If you're on Windows, there's no need to run `` install.bat ``.
 Your device will keep its id so you don't have to link it another time.
 
 ## Usage
-If your device was linked sucessfully, you may use `` !chia `` to see your farm summary, or `` !chia full `` to display some statistics about it.
+If your device was linked sucessfully, you may use `` !chia `` to see your farm summary, or `` !chia full `` to display additional statistics about it and `` !chia workers `` to show them per farmer/harvester.
 To see the full list of commands you can use, type: `` !chia help ``
 
 Please note that on Windows, you **must not close** ``run.bat`` as that will kill the client. If you do so, open it again.
