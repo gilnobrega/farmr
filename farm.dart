@@ -242,27 +242,30 @@ class Farm {
         List<String> linesNet =
             resultNet.stdout.toString().replaceAll("\r", "").split('\n');
 
+        //Gets drive letter, example d:
+        List<String> usedDriveLetters = [];
+
         for (int i = 0; i < _plotDests.length; i++) {
           String dest = _plotDests[i];
 
           //Detects if path is written with \ or /
           String splitChar = (dest.contains(":\\")) ? "\\" : "/";
 
-          String driveLetter;
+          String driveLetter = "";
 
           //Network drives may start with \\ so we need to use `` net use ``
           //to list the letter of these drives
           if (dest.startsWith("\\\\")) {
-            for (int k = 0; k < linesNet.length && driveLetter == null; k++) {
-              String line = lines[k];
+            for (int k = 0; k < linesNet.length; k++) {
+              String line = linesNet[k].replaceAll("OK", "");
+              List<String> values =
+                  line.split(' ').where((value) => value != "").toList();
 
-              if (line.startsWith("OK")) {
-                List<String> values =
-                    line.split(' ').where((value) => value != "").toList();
+              if (values.length >= 2 && io.Directory(values[1]).existsSync()) {
+                String mappedPath = "\\\\" + values[1].split("\\")[2];
 
-                String mappedPath = values[2];
-
-                if (dest.startsWith(mappedPath)) driveLetter = values[1];
+                if (dest.startsWith(mappedPath) && values[0].length == 2)
+                  driveLetter = values[0].toUpperCase();
               }
             }
           }
@@ -270,21 +273,26 @@ class Farm {
           else
             driveLetter = dest.split(splitChar)[0].toUpperCase();
 
+          print(driveLetter);
 
           // If there is an error parsing disk space then it will stop running this for iteration and set supportDiskSpace to false
           for (int j = 0;
-              j < lines.length && supportDiskSpace && driveLetter != null;
+              j < lines.length && supportDiskSpace && driveLetter != "";
               j++) {
             String line = lines[j];
 
             //will only count total space/free space if this drive had not been used before
-            if (line.startsWith(driveLetter)) {
+            if (line.startsWith(driveLetter) &&
+                !usedDriveLetters.contains(driveLetter)) {
               List<String> values =
                   line.split(' ').where((value) => value != "").toList();
+
+              print(values.toString());
 
               try {
                 _freeDiskSpace += int.parse(values[1]);
                 _totalDiskSpace += int.parse(values[2]);
+                usedDriveLetters.add(driveLetter);
               } catch (e) {
                 _freeDiskSpace = 0;
                 _totalDiskSpace = 0;
