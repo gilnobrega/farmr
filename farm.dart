@@ -270,26 +270,21 @@ class Farm {
           else
             driveLetter = dest.split(splitChar)[0].toUpperCase();
 
-          //Gets drive letter, example d:
-
-          List<String> usedDriveLetters = [];
 
           // If there is an error parsing disk space then it will stop running this for iteration and set supportDiskSpace to false
           for (int j = 0;
-              i < lines.length && supportDiskSpace && driveLetter != null;
+              j < lines.length && supportDiskSpace && driveLetter != null;
               j++) {
             String line = lines[j];
 
             //will only count total space/free space if this drive had not been used before
-            if (line.startsWith(driveLetter) &&
-                !usedDriveLetters.contains(driveLetter)) {
+            if (line.startsWith(driveLetter)) {
               List<String> values =
                   line.split(' ').where((value) => value != "").toList();
 
               try {
                 _freeDiskSpace += int.parse(values[1]);
                 _totalDiskSpace += int.parse(values[2]);
-                usedDriveLetters.add(driveLetter);
               } catch (e) {
                 _freeDiskSpace = 0;
                 _totalDiskSpace = 0;
