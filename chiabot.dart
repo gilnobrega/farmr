@@ -32,7 +32,7 @@ main(List<String> args) async {
       await farm.init();
 
       //Throws exception in case no plots were found
-      if (farm.plots.length == 0) throw Exception("No plots have been found! Make sure your user has access to the folders where plots are stored.");
+      if (farm.plots.length == 0) throw Exception ("No plots have been found! Make sure your user has access to the folders where plots are stored.");
 
       lastPlotID = farm.lastPlotID();
       balance = farm.balance.toString();

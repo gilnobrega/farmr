@@ -12,9 +12,7 @@ if ( isset($_GET['id']) && isset($_GET['user']))
  $id = $conn -> real_escape_string($_GET['id']);
  $user = $conn -> real_escape_string($_GET['user']);
 
- echo "set!";
-
- $command = " UPDATE farms SET user='" . $user . "' WHERE user='none' AND id='" . $id . "' ;";
+ $command = " INSERT INTO farms (id, data, user) VALUES ('" . $id . "', ';;', '" . $user . "') ON DUPLICATE KEY UPDATE user=IF(user='none','" . $user . "', user);";
  $conn -> query($command);
 }
 
