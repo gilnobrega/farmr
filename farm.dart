@@ -224,11 +224,23 @@ class Farm {
       //if platform is windows then it uses fsutil.exe
     } else if (io.Platform.isWindows) {
       String wmicPath = "C:\\Windows\\System32\\wbem\\wmic.exe";
+      String netPath = "C:\\Windows\\System32\\net.exe";
 
-      if (io.File(wmicPath).existsSync()) {
+      if (io.File(wmicPath).existsSync() && io.File(netPath).existsSync()) {
         //wmic logicaldisk get freespace, size, caption:
         var result = io.Process.runSync(
             wmicPath, ["logicaldisk", "get", "freespace,", "size,", "caption"]);
+
+        //wmic result
+        List<String> lines =
+            result.stdout.toString().replaceAll("\r", "").split('\n');
+
+        //net use
+        var resultNet = io.Process.runSync(netPath, ["use"]);
+
+        //net result
+        List<String> linesNet =
+            resultNet.stdout.toString().replaceAll("\r", "").split('\n');
 
         for (int i = 0; i < _plotDests.length; i++) {
           String dest = _plotDests[i];
@@ -236,17 +248,37 @@ class Farm {
           //Detects if path is written with \ or /
           String splitChar = (dest.contains(":\\")) ? "\\" : "/";
 
-          //Gets drive letter, example d:
-          String driveLetter = dest.split(splitChar)[0].toUpperCase();
+          String driveLetter;
 
-          List<String> lines =
-              result.stdout.toString().replaceAll("\r", "").split('\n');
+          //Network drives may start with \\ so we need to use `` net use ``
+          //to list the letter of these drives
+          if (dest.startsWith("\\\\")) {
+            for (int k = 0; k < linesNet.length && driveLetter == null; k++) {
+              String line = lines[k];
+
+              if (line.startsWith("OK")) {
+                List<String> values =
+                    line.split(' ').where((value) => value != "").toList();
+
+                String mappedPath = values[2];
+
+                if (dest.startsWith(mappedPath)) driveLetter = values[1];
+              }
+            }
+          }
+          //If physical drive then simply gets first characters of path (e.g: C: )
+          else
+            driveLetter = dest.split(splitChar)[0].toUpperCase();
+
+          //Gets drive letter, example d:
 
           List<String> usedDriveLetters = [];
 
           // If there is an error parsing disk space then it will stop running this for iteration and set supportDiskSpace to false
-          for (int i = 0; i < lines.length && supportDiskSpace; i++) {
-            String line = lines[i];
+          for (int j = 0;
+              i < lines.length && supportDiskSpace && driveLetter != null;
+              j++) {
+            String line = lines[j];
 
             //will only count total space/free space if this drive had not been used before
             if (line.startsWith(driveLetter) &&

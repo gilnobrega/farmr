@@ -1,5 +1,5 @@
 import 'dart:core';
-import 'package:filesize/filesize.dart';
+
 import 'package:http/http.dart' as http;
 
 import 'farm.dart';
@@ -22,7 +22,7 @@ Future<void> main(List<String> args) async {
         contents.length -
             2); //filters last , of send page, can be fixed on server side later
 
-    var clientsSerial = contents.split(';;');
+    var clientsSerial = contents.split(';;').where((element) => element != "[]").toList();
 
     for (int i = 0; i < clientsSerial.length; i++) {
       Farm f = Farm.fromJson(clientsSerial[i]);
@@ -175,25 +175,26 @@ void fullText(Farm farm) {
 
 //Output regarding info from "chia farm summary" command
 void farmStatus(Farm farm) {
+  String etw = farm.estimateETW().toStringAsFixed(1);
+
   String balanceText = (farm.balance < 0.0)
-      ? "???"
-      : farm.balance
-          .toString(); //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
+      ? "Next block in ~" + etw + " days"
+      : "**" + farm.balance.toString() + " XCH** (next block in ~" + etw + " days)"; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
 
   if (farm.status != "Farming") print(":warning: **NOT FARMING** :warning:");
-  print(":seedling: **" +
-      balanceText +
-      " XCH** (next block in ~" +
-      farm.estimateETW().toStringAsPrecision(2) +
-      " days)");
+  print(":seedling: " +
+      balanceText );
 
   String plotInfo = "(using " + fileSize(plotSumSize(farm.plots));
 
-  if (farm.supportDiskSpace) plotInfo += " out of " + fileSize(farm.totalDiskSpace); //if farm supports disk space then
+  if (farm.supportDiskSpace)
+    plotInfo += " out of " +
+        fileSize(farm.totalDiskSpace); //if farm supports disk space then
 
   print(":farmer: **" +
-      farm.plots.length.toString() + " plots** "
-       + plotInfo + 
+      farm.plots.length.toString() +
+      " plots** " +
+      plotInfo +
       ")");
 }
 
