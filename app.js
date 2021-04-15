@@ -137,17 +137,25 @@ client.on('message', (msg) => {
     else if (command === "chia" && args.length == 1 && args[0] == "full") {
       runCommand("/usr/bin/dart chiabot_server.dart " + msg.author.id + " full", msg, true);
     }
+    else if (command === "chia" && args.length == 1 && args[0] == "workers") {
+      runCommand("/usr/bin/dart chiabot_server.dart " + msg.author.id + " workers", msg, true);
+    }
     else if (command === 'chia' && args.length == 1 && args[0] == 'help') {
 
       const embed = new MessageEmbed()
         .setColor(0x00ff00)
         .setTitle("Available commands")
-        .setDescription("!chia link [client-id]      - links client to your discord account \n"
-          + "!chia      - shows your chia farm summary \n"
-          + "!chia full      - shows chia farm summary with plot statistics\n"
-          + "!chia donate     - shows developer's wallet address");
+        .setDescription(" `` !chia link [client-id] `` - links client to your discord account \n"
+          + "`` !chia `` - displays your chia farm summary \n"
+          + "`` !chia full `` - shows farm summary with additional statistics\n"
+          + "`` !chia workers `` - show stats for each of your workers\n"
+          + "`` !chia api `` - link to your farm's data\n"
+          + "`` !chia donate `` - shows developer's wallet address");
 
       msg.channel.send(embed);
+    }
+    else if (command === 'chia' && args.length == 1 && args[0] == 'api') {
+      msg.reply("https://chiabot.znc.sh/read.php?user=" + msg.author.id);
     }
     else if (command === 'chia' && args.length == 1 && args[0] == 'donate') {
 

@@ -11,7 +11,7 @@ Future<void> main(List<String> args) async {
   String userID = args[0];
 
   String contents =
-      await http.read("https://chiabot.znc.sh/read.php?user=" + userID);
+      await http.read("https://chiabot.znc.sh/read2.php?user=" + userID);
 
   List<Farm> farmers = [];
   List<Farm> harvesters = [];
@@ -20,9 +20,10 @@ Future<void> main(List<String> args) async {
     contents = contents.substring(
         0,
         contents.length -
-            2); //filters last , of send page, can be fixed on server side later
+            3); //filters last , of send page, can be fixed on server side later
 
-    var clientsSerial = contents.split(';;').where((element) => element != "[]").toList();
+    var clientsSerial =
+        contents.split(';;').where((element) => element != "[]").toList();
 
     for (int i = 0; i < clientsSerial.length; i++) {
       Farm f = Farm.fromJson(clientsSerial[i]);
@@ -40,33 +41,39 @@ Future<void> main(List<String> args) async {
 
     Farm farm = farmers.last; //Selects newest farm as main farm
 
-    for (int j = 0; j < harvesters.length; j++)
-      farm.addHarvester(harvesters[j]); //Adds harvesters plot to main farm
+    if (args.contains("workers")) {
+      print("**Farmer:**");
 
-    farm.sortPlots(); //VERY IMPORTANT TO SORT PLOTS BEFORE CALCULATING STATS
+      farm.sortPlots();
 
-    farmStatus(farm);
+      farmStatus(farm);
+      mainText(farm);
+      fullText(farm);
 
-    //Throws exception in case no plots were found
-    if (farm.plots.length == 0) throw Exception("No plots have been found!");
+      for (int k = 0; k < harvesters.length; k++) {
+        print("");
 
-    Duration farmedTime = farmingTime(farm.plots);
-    double chiaPerDay =
-        (farm.balance / farmingTime(farm.plots).inMinutes) * (60 * 24);
+        Farm harvester = harvesters[k];
+        harvester.sortPlots();
 
-    lastPlotTime(farm.plots);
-    lastPlotSize(farm);
+        print("**Harvester " + (k + 1).toString() + ":**");
+        farmStatus(harvester);
+        mainText(harvester);
+        fullText(harvester);
+      }
+    } else {
+      for (int j = 0; j < harvesters.length; j++)
+        farm.addHarvester(harvesters[j]); //Adds harvesters plot to main farm
 
-    String chiaPerDayString = (farm.balance < 0.0)
-        ? "\n" //for some reason needs a new line here
-        : "(" +
-            chiaPerDay.toStringAsFixed(2) +
-            " XCH per day)"; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
+      farm.sortPlots(); //VERY IMPORTANT TO SORT PLOTS BEFORE CALCULATING STATS
 
-    print(":clock10: Farmed for " +
-        durationToTime(farmedTime) +
-        " " +
-        chiaPerDayString);
+      farmStatus(farm);
+
+      //Throws exception in case no plots were found
+      if (farm.plots.length == 0) throw Exception("No plots have been found!");
+
+      mainText(farm);
+    }
 
     //Shows statistics if full command is issued by discord bot
     if (args.contains("full")) {
@@ -86,6 +93,26 @@ Future<void> main(List<String> args) async {
     print(
         "Farmer could not be found.\nMake sure your farmer client is running.");
   }
+}
+
+void mainText(Farm farm) {
+  Duration farmedTime = farmingTime(farm.plots);
+  double chiaPerDay =
+      (farm.balance / farmingTime(farm.plots).inMinutes) * (60 * 24);
+
+  lastPlotTime(farm.plots);
+  lastPlotSize(farm);
+
+  String chiaPerDayString = (farm.balance < 0.0)
+      ? "\n" //for some reason needs a new line here
+      : "(" +
+          chiaPerDay.toStringAsFixed(2) +
+          " XCH per day)"; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
+
+  print(":clock10: Farmed for " +
+      durationToTime(farmedTime) +
+      " " +
+      chiaPerDayString);
 }
 
 void fullText(Farm farm) {
@@ -175,16 +202,23 @@ void fullText(Farm farm) {
 
 //Output regarding info from "chia farm summary" command
 void farmStatus(Farm farm) {
-  String etw = farm.estimateETW().toStringAsFixed(1);
+  //if its farmer then shows balance and farming status
+  if (farm.type == ClientType.Farmer) {
+    String etw = farm.estimateETW().toStringAsFixed(1);
 
-  String balanceText = (farm.balance < 0.0)
-      ? "Next block in ~" + etw + " days"
-      : "**" + farm.balance.toString() + " XCH** (next block in ~" + etw + " days)"; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
+    String balanceText = (farm.balance < 0.0)
+        ? "Next block in ~" + etw + " days"
+        : "**" +
+            farm.balance.toString() +
+            " XCH** (next block in ~" +
+            etw +
+            " days)"; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
 
-  if (farm.status != "Farming") print(":warning: **NOT FARMING** :warning:");
-  print(":seedling: " +
-      balanceText );
+    if (farm.status != "Farming") print(":warning: **NOT FARMING** :warning:");
+    print(":seedling: " + balanceText);
+  }
 
+  //e.g. using 3.7 TB out of 7TB
   String plotInfo = "(using " + fileSize(plotSumSize(farm.plots));
 
   if (farm.supportDiskSpace)
@@ -230,7 +264,8 @@ void lastPlotSize(Farm farm) {
       fileSize(lastPlot(farm.plots).size, 1) +
       " " +
       finishedAgoString);
-  print(":satellite: Network size: " + farm.networkSize);
+  if (farm.type == ClientType.Farmer)
+    print(":satellite: Network size: " + farm.networkSize);
 }
 
 //Duration between first plot started being plotted and last plot is completed
