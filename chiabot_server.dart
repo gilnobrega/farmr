@@ -22,8 +22,11 @@ Future<void> main(List<String> args) async {
         contents.length -
             3); //filters last , of send page, can be fixed on server side later
 
-    var clientsSerial =
-        contents.split(';;').where((element) => element != "[]").toList();
+    var clientsSerial = contents
+        .replaceAll("[;;]", "")
+        .split(';;')
+        .where((element) => element != "[]" && element != "")
+        .toList();
 
     for (int i = 0; i < clientsSerial.length; i++) {
       Farm f = Farm.fromJson(clientsSerial[i]);
