@@ -216,10 +216,16 @@ class Farm {
     //if it's linux then use unix_disk_space library
     if (io.Platform.isLinux) {
       for (int i = 0; i < _plotDests.length; i++) {
-        final dirSize = await diskSpace.file(_plotDests[i]);
+        try {
+          final dirSize = await diskSpace.file(_plotDests[i]);
 
-        _totalDiskSpace += dirSize.size;
-        _freeDiskSpace += dirSize.size - dirSize.used;
+          _totalDiskSpace += dirSize.size;
+          _freeDiskSpace += dirSize.size - dirSize.used;
+        } catch (e) {
+          _freeDiskSpace = 0;
+          _totalDiskSpace = 0;
+          _supportDiskSpace = false;
+        }
       }
       //if platform is windows then it uses fsutil.exe
     } else if (io.Platform.isWindows) {
