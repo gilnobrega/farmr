@@ -23,7 +23,7 @@ Download this repository, then proceed with the following platform-specific inst
    - `` sh run.sh `` if you're setting up your farmer (main machine) 
    - ``sh run_harvester.sh `` if it's a harvester.
    
-The script will install dart, git, screen and setup the client for you.
+The script will install dart, git, screen and setup the client for you. Do **not run it as root**, it will issue "sudo" and ask for your password when/if necessary.
 
 #### Other amd64/arm64 Linux distros
 1. Install dart, git and screen using your distro's package manager
