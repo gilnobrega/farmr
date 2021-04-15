@@ -262,7 +262,7 @@ class Farm {
                   line.split(' ').where((value) => value != "").toList();
 
               if (values.length >= 2 && io.Directory(values[1]).existsSync()) {
-                String mappedPath = "\\\\" + values[1].split("\\")[2];
+                String mappedPath = values[1];
 
                 if (dest.startsWith(mappedPath) && values[0].length == 2)
                   driveLetter = values[0].toUpperCase();
