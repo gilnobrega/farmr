@@ -49,7 +49,7 @@ Your device will keep its id so you don't have to link it another time.
 If your device was linked sucessfully, you may use `` !chia `` to see your farm summary, or `` !chia full `` to display additional statistics about it and `` !chia workers `` to show them per farmer/harvester.
 To see the full list of commands you can use, type: `` !chia help ``
 
-Please note that on Windows, you **must not close** ``run.bat`` as that will kill the client. If you do so, open it again.
+Please note that on Windows, you **must not close** ``run.bat`` or ``run_harvester.bat`` as doing that will kill the client. If you do so, open it again.
 
 On Linux it is safe to close ``run.sh``, as it runs it in background and reopening will reattach to the client's process.
 Press ``ctrl+c`` when you want to close the client. You must reopen ``run.sh`` after restarting your computer.
@@ -61,7 +61,6 @@ This is how it looks like:
 ```json
 [{
    "id": "ea0186b0-1524-42a9-9e1e-3c4196a15b8b",
-   "type": 0,
    "binPath": "/lib/chia-blockchain/resources/app.asar.unpacked/daemon/chia",
    "showBalance": true,
    "sendPlotNotifications": true,
@@ -69,8 +68,6 @@ This is how it looks like:
 }]
 ```
 ``binPath`` is where ChiaBot detected the chia daemon binary is installed in.
-
-``"type": 0`` means your client was initialized as a farmer, while ``"type": 1`` is for harvesters. You can change these values if you wish to convert your farmer into a harvester or otherwise.
 
 Set ``showBalance`` to ``false`` if you do not want your balance to be reported.
 
