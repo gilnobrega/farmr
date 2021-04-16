@@ -54,7 +54,7 @@ Future<void> main(List<String> args) async {
       fullText(farm);
 
       for (int k = 0; k < harvesters.length; k++) {
-        print("");
+        print(";;");
 
         Farm harvester = harvesters[k];
         harvester.sortPlots();

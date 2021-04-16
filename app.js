@@ -28,12 +28,14 @@ function runCommand(command, msg, chia = false) {
       return;
     }
 
-    output = stdout;
-
-    const embed = new MessageEmbed()
-      .setColor(0x00ff00)
-      .setDescription(output);
-    msg.channel.send(embed);
+    output = stdout.split(';;'); //splits when ;; appears (workers)
+    
+    output.forEach(message => {
+          const embed = new MessageEmbed()
+          .setColor(0x00ff00)
+          .setDescription(message);
+        msg.channel.send(embed);
+    });
 
     console.log(msg.author.id);
 
