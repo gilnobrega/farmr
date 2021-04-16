@@ -11,7 +11,7 @@ Future<void> main(List<String> args) async {
   String userID = args[0];
 
   String contents =
-      await http.read("https://chiabot.znc.sh/read2.php?user=" + userID);
+      await http.read("http://188.40.246.230/chiabot/read.php?user=" + userID);
 
   List<Farm> farmers = [];
   List<Farm> harvesters = [];
@@ -53,8 +53,11 @@ Future<void> main(List<String> args) async {
       mainText(farm);
       fullText(farm);
 
+      harvesters.sort((harvester2, harvester1) =>
+          harvester1.plots.length.compareTo(harvester2.plots.length));
+
       for (int k = 0; k < harvesters.length; k++) {
-        print(";;");
+        print(";;"); // discord bot uses ;; to split into a new message
 
         Farm harvester = harvesters[k];
         harvester.sortPlots();
