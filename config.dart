@@ -119,6 +119,7 @@ class Config {
     String file;
 
     if (io.Platform.isWindows) {
+      //Checks if binary exist in C:\User\AppData\Local\chia-blockchain\resources\app.asar.unpacked\daemon\chia.exe
       chiaRootDir = io.Directory(io.Platform.environment['UserProfile'] +
           "/AppData/Local/chia-blockchain");
 
@@ -136,18 +137,23 @@ class Config {
     } else if (io.Platform.isLinux) {
       chiaRootDir = io.Directory("/lib/chia-blockchain");
       file = "/resources/app.asar.unpacked/daemon/chia";
-      io.File tryPath = io.File(chiaRootDir.path +
-          file); // checks if binary exists in /lib/chia-blockchain/resources/app.asar.unpacked/daemon/chia
-      io.File tryPath2 = io.File("/usr" +
-          chiaRootDir.path +
-          file); // Checks if binary exists in /usr/lib/chia-blockchain/resources/app.asar.unpacked/daemon/chia
 
-      if (tryPath.existsSync()) {
-        _binPath = tryPath.path;
-        valid = true;
-      } else if (tryPath2.existsSync()) {
-        _binPath = tryPath2.path;
-        valid = true;
+      List<String> possiblePaths = [
+        // checks if binary exists in /lib/chia-blockchain/resources/app.asar.unpacked/daemon/chia
+        chiaRootDir.path + file,
+        // Checks if binary exists in /usr/lib/chia-blockchain/resources/app.asar.unpacked/daemon/chia
+        "/usr" + chiaRootDir.path + file,
+        //checks if binary exists in /home/user/.local/bin/chia 
+        io.Platform.environment['HOME'] + "/.local/bin/chia"
+      ];
+
+      for (int i = 0; i < possiblePaths.length; i++) {
+        io.File possibleFile = io.File(possiblePaths[i]);
+
+        if (possibleFile.existsSync()) {
+          _binPath = possibleFile.path;
+          valid = true;
+        }
       }
     }
 
