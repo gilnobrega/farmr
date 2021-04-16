@@ -17,8 +17,7 @@ main(List<String> args) async {
   Config config = new Config((args.length == 1 &&
       (args[0] == "harvester" || args[0] == '-h'))); //checks if is harvester
 
-  await config
-      .init((args.length == 1 && (args[0] == "harvester" || args[0] == '-h')));
+  await config.init();
 
   Duration delay = Duration(minutes: 10); //10 minutes delay between updates
 
@@ -26,14 +25,16 @@ main(List<String> args) async {
     String serialFarm;
     String lastPlotID = "";
     String balance = "";
-    String status ="";
+    String status = "";
 
     try {
       Farm farm = new Farm(config);
       await farm.init();
 
       //Throws exception in case no plots were found
-      if (farm.plots.length == 0) throw Exception ("No plots have been found! Make sure your user has access to the folders where plots are stored.");
+      if (farm.plots.length == 0)
+        throw Exception(
+            "No plots have been found! Make sure your user has access to the folders where plots are stored.");
 
       lastPlotID = farm.lastPlotID();
       balance = farm.balance.toString();
@@ -52,7 +53,9 @@ main(List<String> args) async {
       if (config.sendPlotNotifications) url += "&lastPlot=" + lastPlotID;
 
       //If the client is a farmer and it is farming and sendBalanceNotifications is enabled then it will send balance
-      if (config.type == ClientType.Farmer && config.sendBalanceNotifications && status == "Farming")
+      if (config.type == ClientType.Farmer &&
+          config.sendBalanceNotifications &&
+          status == "Farming")
         url += "&balance=" + Uri.encodeComponent(balance.toString());
 
       //print(url);  //UNCOMMENT FOR DEBUG PURPOSES
@@ -66,9 +69,8 @@ main(List<String> args) async {
           " report to server.\nRetrying in " +
           delay.inMinutes.toString() +
           " minutes");
-          
-      if (io.Platform.isWindows) print("Do NOT close this window.");
 
+      if (io.Platform.isWindows) print("Do NOT close this window.");
     } catch (exception) {
       print("Oh no, failed to connect to server!");
       print(exception.toString());
