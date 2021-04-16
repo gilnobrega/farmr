@@ -42,20 +42,21 @@ class Config {
   Config([isHarvester = false]) {
     _config = new io.File(configPath + "chiabot.json");
 
+    _type = (!isHarvester) ? ClientType.Farmer : ClientType.Harvester;
+
     _id = Uuid().v4();
   }
 
-  Future<void> init(bool isHarvester) async {
+  Future<void> init() async {
     //If file doesnt exist then create new config
     if (!_config.existsSync())
-      await createConfig(isHarvester);
+      await createConfig();
     //If file exists then loads config
     else
       loadConfig();
   }
 
-  Future<void> createConfig(bool isHarvester) async {
-    _type = (!isHarvester) ? ClientType.Farmer : ClientType.Harvester;
+  Future<void> createConfig() async {
 
     if (_binPath == null || !io.File(_binPath).existsSync())
       await askForBinPath();
@@ -64,7 +65,6 @@ class Config {
       {
         "id": id,
         "chiaPath": chiaPath,
-        "type": type.index,
         "binPath": binPath,
         "showBalance": showBalance,
         "sendPlotNotifications": sendPlotNotifications,
@@ -166,7 +166,6 @@ class Config {
     _id = contents[0]['id'];
     _chiaPath = contents[0]['chiaPath'];
 
-    _type = ClientType.values[contents[0]['type']];
     _binPath = contents[0]['binPath'];
 
     if (contents[0]['showBalance'] != null)
@@ -178,7 +177,7 @@ class Config {
     if (contents[0]['sendBalanceNotifications'] != null)
       _sendBalanceNotifications = contents[0]['sendBalanceNotifications'];
 
-    await createConfig((_type == ClientType.Harvester));
+    await createConfig();
   }
 
   void info() {

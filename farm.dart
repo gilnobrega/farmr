@@ -161,7 +161,7 @@ class Farm {
     var config = loadYaml(
         io.File(configPath).readAsStringSync().replaceAll("!!set", ""));
 
-    return ylistToStringlist(config['harvester']['plot_directories']);
+    return ylistToStringlist(config['harvester']['plot_directories']).toSet().toList();
   }
 
   //Estimates ETW in days
