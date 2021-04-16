@@ -26,6 +26,7 @@ main(List<String> args) async {
     String serialFarm;
     String lastPlotID = "";
     String balance = "";
+    String status ="";
 
     try {
       Farm farm = new Farm(config);
@@ -36,6 +37,7 @@ main(List<String> args) async {
 
       lastPlotID = farm.lastPlotID();
       balance = farm.balance.toString();
+      status = farm.status;
 
       serialFarm = jsonEncode(farm);
     } catch (exception) {
@@ -50,7 +52,7 @@ main(List<String> args) async {
       if (config.sendPlotNotifications) url += "&lastPlot=" + lastPlotID;
 
       //If the client is a farmer and sendBalanceNotifications is enabled then it will send balance
-      if (config.type == ClientType.Farmer && config.sendBalanceNotifications)
+      if (config.type == ClientType.Farmer && config.sendBalanceNotifications && status == "Farming")
         url += "&balance=" + Uri.encodeComponent(balance.toString());
 
       //print(url);  //UNCOMMENT FOR DEBUG PURPOSES
