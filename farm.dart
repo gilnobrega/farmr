@@ -213,101 +213,98 @@ class Farm {
 
   //Gets info about total and available disk space, there's a library for each platform
   Future<void> getDiskSpace() async {
-    //if it's linux then use unix_disk_space library
-    if (io.Platform.isLinux) {
-      for (int i = 0; i < _plotDests.length; i++) {
-        try {
+    try {
+      //if it's linux then use unix_disk_space library
+      if (io.Platform.isLinux) {
+        for (int i = 0; i < _plotDests.length; i++) {
           final dirSize = await diskSpace.file(_plotDests[i]);
 
           _totalDiskSpace += dirSize.size;
           _freeDiskSpace += dirSize.size - dirSize.used;
-        } catch (e) {
-          _freeDiskSpace = 0;
-          _totalDiskSpace = 0;
-          _supportDiskSpace = false;
         }
-      }
-      //if platform is windows then it uses fsutil.exe
-    } else if (io.Platform.isWindows) {
-      String wmicPath = "C:\\Windows\\System32\\wbem\\wmic.exe";
-      String netPath = "C:\\Windows\\System32\\net.exe";
+        //if platform is windows then it uses fsutil.exe
+      } else if (io.Platform.isWindows) {
+        String wmicPath = "C:\\Windows\\System32\\wbem\\wmic.exe";
+        String netPath = "C:\\Windows\\System32\\net.exe";
 
-      if (io.File(wmicPath).existsSync() && io.File(netPath).existsSync()) {
-        //wmic logicaldisk get freespace, size, caption:
-        var result = io.Process.runSync(
-            wmicPath, ["logicaldisk", "get", "freespace,", "size,", "caption"]);
+        if (io.File(wmicPath).existsSync() && io.File(netPath).existsSync()) {
+          //wmic logicaldisk get freespace, size, caption:
+          var result = io.Process.runSync(wmicPath,
+              ["logicaldisk", "get", "freespace,", "size,", "caption"]);
 
-        //wmic result
-        List<String> lines =
-            result.stdout.toString().replaceAll("\r", "").split('\n');
+          //wmic result
+          List<String> lines =
+              result.stdout.toString().replaceAll("\r", "").split('\n');
 
-        //net use
-        var resultNet = io.Process.runSync(netPath, ["use"]);
+          //net use
+          var resultNet = io.Process.runSync(netPath, ["use"]);
 
-        //net result
-        List<String> linesNet =
-            resultNet.stdout.toString().replaceAll("\r", "").split('\n');
+          //net result
+          List<String> linesNet =
+              resultNet.stdout.toString().replaceAll("\r", "").split('\n');
 
-        //Gets drive letter, example d:
-        List<String> usedDriveLetters = [];
+          //Gets drive letter, example d:
+          List<String> usedDriveLetters = [];
 
-        for (int i = 0; i < _plotDests.length; i++) {
-          String dest = _plotDests[i];
+          for (int i = 0; i < _plotDests.length; i++) {
+            String dest = _plotDests[i];
 
-          //Detects if path is written with \ or /
-          String splitChar = (dest.contains(":\\")) ? "\\" : "/";
+            //Detects if path is written with \ or /
+            String splitChar = (dest.contains(":\\")) ? "\\" : "/";
 
-          String driveLetter = "";
+            String driveLetter = "";
 
-          //Network drives may start with \\ so we need to use `` net use ``
-          //to list the letter of these drives
-          if (dest.startsWith("\\\\")) {
-            for (int k = 0; k < linesNet.length; k++) {
-              String line = linesNet[k].replaceAll("OK", "");
-              List<String> values =
-                  line.split(' ').where((value) => value != "").toList();
+            //Network drives may start with \\ so we need to use `` net use ``
+            //to list the letter of these drives
+            if (dest.startsWith("\\\\")) {
+              for (int k = 0; k < linesNet.length; k++) {
+                String line = linesNet[k].replaceAll("OK", "");
+                List<String> values =
+                    line.split(' ').where((value) => value != "").toList();
 
-              if (values.length >= 2 && io.Directory(values[1]).existsSync()) {
-                String mappedPath = values[1];
+                if (values.length >= 2 &&
+                    io.Directory(values[1]).existsSync()) {
+                  String mappedPath = values[1];
 
-                if (dest.startsWith(mappedPath) && values[0].length == 2)
-                  driveLetter = values[0].toUpperCase();
+                  if (dest.startsWith(mappedPath) && values[0].length == 2)
+                    driveLetter = values[0].toUpperCase();
+                }
               }
             }
-          }
-          //If physical drive then simply gets first characters of path (e.g: C: )
-          else
-            driveLetter = dest.split(splitChar)[0].toUpperCase();
+            //If physical drive then simply gets first characters of path (e.g: C: )
+            else
+              driveLetter = dest.split(splitChar)[0].toUpperCase();
 
-          print(driveLetter);
+            print(driveLetter);
 
-          // If there is an error parsing disk space then it will stop running this for iteration and set supportDiskSpace to false
-          for (int j = 0;
-              j < lines.length && supportDiskSpace && driveLetter != "";
-              j++) {
-            String line = lines[j];
+            // If there is an error parsing disk space then it will stop running this for iteration and set supportDiskSpace to false
+            for (int j = 0;
+                j < lines.length && supportDiskSpace && driveLetter != "";
+                j++) {
+              String line = lines[j];
 
-            //will only count total space/free space if this drive had not been used before
-            if (line.startsWith(driveLetter) &&
-                !usedDriveLetters.contains(driveLetter)) {
-              List<String> values =
-                  line.split(' ').where((value) => value != "").toList();
+              //will only count total space/free space if this drive had not been used before
+              if (line.startsWith(driveLetter) &&
+                  !usedDriveLetters.contains(driveLetter)) {
+                List<String> values =
+                    line.split(' ').where((value) => value != "").toList();
 
-              print(values.toString());
+                print(values.toString());
 
-              try {
                 _freeDiskSpace += int.parse(values[1]);
                 _totalDiskSpace += int.parse(values[2]);
                 usedDriveLetters.add(driveLetter);
-              } catch (e) {
-                _freeDiskSpace = 0;
-                _totalDiskSpace = 0;
-                _supportDiskSpace = false;
               }
             }
           }
         }
       }
+
+      //Sets both variables to 0 if getting one disk free space fails
+    } catch (e) {
+      _freeDiskSpace = 0;
+      _totalDiskSpace = 0;
+      print("Can't get disk information about one of your drives.");
     }
 
     //If it can't get one of those values then it will not show disk space

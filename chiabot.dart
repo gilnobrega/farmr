@@ -51,7 +51,7 @@ main(List<String> args) async {
       //Adds the following if sendPlotNotifications is enabled then it will send plotID
       if (config.sendPlotNotifications) url += "&lastPlot=" + lastPlotID;
 
-      //If the client is a farmer and sendBalanceNotifications is enabled then it will send balance
+      //If the client is a farmer and it is farming and sendBalanceNotifications is enabled then it will send balance
       if (config.type == ClientType.Farmer && config.sendBalanceNotifications && status == "Farming")
         url += "&balance=" + Uri.encodeComponent(balance.toString());
 
