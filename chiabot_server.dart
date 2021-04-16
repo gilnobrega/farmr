@@ -11,7 +11,7 @@ Future<void> main(List<String> args) async {
   String userID = args[0];
 
   String contents =
-      await http.read("http://188.40.246.230/chiabot/read.php?user=" + userID);
+      await http.read("https://chiabot.znc.sh/read.php?user=" + userID);
 
   List<Farm> farmers = [];
   List<Farm> harvesters = [];
