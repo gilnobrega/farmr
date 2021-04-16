@@ -79,6 +79,10 @@ You may set ``sendPlotNotifications`` and ``sendBalanceNotifications`` to ``fals
 You may delete ``chiabot.json`` to reset settings and generate a new id once the client is started again.
 
 ### Troubleshooting
+
+##### My farmer/harvester doesn't have plots. Can I still use ChiaBot?
+Yes, your client will add itself when chia completes a plot.
+
 If the client crashes:
 ##### Is your chia farm running? 
   You can check this by running ` chia farm summary `, if it shows "Status: Farming", then it is.
