@@ -43,7 +43,7 @@ function runCommand(command, msg) {
           const embed = new MessageEmbed()
           .setColor(0x00ff00)
           .setDescription(message)
-          .setTimestamp(lastUpdated);
+          .setFooter(lastUpdated);
         msg.channel.send(embed);
     });
 
