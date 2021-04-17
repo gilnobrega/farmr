@@ -28,23 +28,23 @@ function runCommand(command, msg) {
       return;
     }
 
-    var array = stdout.split('--');
-    
-    var text = array[0];
-
-    if (array.length == 2)
-    {
-      lastUpdated = array[1];
-    }
-
     output = text.split(';;'); //splits when ;; appears (workers)
-    
-    output.forEach(message => {
-          const embed = new MessageEmbed()
-          .setColor(0x00ff00)
-          .setDescription(message)
-          .setFooter(lastUpdated);
-        msg.channel.send(embed);
+    output.forEach(worker => {
+
+      var array = worker.split('--');
+
+      var text = array[0];
+      lastUpdated = "";
+
+      if (array.length == 2) {
+        lastUpdated = array[1];
+      }
+
+      const embed = new MessageEmbed()
+        .setColor(0x00ff00)
+        .setDescription(text)
+        .setFooter(lastUpdated);
+      msg.channel.send(embed);
     });
 
     console.log(msg.author.id);

@@ -54,6 +54,8 @@ Future<void> main(List<String> args) async {
       mainText(farm);
       fullText(farm);
 
+      lastUpdatedText(farm, 0);
+
       harvesters.sort((harvester2, harvester1) =>
           harvester1.plots.length.compareTo(harvester2.plots.length));
 
@@ -68,6 +70,7 @@ Future<void> main(List<String> args) async {
         farmStatus(harvester);
         mainText(harvester);
         fullText(harvester);
+        lastUpdatedText(harvester, 0);
       }
     } else {
       for (int j = 0; j < harvesters.length; j++)
@@ -92,10 +95,10 @@ Future<void> main(List<String> args) async {
       averagePlotDuration(farm.plots);
 
       fullText(farm);
+      lastUpdatedText(farm, harvesters.length);
     }
 
     print("");
-    lastUpdatedText(farm, harvesters.length);
   } catch (Exception) {
     if (harvesters.length > 0)
       print(harvesters.length.toString() + " harvesters found.");
