@@ -144,8 +144,7 @@ class Farm {
 
   Future<void> init() async {
     //LOADS CHIA CONFIG FILE AND PARSES PLOT DIRECTORIES
-    _plotDests =
-        listPlotDest().where((dir) => io.Directory(dir).existsSync()).toList();
+    _plotDests = listPlotDest();
 
     _plots = await listPlots(_plotDests);
 
@@ -161,7 +160,22 @@ class Farm {
     var config = loadYaml(
         io.File(configPath).readAsStringSync().replaceAll("!!set", ""));
 
-    return ylistToStringlist(config['harvester']['plot_directories']).toSet().toList();
+    List<String> pathsUnfiltered =
+        ylistToStringlist(config['harvester']['plot_directories']);
+
+    //Adds "normal" (non network) paths to pathsFiltered
+    List<String> pathsFiltered = [];
+    List<String> networkPaths = [];
+
+    for (int i = 0; i < pathsUnfiltered.length; i++) {
+      io.Directory dir = io.Directory(pathsUnfiltered[i]);
+
+      if (dir.existsSync()) pathsFiltered.add(dir.absolute.path);
+    }
+
+    return ylistToStringlist(config['harvester']['plot_directories'])
+        .toSet()
+        .toList();
   }
 
   //Estimates ETW in days
@@ -204,9 +218,7 @@ class Farm {
 
     String id = "0"; //if plot notificationd are off then it will default to 0
 
-    if (_config.sendPlotNotifications)
-      id = last.begin.millisecondsSinceEpoch.toString() +
-          last.end.millisecondsSinceEpoch.toString();
+    if (_config.sendPlotNotifications) id = last.id;
 
     return id;
   }
@@ -337,6 +349,10 @@ Future<List<Plot>> listPlots(List<String> paths) async {
       });
     }
   }
+
+//Removes plots with same ids!
+  final ids = plots.map((plot) => plot.id).toSet();
+  plots.retainWhere((x) => ids.remove(x.id));
 
   return plots;
 }

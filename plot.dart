@@ -4,6 +4,9 @@ import 'package:path/path.dart';
 import 'package:filesize/filesize.dart';
 
 class Plot {
+  String _id;
+  String get id => _id;
+
   String _plotSize;
 
   int _year;
@@ -48,6 +51,9 @@ class Plot {
     _duration = _end.difference(_begin);
 
     _size = stat.size;
+
+    _id = begin.millisecondsSinceEpoch.toString() +
+        end.millisecondsSinceEpoch.toString();
   }
 
   //Generate plot from json string
