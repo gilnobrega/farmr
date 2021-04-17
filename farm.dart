@@ -148,6 +148,8 @@ class Farm {
 
     _plots = await listPlots(_plotDests);
 
+    filterDuplicates();  //removes duplicate ids
+
     _lastUpdated = DateTime.now();
 
     await getDiskSpace();
@@ -322,6 +324,12 @@ class Farm {
     //If it can't get one of those values then it will not show disk space
     if (_totalDiskSpace == 0 || _freeDiskSpace == 0) _supportDiskSpace = false;
   }
+
+  void filterDuplicates() {
+//Removes plots with same ids!
+    final ids = plots.map((plot) => plot.id).toSet();
+    plots.retainWhere((x) => ids.remove(x.id));
+  }
 }
 
 //Converts a YAML List to a String list
@@ -349,10 +357,6 @@ Future<List<Plot>> listPlots(List<String> paths) async {
       });
     }
   }
-
-//Removes plots with same ids!
-  final ids = plots.map((plot) => plot.id).toSet();
-  plots.retainWhere((x) => ids.remove(x.id));
 
   return plots;
 }

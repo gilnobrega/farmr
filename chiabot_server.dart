@@ -71,6 +71,7 @@ Future<void> main(List<String> args) async {
       for (int j = 0; j < harvesters.length; j++)
         farm.addHarvester(harvesters[j]); //Adds harvesters plot to main farm
 
+      farm.filterDuplicates(); //filters duplicates
       farm.sortPlots(); //VERY IMPORTANT TO SORT PLOTS BEFORE CALCULATING STATS
 
       farmStatus(farm);

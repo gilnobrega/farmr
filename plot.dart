@@ -61,6 +61,9 @@ class Plot {
     _begin = DateTime.fromMillisecondsSinceEpoch(json['begin']);
     _end = DateTime.fromMillisecondsSinceEpoch(json['end']);
 
+    _id = begin.millisecondsSinceEpoch.toString() +
+        end.millisecondsSinceEpoch.toString();
+
     _size = json['size'];
 
     if (json['date'] != null) _date = json['date'];
