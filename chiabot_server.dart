@@ -47,6 +47,7 @@ Future<void> main(List<String> args) async {
     if (args.contains("workers")) {
       print("**Farmer:**");
 
+      farm.filterDuplicates(); //filters duplicates
       farm.sortPlots();
 
       farmStatus(farm);
@@ -60,6 +61,7 @@ Future<void> main(List<String> args) async {
         print(";;"); // discord bot uses ;; to split into a new message
 
         Farm harvester = harvesters[k];
+        harvester.filterDuplicates(); //filters duplicates in harvester
         harvester.sortPlots();
 
         print("**Harvester " + (k + 1).toString() + ":**");
