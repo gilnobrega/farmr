@@ -331,7 +331,8 @@ String twoDigits(String input) {
 
 //Shows harvester count and when farm was last updated
 void lastUpdatedText(Farm farm, int harvestersCount) {
-  String count = (harvestersCount > 0)
+  String count = "--"; // -- is last updated split character
+  count += (harvestersCount > 0)
       ? "1 farmer, " + harvestersCount.toString() + " harvesters - "
       : "";
   Duration difference = DateTime.now().difference(farm.lastUpdated);

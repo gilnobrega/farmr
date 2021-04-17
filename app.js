@@ -17,7 +17,7 @@ client.login(process.env.BOT_TOKEN); //loads discord token from environment vari
 const { exec } = require("child_process");
 
 //executes shell command
-function runCommand(command, msg, chia = false) {
+function runCommand(command, msg) {
   exec(command, (error, stdout, stderr) => {
     if (error) {
       console.log(`error: ${error.message}`);
@@ -28,12 +28,22 @@ function runCommand(command, msg, chia = false) {
       return;
     }
 
-    output = stdout.split(';;'); //splits when ;; appears (workers)
+    var array = stdout.split('--');
+    
+    var text = array[0];
+
+    if (array.length == 2)
+    {
+      lastUpdated = array[1];
+    }
+
+    output = text.split(';;'); //splits when ;; appears (workers)
     
     output.forEach(message => {
           const embed = new MessageEmbed()
           .setColor(0x00ff00)
-          .setDescription(message);
+          .setDescription(message)
+          .setTimestamp(lastUpdated);
         msg.channel.send(embed);
     });
 
@@ -156,16 +166,21 @@ client.on('message', (msg) => {
 
       msg.channel.send(embed);
     }
+    // !chia api
     else if (command === 'chia' && args.length == 1 && args[0] == 'api') {
       msg.reply("https://chiabot.znc.sh/read.php?user=" + msg.author.id);
     }
-    else if (command === 'chia' && args.length == 1 && args[0] == 'donate') {
+    // !chia donate or !chia donation
+    else if (command === 'chia' && args.length == 1 && (args[0] == 'donate' || args[0] == "donation")) {
 
       const embed = new MessageEmbed()
         .setColor(0x00ff00)
         .setTitle("Donate to @joaquimguimaraes")
-        .setDescription("ETH: 0x340281CbAd30702aF6dCA467e4f2524916bb9D61 \n"
-          + "XCH: xch1z9wes90p356aqn9svvmr7du8yrr03payla02nkfpmfrtpeh23s4qmhx9q9 ");
+        .setURL("https://github.com/joaquimguimaraes/chiabot#donate")
+        .setDescription(
+          "XCH: xch1z9wes90p356aqn9svvmr7du8yrr03payla02nkfpmfrtpeh23s4qmhx9q9\nETH: 0x340281CbAd30702aF6dCA467e4f2524916bb9D61")
+        .setImage("https://i.ibb.co/yhcqWWc/D42-ECA8-A-55-E2-499-B-BBF8-52176-B5190-A2.jpg");
+
       msg.channel.send(embed);
     }
     else if (command === "chia" && args[0] == "link" && args.length == 2) {
