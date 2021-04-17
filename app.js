@@ -28,7 +28,7 @@ function runCommand(command, msg) {
       return;
     }
 
-    output = text.split(';;'); //splits when ;; appears (workers)
+    output = stdout.split(';;'); //splits when ;; appears (workers)
     output.forEach(worker => {
 
       var array = worker.split('--');
