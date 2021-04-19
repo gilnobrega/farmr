@@ -142,7 +142,7 @@ client.on('message', (msg) => {
       msg.reply("Chris2 is a :clown:");
     }
     else if (command == "allenn") {
-      msg.channel.send("<@96884333524041728> :monkaStab:")
+      msg.channel.send("<@96884333524041728> <:monkaStab:833539425405370408>")
     }
     //CHIA RELATED COMMAND
     else if (command === "chia" && args.length == 0) {
