@@ -227,7 +227,7 @@ void farmStatus(Farm farm) {
             " days)"; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
 
     if (farm.status != "Farming") print(":warning: **NOT FARMING** :warning:");
-    print("\\<:chia:833767070201151528> " + balanceText);
+    print("\<:chia:833767070201151528> " + balanceText);
   }
 
   //e.g. using 3.7 TB out of 7TB
@@ -272,7 +272,7 @@ void lastPlotSize(Farm farm) {
       ? "(moving to destination)"
       : ("(completed " + durationToTime(finishedAgo) + "ago)");
 
-  print("\\<:hdd:831678109018751037> Size: " +
+  print("\<:hdd:831678109018751037> Size: " +
       fileSize(lastPlot(farm.plots).size, 1) +
       " " +
       finishedAgoString);
