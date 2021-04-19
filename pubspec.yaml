@@ -12,4 +12,4 @@ dependencies:
   decimal: ^1.0.0
   dart_console: ^1.0.0
   qr: ^2.0.0
-  unix_disk_space: ^0.1.0
+  universal_disk_space: ^0.1.0
