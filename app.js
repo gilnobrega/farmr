@@ -141,7 +141,9 @@ client.on('message', (msg) => {
     if (command === "clown") {
       msg.reply("Chris2 is a :clown:");
     }
-
+    else if (command == "allenn") {
+      msg.channel.send("<@96884333524041728> :monkaStab:")
+    }
     //CHIA RELATED COMMAND
     else if (command === "chia" && args.length == 0) {
       runCommand("/usr/bin/dart chiabot_server.dart " + msg.author.id, msg, true);
