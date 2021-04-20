@@ -166,9 +166,8 @@ class Farm {
     List<String> pathsUnfiltered =
         ylistToStringlist(config['harvester']['plot_directories']);
 
-    //Adds "normal" (non network) paths to pathsFiltered
+    //Filters duplicate paths
     List<String> pathsFiltered = [];
-    List<String> networkPaths = [];
 
     for (int i = 0; i < pathsUnfiltered.length; i++) {
       io.Directory dir = io.Directory(pathsUnfiltered[i]);
@@ -176,9 +175,7 @@ class Farm {
       if (dir.existsSync()) pathsFiltered.add(dir.absolute.path);
     }
 
-    return ylistToStringlist(config['harvester']['plot_directories'])
-        .toSet()
-        .toList();
+    return pathsFiltered.toSet().toList();
   }
 
   //Estimates ETW in days
@@ -230,19 +227,19 @@ class Farm {
   Future<void> getDiskSpace() async {
     try {
       // uses own universal_disk_space library
-        uds.DiskSpace diskspace = new uds.DiskSpace();
-        List<uds.Disk> disks = [];
+      uds.DiskSpace diskspace = new uds.DiskSpace();
+      List<uds.Disk> disks = [];
 
-        for (int i = 0; i < _plotDests.length; i++) {
-          uds.Disk currentdisk = diskspace.getDisk(_plotDests[i]);
+      for (int i = 0; i < _plotDests.length; i++) {
+        uds.Disk currentdisk = diskspace.getDisk(_plotDests[i]);
 
-          //only adds disk sizes/space if it has not been added before
-          if (!disks.contains(currentdisk)) {
-            disks.add(currentdisk);
-            _totalDiskSpace += currentdisk.totalSize;
-            _freeDiskSpace += currentdisk.availableSpace;
-          }
+        //only adds disk sizes/space if it has not been added before
+        if (!disks.contains(currentdisk)) {
+          disks.add(currentdisk);
+          _totalDiskSpace += currentdisk.totalSize;
+          _freeDiskSpace += currentdisk.availableSpace;
         }
+      }
 
       //Sets both variables to 0 if getting one disk free space fails
     } catch (e) {
