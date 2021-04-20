@@ -185,7 +185,6 @@ class Farm {
     double networkSizeBytes = double.parse(networkSize.replaceAll(" PiB", "")) *
         (1125900000000000); //THIS WILL BREAK ONE DAY 1 PIB = 1125900000000000  ??
 
-    print(networkSizeBytes);
     double blocks = 32.0; //32 blocks per 10 minutes
 
     double calc = (networkSizeBytes / size) / (blocks * 6.0 * 24.0);
