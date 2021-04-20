@@ -52,7 +52,8 @@ class Plot {
 
     _size = stat.size;
 
-    _id = list[7]; //in the client plotid is that long hash, while in the server its based on timestamps
+    _id = list[7].replaceAll(".plot", "");
+    //in the client plotid is that long hash, while in the server its based on timestamps
     //this solves problems with copying plots
   }
 
@@ -62,7 +63,8 @@ class Plot {
     _end = DateTime.fromMillisecondsSinceEpoch(json['end']);
 
     _id = begin.millisecondsSinceEpoch.toString() +
-        end.millisecondsSinceEpoch.toString(); //in the client plotid is that long hash, while in the server its based on timestamps
+        end.millisecondsSinceEpoch
+            .toString(); //in the client plotid is that long hash, while in the server its based on timestamps
 
     _size = json['size'];
 
