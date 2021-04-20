@@ -180,17 +180,15 @@ class Farm {
 
   //Estimates ETW in days
   //Decimals are more precise (in theory)
-  Decimal estimateETW() {
-    Decimal size = Decimal.parse(plotSumSize(plots).toString());
-    Decimal networkSizeBytes = Decimal.parse(
-            networkSize.replaceAll(" PiB", "")) *
-        Decimal.parse(1e15
-            .toString()); //THIS WILL BREAK ONE DAY 1 PIB = 140737488355328 bytes
+  double estimateETW() {
+    double size = double.parse(plotSumSize(plots).toString());
+    double networkSizeBytes = double.parse(networkSize.replaceAll(" PiB", "")) *
+        (1125900000000000); //THIS WILL BREAK ONE DAY 1 PIB = 1125900000000000  ??
 
+    print(networkSizeBytes);
     double blocks = 32.0; //32 blocks per 10 minutes
 
-    Decimal calc = (networkSizeBytes / size) /
-        Decimal.parse((blocks * 6.0 * 24.0).toString());
+    double calc = (networkSizeBytes / size) / (blocks * 6.0 * 24.0);
 
     return calc;
   }
