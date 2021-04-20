@@ -60,7 +60,7 @@ main(List<String> args) async {
 
       //print(url);  //UNCOMMENT FOR DEBUG PURPOSES
 
-      await http.post(url, body: {"data": serialFarm});
+      http.post(url, body: {"data": serialFarm});
 
       String type = (config.type == ClientType.Farmer) ? "farmer" : "harvester";
 
