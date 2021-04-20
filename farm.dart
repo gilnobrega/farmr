@@ -246,6 +246,7 @@ class Farm {
       _freeDiskSpace = 0;
       _totalDiskSpace = 0;
       print("Can't get disk information about one of your drives.");
+      print(e.toString());
     }
 
     //If it can't get one of those values then it will not show disk space
