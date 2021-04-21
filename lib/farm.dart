@@ -5,7 +5,6 @@ import 'dart:convert';
 import 'package:uuid/uuid.dart';
 import 'package:yaml/yaml.dart';
 import 'package:path/path.dart';
-import 'package:decimal/decimal.dart';
 
 import 'package:universal_disk_space/universal_disk_space.dart' as uds;
 
@@ -71,11 +70,12 @@ class Farm {
         'freeDiskSpace': freeDiskSpace,
         'lastUpdated': lastUpdated.millisecondsSinceEpoch,
         'lastUpdatedString': lastUpdatedString,
-        'type': type.index
+        'type': type.index,
       };
 
   Farm(Config config) {
     _config = config;
+    _plots = config.plots; //loads plots from cache
     _type = config.type;
 
     //runs chia farm summary if it is a farmer
@@ -147,7 +147,7 @@ class Farm {
     //LOADS CHIA CONFIG FILE AND PARSES PLOT DIRECTORIES
     _plotDests = listPlotDest();
 
-    _plots = await listPlots(_plotDests);
+    await listPlots(_plotDests);
 
     filterDuplicates(); //removes duplicate ids
 
@@ -176,20 +176,6 @@ class Farm {
     }
 
     return pathsFiltered.toSet().toList();
-  }
-
-  //Estimates ETW in days
-  //Decimals are more precise (in theory)
-  double estimateETW() {
-    double size = double.parse(plotSumSize(plots).toString());
-    double networkSizeBytes = double.parse(networkSize.replaceAll(" PiB", "")) *
-        (1125900000000000); //THIS WILL BREAK ONE DAY 1 PIB = 1125900000000000  ??
-
-    double blocks = 32.0; //32 blocks per 10 minutes
-
-    double calc = (networkSizeBytes / size) / (blocks * 6.0 * 24.0);
-
-    return calc;
   }
 
   //Adds harvester's plots into farm's plots
@@ -255,33 +241,44 @@ class Farm {
     final ids = plots.map((plot) => plot.id).toSet();
     plots.retainWhere((x) => ids.remove(x.id));
   }
-}
-
-//Converts a YAML List to a String list
-List<String> ylistToStringlist(YamlList input) {
-  List<String> output = [];
-  for (int i = 0; i < input.length; i++) {
-    output.add(input[i].toString());
-  }
-  return output;
-}
 
 //makes a list of available plots in all plot destination paths
-Future<List<Plot>> listPlots(List<String> paths) async {
-  List<Plot> plots = [];
+  void listPlots(List<String> paths) async {
+    List<Plot> newplots = [];
 
-  for (int i = 0; i < paths.length; i++) {
-    var path = paths[i];
+    for (int i = 0; i < paths.length; i++) {
+      var path = paths[i];
 
-    io.Directory dir = new io.Directory(path);
+      io.Directory dir = new io.Directory(path);
 
-    if (dir.existsSync()) {
       await dir.list(recursive: false).forEach((file) {
         //Checks if file extension is .plot
-        if (extension(file.path) == ".plot") plots.add(new Plot(file));
+        if (extension(file.path) == ".plot") {
+          Plot plot = new Plot(file);
+
+          bool inCache = plots.any((cachedPlot) => cachedPlot.id == plot.id);
+
+          //If plot id it is in cache then adds old plot information (timestamps, etc.)
+          if (inCache) {
+            newplots.add(
+                plots.firstWhere((cachedPlot) => cachedPlot.id == plot.id));
+          }
+          //Adds plot if it's not in cache already
+          else {
+            newplots.add(plot);
+            print("Added new plot: ${plot.id}");
+          }
+        }
       });
     }
+
+    _plots = newplots;
+
+    _config.savePlotsCache(plots);
   }
 
-  return plots;
+  //clears plots ids before sending info to server
+  void clearIDs() {
+    for (int i = 0; i < _plots.length; i++) _plots[i].clearID();
+  }
 }

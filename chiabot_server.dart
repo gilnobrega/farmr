@@ -2,9 +2,9 @@ import 'dart:core';
 
 import 'package:http/http.dart' as http;
 
-import 'farm.dart';
-import 'plot.dart';
-import 'config.dart';
+import 'lib/farm.dart';
+import 'lib/plot.dart';
+import 'lib/config.dart';
 
 Future<void> main(List<String> args) async {
   //Discord User ID
@@ -216,7 +216,7 @@ void fullText(Farm farm) {
 void farmStatus(Farm farm) {
   //if its farmer then shows balance and farming status
   if (farm.type == ClientType.Farmer) {
-    String etw = farm.estimateETW().toStringAsFixed(1);
+    String etw = estimateETW(farm).toStringAsFixed(1);
 
     String balanceText = (farm.balance < 0.0)
         ? "Next block in ~" + etw + " days"
@@ -446,4 +446,19 @@ String humanReadableDate(String ndaysago) {
   String month = months[int.parse(ndaysago.split('-')[1]) - 1];
 
   return month + " " + day;
+}
+
+//Estimates ETW in days
+//Decimals are more precise (in theory)
+double estimateETW(Farm farm) {
+  double size = double.parse(plotSumSize(farm.plots).toString());
+  double networkSizeBytes = double.parse(
+          farm.networkSize.replaceAll(" PiB", "")) *
+      (1125900000000000); //THIS WILL BREAK ONE DAY 1 PIB = 1125900000000000  ??
+
+  double blocks = 32.0; //32 blocks per 10 minutes
+
+  double calc = (networkSizeBytes / size) / (blocks * 6.0 * 24.0);
+
+  return calc;
 }

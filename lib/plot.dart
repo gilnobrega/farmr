@@ -8,6 +8,7 @@ class Plot {
   String get id => _id;
 
   String _plotSize;
+  String get plotSize => _plotSize;
 
   int _year;
   int _month;
@@ -59,12 +60,17 @@ class Plot {
 
   //Generate plot from json string
   Plot.fromJson(dynamic json) {
+    if (json['plotSize'] != null) _plotSize = json['plotSize'];
+
     _begin = DateTime.fromMillisecondsSinceEpoch(json['begin']);
     _end = DateTime.fromMillisecondsSinceEpoch(json['end']);
 
-    _id = begin.millisecondsSinceEpoch.toString() +
-        end.millisecondsSinceEpoch
-            .toString(); //in the client plotid is that long hash, while in the server its based on timestamps
+    if (json['id'] != null)
+      _id = json['id'];
+    else
+      _id = begin.millisecondsSinceEpoch.toString() +
+          end.millisecondsSinceEpoch
+              .toString(); //in the client plotid is a long hash, while in the server its based on timestamps
 
     _size = json['size'];
 
@@ -75,11 +81,18 @@ class Plot {
 
   //Convert plot into json
   Map toJson() => {
+        'id': id,
+        'plotSize': plotSize,
         'begin': begin.millisecondsSinceEpoch,
         'end': end.millisecondsSinceEpoch,
         'size': size,
         'date': date,
       };
+
+  //Replaces long hash with timestamp id before sending to server
+  void clearID() {
+    _id = null;
+  }
 }
 
 String dateToString(DateTime date) {

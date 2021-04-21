@@ -3,9 +3,10 @@ import 'dart:io' as io;
 import 'dart:core';
 import 'package:http/http.dart' as http;
 
-import 'farm.dart';
+import 'lib/farm.dart';
+import 'lib/config.dart';
 
-import 'config.dart';
+final Duration delay = Duration(minutes: 10); //10 minutes delay between updates
 
 main(List<String> args) async {
   //Kills command on ctrl c
@@ -19,14 +20,13 @@ main(List<String> args) async {
 
   await config.init();
 
-  Duration delay = Duration(minutes: 10); //10 minutes delay between updates
-
   while (true) {
-    String serialFarm;
     String lastPlotID = "";
     String balance = "";
     String status = "";
+    String farmJson = "";
 
+    //PARSES DATA
     try {
       Farm farm = new Farm(config);
       await farm.init();
@@ -40,13 +40,22 @@ main(List<String> args) async {
       balance = farm.balance.toString();
       status = farm.status;
 
-      serialFarm = jsonEncode(farm);
+      farmJson = jsonEncode(farm);
     } catch (exception) {
       print("Oh no! Something went wrong.");
       print(exception.toString());
     }
 
+    //SENDS DATA TO SERVER
     try {
+      Farm farmcopy = Farm.fromJson("[" + farmJson + "]");
+
+      //clones farm so it can clear ids before sending them to server
+      farmcopy.clearIDs();
+
+      //String that's actually sent to server
+      String sendJson = jsonEncode(farmcopy);
+
       String url = "https://chiabot.znc.sh/send.php?id=" + config.id;
 
       //Adds the following if sendPlotNotifications is enabled then it will send plotID
@@ -60,7 +69,7 @@ main(List<String> args) async {
 
       //print(url);  //UNCOMMENT FOR DEBUG PURPOSES
 
-      http.post(url, body: {"data": serialFarm});
+      http.post(url, body: {"data": sendJson});
 
       String type = (config.type == ClientType.Farmer) ? "farmer" : "harvester";
 

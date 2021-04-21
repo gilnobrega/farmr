@@ -5,6 +5,9 @@ import 'dart:convert';
 import 'package:uuid/uuid.dart';
 import 'package:dart_console/dart_console.dart';
 import 'package:qr/qr.dart';
+import 'package:yaml/yaml.dart';
+
+import 'plot.dart';
 
 class Config {
   ClientType _type;
@@ -37,10 +40,17 @@ class Config {
   bool _sendBalanceNotifications = true; //balance notifications
   bool get sendBalanceNotifications => _sendBalanceNotifications;
 
+  List<Plot> _plots = []; //cached plots
+  List<Plot> get plots => _plots;
+
   io.File _config;
+  io.File _cache;
 
   Config([isHarvester = false]) {
     _config = new io.File(configPath + "chiabot.json");
+
+    //cache file
+    _cache = new io.File(configPath + "chiabot_cache.json");
 
     _type = (!isHarvester) ? ClientType.Farmer : ClientType.Harvester;
 
@@ -50,16 +60,21 @@ class Config {
   Future<void> init() async {
     //If file doesnt exist then create new config
     if (!_config.existsSync())
-      await createConfig();
+      await saveConfig();
     //If file exists then loads config
     else
-      loadConfig();
+      _loadConfig(); //chiabot.json
+
+    if (!_cache.existsSync())
+      _saveCache();
+    else
+      _loadCache(); //chiabot_cache.json
   }
 
-  Future<void> createConfig() async {
-
+  //Creates config file
+  Future<void> saveConfig() async {
     if (_binPath == null || !io.File(_binPath).existsSync())
-      await askForBinPath();
+      await _askForBinPath();
 
     String contents = jsonEncode([
       {
@@ -68,7 +83,7 @@ class Config {
         "binPath": binPath,
         "showBalance": showBalance,
         "sendPlotNotifications": sendPlotNotifications,
-        "sendBalanceNotifications": sendBalanceNotifications
+        "sendBalanceNotifications": sendBalanceNotifications,
       }
     ]);
 
@@ -77,7 +92,7 @@ class Config {
     info();
   }
 
-  Future<void> askForBinPath() async {
+  Future<void> _askForBinPath() async {
     String exampleDir = (io.Platform.isLinux)
         ? "/home/user/chia-blockchain"
         : (io.Platform.isWindows)
@@ -86,7 +101,7 @@ class Config {
 
     bool validDirectory = false;
 
-    validDirectory = await tryDirectories();
+    validDirectory = await _tryDirectories();
 
     while (!validDirectory) {
       print("Specify your chia-blockchain directory below: (e.g.: " +
@@ -112,7 +127,7 @@ class Config {
   }
 
   //If in windows, tries a bunch of directories
-  Future<bool> tryDirectories() async {
+  Future<bool> _tryDirectories() async {
     bool valid = false;
 
     io.Directory chiaRootDir;
@@ -143,7 +158,7 @@ class Config {
         chiaRootDir.path + file,
         // Checks if binary exists in /usr/lib/chia-blockchain/resources/app.asar.unpacked/daemon/chia
         "/usr" + chiaRootDir.path + file,
-        //checks if binary exists in /home/user/.local/bin/chia 
+        //checks if binary exists in /home/user/.local/bin/chia
         io.Platform.environment['HOME'] + "/.local/bin/chia"
       ];
 
@@ -160,7 +175,7 @@ class Config {
     return valid;
   }
 
-  Future<void> loadConfig() async {
+  Future<void> _loadConfig() async {
     var contents = jsonDecode(_config.readAsStringSync());
 
     _id = contents[0]['id'];
@@ -177,7 +192,30 @@ class Config {
     if (contents[0]['sendBalanceNotifications'] != null)
       _sendBalanceNotifications = contents[0]['sendBalanceNotifications'];
 
-    await createConfig();
+    await saveConfig();
+  }
+
+  //saves cache file
+  void _saveCache() {
+    String contents = jsonEncode([
+      {"plots": plots}
+    ]);
+    _cache.writeAsStringSync(contents);
+  }
+
+  void _loadCache() {
+    var contents = jsonDecode(_cache.readAsStringSync());
+
+    if (contents[0]['plots'] != null) {
+      var plotsJson = contents[0]['plots'];
+
+      for (var plotJson in plotsJson) plots.add(Plot.fromJson(plotJson));
+    }
+  }
+
+  void savePlotsCache(List<Plot> plots) {
+    _plots = plots;
+    _saveCache();
   }
 
   void info() {
@@ -232,3 +270,13 @@ class Config {
 
 //Tells if client is harvester or not
 enum ClientType { Farmer, Harvester }
+
+//Converts a YAML List to a String list
+//Used to parse chia's config.yaml
+List<String> ylistToStringlist(YamlList input) {
+  List<String> output = [];
+  for (int i = 0; i < input.length; i++) {
+    output.add(input[i].toString());
+  }
+  return output;
+}

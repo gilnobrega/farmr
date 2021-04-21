@@ -1,5 +1,5 @@
 name: joaquimbot
-version: 1.0.0
+version: 1.1.0
 description: 
 environment: 
   sdk: '>=2.10.0 < 3.0.0'
@@ -9,7 +9,6 @@ dependencies:
   yaml: ^3.1.0
   http: ^0.12.2
   filesize: ^1.0.4
-  decimal: ^1.0.0
   dart_console: ^1.0.0
   qr: ^2.0.0
-  universal_disk_space: ^0.1.4
+  universal_disk_space: ^0.1.6
