@@ -266,7 +266,7 @@ class Farm {
           //Adds plot if it's not in cache already
           else {
             newplots.add(plot);
-            print("Added new plot: ${plot.id}");
+            //print("Added new plot: ${plot.id}");
           }
         }
       });
