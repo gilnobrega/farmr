@@ -158,7 +158,7 @@ class Farm {
 
   //Parses chia's config.yaml and finds plot destionation paths
   List<String> listPlotDest() {
-    String configPath = _config.configPath + "config.yaml";
+    String configPath = _config.chiaConfigPath + "config.yaml";
 
     var config = loadYaml(
         io.File(configPath).readAsStringSync().replaceAll("!!set", ""));

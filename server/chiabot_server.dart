@@ -2,9 +2,9 @@ import 'dart:core';
 
 import 'package:http/http.dart' as http;
 
-import 'lib/farm.dart';
-import 'lib/plot.dart';
-import 'lib/config.dart';
+import '../lib/farm.dart';
+import '../lib/plot.dart';
+import '../lib/config.dart';
 
 Future<void> main(List<String> args) async {
   //Discord User ID

@@ -61,10 +61,10 @@ if ( isset($_GET['id']) && isset($_POST['data']))
                 $command2 = " UPDATE lastplots set lastplot='" . $lastPlot . "' WHERE id='" . $id . "';";
                 $conn -> query($command2);
 
-                //webhook message
-                $message = ":tada: <@" . $user . "> just completed a plot!";    
-                //execute webhook
-                include('webhook.php');
+                //send
+                $arg = "plot";
+                //send notification
+                exec("cd " . $chiabotpath . "; node sendmessage.js " . $user . " " . $arg . " &> /dev/null &");
             }
 
         }
@@ -101,10 +101,10 @@ if ( isset($_GET['id']) && isset($_POST['data']))
                 $command3 = " UPDATE balances set balance='" . $balance . "' WHERE id='" . $id . "';";
                 $conn -> query($command3);
 
-                //webhook message
-                $message = ":money_mouth: <@" . $user . "> just found a block!";
-                //execute webhook
-                include('webhook.php');
+                //send
+                $arg = "block";
+                //send notification
+                exec("cd " . $chiabotpath . "; node sendmessage.js " . $user . " " . $arg . " &> /dev/null &");
             }
 
         }

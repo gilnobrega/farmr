@@ -114,3 +114,5 @@ pubspec.lock
 .dart_tool/package_config.json
 
 flexpoolmev.dart
+
+.chiabot_cache.json

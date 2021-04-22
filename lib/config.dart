@@ -20,13 +20,14 @@ class Config {
   String get chiaPath => _chiaPath;
 
   //Sets config file path according to platform
-  final String _configPath = (io.Platform.isLinux)
+  String _chiaConfigPath = (io.Platform.isLinux)
       ? io.Platform.environment['HOME'] + "/.chia/mainnet/config/"
       : (io.Platform.isWindows)
           ? io.Platform.environment['UserProfile'] +
               "\\.chia\\mainnet\\config\\"
           : "";
-  String get configPath => _configPath;
+
+  String get chiaConfigPath => _chiaConfigPath;
 
   String _binPath;
   String get binPath => _binPath;
@@ -43,14 +44,16 @@ class Config {
   List<Plot> _plots = []; //cached plots
   List<Plot> get plots => _plots;
 
-  io.File _config;
-  io.File _cache;
+  final io.File _config = io.File("config.json");
+  final io.File _cache = io.File(".chiabot_cache.json");
 
   Config([isHarvester = false]) {
-    _config = new io.File(configPath + "chiabot.json");
+    //Move old config/cache files to new locations
+    io.File _oldConfig = io.File(this.chiaConfigPath + "chiabot.json");
+    io.File _oldCache = io.File(this.chiaConfigPath + "chiabot_cache.json");
 
-    //cache file
-    _cache = new io.File(configPath + "chiabot_cache.json");
+    if (_oldConfig.existsSync()) _oldConfig.renameSync(_config.absolute.path);
+    if (_oldCache.existsSync()) _oldCache.renameSync(_cache.absolute.path);
 
     _type = (!isHarvester) ? ClientType.Farmer : ClientType.Harvester;
 
@@ -58,6 +61,12 @@ class Config {
   }
 
   Future<void> init() async {
+    //Loads cache file
+    if (!_cache.existsSync())
+      _saveCache();
+    else
+      _loadCache(); //chiabot_cache.json
+
     //If file doesnt exist then create new config
     if (!_config.existsSync())
       await saveConfig();
@@ -65,10 +74,7 @@ class Config {
     else
       _loadConfig(); //chiabot.json
 
-    if (!_cache.existsSync())
-      _saveCache();
-    else
-      _loadCache(); //chiabot_cache.json
+    info(); //shows first screen info with qr code, id, !chia, etc.
   }
 
   //Creates config file
@@ -76,20 +82,16 @@ class Config {
     if (_binPath == null || !io.File(_binPath).existsSync())
       await _askForBinPath();
 
-    String contents = jsonEncode([
+    String contents = formatJson(jsonEncode([
       {
-        "id": id,
         "chiaPath": chiaPath,
-        "binPath": binPath,
         "showBalance": showBalance,
         "sendPlotNotifications": sendPlotNotifications,
         "sendBalanceNotifications": sendBalanceNotifications,
       }
-    ]);
+    ]));
 
     _config.writeAsStringSync(contents);
-
-    info();
   }
 
   Future<void> _askForBinPath() async {
@@ -178,10 +180,15 @@ class Config {
   Future<void> _loadConfig() async {
     var contents = jsonDecode(_config.readAsStringSync());
 
-    _id = contents[0]['id'];
+    //leave this here for compatibility with old versions,
+    //old versions stored id in config file
+    if (contents[0]['id'] != null) _id = contents[0]['id'];
+
     _chiaPath = contents[0]['chiaPath'];
 
-    _binPath = contents[0]['binPath'];
+    //this used to be in the config file in earlier versions
+    //do not remove this
+    if (contents[0]['binPath'] != null) _binPath = contents[0]['binPath'];
 
     if (contents[0]['showBalance'] != null)
       _showBalance = contents[0]['showBalance'];
@@ -198,7 +205,7 @@ class Config {
   //saves cache file
   void _saveCache() {
     String contents = jsonEncode([
-      {"plots": plots}
+      {"id": id, "binPath": binPath, "plots": plots}
     ]);
     _cache.writeAsStringSync(contents);
   }
@@ -206,6 +213,13 @@ class Config {
   void _loadCache() {
     var contents = jsonDecode(_cache.readAsStringSync());
 
+    //loads id from cache file
+    if (contents[0]['id'] != null) _id = contents[0]['id'];
+
+    //loads chia binary path from cache
+    if (contents[0]['binPath'] != null) _binPath = contents[0]['binPath'];
+
+    //loads plot list from cache file
     if (contents[0]['plots'] != null) {
       var plotsJson = contents[0]['plots'];
 
@@ -279,4 +293,14 @@ List<String> ylistToStringlist(YamlList input) {
     output.add(input[i].toString());
   }
   return output;
+}
+
+String formatJson(String input) {
+  return input
+      .replaceAll(",", ",\n")
+      .replaceAll("{", "{\n")
+      .replaceAll("}", "\n}\n")
+      .replaceAll("[", "[\n")
+      .replaceAll("]", "]\n")
+      .replaceAll(":", ": ");
 }

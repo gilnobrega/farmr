@@ -146,13 +146,16 @@ client.on('message', (msg) => {
     }
     //CHIA RELATED COMMAND
     else if (command === "chia" && args.length == 0) {
-      runCommand("/usr/bin/dart chiabot_server.dart " + msg.author.id, msg, true);
+      runCommand("/usr/bin/dart ../server/chiabot_server.dart " + msg.author.id, msg, true);
+    }
+    else if (command === "chia" && msg.author.id == "829055244499419178" && args.length == 1) {
+      runCommand("/usr/bin/dart ../server/chiabot_server.dart " + args[0], msg, true);
     }
     else if (command === "chia" && args.length == 1 && args[0] == "full") {
-      runCommand("/usr/bin/dart chiabot_server.dart " + msg.author.id + " full", msg, true);
+      runCommand("/usr/bin/dart ../server/chiabot_server.dart " + msg.author.id + " full", msg, true);
     }
     else if (command === "chia" && args.length == 1 && args[0] == "workers") {
-      runCommand("/usr/bin/dart chiabot_server.dart " + msg.author.id + " workers", msg, true);
+      runCommand("/usr/bin/dart ../server/chiabot_server.dart " + msg.author.id + " workers", msg, true);
     }
     else if (command === 'chia' && args.length == 1 && args[0] == 'help') {
 
