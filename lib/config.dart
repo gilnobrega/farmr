@@ -63,25 +63,27 @@ class Config {
   Future<void> init() async {
     //Loads cache file
     if (!_cache.existsSync())
-      _saveCache();
+      _saveCache(); //creates cache file if doesnt exist
     else
       _loadCache(); //chiabot_cache.json
 
     //If file doesnt exist then create new config
     if (!_config.existsSync())
-      await saveConfig();
+      await saveConfig(); //creates config file if doesnt exist
     //If file exists then loads config
     else
       _loadConfig(); //chiabot.json
 
+    //and asks for bin path if path is not defined/not found
+    if (_binPath == null || !io.File(_binPath).existsSync())
+      await _askForBinPath();
+
     info(); //shows first screen info with qr code, id, !chia, etc.
+
   }
 
   //Creates config file
   Future<void> saveConfig() async {
-    if (_binPath == null || !io.File(_binPath).existsSync())
-      await _askForBinPath();
-
     String contents = formatJson(jsonEncode([
       {
         "chiaPath": chiaPath,
@@ -126,6 +128,9 @@ class Config {
       else
         print("Uh oh, that directory could not be found! Please try again.");
     }
+
+    await saveConfig(); //saves path input by user to config
+    _saveCache(); //saves bin path to cache
   }
 
   //If in windows, tries a bunch of directories
@@ -198,8 +203,6 @@ class Config {
 
     if (contents[0]['sendBalanceNotifications'] != null)
       _sendBalanceNotifications = contents[0]['sendBalanceNotifications'];
-
-    await saveConfig();
   }
 
   //saves cache file
