@@ -23,8 +23,7 @@ class Config {
   String _chiaConfigPath = (io.Platform.isLinux)
       ? io.Platform.environment['HOME'] + "/.chia/mainnet/config/"
       : (io.Platform.isWindows)
-          ? io.Platform.environment['UserProfile'] +
-              "\\.chia\\mainnet\\config\\"
+          ? io.Platform.environment['UserProfile'] + "\\.chia\\mainnet\\config\\"
           : "";
 
   String get chiaConfigPath => _chiaConfigPath;
@@ -52,8 +51,10 @@ class Config {
     io.File _oldConfig = io.File(this.chiaConfigPath + "chiabot.json");
     io.File _oldCache = io.File(this.chiaConfigPath + "chiabot_cache.json");
 
-    if (_oldConfig.existsSync()) _oldConfig.renameSync(_config.absolute.path);
-    if (_oldCache.existsSync()) _oldCache.renameSync(_cache.absolute.path);
+    if (!_config.existsSync() && _oldConfig.existsSync())
+      _oldConfig.copySync(_config.absolute.path);
+      
+    if (!_cache.existsSync() && _oldCache.existsSync()) _oldCache.copySync(_cache.absolute.path);
 
     _type = (!isHarvester) ? ClientType.Farmer : ClientType.Harvester;
 
@@ -75,11 +76,9 @@ class Config {
       _loadConfig(); //chiabot.json
 
     //and asks for bin path if path is not defined/not found
-    if (_binPath == null || !io.File(_binPath).existsSync())
-      await _askForBinPath();
+    if (_binPath == null || !io.File(_binPath).existsSync()) await _askForBinPath();
 
     info(); //shows first screen info with qr code, id, !chia, etc.
-
   }
 
   //Creates config file
@@ -108,15 +107,12 @@ class Config {
     validDirectory = await _tryDirectories();
 
     while (!validDirectory) {
-      print("Specify your chia-blockchain directory below: (e.g.: " +
-          exampleDir +
-          ")");
+      print("Specify your chia-blockchain directory below: (e.g.: " + exampleDir + ")");
 
       _chiaPath = io.stdin.readLineSync();
 
-      _binPath = (io.Platform.isLinux)
-          ? _chiaPath + "/venv/bin/chia"
-          : _chiaPath + "\\daemon\\chia.exe";
+      _binPath =
+          (io.Platform.isLinux) ? _chiaPath + "/venv/bin/chia" : _chiaPath + "\\daemon\\chia.exe";
 
       if (io.File(_binPath).existsSync())
         validDirectory = true;
@@ -142,8 +138,8 @@ class Config {
 
     if (io.Platform.isWindows) {
       //Checks if binary exist in C:\User\AppData\Local\chia-blockchain\resources\app.asar.unpacked\daemon\chia.exe
-      chiaRootDir = io.Directory(io.Platform.environment['UserProfile'] +
-          "/AppData/Local/chia-blockchain");
+      chiaRootDir =
+          io.Directory(io.Platform.environment['UserProfile'] + "/AppData/Local/chia-blockchain");
 
       file = "/resources/app.asar.unpacked/daemon/chia.exe";
 
@@ -195,8 +191,7 @@ class Config {
     //do not remove this
     if (contents[0]['binPath'] != null) _binPath = contents[0]['binPath'];
 
-    if (contents[0]['showBalance'] != null)
-      _showBalance = contents[0]['showBalance'];
+    if (contents[0]['showBalance'] != null) _showBalance = contents[0]['showBalance'];
 
     if (contents[0]['sendPlotNotifications'] != null)
       _sendPlotNotifications = contents[0]['sendPlotNotifications'];
@@ -252,8 +247,7 @@ class Config {
     print("");
     print("to link this client to your discord user");
     print("You can interact with ChiaBot in its discord server.");
-    print(
-        "Open the following link to join the server: https://discord.gg/pxgh8tBzGU ");
+    print("Open the following link to join the server: https://discord.gg/pxgh8tBzGU ");
     print(line);
     print("");
   }
