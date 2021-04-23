@@ -111,7 +111,7 @@ void mainText(Farm farm, [bool showPerDay = true]) {
   lastPlotTime(farm.plots);
   lastPlotSize(farm);
 
-  String chiaPerDayString = (farm.balance < 0.0 && showPerDay)
+  String chiaPerDayString = (farm.balance < 0.0 || !showPerDay)
       ? "" //for some reason needs a new line here
       : "(" +
           chiaPerDay.toStringAsFixed(2) +
