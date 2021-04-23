@@ -157,15 +157,15 @@ void fullText(Farm farm) {
   print("");
 
   //Calculates when it will run out of space based on last week's statistics
-  int outOfSpaceHours = ((farm.freeDiskSpace / weekSize) * 7 * 24).round();
+  int outOfSpaceHours = (weekSize > 0) ? ((farm.freeDiskSpace / weekSize) * 7 * 24).round() : 0;
   String outOfSpace = durationToTime(Duration(hours: outOfSpaceHours));
 
   print("Last week: completed ${weekCount.toString()} plots");
 
-  if (farm.supportDiskSpace)
+  if (farm.supportDiskSpace && farm.freeDiskSpace > 0 && weekSize > 0)
     print("Out of space in ${outOfSpace}");
   //If time until out of space is shorter than 4 hours then it will assume it's out of space
-  else if (outOfSpaceHours <= 4) print(":warning: **OUT OF SPACE** :warning:");
+  else if (outOfSpaceHours <= 4 && weekSize > 0) print(":warning: **OUT OF SPACE** :warning:");
 
   print("");
 
