@@ -65,8 +65,8 @@ Future<void> main(List<String> args) async {
         harvester.sortPlots();
 
         print("**Harvester " + (k + 1).toString() + ":**");
-        farmStatus(harvester,false);
-        mainText(harvester,false);
+        farmStatus(harvester, false);
+        mainText(harvester, false);
         print("");
         fullText(harvester);
         lastUpdatedText(harvester, 0);
@@ -126,6 +126,7 @@ void fullText(Farm farm) {
 
   int daysAgo = 8; //Lists plots upto 8 days ago, including current day
   int weekCount = 0; //counts plots in week of completed days
+  int weekSize = 0;
 
   for (int k = 0; k < daysAgo; k++) {
     List<Plot> plots = plotsNDaysAgo(farm, k);
@@ -144,6 +145,7 @@ void fullText(Farm farm) {
             count.toString() +
             " plots";
         weekCount += count;
+        weekSize += sumSize;
       }
 
       text += " (" + fileSize(sumSize, 1);
@@ -151,6 +153,19 @@ void fullText(Farm farm) {
       print(text);
     }
   }
+
+  print("");
+
+  //Calculates when it will run out of space based on last week's statistics
+  int outOfSpaceHours = ((farm.freeDiskSpace / weekSize) * 7 * 24).round();
+  String outOfSpace = durationToTime(Duration(hours: outOfSpaceHours));
+
+  print("Last week: completed ${weekCount.toString()} plots");
+
+  if (farm.supportDiskSpace)
+    print("Out of space in ${outOfSpace}");
+  //If time until out of space is shorter than 4 hours then it will assume it's out of space
+  else if (outOfSpaceHours <= 4) print(":warning: **OUT OF SPACE** :warning:");
 
   print("");
 
@@ -290,7 +305,7 @@ String durationToTime(Duration duration) {
 
   day = twoDigits(day) + ((day == "") ? "" : "d ");
   hour = twoDigits(hour) + ((hour == "") ? "" : "h ");
-  minute = twoDigits(minute) + "m ";
+  minute = (minute == "0") ? '' : twoDigits(minute) + "m ";
 
   return day + hour + minute;
 }
