@@ -51,13 +51,17 @@ class Config {
     io.File _oldConfig = io.File(this.chiaConfigPath + "chiabot.json");
     io.File _oldCache = io.File(this.chiaConfigPath + "chiabot_cache.json");
 
-   //Copies old config file to new path and deletes old config file
-    if ( _oldConfig.existsSync()) {
-      _oldConfig.copySync(_config.absolute.path);
-      _oldConfig.deleteSync();
-    }
+    try {
+      //Copies old config file to new path and deletes old config file
+      if (_oldConfig.existsSync()) {
+        _oldConfig.copySync(_config.absolute.path);
+        _oldConfig.deleteSync();
+      }
 
-    if (!_cache.existsSync() && _oldCache.existsSync()) _oldCache.copySync(_cache.absolute.path);
+      if (!_cache.existsSync() && _oldCache.existsSync()) _oldCache.copySync(_cache.absolute.path);
+    } catch (e) {
+      print("Failed to port old config files!");
+    }
 
     _type = (!isHarvester) ? ClientType.Farmer : ClientType.Harvester;
 
