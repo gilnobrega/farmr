@@ -51,9 +51,12 @@ class Config {
     io.File _oldConfig = io.File(this.chiaConfigPath + "chiabot.json");
     io.File _oldCache = io.File(this.chiaConfigPath + "chiabot_cache.json");
 
-    if (!_config.existsSync() && _oldConfig.existsSync())
+   //Copies old config file to new path and deletes old config file
+    if ( _oldConfig.existsSync()) {
       _oldConfig.copySync(_config.absolute.path);
-      
+      _oldConfig.deleteSync();
+    }
+
     if (!_cache.existsSync() && _oldCache.existsSync()) _oldCache.copySync(_cache.absolute.path);
 
     _type = (!isHarvester) ? ClientType.Farmer : ClientType.Harvester;
