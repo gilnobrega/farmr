@@ -65,8 +65,8 @@ Future<void> main(List<String> args) async {
         harvester.sortPlots();
 
         print("**Harvester " + (k + 1).toString() + ":**");
-        farmStatus(harvester);
-        mainText(harvester);
+        farmStatus(harvester,false);
+        mainText(harvester,false);
         print("");
         fullText(harvester);
         lastUpdatedText(harvester, 0);
