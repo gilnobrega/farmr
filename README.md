@@ -62,12 +62,17 @@ This is how it looks like:
 [{
    "showBalance": true,
    "sendPlotNotifications": true,
-   "sendBalanceNotifications": true
+   "sendBalanceNotifications": true,
+   "sendOfflieNotifications": false
 }]
 ```
 Set ``showBalance`` to ``false`` if you do not want your balance to be reported.
 
-You may set ``sendPlotNotifications`` and ``sendBalanceNotifications`` to ``false`` if you do not wish to receive notifications.
+You may set ``sendPlotNotifications`` to ``false`` if you do not wish to be notified when your farmer/harvester completes a plot.
+
+You may set ``sendBalanceNotifications`` to ``false`` if you do not wish to be notified when your farmer finds a block.
+
+You may set ``sendOfflineNotifications`` to ``true`` if you do wish to be notified when your farmer/harvester loses connection.
 
 You may delete ``config.json`` to reset settings and generate a new id once the client is started again.
 
