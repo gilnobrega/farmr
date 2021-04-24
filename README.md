@@ -72,7 +72,7 @@ You may set ``sendPlotNotifications`` to ``false`` if you do not wish to be noti
 
 You may set ``sendBalanceNotifications`` to ``false`` if you do not wish to be notified when your farmer finds a block.
 
-You may set ``sendOfflineNotifications`` to ``true`` if you do wish to be notified when your farmer/harvester loses connection.
+You may set ``sendOfflineNotifications`` to ``true`` if you wish to be notified when your farmer/harvester loses connection.
 
 You may delete ``config.json`` to reset settings and generate a new id once the client is started again.
 
