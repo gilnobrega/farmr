@@ -3,6 +3,7 @@
 "chiaPath": null,
 "showBalance": true,
 "sendPlotNotifications": true,
-"sendBalanceNotifications": true
+"sendBalanceNotifications": true,
+"sendOfflineNotifications": false
 }
 ]

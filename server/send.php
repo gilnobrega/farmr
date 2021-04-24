@@ -108,6 +108,15 @@ if ( isset($_GET['id']) && isset($_POST['data']))
             }
 
         }
+
+        if (isset($_GET['notifyOffline']))
+        {
+            $notify = $conn -> real_escape_string($_GET['notifyOffline']);
+
+            $command4 = " INSERT INTO offline (id, notify) VALUES ('" . $id . "','" . $notify . "') ON DUPLICATE KEY UPDATE notify='" . $notify . "' ;";
+            $conn -> query($command4);
+
+        }
     
     }
 }

@@ -15,8 +15,8 @@ main(List<String> args) async {
   });
 
   //Initializes config, either creates a new one or loads a config file
-  Config config = new Config((args.length == 1 &&
-      (args[0] == "harvester" || args[0] == '-h'))); //checks if is harvester
+  Config config = new Config(
+      (args.length == 1 && (args[0] == "harvester" || args[0] == '-h'))); //checks if is harvester
 
   await config.init();
 
@@ -56,7 +56,10 @@ main(List<String> args) async {
       //String that's actually sent to server
       String sendJson = jsonEncode(farmcopy);
 
-      String url = "https://chiabot.znc.sh/send.php?id=" + config.id;
+      String notifyOffline = (config.sendOfflineNotifications) ? '1' : '0';
+
+      String url =
+          "https://chiabot.znc.sh/send.php?id=" + config.id + "&notifyOffline=" + notifyOffline;
 
       //Adds the following if sendPlotNotifications is enabled then it will send plotID
       if (config.sendPlotNotifications) url += "&lastPlot=" + lastPlotID;
@@ -64,8 +67,7 @@ main(List<String> args) async {
       //If the client is a farmer and it is farming and sendBalanceNotifications is enabled then it will send balance
       if (config.type == ClientType.Farmer &&
           config.sendBalanceNotifications &&
-          status == "Farming")
-        url += "&balance=" + Uri.encodeComponent(balance.toString());
+          status == "Farming") url += "&balance=" + Uri.encodeComponent(balance.toString());
 
       //print(url);  //UNCOMMENT FOR DEBUG PURPOSES
 

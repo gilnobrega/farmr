@@ -16,13 +16,9 @@ if ( isset($_GET['user']))
 
  while ($row = $result -> fetch_row()) {
    echo "[" . $row[0] . "];;";
-};
-
 }
 
-//Deletes data older than 15 minutes
-$command2 = " UPDATE farms SET `lastUpdated` = `lastUpdated`, data='' WHERE `lastUpdated` < DATE_SUB(NOW(), INTERVAL 15 MINUTE) ;";
-$result = $conn -> query($command2);
+}
 
 $conn -> close();
 ?>

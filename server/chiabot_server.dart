@@ -16,8 +16,7 @@ Future<void> main(List<String> args) async {
   List<Farm> harvesters = [];
 
   try {
-    contents = contents.substring(
-        0, contents.length - 3); //filters last , of send page, can be fixed on server side later
+    contents = contents.trim(); //filters last , of send page, can be fixed on server side later
 
     var clientsSerial = contents
         .replaceAll("[;;]", "")

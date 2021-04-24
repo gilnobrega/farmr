@@ -40,6 +40,9 @@ class Config {
   bool _sendBalanceNotifications = true; //balance notifications
   bool get sendBalanceNotifications => _sendBalanceNotifications;
 
+  bool _sendOfflineNotifications = false; //offline notifications
+  bool get sendOfflineNotifications => _sendOfflineNotifications;
+
   List<Plot> _plots = []; //cached plots
   List<Plot> get plots => _plots;
 
@@ -96,6 +99,7 @@ class Config {
         "showBalance": showBalance,
         "sendPlotNotifications": sendPlotNotifications,
         "sendBalanceNotifications": sendBalanceNotifications,
+        "sendOfflineNotifications": sendOfflineNotifications
       }
     ]));
 
@@ -205,6 +209,11 @@ class Config {
 
     if (contents[0]['sendBalanceNotifications'] != null)
       _sendBalanceNotifications = contents[0]['sendBalanceNotifications'];
+
+    if (contents[0]['sendOfflineNotifications'] != null)
+      _sendOfflineNotifications = contents[0]['sendOfflineNotifications'];
+
+    await saveConfig();
   }
 
   //saves cache file
