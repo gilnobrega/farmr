@@ -163,10 +163,13 @@ void fullText(Farm farm) {
   print("Last week: completed ${weekCount.toString()} plots");
 
   if (farm.supportDiskSpace) {
+    //If free space is less than a k32 plot size
+    if (farm.freeDiskSpace > 0 && farm.freeDiskSpace < 1.1e9)
+      print(":warning: **OUT OF SPACE** :warning:");
     if (farm.freeDiskSpace > 0 && weekSize > 0)
       print("Out of space in ${outOfSpace}");
     //If time until out of space is shorter than 4 hours then it will assume it's out of space
-    else if (outOfSpaceHours <= 4 && weekSize > 0) print(":warning: **OUT OF SPACE** :warning:");
+    else if (outOfSpaceHours <= 4 && weekSize > 0) print("**OUT OF SPACE IN $outOfSpace**");
   }
 
   print("");
