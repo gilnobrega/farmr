@@ -16,6 +16,8 @@ client.login(process.env.BOT_TOKEN); //loads discord token from environment vari
 
 const { exec } = require("child_process");
 
+const minsTimeout = 15; //message timeout in mins
+
 //executes shell command
 function runCommand(command, msg) {
   exec(command, (error, stdout, stderr) => {
@@ -44,7 +46,16 @@ function runCommand(command, msg) {
         .setColor(0x40ab5c)
         .setDescription(text)
         .setFooter(lastUpdated);
-      msg.channel.send(embed);
+      
+        msg.channel.send(embed).then( sentmsg => {
+
+          if (msg.channel.type != "dm")
+          {
+            setTimeout(() => msg.delete(), minsTimeout * 1 * 1000);
+            setTimeout(() => sentmsg.delete(), minsTimeout * 1 * 1000);
+          }
+        });
+
     });
 
     console.log(msg.author.id);
