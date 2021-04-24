@@ -51,8 +51,8 @@ function runCommand(command, msg) {
 
           if (msg.channel.type != "dm")
           {
-            setTimeout(() => msg.delete(), minsTimeout * 1 * 1000);
-            setTimeout(() => sentmsg.delete(), minsTimeout * 1 * 1000);
+            setTimeout(() => msg.delete(), minsTimeout * 60 * 1000);
+            setTimeout(() => sentmsg.delete(), minsTimeout * 60 * 1000);
           }
         });
 
