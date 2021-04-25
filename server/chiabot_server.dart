@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'dart:math' as Math;
 
 import 'package:http/http.dart' as http;
 
@@ -158,7 +159,8 @@ void fullText(Farm farm) {
   print("");
 
   //Calculates when it will run out of space based on last week's statistics
-  int outOfSpaceHours = (weekSize > 0) ? ((farm.freeDiskSpace / weekSize) * daysWithPlots * 24).round() : 0;
+  int outOfSpaceHours =
+      (weekSize > 0) ? ((farm.freeDiskSpace / weekSize) * daysWithPlots * 24).round() : 0;
   String outOfSpace = durationToTime(Duration(hours: outOfSpaceHours));
 
   print("Last week: completed ${weekCount.toString()} plots");
@@ -430,9 +432,16 @@ String humanReadableDate(String ndaysago) {
 //Estimates ETW in days
 //Decimals are more precise (in theory)
 double estimateETW(Farm farm) {
-  double size = double.parse(plotSumSize(farm.plots).toString());
-  double networkSizeBytes = double.parse(farm.networkSize.replaceAll(" PiB", "")) *
-      (1125900000000000); //THIS WILL BREAK ONE DAY 1 PIB = 1125900000000000  ??
+  double networkSizeBytes = 0;
+
+  int size = plotSumSize(farm.plots);
+
+  //1 PiB is 1024^5 bytes, 1 EiB is 1024^6 bytes
+  if (farm.networkSize.contains("PiB"))
+    networkSizeBytes = double.parse(farm.networkSize.replaceAll(" PiB", "")) *
+        Math.pow(1024, 5); 
+  else if (farm.networkSize.contains("EiB"))
+    networkSizeBytes = double.parse(farm.networkSize.replaceAll(" EiB", "")) * Math.pow(1024, 6);
 
   double blocks = 32.0; //32 blocks per 10 minutes
 
