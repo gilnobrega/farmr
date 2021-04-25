@@ -126,6 +126,7 @@ void fullText(Farm farm) {
   int daysAgo = 8; //Lists plots upto 8 days ago, including current day
   int weekCount = 0; //counts plots in week of completed days
   int weekSize = 0;
+  int daysWithPlots = 0; //days in the last week with plots
 
   for (int k = 0; k < daysAgo; k++) {
     List<Plot> plots = plotsNDaysAgo(farm, k);
@@ -145,6 +146,7 @@ void fullText(Farm farm) {
             " plots";
         weekCount += count;
         weekSize += sumSize;
+        daysWithPlots += 1;
       }
 
       text += " (" + fileSize(sumSize, 1);
@@ -156,7 +158,7 @@ void fullText(Farm farm) {
   print("");
 
   //Calculates when it will run out of space based on last week's statistics
-  int outOfSpaceHours = (weekSize > 0) ? ((farm.freeDiskSpace / weekSize) * 7 * 24).round() : 0;
+  int outOfSpaceHours = (weekSize > 0) ? ((farm.freeDiskSpace / weekSize) * daysWithPlots * 24).round() : 0;
   String outOfSpace = durationToTime(Duration(hours: outOfSpaceHours));
 
   print("Last week: completed ${weekCount.toString()} plots");
@@ -191,7 +193,7 @@ void fullText(Farm farm) {
     }
   }
 
-  print("Last 7 days: " + (weekCount / 7.0).toStringAsFixed(2) + " plots per day");
+  print("Last 7 days: " + (weekCount / daysWithPlots).toStringAsFixed(2) + " plots per day");
 
   print("");
 
