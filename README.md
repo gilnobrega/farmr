@@ -2,7 +2,7 @@
 
 A discord bot that monitors your chia farm summary and sends notifications when blocks are found and new plots are completed. It can link multiple farmers/harvesters to your account.
 
-The ChiaBot client is available for Linux and Windows. You can interact with the bot in [ChiaBot playground](https://discord.gg/fPjnWYYFmp) discord server.
+The ChiaBot client is available for Linux and Windows. You can interact with the bot in [ChiaBot playground](https://discord.gg/aEkYWQGWdS) discord server.
 
 ### Main Features
 | ``!chia`` command: | Block and Plot notifications: |
@@ -34,7 +34,7 @@ The script will install dart, git, screen and setup the client for you. Do **not
 If you have trouble running the script try running `` dart pub get`` and `` dart chiabot.dart `` manually.
 
 ### First time
-ChiaBot will generate an id for your device. You can link this device to your discord account by heading to [ChiaBot playground](https://discord.gg/fPjnWYYFmp) and sending the following message:
+ChiaBot will generate an id for your device. You can link this device to your discord account by heading to [ChiaBot playground](https://discord.gg/aEkYWQGWdS) and sending the following message:
 ```
 !chia link [your-client-id]
 ```
@@ -63,7 +63,7 @@ This is how it looks like:
    "showBalance": true,
    "sendPlotNotifications": true,
    "sendBalanceNotifications": true,
-   "sendOfflieNotifications": false
+   "sendOfflineNotifications": false
 }]
 ```
 Set ``showBalance`` to ``false`` if you do not want your balance to be reported.
