@@ -1,5 +1,7 @@
 import 'dart:core';
 import 'dart:io' as io;
+import 'dart:math' as Math;
+
 import 'package:path/path.dart';
 import 'package:filesize/filesize.dart';
 
@@ -7,8 +9,9 @@ class Plot {
   String _id;
   String get id => _id;
 
-  String _plotSize;
+  String _plotSize = "k32"; //defaults to plot size k32
   String get plotSize => _plotSize;
+  int get plotSizeInt => int.parse(_plotSize.substring(1));
 
   int _year;
   int _month;
@@ -30,6 +33,10 @@ class Plot {
 
   int _size;
   int get size => _size;
+  //expected size of at least 1e11 bytes (100gb), rough approximation
+  int get _expectedSize => (Math.pow(2, (plotSizeInt - 32)) * 1e11).toInt();
+  //assumes plot is complete (and not incomplete) if the size is over (minimum) expected size
+  bool get complete => _size > _expectedSize;
 
   Plot(io.File file) {
     List<String> list = basename(file.path).split('-');
@@ -96,33 +103,24 @@ class Plot {
 }
 
 String dateToString(DateTime date) {
-  return date.year.toString() +
-      "-" +
-      date.month.toString() +
-      "-" +
-      date.day.toString();
+  return date.year.toString() + "-" + date.month.toString() + "-" + date.day.toString();
 }
 
 DateTime stringToDate(String input) {
   var array = input.split('-');
-  return new DateTime(
-      int.parse(array[0]), int.parse(array[1]), int.parse(array[2]));
+  return new DateTime(int.parse(array[0]), int.parse(array[1]), int.parse(array[2]));
 }
 
 //finds the last plot in a list of plots
 Plot lastPlot(List<Plot> plots) {
   return plots.reduce((plot1, plot2) =>
-      (plot1.end.millisecondsSinceEpoch > plot2.end.millisecondsSinceEpoch)
-          ? plot1
-          : plot2);
+      (plot1.end.millisecondsSinceEpoch > plot2.end.millisecondsSinceEpoch) ? plot1 : plot2);
 }
 
 //finds the first plot in a list of plots
 Plot firstPlot(List<Plot> plots) {
   return plots.reduce((plot1, plot2) =>
-      (plot1.begin.millisecondsSinceEpoch < plot2.begin.millisecondsSinceEpoch)
-          ? plot1
-          : plot2);
+      (plot1.begin.millisecondsSinceEpoch < plot2.begin.millisecondsSinceEpoch) ? plot1 : plot2);
 }
 
 //Returns sum of size of plots in a given list

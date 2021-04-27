@@ -211,6 +211,12 @@ void fullText(Farm farm) {
       print("Last " + n[i].toString() + " plots average: " + durationToTime(avg));
     }
   }
+
+  //If found incomplete plots then it will show this warning below
+  if (farm.incompletePlots.length > 0) {
+    print("");
+    print("**${farm.incompletePlots.length}** potentially incomplete plots");
+  }
 }
 
 //Output regarding info from "chia farm summary" command
@@ -438,8 +444,7 @@ double estimateETW(Farm farm) {
 
   //1 PiB is 1024^5 bytes, 1 EiB is 1024^6 bytes
   if (farm.networkSize.contains("PiB"))
-    networkSizeBytes = double.parse(farm.networkSize.replaceAll(" PiB", "")) *
-        Math.pow(1024, 5); 
+    networkSizeBytes = double.parse(farm.networkSize.replaceAll(" PiB", "")) * Math.pow(1024, 5);
   else if (farm.networkSize.contains("EiB"))
     networkSizeBytes = double.parse(farm.networkSize.replaceAll(" EiB", "")) * Math.pow(1024, 6);
 

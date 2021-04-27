@@ -33,8 +33,14 @@ class Farm {
 
   List<String> _plotDests = []; //plot destination paths
 
-  List<Plot> _plots;
-  List<Plot> get plots => _plots;
+  //Private list with complete and incomplete plots
+  List<Plot> _allPlots;
+  List<Plot> get allPlots => _allPlots;
+
+  //Returns list of complete plots
+  List<Plot> get plots => _allPlots.where((plot) => plot.complete).toList();
+  //Returns list of incomplete plots
+  List<Plot> get incompletePlots => _allPlots.where((plot) => !plot.complete).toList();
 
   //Timestamp to when the farm was last parsed
   DateTime _lastUpdated;
@@ -65,7 +71,7 @@ class Farm {
         'size': size,
         'networkSize': networkSize,
         'plotNumber': plotNumber,
-        'plots': plots,
+        'plots': _allPlots, //important
         'totalDiskSpace': totalDiskSpace,
         'freeDiskSpace': freeDiskSpace,
         'lastUpdated': lastUpdated.millisecondsSinceEpoch,
@@ -75,22 +81,20 @@ class Farm {
 
   Farm(Config config) {
     _config = config;
-    _plots = config.plots; //loads plots from cache
+    _allPlots = config.plots; //loads plots from cache
     _type = config.type;
 
     //runs chia farm summary if it is a farmer
     if (config.type == ClientType.Farmer) {
       var result = io.Process.runSync(config.binPath, ["farm", "summary"]);
-      List<String> lines =
-          result.stdout.toString().replaceAll("\r", "").split('\n');
+      List<String> lines = result.stdout.toString().replaceAll("\r", "").split('\n');
       try {
         for (int i = 0; i < lines.length; i++) {
           String line = lines[i];
 
           if (line.startsWith("Total chia farmed: "))
-            _balance = (config.showBalance)
-                ? double.parse(line.split('Total chia farmed: ')[1])
-                : -1.0;
+            _balance =
+                (config.showBalance) ? double.parse(line.split('Total chia farmed: ')[1]) : -1.0;
           else if (line.startsWith("Farming status: "))
             _status = line.split("Farming status: ")[1];
           else if (line.startsWith("Plot count: "))
@@ -118,10 +122,10 @@ class Farm {
     _size = object['size'];
     _networkSize = object['networkSize'];
     _plotNumber = object['plotNumber'];
-    _plots = [];
+    _allPlots = [];
 
     for (int i = 0; i < object['plots'].length; i++) {
-      _plots.add(Plot.fromJson(object['plots'][i]));
+      _allPlots.add(Plot.fromJson(object['plots'][i]));
     }
 
     if (object['totalDiskSpace'] != null && object['freeDiskSpace'] != null) {
@@ -130,15 +134,13 @@ class Farm {
 
       //if one of these values is 0 then it will assume that something went wrong in parsing disk space
       //or the client was outdated
-      if (_totalDiskSpace == 0 || _freeDiskSpace == 0)
-        _supportDiskSpace = false;
+      if (_totalDiskSpace == 0 || _freeDiskSpace == 0) _supportDiskSpace = false;
     } else
       _supportDiskSpace = false;
 
     _lastUpdated = DateTime.fromMillisecondsSinceEpoch(object['lastUpdated']);
 
-    if (object['lastUpdatedString'] != null)
-      _lastUpdatedString = object['lastUpdatedString'];
+    if (object['lastUpdatedString'] != null) _lastUpdatedString = object['lastUpdatedString'];
 
     _type = ClientType.values[object['type']];
   }
@@ -160,11 +162,9 @@ class Farm {
   List<String> listPlotDest() {
     String configPath = _config.chiaConfigPath + "config.yaml";
 
-    var config = loadYaml(
-        io.File(configPath).readAsStringSync().replaceAll("!!set", ""));
+    var config = loadYaml(io.File(configPath).readAsStringSync().replaceAll("!!set", ""));
 
-    List<String> pathsUnfiltered =
-        ylistToStringlist(config['harvester']['plot_directories']);
+    List<String> pathsUnfiltered = ylistToStringlist(config['harvester']['plot_directories']);
 
     //Filters duplicate paths
     List<String> pathsFiltered = [];
@@ -180,10 +180,9 @@ class Farm {
 
   //Adds harvester's plots into farm's plots
   void addHarvester(Farm harvester) {
-    plots.addAll(harvester.plots);
+    _allPlots.addAll(harvester.allPlots);
 
-    if (harvester.totalDiskSpace == 0 || harvester.freeDiskSpace == 0)
-      _supportDiskSpace = false;
+    if (harvester.totalDiskSpace == 0 || harvester.freeDiskSpace == 0) _supportDiskSpace = false;
 
     //Adds harvester total and free disk space when merging
     _totalDiskSpace += harvester.totalDiskSpace;
@@ -191,13 +190,13 @@ class Farm {
   }
 
   void sortPlots() {
-    plots.sort((plot1, plot2) => (plot1.begin
-        .compareTo(plot2.begin))); //Sorts plots from oldest to newest
+    plots.sort(
+        (plot1, plot2) => (plot1.begin.compareTo(plot2.begin))); //Sorts plots from oldest to newest
   }
 
   //makes an id based on end and start timestamps for the last plot, necessary to call notifications webhook
   String lastPlotID() {
-    Plot last = lastPlot(plots);
+    Plot last = lastPlot(plots); //last completed plot
 
     String id = "0"; //if plot notificationd are off then it will default to 0
 
@@ -260,8 +259,7 @@ class Farm {
 
           //If plot id it is in cache then adds old plot information (timestamps, etc.)
           if (inCache) {
-            newplots.add(
-                plots.firstWhere((cachedPlot) => cachedPlot.id == plot.id));
+            newplots.add(plots.firstWhere((cachedPlot) => cachedPlot.id == plot.id));
           }
           //Adds plot if it's not in cache already
           else {
@@ -272,13 +270,13 @@ class Farm {
       });
     }
 
-    _plots = newplots;
+    _allPlots = newplots;
 
     _config.savePlotsCache(plots);
   }
 
   //clears plots ids before sending info to server
   void clearIDs() {
-    for (int i = 0; i < _plots.length; i++) _plots[i].clearID();
+    for (int i = 0; i < _allPlots.length; i++) _allPlots[i].clearID();
   }
 }
