@@ -63,7 +63,7 @@ This is how it looks like:
    "showBalance": true,
    "sendPlotNotifications": true,
    "sendBalanceNotifications": true,
-   "sendOfflieNotifications": false
+   "sendOfflineNotifications": false
 }]
 ```
 Set ``showBalance`` to ``false`` if you do not want your balance to be reported.
