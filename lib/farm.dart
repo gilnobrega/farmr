@@ -172,7 +172,14 @@ class Farm {
     for (int i = 0; i < pathsUnfiltered.length; i++) {
       io.Directory dir = io.Directory(pathsUnfiltered[i]);
 
-      if (dir.existsSync()) pathsFiltered.add(dir.absolute.path);
+      if (dir.existsSync())
+      {
+        bool isEmpty = dir.listSync().where((file) => extension(file.path) == ".plot").toList().length == 0;
+
+        //Adds plot dest if it contains at least one .plot file
+        if (!isEmpty)
+         pathsFiltered.add(dir.absolute.path);
+      }
     }
 
     return pathsFiltered.toSet().toList();
@@ -210,6 +217,7 @@ class Farm {
     try {
       // uses own universal_disk_space library
       uds.DiskSpace diskspace = new uds.DiskSpace();
+
       List<uds.Disk> disks = [];
 
       for (int i = 0; i < _plotDests.length; i++) {
@@ -258,7 +266,7 @@ class Farm {
           bool inCache = _allPlots.any((cachedPlot) => cachedPlot.id == id);
 
           //If plot id it is in cache then adds old plot information (timestamps, etc.)
-          if (inCache) 
+          if (inCache)
             newplots.add(plots.firstWhere((cachedPlot) => cachedPlot.id == id));
           //Adds plot if it's not in cache already
           else {

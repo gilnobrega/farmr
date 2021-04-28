@@ -56,8 +56,5 @@ if [ ! -f "/usr/bin/screen" ]; then
     sudo apt-get install screen -y;
 fi
 
-#Updates repo
-git pull;
-
 $dartpath pub get;
 screen -q -d -R -S chiabot $dartpath chiabot.dart $1 ;

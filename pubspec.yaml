@@ -11,4 +11,4 @@ dependencies:
   filesize: ^1.0.4
   dart_console: ^1.0.0
   qr: ^2.0.0
-  universal_disk_space: ^0.1.12
+  universal_disk_space: ^0.1.13
