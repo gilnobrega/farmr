@@ -233,7 +233,7 @@ void farmStatus(Harvester client, [bool showETW = true]) {
     String etw =
         (showETW) ? "(next block in " + estimateETW(client).toStringAsFixed(1) + " days)" : '';
 
-    String balanceText = (client is Harvester || client.balance < 0.0)
+    String balanceText = (client.balance < 0.0)
         ? "Next block in ~" + etw + " days"
         : "**" +
             client.balance.toString() +
