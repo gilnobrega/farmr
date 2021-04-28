@@ -61,14 +61,14 @@ This is how it looks like:
 ```json
 [{
    "showBalance": true,
-   "sendPlotNotifications": true,
+   "sendPlotNotifications": false,
    "sendBalanceNotifications": true,
    "sendOfflineNotifications": false
 }]
 ```
 Set ``showBalance`` to ``false`` if you do not want your balance to be reported.
 
-You may set ``sendPlotNotifications`` to ``false`` if you do not wish to be notified when your farmer/harvester completes a plot.
+You may set ``sendPlotNotifications`` to ``true`` if you wish to be notified when your farmer/harvester completes a plot.
 
 You may set ``sendBalanceNotifications`` to ``false`` if you do not wish to be notified when your farmer finds a block.
 
