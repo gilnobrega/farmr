@@ -3,9 +3,9 @@ import 'dart:math' as Math;
 
 import 'package:http/http.dart' as http;
 
-import '../lib/farm.dart';
+import '../lib/farmer.dart';
+import '../lib/harvester.dart';
 import '../lib/plot.dart';
-import '../lib/config.dart';
 
 Future<void> main(List<String> args) async {
   //Discord User ID
@@ -13,8 +13,8 @@ Future<void> main(List<String> args) async {
 
   String contents = await http.read("https://chiabot.znc.sh/read.php?user=" + userID);
 
-  List<Farm> farmers = [];
-  List<Farm> harvesters = [];
+  List<Farmer> farmers = [];
+  List<Harvester> harvesters = [];
 
   try {
     contents = contents.trim(); //filters last , of send page, can be fixed on server side later
@@ -26,20 +26,25 @@ Future<void> main(List<String> args) async {
         .toList();
 
     for (int i = 0; i < clientsSerial.length; i++) {
-      Farm f = Farm.fromJson(clientsSerial[i]);
+      String clientSerial = clientsSerial[i];
+
+      var client;
 
       //If this object is a farmer then adds it to farmers list, if not adds it to harvesters list
-      if (f.type == ClientType.Farmer)
-        farmers.add(f);
-      else
-        harvesters.add(f);
+      if (clientSerial.contains('"type":0')) {
+        client = Farmer.fromJson(clientSerial);
+        farmers.add(client);
+      } else if (clientSerial.contains('"type":1')) {
+        client = Harvester.fromJson(clientSerial);
+        harvesters.add(client);
+      }
     }
 
     //Sorts farms by newest
     farmers.sort((farm1, farm2) => (farm1.lastUpdated.millisecondsSinceEpoch
         .compareTo(farm2.lastUpdated.millisecondsSinceEpoch)));
 
-    Farm farm = farmers.last; //Selects newest farm as main farm
+    Farmer farm = farmers.last; //Selects newest farm as main farm
 
     if (args.contains("workers")) {
       print("**Farmer:**");
@@ -60,7 +65,7 @@ Future<void> main(List<String> args) async {
       for (int k = 0; k < harvesters.length; k++) {
         print(";;"); // discord bot uses ;; to split into a new message
 
-        Farm harvester = harvesters[k];
+        Harvester harvester = harvesters[k];
         harvester.filterDuplicates(); //filters duplicates in harvester
         harvester.sortPlots();
 
@@ -104,14 +109,16 @@ Future<void> main(List<String> args) async {
   }
 }
 
-void mainText(Farm farm, [bool showPerDay = true]) {
-  Duration farmedTime = farmingTime(farm.plots);
-  double chiaPerDay = (farm.balance / farmingTime(farm.plots).inMinutes) * (60 * 24);
+void mainText(Harvester client, [bool showPerDay = true]) {
+  Duration farmedTime = farmingTime(client.plots);
+  double chiaPerDay =
+      (client is Farmer) ? (client.balance / farmingTime(client.plots).inMinutes) * (60 * 24) : 0;
 
-  lastPlotTime(farm.plots);
-  lastPlotSize(farm);
+  lastPlotTime(client.plots);
+  lastPlotSize(client);
 
-  String chiaPerDayString = (farm.balance < 0.0 || !showPerDay)
+  //hides balance if client is harvester or if it's farmer and showBalance is false
+  String chiaPerDayString = (!(client is Farmer) || ((client is Farmer) && client.balance < 0.0))
       ? "" //for some reason needs a new line here
       : "(" +
           chiaPerDay.toStringAsFixed(2) +
@@ -120,7 +127,7 @@ void mainText(Farm farm, [bool showPerDay = true]) {
   print(":clock10: Farmed for " + durationToTime(farmedTime) + " " + chiaPerDayString);
 }
 
-void fullText(Farm farm) {
+void fullText(Harvester client) {
   var n = [null, 5, 20, 50, 100, 200, 500]; //last n plots, null represents all plots
   var d = [null]; //last d days, null represents overall
 
@@ -130,7 +137,7 @@ void fullText(Farm farm) {
   int daysWithPlots = 0; //days in the last week with plots
 
   for (int k = 0; k < daysAgo; k++) {
-    List<Plot> plots = plotsNDaysAgo(farm, k);
+    List<Plot> plots = plotsNDaysAgo(client, k);
 
     int count = plots.length;
     int sumSize = plotSumSize(plots);
@@ -141,7 +148,7 @@ void fullText(Farm farm) {
       if (k == 0) {
         text += "Today: completed " + count.toString() + " plots";
       } else {
-        text += humanReadableDate(nDaysAgoString(farm, k)) +
+        text += humanReadableDate(nDaysAgoString(client, k)) +
             ": completed " +
             count.toString() +
             " plots";
@@ -160,16 +167,16 @@ void fullText(Farm farm) {
 
   //Calculates when it will run out of space based on last week's statistics
   int outOfSpaceHours =
-      (weekSize > 0) ? ((farm.freeDiskSpace / weekSize) * daysWithPlots * 24).round() : 0;
+      (weekSize > 0) ? ((client.freeDiskSpace / weekSize) * daysWithPlots * 24).round() : 0;
   String outOfSpace = durationToTime(Duration(hours: outOfSpaceHours));
 
   print("Last week: completed ${weekCount.toString()} plots");
 
-  if (farm.supportDiskSpace) {
+  if (client.supportDiskSpace) {
     //If free space is less than a k32 plot size
-    if (farm.freeDiskSpace > 0 && farm.freeDiskSpace < 1.1e9)
+    if (client.freeDiskSpace > 0 && client.freeDiskSpace < 1.1e9)
       print(":warning: **OUT OF SPACE** :warning:");
-    if (farm.freeDiskSpace > 0 && weekSize > 0)
+    if (client.freeDiskSpace > 0 && weekSize > 0)
       print("Out of space in ${outOfSpace}");
     //If time until out of space is shorter than 4 hours then it will assume it's out of space
     else if (outOfSpaceHours <= 4 && weekSize > 0) print("**OUT OF SPACE IN $outOfSpace**");
@@ -177,7 +184,7 @@ void fullText(Farm farm) {
 
   print("");
 
-  Duration farmed = farmedTime(farm.plots);
+  Duration farmed = farmedTime(client.plots);
 
   for (int j = 0; j < d.length; j++) {
     double ppd = 0.0; //plots per day
@@ -185,11 +192,11 @@ void fullText(Farm farm) {
     //does overall plot per day if overPeriod average period is not defined,
     //if this period is defined then it calculates plotsPerDay using its dedicated function
     if (d[j] == null) {
-      ppd = (farm.plots.length / farmed.inMinutes) * 60.0 * 24.0;
+      ppd = (client.plots.length / farmed.inMinutes) * 60.0 * 24.0;
       print("All time:  " + ppd.toStringAsFixed(2) + " plots per day");
     } else {
       Duration overPeriod = Duration(days: d[j]);
-      ppd = plotsPerDay(farm.plots, overPeriod);
+      ppd = plotsPerDay(client.plots, overPeriod);
 
       print("Last " + d[j].toString() + " days: " + ppd.toStringAsFixed(2) + " plots per day");
     }
@@ -201,49 +208,49 @@ void fullText(Farm farm) {
 
   for (int i = 0; i < n.length; i++) {
     if (n[i] == null) {
-      Duration avg = averagePlotDuration(farm.plots);
+      Duration avg = averagePlotDuration(client.plots);
 
       print("All time average plot length: " + durationToTime(avg));
-    } else if (farm.plots.length > n[i]) {
+    } else if (client.plots.length > n[i]) {
       //LAST N PLOT AVERAGE
-      Duration avg = averagePlotDuration(lastNPlots(farm.plots, n[i]));
+      Duration avg = averagePlotDuration(lastNPlots(client.plots, n[i]));
 
       print("Last " + n[i].toString() + " plots average: " + durationToTime(avg));
     }
   }
 
   //If found incomplete plots then it will show this warning below
-  if (farm.incompletePlots.length > 0) {
+  if (client.incompletePlots.length > 0) {
     print("");
-    print("**${farm.incompletePlots.length}** potentially incomplete plots");
+    print("**${client.incompletePlots.length}** potentially incomplete plots");
   }
 }
 
 //Output regarding info from "chia farm summary" command
-void farmStatus(Farm farm, [bool showETW = true]) {
+void farmStatus(Harvester client, [bool showETW = true]) {
   //if its farmer then shows balance and farming status
-  if (farm.type == ClientType.Farmer) {
+  if (client is Farmer) {
     String etw =
-        (showETW) ? "(next block in " + estimateETW(farm).toStringAsFixed(1) + " days)" : '';
+        (showETW) ? "(next block in " + estimateETW(client).toStringAsFixed(1) + " days)" : '';
 
-    String balanceText = (farm.balance < 0.0)
+    String balanceText = (client is Harvester || client.balance < 0.0)
         ? "Next block in ~" + etw + " days"
         : "**" +
-            farm.balance.toString() +
+            client.balance.toString() +
             " XCH** " +
             etw; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
 
-    if (farm.status != "Farming") print(":warning: **NOT FARMING** :warning:");
+    if (client.status != "Farming") print(":warning: **NOT FARMING** :warning:");
     print("\<:chia:833767070201151528> " + balanceText);
   }
 
   //e.g. using 3.7 TB out of 7TB
-  String plotInfo = "(using " + fileSize(plotSumSize(farm.plots));
+  String plotInfo = "(using " + fileSize(plotSumSize(client.plots));
 
-  if (farm.supportDiskSpace)
-    plotInfo += " out of " + fileSize(farm.totalDiskSpace); //if farm supports disk space then
+  if (client.supportDiskSpace)
+    plotInfo += " out of " + fileSize(client.totalDiskSpace); //if farm supports disk space then
 
-  print(":farmer: **" + farm.plots.length.toString() + " plots** " + plotInfo + ")");
+  print(":farmer: **" + client.plots.length.toString() + " plots** " + plotInfo + ")");
 }
 
 //calculates plot time of last plot
@@ -266,8 +273,8 @@ void lastPlotTime(List<Plot> plots) {
 }
 
 //calculates plot size of last plot
-void lastPlotSize(Farm farm) {
-  Duration finishedAgo = DateTime.now().difference(lastPlot(farm.plots).end);
+void lastPlotSize(Harvester client) {
+  Duration finishedAgo = DateTime.now().difference(lastPlot(client.plots).end);
 
   //If the finished timestamp is less than 1 minute ago then it assumes it's still copying the plot to the destination
   String finishedAgoString = (finishedAgo.inMinutes == 0)
@@ -275,10 +282,10 @@ void lastPlotSize(Farm farm) {
       : ("(completed " + durationToTime(finishedAgo) + "ago)");
 
   print("\<:hdd:831678109018751037> Size: " +
-      fileSize(lastPlot(farm.plots).size, 1) +
+      fileSize(lastPlot(client.plots).size, 1) +
       " " +
       finishedAgoString);
-  if (farm.type == ClientType.Farmer) print(":satellite: Network size: " + farm.networkSize);
+  if (client is Farmer) print(":satellite: Network size: " + client.networkSize);
 }
 
 //Duration between first plot started being plotted and last plot is completed
@@ -330,11 +337,11 @@ String twoDigits(String input) {
 }
 
 //Shows harvester count and when farm was last updated
-void lastUpdatedText(Farm farm, int harvestersCount) {
+void lastUpdatedText(Harvester client, int harvestersCount) {
   String count = "--"; // -- is last updated split character
   count +=
       (harvestersCount > 0) ? "1 farmer, " + harvestersCount.toString() + " harvesters - " : "";
-  Duration difference = DateTime.now().difference(farm.lastUpdated);
+  Duration difference = DateTime.now().difference(client.lastUpdated);
   if (difference.inSeconds >= 60) {
     print(count + "updated " + difference.inMinutes.toString() + " minutes ago");
   } else {
@@ -396,13 +403,13 @@ double plotsPerDay(List<Plot> plots, Duration overPeriod) {
 }
 
 //Returns number of plots finished n days ago
-List<Plot> plotsNDaysAgo(Farm farm, int n) {
-  return farm.plots.where((plot) => plot.date == nDaysAgoString(farm, n)).toList();
+List<Plot> plotsNDaysAgo(Harvester client, int n) {
+  return client.plots.where((plot) => plot.date == nDaysAgoString(client, n)).toList();
 }
 
 //Makes an n days ago string based on farmer's timezone
-String nDaysAgoString(Farm farm, int n) {
-  DateTime clientToday = stringToDate(farm.lastUpdatedString);
+String nDaysAgoString(Harvester client, int n) {
+  DateTime clientToday = stringToDate(client.lastUpdatedString);
 
   DateTime nDaysAgo = clientToday.subtract(Duration(days: n));
 
@@ -437,16 +444,16 @@ String humanReadableDate(String ndaysago) {
 
 //Estimates ETW in days
 //Decimals are more precise (in theory)
-double estimateETW(Farm farm) {
+double estimateETW(Farmer farmer) {
   double networkSizeBytes = 0;
 
-  int size = plotSumSize(farm.plots);
+  int size = plotSumSize(farmer.plots);
 
   //1 PiB is 1024^5 bytes, 1 EiB is 1024^6 bytes
-  if (farm.networkSize.contains("PiB"))
-    networkSizeBytes = double.parse(farm.networkSize.replaceAll(" PiB", "")) * Math.pow(1024, 5);
-  else if (farm.networkSize.contains("EiB"))
-    networkSizeBytes = double.parse(farm.networkSize.replaceAll(" EiB", "")) * Math.pow(1024, 6);
+  if (farmer.networkSize.contains("PiB"))
+    networkSizeBytes = double.parse(farmer.networkSize.replaceAll(" PiB", "")) * Math.pow(1024, 5);
+  else if (farmer.networkSize.contains("EiB"))
+    networkSizeBytes = double.parse(farmer.networkSize.replaceAll(" EiB", "")) * Math.pow(1024, 6);
 
   double blocks = 32.0; //32 blocks per 10 minutes
 

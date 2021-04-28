@@ -3,7 +3,8 @@ import 'dart:io' as io;
 import 'dart:core';
 import 'package:http/http.dart' as http;
 
-import 'lib/farm.dart';
+import 'lib/farmer.dart';
+import 'lib/harvester.dart';
 import 'lib/config.dart';
 
 final Duration delay = Duration(minutes: 10); //10 minutes delay between updates
@@ -24,23 +25,28 @@ main(List<String> args) async {
     String lastPlotID = "";
     String balance = "";
     String status = "";
-    String farmJson = "";
+    String copyJson = "";
 
     //PARSES DATA
     try {
-      Farm farm = new Farm(config);
-      await farm.init();
+      var client = (config.type == ClientType.Farmer) ? new Farmer(config) : new Harvester(config);
+      await client.init();
 
       //Throws exception in case no plots were found
-      if (farm.plots.length == 0)
+      if (client.plots.length == 0)
         throw Exception(
             "No plots have been found! Make sure your user has access to the folders where plots are stored.");
 
-      lastPlotID = farm.lastPlotID();
-      balance = farm.balance.toString();
-      status = farm.status;
+      //if plot notifications are off then it will default to 0
+      lastPlotID = (config.sendPlotNotifications) ? client.lastPlotID() : "0";
 
-      farmJson = jsonEncode(farm);
+      if (client is Farmer) {
+        balance = client.balance.toString();
+        status = client.status;
+      }
+
+      //copies object to a json string
+      copyJson = jsonEncode(client);
     } catch (exception) {
       print("Oh no! Something went wrong.");
       print(exception.toString());
@@ -48,13 +54,13 @@ main(List<String> args) async {
 
     //SENDS DATA TO SERVER
     try {
-      Farm farmcopy = Farm.fromJson("[" + farmJson + "]");
+      var copy = (config.type == ClientType.Farmer) ? Farmer.fromJson("[" + copyJson + "]") : Harvester.fromJson("[" + copyJson + "]");
 
       //clones farm so it can clear ids before sending them to server
-      farmcopy.clearIDs();
+      copy.clearIDs();
 
       //String that's actually sent to server
-      String sendJson = jsonEncode(farmcopy);
+      String sendJson = jsonEncode(copy);
 
       String notifyOffline = (config.sendOfflineNotifications) ? '1' : '0';
 
