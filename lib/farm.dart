@@ -253,18 +253,18 @@ class Farm {
       await dir.list(recursive: false).forEach((file) {
         //Checks if file extension is .plot
         if (extension(file.path) == ".plot") {
-          Plot plot = new Plot(file);
+          String id = basenameWithoutExtension(file.path).split('-').last;
 
-          bool inCache = plots.any((cachedPlot) => cachedPlot.id == plot.id);
+          bool inCache = _allPlots.any((cachedPlot) => cachedPlot.id == id);
 
           //If plot id it is in cache then adds old plot information (timestamps, etc.)
-          if (inCache) {
-            newplots.add(plots.firstWhere((cachedPlot) => cachedPlot.id == plot.id));
-          }
+          if (inCache) 
+            newplots.add(plots.firstWhere((cachedPlot) => cachedPlot.id == id));
           //Adds plot if it's not in cache already
           else {
+            //print("Found new plot " + id); // UNCOMMENT FOR DEBUGGING PLOT CACHE
+            Plot plot = new Plot(file);
             newplots.add(plot);
-            //print("Added new plot: ${plot.id}");
           }
         }
       });
@@ -272,7 +272,7 @@ class Farm {
 
     _allPlots = newplots;
 
-    _config.savePlotsCache(plots);
+    _config.savePlotsCache(_allPlots);
   }
 
   //clears plots ids before sending info to server

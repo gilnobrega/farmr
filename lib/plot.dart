@@ -39,7 +39,7 @@ class Plot {
   bool get complete => _size > _expectedSize;
 
   Plot(io.File file) {
-    List<String> list = basename(file.path).split('-');
+    List<String> list = basenameWithoutExtension(file.path).split('-');
 
     _plotSize = list[1];
 
@@ -60,7 +60,7 @@ class Plot {
 
     _size = stat.size;
 
-    _id = list[7].replaceAll(".plot", "");
+    _id = list[7];
     //in the client plotid is that long hash, while in the server its based on timestamps
     //this solves problems with copying plots
   }
