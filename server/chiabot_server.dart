@@ -500,7 +500,7 @@ void showFilters(List<Debug.Filter> filters) {
 
     for (Debug.Filter filter in filters) totalEligiblePlots += filter.eligiblePlots;
 
-    print("Log: **${totalEligiblePlots}** plots passed ${times.length} filters");
+    print("Today's log: **${totalEligiblePlots}** plots passed ${times.length} filters");
 
     print("Longest response time: **${maxTime}** seconds");
     print("Shortest response time: ${minTime} seconds ");

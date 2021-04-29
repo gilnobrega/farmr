@@ -9,6 +9,7 @@ class Log {
           ? io.Platform.environment['UserProfile'] + "\\.chia\\mainnet\\log\\"
           : "";
 
+  String debugPath;
   io.File _debugFile;
 
   String currentDay = dateToString(DateTime.now());
@@ -17,9 +18,16 @@ class Log {
   List<Filter> get filters => _filters;
 
   Log() {
-    _debugFile = io.File(_chiaDebugPath + "debug.log");
+    debugPath = _chiaDebugPath + "debug.log";
 
-    if (_debugFile.existsSync()) parseDebug(_debugFile.readAsStringSync());
+    //parses debug.log, debug.log.1, debug.log.2, ...
+    for (int i = 0; i < 10; i++) {
+      String ext = (i == 0) ? '' : ('.' + i.toString());
+
+      _debugFile = io.File(_chiaDebugPath + "debug.log" + ext);
+
+      if (_debugFile.existsSync()) parseDebug(_debugFile.readAsStringSync());
+    }
 
     filters
         .shuffle(); //shuffles filters so that harvester can't be tracked by answered challenges time
@@ -41,7 +49,6 @@ class Log {
         print("Error parsing filters!");
       }
     }
-    ;
   }
 }
 
