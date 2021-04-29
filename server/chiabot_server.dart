@@ -2,6 +2,7 @@ import 'dart:core';
 import 'dart:math' as Math;
 
 import 'package:http/http.dart' as http;
+import 'package:stats/stats.dart';
 
 import '../lib/farmer.dart';
 import '../lib/harvester.dart';
@@ -241,7 +242,7 @@ void fullText(Harvester client) {
 //Output regarding info from "chia farm summary" command
 void farmStatus(Harvester client, [bool showETW = true]) {
   String balanceText = "";
-  
+
   if (client is Farmer && client.status != "Farming") print(":warning: **NOT FARMING** :warning:");
 
   //if its farmer then shows balance and farming status
@@ -484,8 +485,14 @@ void showFilters(List<Debug.Filter> filters) {
   if (filters.length > 0) {
     filters.sort((filter1, filter2) => filter1.time.compareTo(filter2.time));
 
-    double maxTime = filters.last.time;
-    double minTime = filters.first.time;
+    List<double> times = filters.map((filter) => filter.time).toList();
+
+    Stats timeStats = Stats.fromData(times);
+
+    String maxTime = timeStats.max.toString();
+    String minTime = timeStats.min.toStringAsFixed(3);
+    String avgTime = timeStats.average.toStringAsFixed(3);
+    String medianTime = timeStats.median.toStringAsFixed(3);
 
     int totalEligiblePlots = 0;
 
@@ -494,8 +501,8 @@ void showFilters(List<Debug.Filter> filters) {
     print("Log: **${totalEligiblePlots}** plots passed filter");
 
     print("Longest response time: **${maxTime}** seconds");
-    print("Shortest response time: ${minTime} seconds");
+    print("Min: ${minTime}s Avg: ${avgTime}s Median: ${medianTime}s");
 
-    if (maxTime > 25) print(":warning: ** Response time too long ** :warning:");
+    if (timeStats.max > 25) print(":warning: ** Response time too long ** :warning:");
   }
 }
