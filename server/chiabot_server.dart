@@ -240,19 +240,20 @@ void fullText(Harvester client) {
 
 //Output regarding info from "chia farm summary" command
 void farmStatus(Harvester client, [bool showETW = true]) {
+  if (client is Farmer && client.status != "Farming") print(":warning: **NOT FARMING** :warning:");
+
   //if its farmer then shows balance and farming status
-  if (client is Farmer) {
-    String etw =
-        (showETW) ? "(next block in " + estimateETW(client).toStringAsFixed(1) + " days)" : '';
+  if (client is Farmer && showETW) {
+    String etw = estimateETW(client).toStringAsFixed(1);
+    String etwtext = (showETW) ? "(next block in " + etw + " days)" : '';
 
     String balanceText = (client.balance < 0.0)
         ? "Next block in ~" + etw + " days"
         : "**" +
             client.balance.toString() +
             " XCH** " +
-            etw; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
+            etwtext; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
 
-    if (client.status != "Farming") print(":warning: **NOT FARMING** :warning:");
     print("\<:chia:833767070201151528> " + balanceText);
   }
 
@@ -261,7 +262,8 @@ void farmStatus(Harvester client, [bool showETW = true]) {
   String plotInfo = "(using " + fileSize(plotsSize);
 
   if (client.supportDiskSpace)
-    plotInfo += " out of " + fileSize(client.freeDiskSpace + plotsSize); //if farm supports disk space then
+    plotInfo +=
+        " out of " + fileSize(client.freeDiskSpace + plotsSize); //if farm supports disk space then
 
   print(":farmer: **" + client.plots.length.toString() + " plots** " + plotInfo + ")");
 }
