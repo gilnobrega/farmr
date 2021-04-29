@@ -256,11 +256,12 @@ void farmStatus(Harvester client, [bool showETW = true]) {
     print("\<:chia:833767070201151528> " + balanceText);
   }
 
+  int plotsSize = plotSumSize(client.plots);
   //e.g. using 3.7 TB out of 7TB
-  String plotInfo = "(using " + fileSize(plotSumSize(client.plots));
+  String plotInfo = "(using " + fileSize(plotsSize);
 
   if (client.supportDiskSpace)
-    plotInfo += " out of " + fileSize(client.totalDiskSpace); //if farm supports disk space then
+    plotInfo += " out of " + fileSize(client.freeDiskSpace + plotsSize); //if farm supports disk space then
 
   print(":farmer: **" + client.plots.length.toString() + " plots** " + plotInfo + ")");
 }
