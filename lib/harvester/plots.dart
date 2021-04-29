@@ -60,7 +60,7 @@ class HarvesterPlots {
           bool duplicate = newplots.any((plot) => plot.id == id);
 
           //If plot id it is in cache then adds old plot information (timestamps, etc.)
-          if (inCache)
+          if (inCache && !duplicate)
             newplots.add(allPlots.firstWhere((cachedPlot) => cachedPlot.id == id));
           //Adds plot if it's not in cache already
           else if (!duplicate) {
