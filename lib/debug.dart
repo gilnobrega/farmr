@@ -16,7 +16,7 @@ class Log {
   List<Filter> _filters = [];
   List<Filter> get filters => _filters;
 
-  Debug() {
+  Log() {
     _debugFile = io.File(_chiaDebugPath + "debug.log");
 
     if (_debugFile.existsSync()) parseDebug(_debugFile.readAsStringSync());

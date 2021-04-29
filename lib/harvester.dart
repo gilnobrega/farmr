@@ -48,7 +48,8 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots {
     _lastUpdated = DateTime.now();
     _lastUpdatedString = dateToString(_lastUpdated);
 
-    filters = Debug.Log().filters;
+    Debug.Log log = Debug.Log();
+    filters = log.filters;
   }
 
   Harvester.fromJson(String json) {
