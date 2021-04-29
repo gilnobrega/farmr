@@ -480,20 +480,16 @@ void showFilters(List<Debug.Filter> filters) {
 
     double maxTime = filters.last.time;
     double minTime = filters.first.time;
-    int totalProofs = 0;
+
     int totalEligiblePlots = 0;
 
-    for (Debug.Filter filter in filters) {
-      totalProofs += filter.proofs;
-      totalEligiblePlots += filter.eligiblePlots;
-    }
+    for (Debug.Filter filter in filters) totalEligiblePlots += filter.eligiblePlots;
 
-    print("Today: found **${totalProofs}** proofs in **${totalEligiblePlots}** plots");
+    print("Log: **${totalEligiblePlots}** plots passed filter");
 
     print("Longest response time: **${maxTime}** seconds");
     print("Shortest response time: ${minTime} seconds");
 
     if (maxTime > 25) print(":warning: ** Response time too long ** :warning:");
-
   }
 }
