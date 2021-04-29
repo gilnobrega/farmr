@@ -488,7 +488,7 @@ void showFilters(List<Debug.Filter> filters) {
       totalEligiblePlots += filter.eligiblePlots;
     }
 
-    print("${totalProofs} proofs found in ${totalEligiblePlots} plots today.");
+    print("Today: **${totalProofs}** proofs found in **${totalEligiblePlots}** plots");
 
     print("Longest response time: **${maxTime}** seconds");
     print("Shortest response time: ${minTime} seconds");
