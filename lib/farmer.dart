@@ -6,7 +6,6 @@ import 'config.dart';
 import 'harvester.dart';
 
 class Farmer extends Harvester {
-
   String _status;
   String get status => _status;
 
@@ -40,32 +39,32 @@ class Farmer extends Harvester {
         'lastUpdated': lastUpdated.millisecondsSinceEpoch,
         'lastUpdatedString': lastUpdatedString,
         'type': type.index,
+        'filters': filters
       };
 
   Farmer(Config config) : super(config) {
-
     //runs chia farm summary if it is a farmer
-      var result = io.Process.runSync(config.binPath, ["farm", "summary"]);
-      List<String> lines = result.stdout.toString().replaceAll("\r", "").split('\n');
-      try {
-        for (int i = 0; i < lines.length; i++) {
-          String line = lines[i];
+    var result = io.Process.runSync(config.binPath, ["farm", "summary"]);
+    List<String> lines = result.stdout.toString().replaceAll("\r", "").split('\n');
+    try {
+      for (int i = 0; i < lines.length; i++) {
+        String line = lines[i];
 
-          if (line.startsWith("Total chia farmed: "))
-            _balance =
-                (config.showBalance) ? double.parse(line.split('Total chia farmed: ')[1]) : -1.0;
-          else if (line.startsWith("Farming status: "))
-            _status = line.split("Farming status: ")[1];
-          else if (line.startsWith("Plot count: "))
-            _plotNumber = int.parse(line.split("Plot count: ")[1]);
-          else if (line.startsWith("Total size of plots: "))
-            _size = line.split("Total size of plots: ")[1];
-          else if (line.startsWith("Estimated network space: "))
-            _networkSize = line.split("Estimated network space: ")[1];
-        }
-      } catch (exception) {
-        print("Error parsing Farm info.");
+        if (line.startsWith("Total chia farmed: "))
+          _balance =
+              (config.showBalance) ? double.parse(line.split('Total chia farmed: ')[1]) : -1.0;
+        else if (line.startsWith("Farming status: "))
+          _status = line.split("Farming status: ")[1];
+        else if (line.startsWith("Plot count: "))
+          _plotNumber = int.parse(line.split("Plot count: ")[1]);
+        else if (line.startsWith("Total size of plots: "))
+          _size = line.split("Total size of plots: ")[1];
+        else if (line.startsWith("Estimated network space: "))
+          _networkSize = line.split("Estimated network space: ")[1];
       }
+    } catch (exception) {
+      print("Error parsing Farm info.");
+    }
   }
 
   //Server side function to read farm from json file
@@ -77,12 +76,12 @@ class Farmer extends Harvester {
     _size = object['size'];
     _networkSize = object['networkSize'];
     _plotNumber = object['plotNumber'];
-
   }
 
   //Adds harvester's plots into farm's plots
   void addHarvester(Harvester harvester) {
     allPlots.addAll(harvester.allPlots);
+    filters.addAll(harvester.filters);
 
     if (harvester.totalDiskSpace == 0 || harvester.freeDiskSpace == 0) supportDiskSpace = false;
 
@@ -90,5 +89,4 @@ class Farmer extends Harvester {
     totalDiskSpace += harvester.totalDiskSpace;
     freeDiskSpace += harvester.freeDiskSpace;
   }
-
 }

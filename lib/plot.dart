@@ -103,7 +103,10 @@ class Plot {
 }
 
 String dateToString(DateTime date) {
-  return date.year.toString() + "-" + date.month.toString() + "-" + date.day.toString();
+  String month = date.month.toString();
+  String day = date.day.toString();
+
+  return date.year.toString() + "-" + month + "-" + day;
 }
 
 DateTime stringToDate(String input) {

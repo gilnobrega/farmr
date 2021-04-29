@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import '../lib/farmer.dart';
 import '../lib/harvester.dart';
 import '../lib/plot.dart';
+import '../lib/debug.dart' as Debug;
 
 Future<void> main(List<String> args) async {
   //Discord User ID
@@ -57,6 +58,9 @@ Future<void> main(List<String> args) async {
       print("");
       fullText(farm);
 
+      print("");
+      showFilters(farm.filters);
+
       lastUpdatedText(farm, 0);
 
       harvesters.sort(
@@ -74,6 +78,10 @@ Future<void> main(List<String> args) async {
         mainText(harvester, false);
         print("");
         fullText(harvester);
+
+        print("");
+        showFilters(harvester.filters);
+
         lastUpdatedText(harvester, 0);
       }
     } else {
@@ -99,6 +107,10 @@ Future<void> main(List<String> args) async {
       averagePlotDuration(farm.plots);
 
       fullText(farm);
+
+      print("");
+      showFilters(farm.filters);
+
       lastUpdatedText(farm, harvesters.length);
     }
 
@@ -460,4 +472,28 @@ double estimateETW(Farmer farmer) {
   double calc = (networkSizeBytes / size) / (blocks * 6.0 * 24.0);
 
   return calc;
+}
+
+void showFilters(List<Debug.Filter> filters) {
+  if (filters.length > 0) {
+    filters.sort((filter1, filter2) => filter1.time.compareTo(filter2.time));
+
+    double maxTime = filters.last.time;
+    double minTime = filters.first.time;
+    int totalProofs = 0;
+    int totalEligiblePlots = 0;
+
+    for (Debug.Filter filter in filters) {
+      totalProofs += filter.proofs;
+      totalEligiblePlots += filter.eligiblePlots;
+    }
+
+    print("${totalProofs} proofs found in ${totalEligiblePlots} plots today.");
+
+    print("Longest response time: **${maxTime}** seconds");
+    print("Shortest response time: ${minTime} seconds");
+
+    if (maxTime > 25) print(":warning: ** Response time too long ** :warning:");
+
+  }
 }

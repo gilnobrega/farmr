@@ -9,6 +9,8 @@ import 'config.dart';
 import 'harvester/plots.dart';
 import 'harvester/diskspace.dart';
 
+import 'debug.dart' as Debug;
+
 class Harvester with HarvesterDiskSpace, HarvesterPlots {
   Config _config;
   List<String> _plotDests = []; //plot destination paths
@@ -22,9 +24,11 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots {
   String _lastUpdatedString = "1971-01-01";
   String get lastUpdatedString => _lastUpdatedString;
 
-  //Farmer or Harvester 
+  //Farmer or Harvester
   ClientType _type = ClientType.Harvester;
   ClientType get type => _type;
+
+  List<Debug.Filter> filters = [];
 
   Map toJson() => {
         'plots': allPlots, //important
@@ -33,6 +37,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots {
         'lastUpdated': lastUpdated.millisecondsSinceEpoch,
         'lastUpdatedString': lastUpdatedString,
         'type': type.index,
+        'filters': filters
       };
 
   Harvester(Config config) {
@@ -42,6 +47,8 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots {
 
     _lastUpdated = DateTime.now();
     _lastUpdatedString = dateToString(_lastUpdated);
+
+    filters = Debug.Log().filters;
   }
 
   Harvester.fromJson(String json) {
@@ -51,6 +58,12 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots {
 
     for (int i = 0; i < object['plots'].length; i++) {
       allPlots.add(Plot.fromJson(object['plots'][i]));
+    }
+
+    if (object['filters'] != null) {
+      for (int i = 0; i < object['filters'].length; i++) {
+        filters.add(Debug.Filter.fromJson(object['filters'][i]));
+      }
     }
 
     if (object['totalDiskSpace'] != null && object['freeDiskSpace'] != null) {

@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'lib/farmer.dart';
 import 'lib/harvester.dart';
 import 'lib/config.dart';
+import 'lib/debug.dart';
 
 final Duration delay = Duration(minutes: 10); //10 minutes delay between updates
 
@@ -54,7 +55,9 @@ main(List<String> args) async {
 
     //SENDS DATA TO SERVER
     try {
-      var copy = (config.type == ClientType.Farmer) ? Farmer.fromJson("[" + copyJson + "]") : Harvester.fromJson("[" + copyJson + "]");
+      var copy = (config.type == ClientType.Farmer)
+          ? Farmer.fromJson("[" + copyJson + "]")
+          : Harvester.fromJson("[" + copyJson + "]");
 
       //clones farm so it can clear ids before sending them to server
       copy.clearIDs();
