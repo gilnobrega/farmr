@@ -240,6 +240,8 @@ void fullText(Harvester client) {
 
 //Output regarding info from "chia farm summary" command
 void farmStatus(Harvester client, [bool showETW = true]) {
+  String balanceText = "";
+  
   if (client is Farmer && client.status != "Farming") print(":warning: **NOT FARMING** :warning:");
 
   //if its farmer then shows balance and farming status
@@ -247,15 +249,16 @@ void farmStatus(Harvester client, [bool showETW = true]) {
     String etw = estimateETW(client).toStringAsFixed(1);
     String etwtext = (showETW) ? "(next block in " + etw + " days)" : '';
 
-    String balanceText = (client.balance < 0.0)
+    balanceText = (client.balance < 0.0)
         ? "Next block in ~" + etw + " days"
         : "**" +
             client.balance.toString() +
             " XCH** " +
             etwtext; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
 
-    print("\<:chia:833767070201151528> " + balanceText);
   }
+
+  if (client is Farmer) print("\<:chia:833767070201151528> " + balanceText);
 
   int plotsSize = plotSumSize(client.plots);
   //e.g. using 3.7 TB out of 7TB
