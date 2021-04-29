@@ -8,7 +8,6 @@ import '../plot.dart';
 import '../config.dart';
 
 class HarvesterPlots {
-
   //Private list with complete and incomplete plots
   List<Plot> allPlots;
 
@@ -58,12 +57,13 @@ class HarvesterPlots {
           String id = basenameWithoutExtension(file.path).split('-').last;
 
           bool inCache = allPlots.any((cachedPlot) => cachedPlot.id == id);
+          bool duplicate = newplots.any((plot) => plot.id == id);
 
           //If plot id it is in cache then adds old plot information (timestamps, etc.)
           if (inCache)
-            newplots.add(plots.firstWhere((cachedPlot) => cachedPlot.id == id));
+            newplots.add(allPlots.firstWhere((cachedPlot) => cachedPlot.id == id));
           //Adds plot if it's not in cache already
-          else {
+          else if (!duplicate) {
             //print("Found new plot " + id); // UNCOMMENT FOR DEBUGGING PLOT CACHE
             Plot plot = new Plot(file);
             newplots.add(plot);
