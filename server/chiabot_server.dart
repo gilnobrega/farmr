@@ -241,25 +241,26 @@ void fullText(Harvester client) {
 
 //Output regarding info from "chia farm summary" command
 void farmStatus(Harvester client, [bool showETW = true]) {
-  String balanceText = "";
+  String etw = "";
+  String etwtext = "";
 
   if (client is Farmer && client.status != "Farming") print(":warning: **NOT FARMING** :warning:");
 
   //if its farmer then shows balance and farming status
   if (client is Farmer && showETW) {
-    String etw = estimateETW(client).toStringAsFixed(1);
-    String etwtext = (showETW) ? "(next block in " + etw + " days)" : '';
+    etw = estimateETW(client).toStringAsFixed(1);
+    etwtext = (showETW) ? "(next block in " + etw + " days)" : '';
+  }
 
-    balanceText = (client.balance < 0.0)
+  if (client is Farmer) {
+    String balanceText = (client.balance < 0.0)
         ? "Next block in ~" + etw + " days"
         : "**" +
             client.balance.toString() +
             " XCH** " +
             etwtext; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
-
+    print("\<:chia:833767070201151528> " + balanceText);
   }
-
-  if (client is Farmer) print("\<:chia:833767070201151528> " + balanceText);
 
   int plotsSize = plotSumSize(client.plots);
   //e.g. using 3.7 TB out of 7TB
@@ -493,15 +494,17 @@ void showFilters(List<Debug.Filter> filters) {
     String minTime = timeStats.min.toStringAsFixed(3);
     String avgTime = timeStats.average.toStringAsFixed(3);
     String medianTime = timeStats.median.toStringAsFixed(3);
+    String stdDevTime = timeStats.standardDeviation.toStringAsFixed(3);
 
     int totalEligiblePlots = 0;
 
     for (Debug.Filter filter in filters) totalEligiblePlots += filter.eligiblePlots;
 
-    print("Log: **${totalEligiblePlots}** plots passed filter");
+    print("Log: **${totalEligiblePlots}** plots passed ${times.length} filters");
 
     print("Longest response time: **${maxTime}** seconds");
-    print("Min: ${minTime}s Avg: ${avgTime}s Median: ${medianTime}s");
+    print("Shortest response time: ${minTime} seconds ");
+    print("Median: ${medianTime}s Avg: ${avgTime}s σ: ${stdDevTime}s");
 
     if (timeStats.max > 25) print(":warning: ** Response time too long ** :warning:");
   }
