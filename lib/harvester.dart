@@ -40,15 +40,14 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots {
         'filters': filters
       };
 
-  Harvester(Config config) {
+  Harvester(Config config, Debug.Log log) {
     _config = config;
 
-    allPlots = config.plots; //loads plots from cache
+    allPlots = config.cache.plots; //loads plots from cache
 
     _lastUpdated = DateTime.now();
     _lastUpdatedString = dateToString(_lastUpdated);
 
-    Debug.Log log = Debug.Log();
     filters = log.filters;
   }
 
@@ -84,9 +83,9 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots {
     _type = ClientType.values[object['type']];
   }
 
-  Future<void> init() async {
+  Future<void> init(String chiaConfigPath) async {
     //LOADS CHIA CONFIG FILE AND PARSES PLOT DIRECTORIES
-    _plotDests = listPlotDest(_config);
+    _plotDests = listPlotDest(chiaConfigPath);
 
     await listPlots(_plotDests, _config);
 
@@ -95,5 +94,15 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots {
     _lastUpdated = DateTime.now();
 
     await getDiskSpace(_plotDests);
+  }
+
+  //clears plots ids before sending info to server
+  //clears filters timestamps before sending info to server
+  void clearIDs() {
+    for (int i = 0; i < allPlots.length; i++) allPlots[i].clearID();
+    for (int i = 0; i < filters.length; i++) filters[i].clearTimestamp();
+
+    filters
+        .shuffle(); //shuffles filters so that harvester can't be tracked by answered challenges time
   }
 }

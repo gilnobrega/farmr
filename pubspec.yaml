@@ -13,3 +13,4 @@ dependencies:
   qr: ^2.0.0
   universal_disk_space: ^0.1.13
   stats: ^2.0.0
+  intl: ^0.17.0

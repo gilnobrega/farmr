@@ -1,14 +1,30 @@
 import 'dart:convert';
 import 'dart:io' as io;
 import 'dart:core';
+
 import 'package:http/http.dart' as http;
 
 import 'lib/farmer.dart';
 import 'lib/harvester.dart';
 import 'lib/config.dart';
+import 'lib/cache.dart';
 import 'lib/debug.dart';
 
 final Duration delay = Duration(minutes: 10); //10 minutes delay between updates
+
+//Sets config file path according to platform
+String chiaConfigPath = (io.Platform.isLinux)
+    ? io.Platform.environment['HOME'] + "/.chia/mainnet/config/"
+    : (io.Platform.isWindows)
+        ? io.Platform.environment['UserProfile'] + "\\.chia\\mainnet\\config\\"
+        : "";
+
+//Sets config file path according to platform
+String chiaDebugPath = (io.Platform.isLinux)
+    ? io.Platform.environment['HOME'] + "/.chia/mainnet/log/"
+    : (io.Platform.isWindows)
+        ? io.Platform.environment['UserProfile'] + "\\.chia\\mainnet\\log\\"
+        : "";
 
 main(List<String> args) async {
   //Kills command on ctrl c
@@ -16,13 +32,19 @@ main(List<String> args) async {
     io.exit(0);
   });
 
+  Cache cache = new Cache(chiaConfigPath);
+  cache.init();
+
   //Initializes config, either creates a new one or loads a config file
-  Config config = new Config(
+  Config config = new Config(cache, chiaConfigPath,
       (args.length == 1 && (args[0] == "harvester" || args[0] == '-h'))); //checks if is harvester
 
   await config.init();
 
   while (true) {
+
+    Log log = new Log(chiaDebugPath, cache);
+
     String lastPlotID = "";
     String balance = "";
     String status = "";
@@ -30,8 +52,8 @@ main(List<String> args) async {
 
     //PARSES DATA
     try {
-      var client = (config.type == ClientType.Farmer) ? new Farmer(config) : new Harvester(config);
-      await client.init();
+      var client = (config.type == ClientType.Farmer) ? new Farmer(config, log) : new Harvester(config, log);
+      await client.init(chiaConfigPath);
 
       //Throws exception in case no plots were found
       if (client.plots.length == 0)
@@ -67,8 +89,10 @@ main(List<String> args) async {
 
       String notifyOffline = (config.sendOfflineNotifications) ? '1' : '0';
 
-      String url =
-          "https://chiabot.znc.sh/send.php?id=" + config.id + "&notifyOffline=" + notifyOffline;
+      String url = "https://chiabot.znc.sh/send.php?id=" +
+          config.cache.id +
+          "&notifyOffline=" +
+          notifyOffline;
 
       //Adds the following if sendPlotNotifications is enabled then it will send plotID
       if (config.sendPlotNotifications) url += "&lastPlot=" + lastPlotID;

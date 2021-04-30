@@ -1,14 +1,11 @@
 import 'dart:core';
 import 'dart:io' as io;
 
-class Log {
-  //Sets config file path according to platform
-  String _chiaDebugPath = (io.Platform.isLinux)
-      ? io.Platform.environment['HOME'] + "/.chia/mainnet/log/"
-      : (io.Platform.isWindows)
-          ? io.Platform.environment['UserProfile'] + "\\.chia\\mainnet\\log\\"
-          : "";
+import 'package:intl/intl.dart';
 
+import 'cache.dart';
+
+class Log {
   String debugPath;
   io.File _debugFile;
 
@@ -17,47 +14,97 @@ class Log {
   List<Filter> _filters = [];
   List<Filter> get filters => _filters;
 
-  Log() {
-    debugPath = _chiaDebugPath + "debug.log";
+  Log(String chiaDebugPath, Cache cache) {
+    _filters = cache.filters; //loads cached filters
+
+    debugPath = chiaDebugPath + "debug.log";
 
     //parses debug.log, debug.log.1, debug.log.2, ...
+    //
+    bool keepParsing = true;
+
     for (int i = 0; i < 10; i++) {
-      String ext = (i == 0) ? '' : ('.' + i.toString());
+      if (keepParsing) {
+        String ext = (i == 0) ? '' : ('.' + i.toString());
 
-      try {
-        _debugFile = io.File(_chiaDebugPath + "debug.log" + ext);
+        try {
+          _debugFile = io.File(chiaDebugPath + "debug.log" + ext);
 
-        if (_debugFile.existsSync()) parseDebug(_debugFile.readAsStringSync());
-      } catch (Exception) {
-        print("Failed to parse debug.log" + ext);
+          //stops parsing once it reaches parseUntil date limit
+          if (_debugFile.existsSync())
+            keepParsing = parseFilters(_debugFile.readAsStringSync(), cache.parseUntil);
+        } catch (Exception) {
+          print("Failed to parse debug.log" + ext);
+        }
       }
     }
 
-    filters
-        .shuffle(); //shuffles filters so that harvester can't be tracked by answered challenges time
+    filterDuplicates();
+
+    cache.saveFilters(filters);
   }
 
   //Parses debug file and looks for filters
-  void parseDebug(String contents) {
+  bool parseFilters(String contents, int parseUntil) {
     RegExp filtersRegex = RegExp(
-        currentDay +
-            "T(\\S+) harvester chia\\.harvester\\.harvester:\\s+INFO\\s+([0-9]+) plots were eligible for farming \\S+ Found ([0-9]+) proofs\\. Time: ([0-9\\.]+) s\\. Total ([0-9]+) plots\\s",
+        "(\\S+)T(\\S+)\\.([0-9]+) harvester chia\\.harvester\\.harvester:\\s+INFO\\s+([0-9]+) plots were eligible for farming \\S+ Found ([0-9]+) proofs\\. Time: ([0-9\\.]+) s\\. Total ([0-9]+) plots\\s",
         multiLine: true);
 
-    var matches = filtersRegex.allMatches(contents);
+    var matches = filtersRegex.allMatches(contents).toList();
 
-    for (var match in matches) {
+    int timestamp = DateTime.now().millisecondsSinceEpoch;
+
+    bool keepParsing = true;
+    bool inCache = false;
+
+    for (int i = matches.length - 1; i >= 0; i--) {
       try {
-        _filters.add(Filter(match));
+        if (keepParsing && !inCache) {
+          RegExpMatch match = matches[i];
+
+          String timeString = match.group(1) + " " + match.group(2);
+
+          int milliseconds = int.parse(match.group(3));
+          //Parses date from debug.log
+          timestamp =
+              DateFormat('y-M-d H:m:s').parse(timeString).millisecondsSinceEpoch + milliseconds;
+
+          //if filter's timestamp is outside parsing date rang
+          keepParsing = timestamp > parseUntil;
+
+          //if filter is in cache
+          inCache = filters.any((cachedFilter) => cachedFilter._timestamp == timestamp);
+
+          if (!inCache && keepParsing) {
+            //print(timeString);
+
+            int eligiblePlots = int.parse(match.group(4));
+            int proofs = int.parse(match.group(5));
+            double time = double.parse(match.group(6));
+            int totalPlots = int.parse(match.group(7));
+            Filter filter = Filter(timestamp, eligiblePlots, proofs, time, totalPlots);
+
+            _filters.add(filter);
+          }
+        }
       } catch (Exception) {
         print("Error parsing filters!");
       }
     }
+
+    return keepParsing && !inCache;
+  }
+
+  void filterDuplicates() {
+//Removes filters with same timestamps!
+    final ids = _filters.map((filter) => filter.timestamp).toSet();
+    _filters.retainWhere((filter) => ids.remove(filter.timestamp));
   }
 }
 
 class Filter {
-  String _timestamp; //debug purposes
+  int _timestamp; //unix timestamp, id
+  int get timestamp => _timestamp;
 
   int _eligiblePlots = 0; //number of eligible plots
   int get eligiblePlots => _eligiblePlots;
@@ -71,21 +118,31 @@ class Filter {
   int _totalPlots = 0; //total number of plots
   int get totalPlots => _totalPlots;
 
-  Map toJson() => {'eligible': eligiblePlots, 'proofs': proofs, 'time': time, 'total': totalPlots};
+  Map toJson() => {
+        'timestamp': timestamp,
+        'eligible': eligiblePlots,
+        'time': time /*'total': totalPlots, 'proofs': proofs*/
+      };
 
-  Filter(RegExpMatch match) {
-    _timestamp = match.group(1);
-    _eligiblePlots = int.parse(match.group(2));
-    _proofs = int.parse(match.group(3));
-    _time = double.parse(match.group(4));
-    _totalPlots = int.parse(match.group(5));
+  Filter(int timestamp, int eligiblePlots, int proofs, double time, int totalPlots) {
+    _timestamp = timestamp;
+    _eligiblePlots = eligiblePlots;
+    _proofs = proofs;
+    _time = time;
+    _totalPlots = totalPlots;
   }
 
   Filter.fromJson(dynamic json) {
+    if (json['timestamp'] != null) _timestamp = json['timestamp'];
     if (json['eligible'] != null) _eligiblePlots = json['eligible'];
-    if (json['proofs'] != null) _proofs = json['proofs'];
+    //if (json['proofs'] != null) _proofs = json['proofs'];
     if (json['time'] != null) _time = json['time'];
-    if (json['total'] != null) _totalPlots = json['total'];
+    //if (json['total'] != null) _totalPlots = json['total'];
+  }
+
+  //Replaces long hash with timestamp id before sending to server
+  void clearTimestamp() {
+    _timestamp = null;
   }
 }
 

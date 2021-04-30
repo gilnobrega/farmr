@@ -17,8 +17,8 @@ class HarvesterPlots {
   List<Plot> get incompletePlots => allPlots.where((plot) => !plot.complete).toList();
 
   //Parses chia's config.yaml and finds plot destionation paths
-  List<String> listPlotDest(Config config) {
-    String configPath = config.chiaConfigPath + "config.yaml";
+  List<String> listPlotDest(String chiaConfigPath) {
+    String configPath = chiaConfigPath + "config.yaml";
 
     var configYaml = loadYaml(io.File(configPath).readAsStringSync().replaceAll("!!set", ""));
 
@@ -74,18 +74,13 @@ class HarvesterPlots {
 
     allPlots = newplots;
 
-    config.savePlotsCache(allPlots);
+    config.cache.savePlots(allPlots);
   }
 
   void filterDuplicates() {
 //Removes plots with same ids!
     final ids = allPlots.map((plot) => plot.id).toSet();
     allPlots.retainWhere((x) => ids.remove(x.id));
-  }
-
-  //clears plots ids before sending info to server
-  void clearIDs() {
-    for (int i = 0; i < allPlots.length; i++) allPlots[i].clearID();
   }
 
   //makes an id based on end and start timestamps for the last plot, necessary to call notifications webhook
@@ -99,4 +94,14 @@ class HarvesterPlots {
     allPlots.sort(
         (plot1, plot2) => (plot1.begin.compareTo(plot2.begin))); //Sorts plots from oldest to newest
   }
+}
+
+//Converts a YAML List to a String list
+//Used to parse chia's config.yaml
+List<String> ylistToStringlist(YamlList input) {
+  List<String> output = [];
+  for (int i = 0; i < input.length; i++) {
+    output.add(input[i].toString());
+  }
+  return output;
 }

@@ -1,9 +1,9 @@
 [
-{
-"chiaPath": null,
-"showBalance": true,
-"sendPlotNotifications": false,
-"sendBalanceNotifications": true,
-"sendOfflineNotifications": false
-}
+    {
+        "chiaPath": null,
+        "showBalance": true,
+        "sendPlotNotifications": false,
+        "sendBalanceNotifications": true,
+        "sendOfflineNotifications": false
+    }
 ]

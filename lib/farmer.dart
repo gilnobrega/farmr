@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'config.dart';
 import 'harvester.dart';
+import 'debug.dart' as Debug;
 
 class Farmer extends Harvester {
   String _status;
@@ -42,9 +43,9 @@ class Farmer extends Harvester {
         'filters': filters
       };
 
-  Farmer(Config config) : super(config) {
+  Farmer(Config config, Debug.Log log) : super(config, log) {
     //runs chia farm summary if it is a farmer
-    var result = io.Process.runSync(config.binPath, ["farm", "summary"]);
+    var result = io.Process.runSync(config.cache.binPath, ["farm", "summary"]);
     List<String> lines = result.stdout.toString().replaceAll("\r", "").split('\n');
     try {
       for (int i = 0; i < lines.length; i++) {
