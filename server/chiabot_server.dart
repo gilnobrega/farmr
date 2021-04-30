@@ -60,7 +60,7 @@ Future<void> main(List<String> args) async {
       fullText(farm);
 
       print("");
-      showFilters(farm.filters);
+      showFilters(farm);
 
       lastUpdatedText(farm, 0);
 
@@ -81,7 +81,7 @@ Future<void> main(List<String> args) async {
         fullText(harvester);
 
         print("");
-        showFilters(harvester.filters);
+        showFilters(harvester);
 
         lastUpdatedText(harvester, 0);
       }
@@ -110,7 +110,7 @@ Future<void> main(List<String> args) async {
       fullText(farm);
 
       print("");
-      showFilters(farm.filters);
+      showFilters(farm, false);
 
       lastUpdatedText(farm, harvesters.length);
     }
@@ -482,11 +482,11 @@ double estimateETW(Farmer farmer) {
   return calc;
 }
 
-void showFilters(List<Debug.Filter> filters) {
-  if (filters.length > 0) {
-    filters.sort((filter1, filter2) => filter1.time.compareTo(filter2.time));
+void showFilters(Harvester harvester, [bool showRatio = true]) {
+  if (harvester.filters.length > 0) {
+    harvester.filters.sort((filter1, filter2) => filter1.time.compareTo(filter2.time));
 
-    List<double> times = filters.map((filter) => filter.time).toList();
+    List<double> times = harvester.filters.map((filter) => filter.time).toList();
 
     Stats timeStats = Stats.fromData(times);
 
@@ -498,9 +498,20 @@ void showFilters(List<Debug.Filter> filters) {
 
     int totalEligiblePlots = 0;
 
-    for (Debug.Filter filter in filters) totalEligiblePlots += filter.eligiblePlots;
-
+    for (Debug.Filter filter in harvester.filters) totalEligiblePlots += filter.eligiblePlots;
     print("Today's log: **${totalEligiblePlots}** plots passed ${times.length} filters");
+
+    //Ratio only makes sense if each worker
+    if (showRatio) {
+      double ratio = (totalEligiblePlots / times.length * 512 / harvester.plots.length);
+      String ratioString = ratio.toStringAsFixed(2);
+      String luck = ((ratio) * 100).toStringAsFixed(0) + "%";
+
+      print("Ratio: ${ratioString}/512 (expected 1/512)");
+      print("Luck: ${luck}");
+    }
+
+    print("");
 
     print("Longest response time: **${maxTime}** seconds");
     print("Shortest response time: ${minTime} seconds ");
