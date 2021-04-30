@@ -135,7 +135,7 @@ int plotSumSize(List<Plot> plots) {
   return totalSize;
 }
 
-String fileSize(int input, [int decimals = 3]) {
+String fileSize(int input, [int decimals = 2]) {
   return filesize(input, decimals)
       .replaceAll("TB", "TiB")
       .replaceAll("GB", "GiB")

@@ -29,7 +29,7 @@ class Log {
 
         if (_debugFile.existsSync()) parseDebug(_debugFile.readAsStringSync());
       } catch (Exception) {
-        print("Failed to parse debug.log");
+        print("Failed to parse debug.log" + ext);
       }
     }
 
