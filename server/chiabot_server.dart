@@ -512,7 +512,7 @@ void showFilters(Harvester harvester, [bool showRatio = true]) {
       String luck = ((ratio) * 100).toStringAsFixed(0) + "%";
 
       print("Each plot passed ${ratioString} times per 512 filters");
-      print("Efficiency: **${luck}**");
+      print("24h Efficiency: **${luck}**");
     }
 
     print("");
