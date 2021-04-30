@@ -177,47 +177,47 @@ void fullText(Harvester client) {
     }
   }
 
-  print("");
+  if (weekCount > 0) {
+    print("");
 
-  //Calculates when it will run out of space based on last week's statistics
-  int outOfSpaceHours =
-      (weekSize > 0) ? ((client.freeDiskSpace / weekSize) * daysWithPlots * 24).round() : 0;
-  String outOfSpace = durationToTime(Duration(hours: outOfSpaceHours));
+    //Calculates when it will run out of space based on last week's statistics
+    int outOfSpaceHours =
+        (weekSize > 0) ? ((client.freeDiskSpace / weekSize) * daysWithPlots * 24).round() : 0;
+    String outOfSpace = durationToTime(Duration(hours: outOfSpaceHours));
 
-  print("Last week: completed ${weekCount.toString()} plots");
+    print("Last week: completed ${weekCount.toString()} plots");
 
-  if (client.supportDiskSpace) {
-    //If free space is less than a k32 plot size
-    if (client.freeDiskSpace > 0 && client.freeDiskSpace < 1.1e9)
-      print(":warning: **OUT OF SPACE** :warning:");
-    if (client.freeDiskSpace > 0 && weekSize > 0)
-      print("Out of space in ${outOfSpace}");
-    //If time until out of space is shorter than 4 hours then it will assume it's out of space
-    else if (outOfSpaceHours <= 4 && weekSize > 0) print("**OUT OF SPACE IN $outOfSpace**");
-  }
-
-  print("");
-
-  Duration farmed = farmedTime(client.plots);
-
-  for (int j = 0; j < d.length; j++) {
-    double ppd = 0.0; //plots per day
-
-    //does overall plot per day if overPeriod average period is not defined,
-    //if this period is defined then it calculates plotsPerDay using its dedicated function
-    if (d[j] == null) {
-      ppd = (client.plots.length / farmed.inMinutes) * 60.0 * 24.0;
-      print("All time:  " + ppd.toStringAsFixed(2) + " plots per day");
-    } else {
-      Duration overPeriod = Duration(days: d[j]);
-      ppd = plotsPerDay(client.plots, overPeriod);
-
-      print("Last " + d[j].toString() + " days: " + ppd.toStringAsFixed(2) + " plots per day");
+    if (client.supportDiskSpace) {
+      //If free space is less than a k32 plot size
+      if (client.freeDiskSpace > 0 && client.freeDiskSpace < 1.1e9)
+        print(":warning: **OUT OF SPACE** :warning:");
+      if (client.freeDiskSpace > 0 && weekSize > 0)
+        print("Out of space in ${outOfSpace}");
+      //If time until out of space is shorter than 4 hours then it will assume it's out of space
+      else if (outOfSpaceHours <= 4 && weekSize > 0) print("**OUT OF SPACE IN $outOfSpace**");
     }
-  }
 
-  double weekAverage = weekCount / daysWithPlots;
-  if (weekAverage > 0) {
+    print("");
+
+    Duration farmed = farmedTime(client.plots);
+
+    for (int j = 0; j < d.length; j++) {
+      double ppd = 0.0; //plots per day
+
+      //does overall plot per day if overPeriod average period is not defined,
+      //if this period is defined then it calculates plotsPerDay using its dedicated function
+      if (d[j] == null) {
+        ppd = (client.plots.length / farmed.inMinutes) * 60.0 * 24.0;
+        print("All time:  " + ppd.toStringAsFixed(2) + " plots per day");
+      } else {
+        Duration overPeriod = Duration(days: d[j]);
+        ppd = plotsPerDay(client.plots, overPeriod);
+
+        print("Last " + d[j].toString() + " days: " + ppd.toStringAsFixed(2) + " plots per day");
+      }
+    }
+
+    double weekAverage = weekCount / daysWithPlots;
     print("Last 7 days: " + (weekAverage).toStringAsFixed(2) + " plots per day");
   }
 
