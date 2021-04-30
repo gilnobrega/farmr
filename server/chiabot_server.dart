@@ -47,6 +47,7 @@ Future<void> main(List<String> args) async {
         .compareTo(farm2.lastUpdated.millisecondsSinceEpoch)));
 
     Farmer farm = farmers.last; //Selects newest farm as main farm
+    String networkSize = farm.networkSize;
 
     if (args.contains("workers")) {
       print("**Farmer:**");
@@ -54,8 +55,8 @@ Future<void> main(List<String> args) async {
       farm.filterDuplicates(); //filters duplicates
       farm.sortPlots();
 
-      farmStatus(farm, false);
-      mainText(farm, false);
+      farmStatus(farm, networkSize);
+      mainText(farm);
       print("");
       fullText(farm);
 
@@ -75,7 +76,7 @@ Future<void> main(List<String> args) async {
         harvester.sortPlots();
 
         print("**Harvester " + (k + 1).toString() + ":**");
-        farmStatus(harvester, false);
+        farmStatus(harvester, networkSize);
         mainText(harvester, false);
         print("");
         fullText(harvester);
@@ -92,7 +93,7 @@ Future<void> main(List<String> args) async {
       farm.filterDuplicates(); //filters duplicates
       farm.sortPlots(); //VERY IMPORTANT TO SORT PLOTS BEFORE CALCULATING STATS
 
-      farmStatus(farm);
+      farmStatus(farm, networkSize);
 
       //Throws exception in case no plots were found
       if (farm.plots.length == 0) throw Exception("No plots have been found!");
@@ -243,27 +244,27 @@ void fullText(Harvester client) {
 }
 
 //Output regarding info from "chia farm summary" command
-void farmStatus(Harvester client, [bool showETW = true]) {
+void farmStatus(Harvester client, String networkSize, [bool showETW = true]) {
   String etw = "";
   String etwtext = "";
 
   if (client is Farmer && client.status != "Farming") print(":warning: **NOT FARMING** :warning:");
 
   //if its farmer then shows balance and farming status
-  if (client is Farmer && showETW) {
-    etw = estimateETW(client).toStringAsFixed(1);
-    etwtext = (showETW) ? "(next block in " + etw + " days)" : '';
-  }
+  etw = estimateETW(client, networkSize).toStringAsFixed(1);
+  etwtext = (showETW) ? "(next block in " + etw + " days)" : '';
 
-  if (client is Farmer) {
-    String balanceText = (client.balance < 0.0)
-        ? "Next block in ~" + etw + " days"
-        : "**" +
-            client.balance.toString() +
-            " XCH** " +
-            etwtext; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
-    print("\<:chia:833767070201151528> " + balanceText);
-  }
+  double balance = (client is Farmer) ? client.balance : -1.0;
+
+  String balanceText = '\<:chia:833767070201151528> ';
+
+  balanceText += (balance <= 0.0)
+      ? "Next block in ~" + etw + " days"
+      : "**" +
+          balance.toString() +
+          " XCH** " +
+          etwtext; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
+  print(balanceText);
 
   int plotsSize = plotSumSize(client.plots);
   //e.g. using 3.7 TB out of 7TB
@@ -467,16 +468,16 @@ String humanReadableDate(String ndaysago) {
 
 //Estimates ETW in days
 //Decimals are more precise (in theory)
-double estimateETW(Farmer farmer) {
+double estimateETW(Harvester client, String networkSize) {
   double networkSizeBytes = 0;
 
-  int size = plotSumSize(farmer.plots);
+  int size = plotSumSize(client.plots);
 
   //1 PiB is 1024^5 bytes, 1 EiB is 1024^6 bytes
-  if (farmer.networkSize.contains("PiB"))
-    networkSizeBytes = double.parse(farmer.networkSize.replaceAll(" PiB", "")) * Math.pow(1024, 5);
-  else if (farmer.networkSize.contains("EiB"))
-    networkSizeBytes = double.parse(farmer.networkSize.replaceAll(" EiB", "")) * Math.pow(1024, 6);
+  if (networkSize.contains("PiB"))
+    networkSizeBytes = double.parse(networkSize.replaceAll(" PiB", "")) * Math.pow(1024, 5);
+  else if (networkSize.contains("EiB"))
+    networkSizeBytes = double.parse(networkSize.replaceAll(" EiB", "")) * Math.pow(1024, 6);
 
   double blocks = 32.0; //32 blocks per 10 minutes
 
