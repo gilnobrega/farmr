@@ -79,8 +79,8 @@ class HarvesterPlots {
 
   void filterDuplicates() {
 //Removes plots with same ids!
-    final ids = plots.map((plot) => plot.id).toSet();
-    plots.retainWhere((x) => ids.remove(x.id));
+    final ids = allPlots.map((plot) => plot.id).toSet();
+    allPlots.retainWhere((x) => ids.remove(x.id));
   }
 
   //clears plots ids before sending info to server

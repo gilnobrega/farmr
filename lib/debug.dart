@@ -24,9 +24,13 @@ class Log {
     for (int i = 0; i < 10; i++) {
       String ext = (i == 0) ? '' : ('.' + i.toString());
 
-      _debugFile = io.File(_chiaDebugPath + "debug.log" + ext);
+      try {
+        _debugFile = io.File(_chiaDebugPath + "debug.log" + ext);
 
-      if (_debugFile.existsSync()) parseDebug(_debugFile.readAsStringSync());
+        if (_debugFile.existsSync()) parseDebug(_debugFile.readAsStringSync());
+      } catch (Exception) {
+        print("Failed to parse debug.log");
+      }
     }
 
     filters
