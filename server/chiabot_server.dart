@@ -503,7 +503,7 @@ void showFilters(Harvester harvester, [bool showRatio = true]) {
     int totalEligiblePlots = 0;
 
     for (Debug.Filter filter in harvester.filters) totalEligiblePlots += filter.eligiblePlots;
-    print("Today's log: **${totalEligiblePlots}** plots passed ${times.length} filters");
+    print("Last 24 hours: ${totalEligiblePlots} plots passed ${times.length} filters");
 
     //Ratio only makes sense if each worker
     if (showRatio) {
@@ -511,8 +511,8 @@ void showFilters(Harvester harvester, [bool showRatio = true]) {
       String ratioString = ratio.toStringAsFixed(2);
       String luck = ((ratio) * 100).toStringAsFixed(0) + "%";
 
-      print("Ratio: ${ratioString}/512 (expected 1/512)");
-      print("Luck: ${luck}");
+      print("Each plot passed ${ratioString} times per 512 filters");
+      print("Luck: **${luck}**");
     }
 
     print("");
