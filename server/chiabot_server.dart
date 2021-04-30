@@ -215,7 +215,10 @@ void fullText(Harvester client) {
     }
   }
 
-  print("Last 7 days: " + (weekCount / daysWithPlots).toStringAsFixed(2) + " plots per day");
+  double weekAverage = weekCount / daysWithPlots;
+  if (weekAverage > 0) {
+    print("Last 7 days: " + (weekAverage).toStringAsFixed(2) + " plots per day");
+  }
 
   print("");
 
