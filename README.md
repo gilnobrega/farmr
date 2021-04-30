@@ -66,13 +66,18 @@ This is how it looks like:
    "sendOfflineNotifications": false
 }]
 ```
-Set ``showBalance`` to ``false`` if you do not want your balance to be reported.
 
-You may set ``sendPlotNotifications`` to ``true`` if you wish to be notified when your farmer/harvester completes a plot.
+#### Sharing XCH Balance
+Set ``showBalance`` to ``false`` if you do not want your balance to be reported to the server.
 
-You may set ``sendBalanceNotifications`` to ``false`` if you do not wish to be notified when your farmer finds a block.
+#### Plot Notifications
+Set ``sendPlotNotifications`` to ``true`` if you wish to be notified when your farmer/harvester completes a plot.
 
-You may set ``sendOfflineNotifications`` to ``true`` if you wish to be notified when your farmer/harvester loses connection.
+#### Block/Balance Notifications
+Set ``sendBalanceNotifications`` to ``false`` if you do not wish to be notified when your farmer finds a block.
+
+#### Offline Notifications
+Set ``sendOfflineNotifications`` to ``true`` if you wish to be notified when your farmer/harvester loses connection.
 
 You may delete ``config.json`` to reset settings and generate a new id once the client is started again.
 
@@ -82,13 +87,14 @@ You may delete ``config.json`` to reset settings and generate a new id once the 
 Yes, your client will add itself when chia completes a plot.
 
 If the client crashes:
+##### Do ``run.bat`` or ``run_harvester.bat`` close suddenly after being opened?
+  Try launching CMD as an administrator and opening ``install.bat`` from there. Then do the same with ``run.bat`` or ``run_harvester.bat``.
 ##### Is your chia farm running? 
   You can check this by running ` chia farm summary `, if it shows "Status: Farming", then it is.
 ##### Are your plot drives mounted?
   If they're not, then mount them.
 ##### Does your user have permission to access the folders where plots are stored?
   ChiaBot will not be able to list your plots if their folder was mounted as root.
-
 
 ##### What if I have two farmers?
   Run one of them as a farmer and the other as a harvester.
