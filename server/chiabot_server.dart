@@ -141,7 +141,7 @@ void mainText(Harvester client, [bool showPerDay = true]) {
 }
 
 void fullText(Harvester client) {
-  var n = [null, 5, 20, 50, 100, 200, 500]; //last n plots, null represents all plots
+  var n = [null]; //last n plots, null represents all plots
   var d = [null]; //last d days, null represents overall
 
   int daysAgo = 8; //Lists plots upto 8 days ago, including current day
