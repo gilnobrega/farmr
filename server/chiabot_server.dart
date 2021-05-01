@@ -533,6 +533,8 @@ void showFilters(Harvester harvester) {
     String percentage = (ratio * 100).toStringAsFixed(2);
 
     print("");
-    print("Experimental: ${percentage}% loose Signage Points");
+    print("*EXPERIMENTAL*");
+    print("${harvester.completeSubSlots} complete Sub Slots");
+    print("${percentage}% loose Signage Points");
   }
 }
