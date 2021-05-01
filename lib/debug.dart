@@ -23,6 +23,12 @@ class Log {
 
     debugPath = chiaDebugPath + "debug.log";
 
+    loadFilters();
+
+    cache.saveFilters(filters);
+  }
+
+  loadFilters() {
     //parses debug.log, debug.log.1, debug.log.2, ...
     //
     bool keepParsing = true;
@@ -32,7 +38,7 @@ class Log {
         String ext = (i == 0) ? '' : ('.' + i.toString());
 
         try {
-          _debugFile = io.File(chiaDebugPath + "debug.log" + ext);
+          _debugFile = io.File(debugPath + ext);
 
           //stops parsing once it reaches parseUntil date limit
           if (_debugFile.existsSync())
@@ -45,10 +51,10 @@ class Log {
 
     filterDuplicates();
 
-    cache.saveFilters(filters);
+    filters.shuffle();
   }
 
-  loadFilters() {
+  loadSubSlots() {
     for (int i = 9; i >= 0; i--) {
       String ext = (i == 0) ? '' : ('.' + i.toString());
 

@@ -524,4 +524,15 @@ void showFilters(Harvester harvester) {
 
     if (timeStats.max > 25) print(":warning: ** Response time too long ** :warning:");
   }
+
+  if (harvester is Farmer && harvester.completeSubSlots > 0) {
+    int totalSignagePoints = (64 * harvester.completeSubSlots) + harvester.looseSignagePoints;
+
+    double ratio = harvester.looseSignagePoints / (totalSignagePoints);
+
+    String percentage = (ratio * 100).toStringAsFixed(2);
+
+    print("");
+    print("Experimental: ${percentage}% loose Signage Points");
+  }
 }

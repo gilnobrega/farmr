@@ -26,6 +26,14 @@ class Farmer extends Harvester {
   double filterRatio = 0;
   int totalPlots = 0;
 
+  //SubSlots with 64 signage points
+  int _completeSubSlots = 0;
+  int get completeSubSlots => _completeSubSlots;
+
+  //Signagepoints in an incomplete sub plot
+  int _looseSignagePoints = 0;
+  int get looseSignagePoints => _looseSignagePoints;
+
   @override
   Map toJson() => {
         'status': status,
@@ -37,6 +45,8 @@ class Farmer extends Harvester {
         'lastUpdated': lastUpdated.millisecondsSinceEpoch,
         'lastUpdatedString': lastUpdatedString,
         'type': type.index,
+        'completeSubSlots': completeSubSlots,
+        'looseSignagePoints': looseSignagePoints,
         'filters': filters
       };
 
@@ -59,6 +69,9 @@ class Farmer extends Harvester {
     } catch (exception) {
       print("Error parsing Farm info.");
     }
+
+    log.loadSubSlots();
+    calculateSubSlots(log);
   }
 
   //Server side function to read farm from json file
@@ -68,6 +81,9 @@ class Farmer extends Harvester {
     _status = object['status'];
     _balance = object['balance'];
     _networkSize = object['networkSize'];
+
+    if (object['completeSubSlots'] != null) _completeSubSlots = object['completeSubSlots'];
+    if (object['looseSignagePoints'] != null) _looseSignagePoints = object['looseSignagePoints'];
 
     calculateFilterRatio(this);
   }
@@ -96,6 +112,16 @@ class Farmer extends Harvester {
 
       filterRatio += (totalEligiblePlots / totalFilters) * 512;
       totalPlots += harvester.plots.length;
+    }
+  }
+
+  void calculateSubSlots(Debug.Log log) {
+    _completeSubSlots = log.signagePoints.where((point) => point.complete).length;
+
+    var incomplete = log.signagePoints.where((point) => !point.complete);
+    _looseSignagePoints = 0;
+    for (var i in incomplete) {
+      _looseSignagePoints += i.steps.length;
     }
   }
 }
