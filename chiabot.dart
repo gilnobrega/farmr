@@ -33,6 +33,7 @@ main(List<String> args) async {
   });
 
   Cache cache = new Cache(chiaConfigPath);
+  cache.init();
 
   //Initializes config, either creates a new one or loads a config file
   Config config = new Config(cache, chiaConfigPath,
