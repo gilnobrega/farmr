@@ -7,7 +7,8 @@ import 'package:stats/stats.dart';
 import '../lib/farmer.dart';
 import '../lib/harvester.dart';
 import '../lib/plot.dart';
-import '../lib/debug.dart' as Debug;
+
+import '../lib/log/filter.dart';
 
 Future<void> main(List<String> args) async {
   //Discord User ID
@@ -502,7 +503,7 @@ void showFilters(Harvester harvester) {
 
     int totalEligiblePlots = 0;
 
-    for (Debug.Filter filter in harvester.filters) totalEligiblePlots += filter.eligiblePlots;
+    for (Filter filter in harvester.filters) totalEligiblePlots += filter.eligiblePlots;
     print("Last 24 hours: ${totalEligiblePlots} plots passed ${times.length} filters");
 
     //Calculates ratio based on each harvesters proportion (farmer's filterRatio)

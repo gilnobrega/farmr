@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'package:uuid/uuid.dart';
 
 import 'plot.dart';
-import 'debug.dart';
+import 'log/filter.dart';
 
 class Cache {
   String id;

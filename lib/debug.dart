@@ -1,20 +1,24 @@
 import 'dart:core';
 import 'dart:io' as io;
 
-import 'package:intl/intl.dart';
-
 import 'cache.dart';
+
+import 'log/filter.dart';
+import 'log/signagepoint.dart';
+import 'log/logitem.dart';
 
 class Log {
   String debugPath;
   io.File _debugFile;
-
-  String currentDay = dateToString(DateTime.now());
+  int _parseUntil;
 
   List<Filter> _filters = [];
   List<Filter> get filters => _filters;
 
+  List<SignagePoint> signagePoints = [];
+
   Log(String chiaDebugPath, Cache cache) {
+    _parseUntil = cache.parseUntil;
     _filters = cache.filters; //loads cached filters
 
     debugPath = chiaDebugPath + "debug.log";
@@ -32,7 +36,7 @@ class Log {
 
           //stops parsing once it reaches parseUntil date limit
           if (_debugFile.existsSync())
-            keepParsing = parseFilters(_debugFile.readAsStringSync(), cache.parseUntil);
+            keepParsing = parseFilters(_debugFile.readAsStringSync(), _parseUntil);
         } catch (Exception) {
           print("Failed to parse debug.log" + ext);
         }
@@ -44,10 +48,25 @@ class Log {
     cache.saveFilters(filters);
   }
 
+  loadFilters() {
+    for (int i = 9; i >= 0; i--) {
+      String ext = (i == 0) ? '' : ('.' + i.toString());
+
+      try {
+        _debugFile = io.File(debugPath + ext);
+
+        //stops parsing once it reaches parseUntil date limit
+        if (_debugFile.existsSync()) parseSignagePoints(_debugFile.readAsStringSync(), _parseUntil);
+      } catch (Exception) {
+        print("Failed to parse debug.log" + ext);
+      }
+    }
+  }
+
   //Parses debug file and looks for filters
   bool parseFilters(String contents, int parseUntil) {
     RegExp filtersRegex = RegExp(
-        "(\\S+)T(\\S+)\\.([0-9]+) harvester chia\\.harvester\\.harvester:\\s+INFO\\s+([0-9]+) plots were eligible for farming \\S+ Found ([0-9]+) proofs\\. Time: ([0-9\\.]+) s\\. Total ([0-9]+) plots\\s",
+        "([0-9-]+)T([0-9:]+)\\.([0-9]+) harvester chia\\.harvester\\.harvester:\\s+INFO\\s+([0-9]+) plots were eligible for farming \\S+ Found ([0-9]+) proofs\\. Time: ([0-9\\.]+) s\\. Total ([0-9]+) plots\\s",
         multiLine: true);
 
     var matches = filtersRegex.allMatches(contents).toList();
@@ -62,21 +81,17 @@ class Log {
         if (keepParsing && !inCache) {
           RegExpMatch match = matches[i];
 
-          String timeString = match.group(1) + " " + match.group(2);
-
-          int milliseconds = int.parse(match.group(3));
           //Parses date from debug.log
-          timestamp =
-              DateFormat('y-M-d H:m:s').parse(timeString).millisecondsSinceEpoch + milliseconds;
+          timestamp = parseTimestamp(match.group(1), match.group(2), match.group(3));
 
           //if filter's timestamp is outside parsing date rang
           keepParsing = timestamp > parseUntil;
 
           //if filter is in cache
-          inCache = filters.any((cachedFilter) => cachedFilter._timestamp == timestamp);
+          inCache = filters.any((cachedFilter) => cachedFilter.timestamp == timestamp);
 
           if (!inCache && keepParsing) {
-            //print(timeString);
+            //print(timestamp);
 
             int eligiblePlots = int.parse(match.group(4));
             int proofs = int.parse(match.group(5));
@@ -95,63 +110,53 @@ class Log {
     return keepParsing && !inCache;
   }
 
+  SignagePoint parseSignagePoints(String contents, int parseUntil) {
+    try {
+      RegExp signagePointsRegex = RegExp(
+          "([0-9-]+)T([0-9:]+)\\.([0-9]+) full_node chia\\.full\\_node\\.full\\_node:\\s+INFO\\W+Finished[\\S ]+ ([0-9]+)\\/64",
+          multiLine: true);
+
+      var matches = signagePointsRegex.allMatches(contents).toList();
+      int timestamp = 0;
+
+      for (int i = 0; i < matches.length; i++) {
+        var match = matches[i];
+
+        //Parses date from debug.log
+        timestamp = parseTimestamp(match.group(1), match.group(2), match.group(3));
+
+        if (timestamp > parseUntil) {
+          int currentStep = int.parse(match.group(4));
+
+          SignagePoint signagePoint;
+
+          if (currentStep != 1) {
+            try {
+              signagePoint = signagePoints
+                  .where((point) => point.lastStep == currentStep - 1 && !point.complete)
+                  .last;
+            } catch (Exception) {
+              //print(currentStep);
+            }
+          }
+
+          if (signagePoints.length == 0 || signagePoint == null)
+            signagePoints
+                .add(new SignagePoint(timestamp, [currentStep], signagePoints.length == 0));
+          else
+            signagePoint.addStep(currentStep);
+        }
+      }
+    } catch (Exception) {
+      print("Error parsing signage points.");
+    }
+
+    return signagePoints.last;
+  }
+
   void filterDuplicates() {
 //Removes filters with same timestamps!
     final ids = _filters.map((filter) => filter.timestamp).toSet();
     _filters.retainWhere((filter) => ids.remove(filter.timestamp));
   }
-}
-
-class Filter {
-  int _timestamp; //unix timestamp, id
-  int get timestamp => _timestamp;
-
-  int _eligiblePlots = 0; //number of eligible plots
-  int get eligiblePlots => _eligiblePlots;
-
-  int _proofs = 0; //number of proofs
-  int get proofs => _proofs;
-
-  double _time = 0; //challenge reponse time
-  double get time => _time;
-
-  int _totalPlots = 0; //total number of plots
-  int get totalPlots => _totalPlots;
-
-  Map toJson() => {
-        'timestamp': timestamp,
-        'eligible': eligiblePlots,
-        'time': time /*'total': totalPlots, 'proofs': proofs*/
-      };
-
-  Filter(int timestamp, int eligiblePlots, int proofs, double time, int totalPlots) {
-    _timestamp = timestamp;
-    _eligiblePlots = eligiblePlots;
-    _proofs = proofs;
-    _time = time;
-    _totalPlots = totalPlots;
-  }
-
-  Filter.fromJson(dynamic json) {
-    if (json['timestamp'] != null) _timestamp = json['timestamp'];
-    if (json['eligible'] != null) _eligiblePlots = json['eligible'];
-    //if (json['proofs'] != null) _proofs = json['proofs'];
-    if (json['time'] != null) _time = json['time'];
-    //if (json['total'] != null) _totalPlots = json['total'];
-  }
-
-  //Replaces long hash with timestamp id before sending to server
-  void clearTimestamp() {
-    _timestamp = null;
-  }
-}
-
-String dateToString(DateTime date) {
-  String month = date.month.toString();
-  String day = date.day.toString();
-
-  if (month.length == 1) month = "0" + month;
-  if (day.length == 1) day = "0" + day;
-
-  return date.year.toString() + "-" + month + "-" + day;
 }

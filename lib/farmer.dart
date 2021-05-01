@@ -6,6 +6,8 @@ import 'config.dart';
 import 'harvester.dart';
 import 'debug.dart' as Debug;
 
+import 'log/filter.dart';
+
 class Farmer extends Harvester {
   String _status;
   String get status => _status;
@@ -90,7 +92,7 @@ class Farmer extends Harvester {
       int totalEligiblePlots = 0;
       int totalFilters = harvester.filters.length;
 
-      for (Debug.Filter filter in harvester.filters) totalEligiblePlots += filter.eligiblePlots;
+      for (Filter filter in harvester.filters) totalEligiblePlots += filter.eligiblePlots;
 
       filterRatio += (totalEligiblePlots / totalFilters) * 512;
       totalPlots += harvester.plots.length;

@@ -10,6 +10,7 @@ import 'harvester/plots.dart';
 import 'harvester/diskspace.dart';
 
 import 'debug.dart' as Debug;
+import 'log/filter.dart';
 
 class Harvester with HarvesterDiskSpace, HarvesterPlots {
   Config _config;
@@ -28,7 +29,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots {
   ClientType _type = ClientType.Harvester;
   ClientType get type => _type;
 
-  List<Debug.Filter> filters = [];
+  List<Filter> filters = [];
 
   Map toJson() => {
         'plots': allPlots, //important
@@ -62,7 +63,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots {
 
     if (object['filters'] != null) {
       for (int i = 0; i < object['filters'].length; i++) {
-        filters.add(Debug.Filter.fromJson(object['filters'][i]));
+        filters.add(Filter.fromJson(object['filters'][i]));
       }
     }
 
