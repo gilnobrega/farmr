@@ -90,7 +90,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots {
 
     await listPlots(_plotDests, _config);
 
-    filterDuplicates(); //removes duplicate ids
+    filterDuplicates(); //removes plots with duplicate ids
 
     _lastUpdated = DateTime.now();
 

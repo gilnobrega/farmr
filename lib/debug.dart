@@ -17,15 +17,16 @@ class Log {
 
   List<SignagePoint> signagePoints = [];
 
-  Log(String chiaDebugPath, Cache cache) {
+  Log(String chiaDebugPath, Cache cache, bool parseLogs) {
     _parseUntil = cache.parseUntil;
     _filters = cache.filters; //loads cached filters
 
     debugPath = chiaDebugPath + "debug.log";
 
-    loadFilters();
-
-    cache.saveFilters(filters);
+    if (parseLogs) {
+      loadFilters();
+      cache.saveFilters(filters);
+    }
   }
 
   loadFilters() {
@@ -44,7 +45,8 @@ class Log {
           if (_debugFile.existsSync())
             keepParsing = parseFilters(_debugFile.readAsStringSync(), _parseUntil);
         } catch (Exception) {
-          print("Failed to parse debug.log" + ext);
+          print(
+              "Warning: could not parse filters in debug.log${ext}, make sure chia log level is set to INFO");
         }
       }
     }
@@ -64,7 +66,8 @@ class Log {
         //stops parsing once it reaches parseUntil date limit
         if (_debugFile.existsSync()) parseSignagePoints(_debugFile.readAsStringSync(), _parseUntil);
       } catch (Exception) {
-        print("Failed to parse debug.log" + ext);
+        print(
+            "Warning: could not parse SubSlots in debug.log${ext}, make sure chia log level is set to INFO");
       }
     }
   }

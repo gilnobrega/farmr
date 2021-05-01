@@ -2,8 +2,9 @@
     {
         "chiaPath": null,
         "showBalance": true,
-        "sendPlotNotifications": true,
         "sendBalanceNotifications": true,
-        "sendOfflineNotifications": true
+        "sendPlotNotifications": false,
+        "sendOfflineNotifications": false,
+        "parseLogs": false
     }
 ]

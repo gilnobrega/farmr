@@ -71,15 +71,14 @@ class Plot {
 
     _begin = DateTime.fromMillisecondsSinceEpoch(json['begin']);
     _end = DateTime.fromMillisecondsSinceEpoch(json['end']);
+    _size = json['size'];
 
     if (json['id'] != null)
       _id = json['id'];
     else
+      //in the client plotid is a long hash, while in the server its based on timestamps
       _id = begin.millisecondsSinceEpoch.toString() +
-          end.millisecondsSinceEpoch
-              .toString(); //in the client plotid is a long hash, while in the server its based on timestamps
-
-    _size = json['size'];
+          end.millisecondsSinceEpoch.toString() + size.toString();
 
     if (json['date'] != null) _date = json['date'];
 

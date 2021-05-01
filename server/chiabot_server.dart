@@ -53,7 +53,7 @@ Future<void> main(List<String> args) async {
     if (args.contains("workers")) {
       print("**Farmer:**");
 
-      farm.filterDuplicates(); //filters duplicates
+      farm.filterDuplicates(false); //filters duplicates
       farm.sortPlots();
 
       farmStatus(farm, networkSize);
@@ -73,7 +73,7 @@ Future<void> main(List<String> args) async {
         print(";;"); // discord bot uses ;; to split into a new message
 
         Harvester harvester = harvesters[k];
-        harvester.filterDuplicates(); //filters duplicates in harvester
+        harvester.filterDuplicates(false); //filters duplicates in harvester
         harvester.sortPlots();
 
         print("**Harvester " + (k + 1).toString() + ":**");
@@ -91,7 +91,7 @@ Future<void> main(List<String> args) async {
       for (int j = 0; j < harvesters.length; j++)
         farm.addHarvester(harvesters[j]); //Adds harvesters plot to main farm
 
-      farm.filterDuplicates(); //filters duplicates
+      farm.filterDuplicates(false); //filters duplicates
       farm.sortPlots(); //VERY IMPORTANT TO SORT PLOTS BEFORE CALCULATING STATS
 
       farmStatus(farm, networkSize);

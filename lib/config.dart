@@ -28,6 +28,9 @@ class Config {
   bool _sendOfflineNotifications = false; //offline notifications
   bool get sendOfflineNotifications => _sendOfflineNotifications;
 
+  bool _parseLogs = false;
+  bool get parseLogs => _parseLogs;
+
   final io.File _config = io.File("config.json");
 
   Config(Cache _cache, String chiaConfigPath, [isHarvester = false]) {
@@ -70,9 +73,10 @@ class Config {
       {
         "chiaPath": chiaPath,
         "showBalance": showBalance,
-        "sendPlotNotifications": sendPlotNotifications,
         "sendBalanceNotifications": sendBalanceNotifications,
-        "sendOfflineNotifications": sendOfflineNotifications
+        "sendPlotNotifications": sendPlotNotifications,
+        "sendOfflineNotifications": sendOfflineNotifications,
+        "parseLogs": parseLogs
       }
     ]);
 
@@ -186,6 +190,9 @@ class Config {
     if (contents[0]['sendOfflineNotifications'] != null)
       _sendOfflineNotifications = contents[0]['sendOfflineNotifications'];
 
+    if (contents[0]['parseLogs'] != null)
+      _parseLogs = contents[0]['parseLogs'];
+
     await saveConfig();
   }
 
@@ -237,4 +244,3 @@ class Config {
 
 //Tells if client is harvester or not
 enum ClientType { Farmer, Harvester }
-

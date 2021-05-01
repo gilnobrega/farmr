@@ -77,10 +77,16 @@ class HarvesterPlots {
     config.cache.savePlots(allPlots);
   }
 
-  void filterDuplicates() {
-//Removes plots with same ids!
-    final ids = allPlots.map((plot) => plot.id).toSet();
-    allPlots.retainWhere((x) => ids.remove(x.id));
+  void filterDuplicates([bool client = true]) {
+    final idslist = allPlots.map((plot) => plot.id);
+    final idsSet = idslist.toSet();
+    final difference = idslist.length - idsSet.length;
+
+    //Removes plots with same ids!
+    allPlots.retainWhere((x) => idsSet.remove(x.id));
+
+    //Counts how many plots were filtered
+    if (client && difference > 0) print("Warning: filtering ${difference} duplicated plots!");
   }
 
   //makes an id based on end and start timestamps for the last plot, necessary to call notifications webhook

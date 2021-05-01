@@ -34,12 +34,12 @@ class Cache {
     id = Uuid().v4();
   }
 
-  void init() {
+  void init([bool parseLogs = false]) {
     //Loads cache file
     if (!_cache.existsSync())
       save(); //creates cache file if doesnt exist
     else
-      load(); //chiabot_cache.json
+      load(parseLogs); //chiabot_cache.json
   }
 
   //saves cache file
@@ -50,10 +50,10 @@ class Cache {
     _cache.writeAsStringSync(contents);
   }
 
-  void load() {
+  void load(bool parseLogs) {
     _filters = [];
     _plots = [];
-    
+
     var contents = jsonDecode(_cache.readAsStringSync());
 
     //loads id from cache file
@@ -62,20 +62,22 @@ class Cache {
     //loads chia binary path from cache
     if (contents[0]['binPath'] != null) binPath = contents[0]['binPath'];
 
-    //loads plot list from cache file
-    if (contents[0]['plots'] != null) {
-      var plotsJson = contents[0]['plots'];
+    if (parseLogs) {
+      //loads plot list from cache file
+      if (contents[0]['plots'] != null) {
+        var plotsJson = contents[0]['plots'];
 
-      for (var plotJson in plotsJson) _plots.add(Plot.fromJson(plotJson));
-    }
+        for (var plotJson in plotsJson) _plots.add(Plot.fromJson(plotJson));
+      }
 
-    //loads filters list from cache file
-    if (contents[0]['filters'] != null) {
-      var filtersJson = contents[0]['filters'];
+      //loads filters list from cache file
+      if (contents[0]['filters'] != null) {
+        var filtersJson = contents[0]['filters'];
 
-      for (var filterJson in filtersJson) {
-        Filter filter = Filter.fromJson(filterJson);
-        if (filter.timestamp != null && filter.timestamp > parseUntil) _filters.add(filter);
+        for (var filterJson in filtersJson) {
+          Filter filter = Filter.fromJson(filterJson);
+          if (filter.timestamp != null && filter.timestamp > parseUntil) _filters.add(filter);
+        }
       }
     }
   }

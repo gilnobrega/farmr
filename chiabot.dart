@@ -49,8 +49,8 @@ main(List<String> args) async {
 
     //PARSES DATA
     try {
-      cache.init();
-      Log log = new Log(chiaDebugPath, cache);
+      cache.init(config.parseLogs);
+      Log log = new Log(chiaDebugPath, cache, config.parseLogs);
 
       var client =
           (config.type == ClientType.Farmer) ? new Farmer(config, log) : new Harvester(config, log);

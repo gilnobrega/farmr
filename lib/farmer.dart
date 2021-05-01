@@ -70,8 +70,11 @@ class Farmer extends Harvester {
       print("Error parsing Farm info.");
     }
 
-    log.loadSubSlots();
-    calculateSubSlots(log);
+    //Parses logs for sub slots info
+    if (config.parseLogs) {
+      log.loadSubSlots();
+      calculateSubSlots(log);
+    }
   }
 
   //Server side function to read farm from json file
