@@ -51,6 +51,9 @@ class Cache {
   }
 
   void load() {
+    _filters = [];
+    _plots = [];
+    
     var contents = jsonDecode(_cache.readAsStringSync());
 
     //loads id from cache file

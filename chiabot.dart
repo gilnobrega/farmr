@@ -33,7 +33,6 @@ main(List<String> args) async {
   });
 
   Cache cache = new Cache(chiaConfigPath);
-  cache.init();
 
   //Initializes config, either creates a new one or loads a config file
   Config config = new Config(cache, chiaConfigPath,
@@ -42,9 +41,6 @@ main(List<String> args) async {
   await config.init();
 
   while (true) {
-
-    Log log = new Log(chiaDebugPath, cache);
-
     String lastPlotID = "";
     String balance = "";
     String status = "";
@@ -52,7 +48,11 @@ main(List<String> args) async {
 
     //PARSES DATA
     try {
-      var client = (config.type == ClientType.Farmer) ? new Farmer(config, log) : new Harvester(config, log);
+      cache.init();
+      Log log = new Log(chiaDebugPath, cache);
+
+      var client =
+          (config.type == ClientType.Farmer) ? new Farmer(config, log) : new Harvester(config, log);
       await client.init(chiaConfigPath);
 
       //Throws exception in case no plots were found
