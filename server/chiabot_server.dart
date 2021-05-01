@@ -111,7 +111,7 @@ Future<void> main(List<String> args) async {
       fullText(farm);
 
       print("");
-      showFilters(farm, false);
+      showFilters(farm);
 
       lastUpdatedText(farm, harvesters.length);
     }
@@ -486,7 +486,7 @@ double estimateETW(Harvester client, String networkSize) {
   return calc;
 }
 
-void showFilters(Harvester harvester, [bool showRatio = true]) {
+void showFilters(Harvester harvester) {
   if (harvester.filters.length > 0) {
     harvester.filters.sort((filter1, filter2) => filter1.time.compareTo(filter2.time));
 
@@ -505,15 +505,15 @@ void showFilters(Harvester harvester, [bool showRatio = true]) {
     for (Debug.Filter filter in harvester.filters) totalEligiblePlots += filter.eligiblePlots;
     print("Last 24 hours: ${totalEligiblePlots} plots passed ${times.length} filters");
 
-    //Ratio only makes sense if each worker
-    if (showRatio) {
-      double ratio = (totalEligiblePlots / times.length * 512 / harvester.plots.length);
-      String ratioString = ratio.toStringAsFixed(2);
-      String luck = ((ratio) * 100).toStringAsFixed(0) + "%";
+    //Calculates ratio based on each harvesters proportion (farmer's filterRatio)
+    double ratio = (harvester is Farmer)
+        ? harvester.filterRatio / harvester.plots.length
+        : (totalEligiblePlots / harvester.filters.length * 512 / harvester.plots.length);
+    String ratioString = ratio.toStringAsFixed(2);
+    String luck = ((ratio) * 100).toStringAsFixed(0) + "%";
 
-      print("Each plot passed ${ratioString} times per 512 filters");
-      print("24h Efficiency: **${luck}**");
-    }
+    print("Each plot passed ${ratioString} times per 512 filters");
+    print("24h Efficiency: **${luck}**");
 
     print("");
 

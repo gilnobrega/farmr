@@ -27,6 +27,8 @@ class Farmer extends Harvester {
   @override
   ClientType get type => _type;
 
+  double filterRatio = 0;
+
   @override
   Map toJson() => {
         'status': status,
@@ -56,10 +58,6 @@ class Farmer extends Harvester {
               (config.showBalance) ? double.parse(line.split('Total chia farmed: ')[1]) : -1.0;
         else if (line.startsWith("Farming status: "))
           _status = line.split("Farming status: ")[1];
-        else if (line.startsWith("Plot count: "))
-          _plotNumber = int.parse(line.split("Plot count: ")[1]);
-        else if (line.startsWith("Total size of plots: "))
-          _size = line.split("Total size of plots: ")[1];
         else if (line.startsWith("Estimated network space: "))
           _networkSize = line.split("Estimated network space: ")[1];
       }
@@ -74,14 +72,17 @@ class Farmer extends Harvester {
 
     _status = object['status'];
     _balance = object['balance'];
-    _size = object['size'];
     _networkSize = object['networkSize'];
-    _plotNumber = object['plotNumber'];
+
+    calculateFilterRatio(this);
   }
 
   //Adds harvester's plots into farm's plots
   void addHarvester(Harvester harvester) {
     allPlots.addAll(harvester.allPlots);
+
+    calculateFilterRatio(harvester);
+
     filters.addAll(harvester.filters);
 
     if (harvester.totalDiskSpace == 0 || harvester.freeDiskSpace == 0) supportDiskSpace = false;
@@ -89,5 +90,14 @@ class Farmer extends Harvester {
     //Adds harvester total and free disk space when merging
     totalDiskSpace += harvester.totalDiskSpace;
     freeDiskSpace += harvester.freeDiskSpace;
+  }
+
+  void calculateFilterRatio(Harvester harvester) {
+    int totalEligiblePlots = 0;
+    int totalFilters = harvester.filters.length;
+
+    for (Debug.Filter filter in harvester.filters) totalEligiblePlots += filter.eligiblePlots;
+
+    filterRatio += (totalEligiblePlots / totalFilters) * 512;
   }
 }
