@@ -13,14 +13,8 @@ class Farmer extends Harvester {
   double _balance = 0;
   double get balance => _balance; //hides balance if string
 
-  String _size = "0";
-  String get size => _size;
-
   String _networkSize = "0";
   String get networkSize => _networkSize;
-
-  int _plotNumber = 0;
-  int get plotNumber => _plotNumber;
 
   @override
   ClientType _type = ClientType.Farmer;
@@ -28,14 +22,13 @@ class Farmer extends Harvester {
   ClientType get type => _type;
 
   double filterRatio = 0;
+  int totalPlots = 0;
 
   @override
   Map toJson() => {
         'status': status,
         'balance': balance,
-        'size': size,
         'networkSize': networkSize,
-        'plotNumber': plotNumber,
         'plots': allPlots, //important
         'totalDiskSpace': totalDiskSpace,
         'freeDiskSpace': freeDiskSpace,
@@ -93,11 +86,14 @@ class Farmer extends Harvester {
   }
 
   void calculateFilterRatio(Harvester harvester) {
-    int totalEligiblePlots = 0;
-    int totalFilters = harvester.filters.length;
+    if (harvester.filters.length > 0) {
+      int totalEligiblePlots = 0;
+      int totalFilters = harvester.filters.length;
 
-    for (Debug.Filter filter in harvester.filters) totalEligiblePlots += filter.eligiblePlots;
+      for (Debug.Filter filter in harvester.filters) totalEligiblePlots += filter.eligiblePlots;
 
-    filterRatio += (totalEligiblePlots / totalFilters) * 512;
+      filterRatio += (totalEligiblePlots / totalFilters) * 512;
+      totalPlots += harvester.plots.length;
+    }
   }
 }
