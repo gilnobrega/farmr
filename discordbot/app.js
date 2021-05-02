@@ -171,7 +171,7 @@ client.on('message', (msg) => {
     else if (command === 'chia' && args.length == 1 && args[0] == 'help') {
 
       const embed = new MessageEmbed()
-        .setColor(0x00ff00)
+        .setColor(0x40ab5c)
         .setTitle("Available commands")
         .setDescription(" `` !chia link [client-id] `` - links client to your discord account \n"
           + "`` !chia `` - displays your chia farm summary \n"
@@ -190,7 +190,7 @@ client.on('message', (msg) => {
     else if (command === 'chia' && args.length == 1 && (args[0] == 'donate' || args[0] == "donation")) {
 
       const embed = new MessageEmbed()
-        .setColor(0x00ff00)
+        .setColor(0x40ab5c)
         .setTitle("Donate to @joaquimguimaraes")
         .setURL("https://github.com/joaquimguimaraes/chiabot#donate")
         .setDescription(
@@ -206,10 +206,17 @@ client.on('message', (msg) => {
       fetch("https://chiabot.znc.sh/assign.php?id=" + id + "&user=" + user);
 
       const embed = new MessageEmbed()
-        .setColor(0x00ff00)
+        .setColor(0x40ab5c)
         .setTitle("Linked ID to your Discord account successfully")
         .setDescription("");
-      msg.channel.send(embed);
+      msg.channel.send(embed).then( sentmsg => {
+
+        if (msg.channel.type != "dm")
+        {
+          setTimeout(() => msg.delete(), 1);
+          setTimeout(() => sentmsg.delete(), minsTimeout * 60 * 1000);
+        }
+      });
     }
 
     //If no block number is specified then it uses flexpool api to find the latest block's number (even if it's unconfirmed)
