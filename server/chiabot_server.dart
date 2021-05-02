@@ -285,7 +285,7 @@ void farmStatus(Harvester client, String networkSize, [bool showETW = true]) {
 //calculates plot time of last plot
 void lastPlotTime(List<Plot> plots) {
   Plot plot = lastPlot(plots);
-  Duration average = averagePlotDuration(plots);
+  Duration average = averagePlotDuration(plots.where((plot) => plot.duration.inMinutes > 0).toList());
 
   //relative difference in % of plot duration vs average plot duration
   double ratio = 1 - (plot.duration.inMilliseconds / average.inMilliseconds);
@@ -519,7 +519,8 @@ void showFilters(Harvester harvester, [bool showStdDev = true]) {
 
     if (harvester.maxTime > 25) {
       print(":warning: ** Response time too long ** :warning:");
-      if (harvester.missedChallenges > 1) print("Potentially missed ${harvester.missedChallenges} challenges");
+      if (harvester.missedChallenges > 1)
+        print("Potentially missed ${harvester.missedChallenges} challenges");
     }
   }
 

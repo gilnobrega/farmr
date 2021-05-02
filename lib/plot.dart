@@ -30,7 +30,9 @@ class Plot {
   DateTime get begin => _begin;
 
   DateTime _end;
-  DateTime get end => _end;
+  //if plot were created after completion (timestamp bug)
+  //then assumes end time stamp is beginning time stamp
+  DateTime get end => (_end.millisecondsSinceEpoch > _begin.millisecondsSinceEpoch) ? _end : _begin;
 
   Duration _duration;
   Duration get duration => _duration;
