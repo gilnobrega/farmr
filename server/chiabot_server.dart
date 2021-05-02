@@ -525,8 +525,8 @@ void showFilters(Harvester harvester) {
 
     print("");
 
-    print("Longest response time: **${maxTime}** seconds");
-    print("Shortest response time: ${minTime} seconds ");
+    print("Longest response: **${maxTime}** seconds");
+    print("Shortest response: ${minTime} seconds ");
     print("Median: ${medianTime}s Avg: ${avgTime}s σ: ${stdDevTime}s");
 
     if (timeStats.max > 25) print(":warning: ** Response time too long ** :warning:");
