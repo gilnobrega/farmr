@@ -36,12 +36,14 @@ class HarvesterFilters {
 
     List<double> _times = filters.map((filter) => filter.time).toList();
 
-    Stats timeStats = Stats.fromData(_times);
-    _maxTime = timeStats.max;
-    _minTime = timeStats.min;
-    _avgTime = timeStats.average;
-    _medianTime = timeStats.median;
-    _stdDeviation = timeStats.standardDeviation;
+    if (_times.length > 0) {
+      Stats timeStats = Stats.fromData(_times);
+      _maxTime = timeStats.max;
+      _minTime = timeStats.min;
+      _avgTime = timeStats.average;
+      _medianTime = timeStats.median;
+      _stdDeviation = timeStats.standardDeviation;
+    }
 
     _numberFilters = filters.length;
     _eligiblePlots = _getEligiblePlots();
