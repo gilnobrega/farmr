@@ -66,8 +66,18 @@ class HarvesterPlots {
           bool duplicate = newplots.any((plot) => plot.id == id);
 
           //If plot id it is in cache then adds old plot information (timestamps, etc.)
-          if (inCache && !duplicate)
-            newplots.add(allPlots.firstWhere((cachedPlot) => cachedPlot.id == id));
+          //but updates plot size
+          if (inCache && !duplicate) {
+            Plot plot = allPlots.firstWhere((cachedPlot) => cachedPlot.id == id);
+
+            //updates file size in case plot was being moved while cached
+            if (!plot.complete) {
+              io.FileStat stat = io.FileStat.statSync(file.path);
+              plot.updateSize(stat.size);
+            }
+
+            newplots.add(plot);
+          }
           //Adds plot if it's not in cache already
           else if (!duplicate) {
             //print("Found new plot " + id); // UNCOMMENT FOR DEBUGGING PLOT CACHE

@@ -106,6 +106,10 @@ class Plot {
   void clearID() {
     _id = null;
   }
+
+  void updateSize(int size) {
+    _size = size;
+  }
 }
 
 String dateToString(DateTime date) {
