@@ -50,7 +50,7 @@ class Log {
           if (_debugFile.existsSync())
             keepParsing = parseFilters(_debugFile.readAsStringSync(), _parseUntil);
         } catch (Exception) {
-          print(
+          log.warning(
               "Warning: could not parse filters in debug.log${ext}, make sure chia log level is set to INFO");
         }
       }
@@ -71,7 +71,7 @@ class Log {
         //stops parsing once it reaches parseUntil date limit
         if (_debugFile.existsSync()) parseSignagePoints(_debugFile.readAsStringSync(), _parseUntil);
       } catch (Exception) {
-        print(
+        log.info(
             "Warning: could not parse SubSlots in debug.log${ext}, make sure chia log level is set to INFO");
       }
     }
