@@ -115,7 +115,7 @@ Future<void> main(List<String> args) async {
       fullText(farm);
 
       print("");
-      showFilters(farm);
+      showFilters(farm, false);
 
       lastUpdatedText(farm, harvesters.length);
     }
@@ -491,7 +491,7 @@ double estimateETW(Harvester client, String networkSize) {
   return calc;
 }
 
-void showFilters(Harvester harvester) {
+void showFilters(Harvester harvester, [bool showStdDev = true]) {
   if (harvester.numberFilters > 0) {
     int totalEligiblePlots = harvester.eligiblePlots;
     print("Last 24 hours: ${totalEligiblePlots} plots passed ${harvester.numberFilters} filters");
@@ -513,7 +513,7 @@ void showFilters(Harvester harvester) {
 
     int decimals = 3;
 
-    if (harvester.medianTime > 0 && harvester.avgTime > 0 && harvester.stdDeviation > 0)
+    if (showStdDev)
       print(
           "Median: ${harvester.medianTime.toStringAsFixed(decimals)}s Avg: ${harvester.avgTime.toStringAsFixed(decimals)}s σ: ${harvester.stdDeviation.toStringAsFixed(decimals)}s");
 

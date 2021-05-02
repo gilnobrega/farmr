@@ -7,7 +7,6 @@ import 'package:logging/logging.dart';
 import 'config.dart';
 import 'harvester.dart';
 import 'debug.dart' as Debug;
-import 'log/filter.dart';
 
 final log = Logger('Farmer');
 
