@@ -119,7 +119,7 @@ If the client crashes:
 ## FAQ
 
 ##### Are you going to steal my keys?
-No. The only command issued by chiabot client is ``chia farm summary``. It does not use Chia's RCP servers, therefore it doesn't even need to your private key.
+No. The only command issued by chiabot client is ``chia farm summary``. It does not use Chia's RCP servers, therefore it doesn't even need your private key.
 
 ##### How can I trust you?
 This project is open-source, so you don't have to trust me. Read the code yourself :)
