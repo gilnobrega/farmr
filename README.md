@@ -5,9 +5,17 @@ A discord bot that monitors your chia farm summary and sends notifications when 
 The ChiaBot client is available for Linux and Windows. You can interact with the bot in [ChiaBot playground](https://discord.gg/aEkYWQGWdS) discord server.
 
 ### Main Features
-| ``!chia`` command: | Block and Plot notifications: |
+| ``!chia`` command | Block, Plot and Offline notifications |
+|-----------------------------------------------------|-------------------|
+|![screenshot](https://i.imgur.com/ilPYPe3_d.webp?maxwidth=450&fidelity=grand)|![notifications](https://i.imgur.com/HXKroKS_d.webp?maxwidth=450&fidelity=grand)![offline](https://i.imgur.com/lR9BlEO_d.webp?maxwidth=450&fidelity=grand)|
+
+| ``!chia full`` for detailed stats | ``!chia workers`` for per-client stats |
 |------------------------|-------------------|
-|![screenshot](https://i.imgur.com/ilPYPe3_d.webp?maxwidth=450&fidelity=grand)|![notifications](https://i.imgur.com/HXKroKS_d.webp?maxwidth=450&fidelity=grand)|
+|![chiafull](https://i.imgur.com/7GEM6Z3_d.webp?maxwidth=450&fidelity=grand)|![chiaworkers](https://i.imgur.com/2AOeYcR_d.webp?maxwidth=450&fidelity=grand)]|
+
+| Challenge Parsing | Full Node stats |
+|------------------------|-------------------|
+|![challenges](https://i.imgur.com/PpmlJj6_d.webp?maxwidth=450&fidelity=grand)|![fullnode](https://i.imgur.com/R1OOemY_d.webp?maxwidth=450&fidelity=grand)|
 
 ## Installation 
 Download this repository, then proceed with the following platform-specific instructions:
