@@ -48,6 +48,7 @@ class Farmer extends Harvester {
         'looseSignagePoints': looseSignagePoints,
         'numberFilters': numberFilters,
         'eligiblePlots': eligiblePlots,
+        'missedChallenges': missedChallenges,
         'maxTime': maxTime,
         'minTime': minTime,
         'avgTime': avgTime,

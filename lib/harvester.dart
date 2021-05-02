@@ -41,6 +41,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
         'type': type.index,
         'numberFilters': numberFilters,
         'eligiblePlots': eligiblePlots,
+        'missedChallenges': missedChallenges,
         'maxTime': maxTime,
         'minTime': minTime,
         'avgTime': avgTime,

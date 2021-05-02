@@ -517,7 +517,10 @@ void showFilters(Harvester harvester, [bool showStdDev = true]) {
       print(
           "Median: ${harvester.medianTime.toStringAsFixed(decimals)}s Avg: ${harvester.avgTime.toStringAsFixed(decimals)}s σ: ${harvester.stdDeviation.toStringAsFixed(decimals)}s");
 
-    if (harvester.maxTime > 25) print(":warning: ** Response time too long ** :warning:");
+    if (harvester.maxTime > 25) {
+      print(":warning: ** Response time too long ** :warning:");
+      if (harvester.missedChallenges > 1) print("Potentially missed ${harvester.missedChallenges} challenges");
+    }
   }
 
   if (harvester is Farmer && harvester.completeSubSlots > 0) {

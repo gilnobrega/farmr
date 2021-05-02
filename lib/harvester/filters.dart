@@ -13,8 +13,13 @@ class HarvesterFilters {
   int _numberFilters = 0;
   int get numberFilters => _numberFilters;
 
+  //plots which passed filter
   int _eligiblePlots = 0;
   int get eligiblePlots => _eligiblePlots;
+
+  //number of challenges which response time is above 25s
+  int _missedChallenges = 0;
+  int get missedChallenges => _missedChallenges;
 
   double _maxTime = 0;
   double _minTime = 0;
@@ -35,6 +40,8 @@ class HarvesterFilters {
     if (log != null) filters = log.filters;
 
     List<double> _times = filters.map((filter) => filter.time).toList();
+    //number of challenges which response time is above 25s
+    _missedChallenges = _times.where((time) => time >= 25).length;
 
     if (_times.length > 0) {
       Stats timeStats = Stats.fromData(_times);
@@ -61,6 +68,7 @@ class HarvesterFilters {
     else {
       if (json['numberFilters'] != null) _numberFilters = json['numberFilters'];
       if (json['eligiblePlots'] != null) _eligiblePlots = json['eligiblePlots'];
+      if (json['missedChallenges'] != null) _missedChallenges = json['missedChallenges'];
 
       if (json['maxTime'] != null) _maxTime = json['maxTime'];
       if (json['minTime'] != null) _minTime = json['minTime'];
@@ -82,7 +90,8 @@ class HarvesterFilters {
     filters.addAll(harvester.filters);
 
     _numberFilters += harvester.numberFilters;
-    _eligiblePlots += eligiblePlots;
+    _eligiblePlots += harvester.eligiblePlots;
+    _missedChallenges += harvester.missedChallenges;
 
     _maxTime = Math.max(_maxTime, harvester.maxTime);
     _minTime = Math.min(_minTime, harvester.minTime);
