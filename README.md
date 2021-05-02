@@ -116,6 +116,21 @@ If the client crashes:
 ##### What if I have two or more farmers?
   Run one of them as a farmer and the others as harvesters.
   
+## FAQ
+
+##### Are you going to steal my keys?
+No. The only command issued by chiabot client is ``chia farm summary``. It does not use Chia's RCP servers, therefore it doesn't even need to your private key.
+
+##### How can I trust you?
+This project is open-source, so you don't have to trust me. Read the code yourself :)
+
+##### What data is collected?
+You can see the data that's currently tied to your discord ID with ``!chia api``
+Your wallet address is not sent to the server so your data remains anonymous (that is, except being linked to your discord ID).
+
+##### What if I don't want my data to be stored in your server anymore?
+Simple, stop using it. All data will be deleted 15 minutes after your client sent its last report.
+
 ## Donate
 @joaquimguimaraes wallet addresses:
 ```
