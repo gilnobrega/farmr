@@ -22,7 +22,7 @@ class Config {
   bool _showBalance = true;
   bool get showBalance => _showBalance;
 
-  bool _sendPlotNotifications = true; //plot notifications
+  bool _sendPlotNotifications = false; //plot notifications
   bool get sendPlotNotifications => _sendPlotNotifications;
 
   bool _sendBalanceNotifications = true; //balance notifications
