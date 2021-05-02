@@ -75,7 +75,7 @@ class Farmer extends Harvester {
 
     //Parses logs for sub slots info
     if (config.parseLogs) {
-      log.loadSubSlots();
+      log.loadSignagePoints();
       calculateSubSlots(log);
     }
   }

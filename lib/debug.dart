@@ -8,10 +8,13 @@ import 'cache.dart';
 import 'log/filter.dart';
 import 'log/subslot.dart';
 import 'log/logitem.dart';
+import 'log/signagepoint.dart';
 
 final log = Logger('LOG');
 
 class Log {
+  Cache _cache;
+
   String debugPath;
   io.File _debugFile;
   int _parseUntil;
@@ -19,12 +22,16 @@ class Log {
   List<Filter> _filters = [];
   List<Filter> get filters => _filters;
 
+  List<SignagePoint> _signagePoints = [];
+
+  //Generate list of complete/incomplete subslots from _signagePoints
   List<SubSlot> subSlots = [];
 
   Log(String chiaDebugPath, Cache cache, bool parseLogs) {
-    _parseUntil = cache.parseUntil;
-    _filters = cache.filters; //loads cached filters
-    subSlots = cache.subSlots; //loads cached subslots
+    _cache = cache;
+    _parseUntil = _cache.parseUntil;
+    _filters = _cache.filters; //loads cached filters
+    _signagePoints = _cache.signagePoints; //loads cached subslots
 
     debugPath = chiaDebugPath + "debug.log";
 
@@ -61,7 +68,7 @@ class Log {
     filters.shuffle();
   }
 
-  loadSubSlots() {
+  loadSignagePoints() {
     for (int i = 9; i >= 0; i--) {
       String ext = (i == 0) ? '' : ('.' + i.toString());
 
@@ -76,10 +83,9 @@ class Log {
       }
     }
 
-    //Won't count with last SubSlot if it's incomplete
-    if (!subSlots.last.complete) subSlots.removeLast();
-
-    filterDuplicateSubSlots();
+    filterDuplicateSignagePoints();
+    _cache.saveSignagePoints(_signagePoints); //saves signagePoints to cache
+    _genSubSlots();
   }
 
   //Parses debug file and looks for filters
@@ -144,33 +150,45 @@ class Log {
         //Parses date from debug.log
         timestamp = parseTimestamp(match.group(1), match.group(2), match.group(3));
 
-        bool inCache = subSlots.any((subSlot) => subSlot.timestamp == timestamp);
+        bool inCache = _signagePoints.any((signagePoint) => signagePoint.timestamp == timestamp);
 
         //only adds subslot if its not already in cache
         if (timestamp > parseUntil && !inCache) {
-          int currentStep = int.parse(match.group(4));
+          int index = int.parse(match.group(4));
 
-          SubSlot signagePoint;
-
-          if (currentStep != 1) {
-            try {
-              signagePoint = subSlots
-                  .where((point) => point.lastStep == currentStep - 1 && !point.complete)
-                  .last;
-            } catch (Exception) {
-              //print(currentStep);
-            }
-          }
-
-          if (subSlots.length == 0 || signagePoint == null)
-            subSlots.add(new SubSlot(timestamp, [currentStep], subSlots.length == 0));
-          else
-            signagePoint.addSignagePoint(currentStep);
+          SignagePoint signagePoint = SignagePoint(timestamp, index);
+          _signagePoints.add(signagePoint);
         }
       }
     } catch (Exception) {
       print("Error parsing signage points.");
     }
+  }
+
+  _genSubSlots() {
+    subSlots = [];
+
+    for (SignagePoint signagePoint in _signagePoints) {
+      SubSlot subSlot;
+
+      if (signagePoint.index != 1) {
+        try {
+          subSlot = subSlots
+              .where((point) => point.lastStep == signagePoint.index - 1 && !point.complete)
+              .last;
+        } catch (Exception) {
+          //print(currentStep);
+        }
+      }
+
+      if (subSlots.length == 0 || subSlot == null)
+        subSlots.add(new SubSlot([signagePoint], subSlots.length == 0));
+      else
+        subSlot.addSignagePoint(signagePoint);
+    }
+
+    //Won't count with last SubSlot if it's incomplete
+    if (!subSlots.last.complete) subSlots.removeLast();
   }
 
   void filterDuplicateFilters() {
@@ -179,9 +197,9 @@ class Log {
     _filters.retainWhere((filter) => ids.remove(filter.timestamp));
   }
 
-  void filterDuplicateSubSlots() {
+  void filterDuplicateSignagePoints() {
 //Removes subslots with same timestamps!
-    final ids = subSlots.map((subSlot) => subSlot.timestamp).toSet();
-    subSlots.retainWhere((subSlot) => ids.remove(subSlot.timestamp));
+    final ids = _signagePoints.map((signagePoint) => signagePoint.timestamp).toSet();
+    _signagePoints.retainWhere((signagePoint) => ids.remove(signagePoint.timestamp));
   }
 }

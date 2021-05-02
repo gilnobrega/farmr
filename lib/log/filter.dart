@@ -1,6 +1,7 @@
 import 'logitem.dart';
 
 import 'package:logging/logging.dart';
+
 final Logger log = Logger('Log.Filter');
 
 class Filter extends LogItem {

@@ -7,7 +7,7 @@ import 'package:uuid/uuid.dart';
 
 import 'plot.dart';
 import 'log/filter.dart';
-import 'log/subslot.dart';
+import 'log/signagepoint.dart';
 
 final log = Logger('Cache');
 
@@ -22,8 +22,8 @@ class Cache {
   List<Filter> _filters = [];
   List<Filter> get filters => _filters;
 
-  List<SubSlot> _subSlots = [];
-  List<SubSlot> get subSlots => _subSlots;
+  List<SignagePoint> _signagePoints = [];
+  List<SignagePoint> get signagePoints => _signagePoints;
 
   final io.File _cache = io.File(".chiabot_cache.json");
 
@@ -54,7 +54,13 @@ class Cache {
   //saves cache file
   void save() {
     String contents = jsonEncode([
-      {"id": id, "binPath": binPath, "plots": plots, "filters": filters, "subSlots": subSlots}
+      {
+        "id": id,
+        "binPath": binPath,
+        "plots": plots,
+        "filters": filters,
+        "signagePoints": signagePoints
+      }
     ]);
     _cache.writeAsStringSync(contents);
   }
@@ -90,12 +96,13 @@ class Cache {
       }
 
       //loads subslots list from cache file
-      if (contents[0]['subSlots'] != null) {
-        var subslotsJson = contents[0]['subSlots'];
+      if (contents[0]['signagePoints'] != null) {
+        var signagePointsJson = contents[0]['signagePoints'];
 
-        for (var subslotJson in subslotsJson) {
-          SubSlot subSlot = SubSlot.fromJson(subslotJson);
-          if (subSlot.timestamp != null && subSlot.timestamp > parseUntil) _subSlots.add(subSlot);
+        for (var signagePointJson in signagePointsJson) {
+          SignagePoint signagePoint = SignagePoint.fromJson(signagePointJson);
+          if (signagePoint.timestamp != null && signagePoint.timestamp > parseUntil)
+            _signagePoints.add(signagePoint);
         }
       }
     }
@@ -111,8 +118,8 @@ class Cache {
     save();
   }
 
-  void saveSubSlots(List<SubSlot> subSlots) {
-    _subSlots = subSlots;
+  void saveSignagePoints(List<SignagePoint> signagePoints) {
+    _signagePoints = signagePoints;
     save();
   }
 }
