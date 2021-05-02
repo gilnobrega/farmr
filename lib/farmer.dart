@@ -122,9 +122,9 @@ class Farmer extends Harvester {
   }
 
   void calculateSubSlots(Debug.Log log) {
-    _completeSubSlots = log.signagePoints.where((point) => point.complete).length;
+    _completeSubSlots = log.subSlots.where((point) => point.complete).length;
 
-    var incomplete = log.signagePoints.where((point) => !point.complete);
+    var incomplete = log.subSlots.where((point) => !point.complete);
     _looseSignagePoints = 0;
     for (var i in incomplete) {
       _looseSignagePoints += i.signagePoints.length;

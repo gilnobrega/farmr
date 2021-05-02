@@ -19,7 +19,7 @@ class Log {
   List<Filter> _filters = [];
   List<Filter> get filters => _filters;
 
-  List<SubSlot> signagePoints = [];
+  List<SubSlot> subSlots = [];
 
   Log(String chiaDebugPath, Cache cache, bool parseLogs) {
     _parseUntil = cache.parseUntil;
@@ -74,6 +74,10 @@ class Log {
             "Warning: could not parse SubSlots in debug.log${ext}, make sure chia log level is set to INFO");
       }
     }
+    
+    //Won't count with last SubSlot if it's incomplete
+    if (!subSlots.last.complete)
+    subSlots.removeLast();
   }
 
   //Parses debug file and looks for filters
@@ -123,7 +127,7 @@ class Log {
     return keepParsing && !inCache;
   }
 
-  SubSlot parseSignagePoints(String contents, int parseUntil) {
+  parseSignagePoints(String contents, int parseUntil) {
     try {
       RegExp signagePointsRegex = RegExp(
           "([0-9-]+)T([0-9:]+)\\.([0-9]+) full_node chia\\.full\\_node\\.full\\_node:\\s+INFO\\W+Finished[\\S ]+ ([0-9]+)\\/64",
@@ -145,7 +149,7 @@ class Log {
 
           if (currentStep != 1) {
             try {
-              signagePoint = signagePoints
+              signagePoint = subSlots
                   .where((point) => point.lastStep == currentStep - 1 && !point.complete)
                   .last;
             } catch (Exception) {
@@ -153,9 +157,8 @@ class Log {
             }
           }
 
-          if (signagePoints.length == 0 || signagePoint == null)
-            signagePoints
-                .add(new SubSlot(timestamp, [currentStep], signagePoints.length == 0));
+          if (subSlots.length == 0 || signagePoint == null)
+            subSlots.add(new SubSlot(timestamp, [currentStep], subSlots.length == 0));
           else
             signagePoint.addSignagePoint(currentStep);
         }
@@ -163,8 +166,6 @@ class Log {
     } catch (Exception) {
       print("Error parsing signage points.");
     }
-
-    return signagePoints.last;
   }
 
   void filterDuplicates() {
