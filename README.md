@@ -7,7 +7,7 @@ The ChiaBot client is available for Linux and Windows. You can interact with the
 ### Main Features
 | ``!chia`` command | Block, Plot and Offline notifications |
 |-----------------------------------------------------|-------------------|
-|![screenshot](https://i.imgur.com/ilPYPe3_d.webp?maxwidth=450&fidelity=grand)|![notifications](https://i.imgur.com/HXKroKS_d.webp?maxwidth=450&fidelity=grand)![offline](https://i.imgur.com/lR9BlEO_d.webp?maxwidth=450&fidelity=grand)|
+|![screenshot](https://i.imgur.com/ilPYPe3_d.webp?maxwidth=500&fidelity=grand)|![notifications](https://i.imgur.com/HXKroKS_d.webp?maxwidth=450&fidelity=grand)![offline](https://i.imgur.com/lR9BlEO_d.webp?maxwidth=450&fidelity=grand)|
 
 | ``!chia full`` for detailed stats | ``!chia workers`` for per-client stats |
 |------------------------|-------------------|
