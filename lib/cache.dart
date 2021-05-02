@@ -20,8 +20,7 @@ class Cache {
 
   final io.File _cache = io.File(".chiabot_cache.json");
 
-  //Tells log parser when it should stop parsing
-  final int parseUntil = DateTime.now().subtract(Duration(days: 1)).millisecondsSinceEpoch;
+  int parseUntil;
 
   Cache(String chiaConfigPath) {
     try {
@@ -35,6 +34,9 @@ class Cache {
   }
 
   void init([bool parseLogs = false]) {
+    //Tells log parser when it should stop parsing
+    parseUntil = DateTime.now().subtract(Duration(days: 1)).millisecondsSinceEpoch;
+
     //Loads cache file
     if (!_cache.existsSync())
       save(); //creates cache file if doesnt exist
