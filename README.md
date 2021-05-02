@@ -11,7 +11,7 @@ The ChiaBot client is available for Linux and Windows. You can interact with the
 
 | ``!chia full`` for detailed stats | ``!chia workers`` for client-specific stats |
 |------------------------|-------------------|
-|![chiafull](https://i.imgur.com/7GEM6Z3_d.webp?maxwidth=450&fidelity=grand)|![chiaworkers](https://i.imgur.com/2AOeYcR_d.webp?maxwidth=450&fidelity=grand)]|
+|![chiafull](https://i.imgur.com/7GEM6Z3_d.webp?maxwidth=450&fidelity=grand)|![chiaworkers](https://i.imgur.com/2AOeYcR_d.webp?maxwidth=450&fidelity=grand)|
 
 | Challenge Parsing | Full Node stats |
 |------------------------|-------------------|
