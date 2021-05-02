@@ -9,7 +9,7 @@ The ChiaBot client is available for Linux and Windows. You can interact with the
 |-----------------------------------------------------|-------------------|
 |![screenshot](https://i.imgur.com/ilPYPe3_d.webp?maxwidth=450&fidelity=grand)|![notifications](https://i.imgur.com/HXKroKS_d.webp?maxwidth=450&fidelity=grand)|
 
-| ``!chia full`` for detailed stats | ``!chia workers`` for per-client stats |
+| ``!chia full`` for detailed stats | ``!chia workers`` for client-specific stats |
 |------------------------|-------------------|
 |![chiafull](https://i.imgur.com/7GEM6Z3_d.webp?maxwidth=450&fidelity=grand)|![chiaworkers](https://i.imgur.com/2AOeYcR_d.webp?maxwidth=450&fidelity=grand)]|
 
