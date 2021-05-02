@@ -3,14 +3,11 @@ import 'dart:math' as Math;
 import 'dart:io' as io;
 
 import 'package:http/http.dart' as http;
-import 'package:stats/stats.dart';
 import 'package:logging/logging.dart';
 
 import '../lib/farmer.dart';
 import '../lib/harvester.dart';
 import '../lib/plot.dart';
-
-import '../lib/log/filter.dart';
 
 final log = Logger('Server');
 
@@ -495,23 +492,9 @@ double estimateETW(Harvester client, String networkSize) {
 }
 
 void showFilters(Harvester harvester) {
-  if (harvester.filters.length > 0) {
-    harvester.filters.sort((filter1, filter2) => filter1.time.compareTo(filter2.time));
-
-    List<double> times = harvester.filters.map((filter) => filter.time).toList();
-
-    Stats timeStats = Stats.fromData(times);
-
-    String maxTime = timeStats.max.toString();
-    String minTime = timeStats.min.toStringAsFixed(3);
-    String avgTime = timeStats.average.toStringAsFixed(3);
-    String medianTime = timeStats.median.toStringAsFixed(3);
-    String stdDevTime = timeStats.standardDeviation.toStringAsFixed(3);
-
-    int totalEligiblePlots = 0;
-
-    for (Filter filter in harvester.filters) totalEligiblePlots += filter.eligiblePlots;
-    print("Last 24 hours: ${totalEligiblePlots} plots passed ${times.length} filters");
+  if (harvester.numberFilters > 0) {
+    int totalEligiblePlots = harvester.eligiblePlots;
+    print("Last 24 hours: ${totalEligiblePlots} plots passed ${harvester.numberFilters} filters");
 
     //Calculates ratio based on each harvesters proportion (farmer's filterRatio)
     double ratio = (harvester is Farmer)
@@ -525,11 +508,16 @@ void showFilters(Harvester harvester) {
 
     print("");
 
-    print("Longest response: **${maxTime}** seconds");
-    print("Shortest response: ${minTime} seconds ");
-    print("Median: ${medianTime}s Avg: ${avgTime}s σ: ${stdDevTime}s");
+    print("Longest response: **${harvester.maxTime}** seconds");
+    print("Shortest response: ${harvester.minTime} seconds ");
 
-    if (timeStats.max > 25) print(":warning: ** Response time too long ** :warning:");
+    int decimals = 3;
+
+    if (harvester.medianTime > 0 && harvester.avgTime > 0 && harvester.stdDeviation > 0)
+      print(
+          "Median: ${harvester.medianTime.toStringAsFixed(decimals)}s Avg: ${harvester.avgTime.toStringAsFixed(decimals)}s σ: ${harvester.stdDeviation.toStringAsFixed(decimals)}s");
+
+    if (harvester.maxTime > 25) print(":warning: ** Response time too long ** :warning:");
   }
 
   if (harvester is Farmer && harvester.completeSubSlots > 0) {

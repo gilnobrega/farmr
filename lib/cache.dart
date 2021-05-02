@@ -77,34 +77,39 @@ class Cache {
     //loads chia binary path from cache
     if (contents[0]['binPath'] != null) binPath = contents[0]['binPath'];
 
-    if (parseLogs) {
-      //loads plot list from cache file
-      if (contents[0]['plots'] != null) {
-        var plotsJson = contents[0]['plots'];
+    try {
+      if (parseLogs) {
+        //loads plot list from cache file
+        if (contents[0]['plots'] != null) {
+          var plotsJson = contents[0]['plots'];
 
-        for (var plotJson in plotsJson) _plots.add(Plot.fromJson(plotJson));
-      }
+          for (var plotJson in plotsJson) _plots.add(Plot.fromJson(plotJson));
+        }
 
-      //loads filters list from cache file
-      if (contents[0]['filters'] != null) {
-        var filtersJson = contents[0]['filters'];
+        //loads filters list from cache file
+        if (contents[0]['filters'] != null) {
+          var filtersJson = contents[0]['filters'];
 
-        for (var filterJson in filtersJson) {
-          Filter filter = Filter.fromJson(filterJson);
-          if (filter.timestamp != null && filter.timestamp > parseUntil) _filters.add(filter);
+          for (var filterJson in filtersJson) {
+            Filter filter = Filter.fromJson(filterJson);
+            if (filter.timestamp != null && filter.timestamp > parseUntil) _filters.add(filter);
+          }
+        }
+
+        //loads subslots list from cache file
+        if (contents[0]['signagePoints'] != null) {
+          var signagePointsJson = contents[0]['signagePoints'];
+
+          for (var signagePointJson in signagePointsJson) {
+            SignagePoint signagePoint = SignagePoint.fromJson(signagePointJson);
+            if (signagePoint.timestamp != null && signagePoint.timestamp > parseUntil)
+              _signagePoints.add(signagePoint);
+          }
         }
       }
-
-      //loads subslots list from cache file
-      if (contents[0]['signagePoints'] != null) {
-        var signagePointsJson = contents[0]['signagePoints'];
-
-        for (var signagePointJson in signagePointsJson) {
-          SignagePoint signagePoint = SignagePoint.fromJson(signagePointJson);
-          if (signagePoint.timestamp != null && signagePoint.timestamp > parseUntil)
-            _signagePoints.add(signagePoint);
-        }
-      }
+    } catch (Exception) {
+      log.severe(
+          "ERROR: Failed to load .chiabot_cache.json, please delete this file and restart client.");
     }
   }
 

@@ -26,9 +26,6 @@ class Farmer extends Harvester {
   @override
   ClientType get type => _type;
 
-  double filterRatio = 0;
-  int totalPlots = 0;
-
   //SubSlots with 64 signage points
   int _completeSubSlots = 0;
   int get completeSubSlots => _completeSubSlots;
@@ -50,7 +47,12 @@ class Farmer extends Harvester {
         'type': type.index,
         'completeSubSlots': completeSubSlots,
         'looseSignagePoints': looseSignagePoints,
-        'filters': filters
+        'numberFilters': numberFilters,
+        'eligiblePlots': eligiblePlots,
+        'maxTime': maxTime,
+        'minTime': minTime,
+        'avgTime': avgTime,
+        'stdDeviation': stdDeviation
       };
 
   Farmer(Config config, Debug.Log log) : super(config, log) {
@@ -98,27 +100,13 @@ class Farmer extends Harvester {
   void addHarvester(Harvester harvester) {
     allPlots.addAll(harvester.allPlots);
 
-    calculateFilterRatio(harvester);
-
-    filters.addAll(harvester.filters);
+    addHarversterFilters(harvester);
 
     if (harvester.totalDiskSpace == 0 || harvester.freeDiskSpace == 0) supportDiskSpace = false;
 
     //Adds harvester total and free disk space when merging
     totalDiskSpace += harvester.totalDiskSpace;
     freeDiskSpace += harvester.freeDiskSpace;
-  }
-
-  void calculateFilterRatio(Harvester harvester) {
-    if (harvester.filters.length > 0) {
-      int totalEligiblePlots = 0;
-      int totalFilters = harvester.filters.length;
-
-      for (Filter filter in harvester.filters) totalEligiblePlots += filter.eligiblePlots;
-
-      filterRatio += (totalEligiblePlots / totalFilters) * 512;
-      totalPlots += harvester.plots.length;
-    }
   }
 
   void calculateSubSlots(Debug.Log log) {
