@@ -2,11 +2,14 @@ import 'dart:core';
 import 'dart:io' as io;
 import 'dart:convert';
 
+import 'package:logging/logging.dart';
+
 import 'config.dart';
 import 'harvester.dart';
 import 'debug.dart' as Debug;
-
 import 'log/filter.dart';
+
+final log = Logger('Farmer');
 
 class Farmer extends Harvester {
   String _status;
@@ -124,7 +127,7 @@ class Farmer extends Harvester {
     var incomplete = log.signagePoints.where((point) => !point.complete);
     _looseSignagePoints = 0;
     for (var i in incomplete) {
-      _looseSignagePoints += i.steps.length;
+      _looseSignagePoints += i.signagePoints.length;
     }
   }
 }

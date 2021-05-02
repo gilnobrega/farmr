@@ -2,8 +2,12 @@ import 'dart:core';
 import 'dart:io' as io;
 import 'dart:math' as Math;
 
+import 'package:logging/logging.dart';
+
 import 'package:path/path.dart';
 import 'package:filesize/filesize.dart';
+
+final log = Logger('Plot');
 
 class Plot {
   String _id;
@@ -39,6 +43,8 @@ class Plot {
   bool get complete => _size > _expectedSize;
 
   Plot(io.File file) {
+    log.info("Added plot: " + file.path);
+
     List<String> list = basenameWithoutExtension(file.path).split('-');
 
     _plotSize = list[1];
@@ -78,7 +84,8 @@ class Plot {
     else
       //in the client plotid is a long hash, while in the server its based on timestamps
       _id = begin.millisecondsSinceEpoch.toString() +
-          end.millisecondsSinceEpoch.toString() + size.toString();
+          end.millisecondsSinceEpoch.toString() +
+          size.toString();
 
     if (json['date'] != null) _date = json['date'];
 

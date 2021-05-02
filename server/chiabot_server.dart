@@ -1,8 +1,10 @@
 import 'dart:core';
 import 'dart:math' as Math;
+import 'dart:io' as io;
 
 import 'package:http/http.dart' as http;
 import 'package:stats/stats.dart';
+import 'package:logging/logging.dart';
 
 import '../lib/farmer.dart';
 import '../lib/harvester.dart';
@@ -10,7 +12,11 @@ import '../lib/plot.dart';
 
 import '../lib/log/filter.dart';
 
+final log = Logger('Server');
+
 Future<void> main(List<String> args) async {
+  initLogger();
+
   //Discord User ID
   String userID = args[0];
 
@@ -119,8 +125,9 @@ Future<void> main(List<String> args) async {
 
     print("");
   } catch (Exception) {
-    if (harvesters.length > 0) print(harvesters.length.toString() + " harvesters found.");
-    print("Farmer could not be found.\nMake sure your farmer client is running.");
+    if (harvesters.length > 0) log.shout(harvesters.length.toString() + " harvesters found.");
+    log.shout("Farmer could not be found.\nMake sure your farmer client is running.");
+    log.info("${userID} - Exception: ${Exception.toString()}");
   }
 }
 
@@ -537,4 +544,24 @@ void showFilters(Harvester harvester) {
     print("${harvester.completeSubSlots} complete Sub Slots");
     print("${percentage}% loose Signage Points");
   }
+}
+
+final io.File logFile = io.File("log.txt");
+
+void initLogger() {
+  //Creates log file
+  logFile.createSync();
+
+  //Initializes logger
+  Logger.root.level = Level.SHOUT; // defaults to Level.INFO
+  Logger.root.onRecord.listen((record) {
+    String output = '${record.message}';
+    if (record.level.value >= Level.SHOUT.value)
+      print(output); //prints output if level is warning/error
+
+    //otherwise logs stuff to log file
+    //2021-05-02 03:02:26.548953 Client: Sent farmer report to server.
+    logFile.writeAsStringSync('\n${record.time} ${record.loggerName}: ' + output,
+        mode: io.FileMode.append);
+  });
 }

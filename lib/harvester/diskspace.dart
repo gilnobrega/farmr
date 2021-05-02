@@ -1,6 +1,9 @@
 import 'dart:core';
 
 import 'package:universal_disk_space/universal_disk_space.dart' as uds;
+import 'package:logging/logging.dart';
+
+final Logger log = Logger('Harvester.DiskSpace');
 
 class HarvesterDiskSpace {
   //Total disk space in bytes
@@ -14,9 +17,10 @@ class HarvesterDiskSpace {
 
   //Gets info about total and available disk space, there's a library for each platform
   Future<void> getDiskSpace(List<String> plotDests) async {
+    uds.DiskSpace diskspace;
     try {
       // uses own universal_disk_space library
-      uds.DiskSpace diskspace = new uds.DiskSpace();
+      diskspace = new uds.DiskSpace();
 
       List<uds.Disk> disks = [];
 
@@ -35,8 +39,9 @@ class HarvesterDiskSpace {
     } catch (e) {
       freeDiskSpace = 0;
       totalDiskSpace = 0;
-      print("Can't get disk information about one of your drives.");
-      print(e.toString());
+      log.warning("Can't get disk information about one of your drives.");
+      log.info("Disks:\n{diskspace}");
+      log.info(e.toString());
     }
 
     //If it can't get one of those values then it will not show disk space

@@ -1,4 +1,7 @@
-import 'package:joaquimbot/log/logitem.dart';
+import 'logitem.dart';
+
+import 'package:logging/logging.dart';
+final Logger log = Logger('Log.Filter');
 
 class Filter extends LogItem {
   int _eligiblePlots = 0; //number of eligible plots

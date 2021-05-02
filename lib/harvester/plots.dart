@@ -3,9 +3,12 @@ import 'dart:io' as io;
 
 import 'package:yaml/yaml.dart';
 import 'package:path/path.dart';
+import 'package:logging/logging.dart';
 
 import '../plot.dart';
 import '../config.dart';
+
+final Logger log = Logger('Harvester.Plots');
 
 class HarvesterPlots {
   //Private list with complete and incomplete plots
@@ -35,7 +38,10 @@ class HarvesterPlots {
             dir.listSync().where((file) => extension(file.path) == ".plot").toList().length == 0;
 
         //Adds plot dest if it contains at least one .plot file
-        if (!isEmpty) pathsFiltered.add(dir.absolute.path);
+        if (!isEmpty) {
+          pathsFiltered.add(dir.absolute.path);
+          log.info("Found plot destination directory:" + dir.absolute.path);
+        }
       }
     }
 
@@ -86,7 +92,7 @@ class HarvesterPlots {
     allPlots.retainWhere((x) => idsSet.remove(x.id));
 
     //Counts how many plots were filtered
-    if (client && difference > 0) print("Warning: filtering ${difference} duplicated plots!");
+    if (client && difference > 0) log.warning("Warning: filtering ${difference} duplicated plots!");
   }
 
   //makes an id based on end and start timestamps for the last plot, necessary to call notifications webhook

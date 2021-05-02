@@ -2,6 +2,7 @@ import 'dart:core';
 import 'dart:convert';
 
 import 'package:uuid/uuid.dart';
+import 'package:logging/logging.dart';
 
 import 'plot.dart';
 import 'config.dart';
@@ -11,6 +12,8 @@ import 'harvester/diskspace.dart';
 
 import 'debug.dart' as Debug;
 import 'log/filter.dart';
+
+final log = Logger('Harvester');
 
 class Harvester with HarvesterDiskSpace, HarvesterPlots {
   Config _config;

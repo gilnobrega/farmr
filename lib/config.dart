@@ -2,10 +2,13 @@ import 'dart:core';
 import 'dart:io' as io;
 import 'dart:convert';
 
+import 'package:logging/logging.dart';
 import 'package:dart_console/dart_console.dart';
 import 'package:qr/qr.dart';
 
 import 'cache.dart';
+
+final log = Logger('Config');
 
 class Config {
   Cache cache;
@@ -94,10 +97,16 @@ class Config {
 
     validDirectory = await _tryDirectories();
 
+    if (validDirectory)
+      log.info("Automatically found chia binary at: '${cache.binPath}'");
+    else
+      log.info("Could not automatically locate chia binary.");
+
     while (!validDirectory) {
-      print("Specify your chia-blockchain directory below: (e.g.: " + exampleDir + ")");
+      log.warning("Specify your chia-blockchain directory below: (e.g.: " + exampleDir + ")");
 
       _chiaPath = io.stdin.readLineSync();
+      log.info("Input chia path: '${_chiaPath}'");
 
       cache.binPath =
           (io.Platform.isLinux) ? _chiaPath + "/venv/bin/chia" : _chiaPath + "\\daemon\\chia.exe";
@@ -105,12 +114,12 @@ class Config {
       if (io.File(cache.binPath).existsSync())
         validDirectory = true;
       else if (io.Directory(chiaPath).existsSync())
-        print("Could not locate chia binary in your directory.\n(" +
+        log.warning("Could not locate chia binary in your directory.\n(" +
             cache.binPath +
             " not found)\nPlease try again." +
             "\nMake sure this folder has the same structure as Chia's GitHub repo.");
       else
-        print("Uh oh, that directory could not be found! Please try again.");
+        log.warning("Uh oh, that directory could not be found! Please try again.");
     }
 
     await saveConfig(); //saves path input by user to config
@@ -190,8 +199,7 @@ class Config {
     if (contents[0]['sendOfflineNotifications'] != null)
       _sendOfflineNotifications = contents[0]['sendOfflineNotifications'];
 
-    if (contents[0]['parseLogs'] != null)
-      _parseLogs = contents[0]['parseLogs'];
+    if (contents[0]['parseLogs'] != null) _parseLogs = contents[0]['parseLogs'];
 
     await saveConfig();
   }
@@ -200,15 +208,17 @@ class Config {
     final console = Console();
     console.clearScreen();
 
-//If terminal is long enough to show a qr code
-    if (console.windowHeight > 2 * 29 && console.windowWidth > 2 * 29) _showQR(console);
+    try {
+      //If terminal is long enough to show a qr code
+      if (console.windowHeight > 2 * 29 && console.windowWidth > 2 * 29) _showQR(console);
+    } catch (e) {}
 
     String line = "";
 
     for (int i = 0; i < console.windowWidth; i++) line += "=";
 
     print(line);
-    print("Your id is " + cache.id + ", run");
+    log.warning("Your id is " + cache.id + ", run");
     print("");
     print("!chia link " + cache.id);
     print("");

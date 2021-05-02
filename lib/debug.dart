@@ -1,11 +1,15 @@
 import 'dart:core';
 import 'dart:io' as io;
 
+import 'package:logging/logging.dart';
+
 import 'cache.dart';
 
 import 'log/filter.dart';
-import 'log/signagepoint.dart';
+import 'log/subslot.dart';
 import 'log/logitem.dart';
+
+final log = Logger('LOG');
 
 class Log {
   String debugPath;
@@ -15,7 +19,7 @@ class Log {
   List<Filter> _filters = [];
   List<Filter> get filters => _filters;
 
-  List<SignagePoint> signagePoints = [];
+  List<SubSlot> signagePoints = [];
 
   Log(String chiaDebugPath, Cache cache, bool parseLogs) {
     _parseUntil = cache.parseUntil;
@@ -119,7 +123,7 @@ class Log {
     return keepParsing && !inCache;
   }
 
-  SignagePoint parseSignagePoints(String contents, int parseUntil) {
+  SubSlot parseSignagePoints(String contents, int parseUntil) {
     try {
       RegExp signagePointsRegex = RegExp(
           "([0-9-]+)T([0-9:]+)\\.([0-9]+) full_node chia\\.full\\_node\\.full\\_node:\\s+INFO\\W+Finished[\\S ]+ ([0-9]+)\\/64",
@@ -137,7 +141,7 @@ class Log {
         if (timestamp > parseUntil) {
           int currentStep = int.parse(match.group(4));
 
-          SignagePoint signagePoint;
+          SubSlot signagePoint;
 
           if (currentStep != 1) {
             try {
@@ -151,9 +155,9 @@ class Log {
 
           if (signagePoints.length == 0 || signagePoint == null)
             signagePoints
-                .add(new SignagePoint(timestamp, [currentStep], signagePoints.length == 0));
+                .add(new SubSlot(timestamp, [currentStep], signagePoints.length == 0));
           else
-            signagePoint.addStep(currentStep);
+            signagePoint.addSignagePoint(currentStep);
         }
       }
     } catch (Exception) {

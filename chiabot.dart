@@ -3,12 +3,15 @@ import 'dart:io' as io;
 import 'dart:core';
 
 import 'package:http/http.dart' as http;
+import 'package:logging/logging.dart';
 
 import 'lib/farmer.dart';
 import 'lib/harvester.dart';
 import 'lib/config.dart';
 import 'lib/cache.dart';
 import 'lib/debug.dart';
+
+final log = Logger('Client');
 
 final Duration delay = Duration(minutes: 10); //10 minutes delay between updates
 
@@ -27,6 +30,8 @@ String chiaDebugPath = (io.Platform.isLinux)
         : "";
 
 main(List<String> args) async {
+  initLogger(); //initializes logger
+
   //Kills command on ctrl c
   io.ProcessSignal.sigint.watch().listen((signal) {
     io.exit(0);
@@ -49,11 +54,13 @@ main(List<String> args) async {
 
     //PARSES DATA
     try {
+      log.info("Generating new report");
+      
       cache.init(config.parseLogs);
-      Log log = new Log(chiaDebugPath, cache, config.parseLogs);
+      Log chiaLog = new Log(chiaDebugPath, cache, config.parseLogs);
 
       var client =
-          (config.type == ClientType.Farmer) ? new Farmer(config, log) : new Harvester(config, log);
+          (config.type == ClientType.Farmer) ? new Farmer(config, chiaLog) : new Harvester(config, chiaLog);
       await client.init(chiaConfigPath);
 
       //Throws exception in case no plots were found
@@ -72,8 +79,10 @@ main(List<String> args) async {
       //copies object to a json string
       copyJson = jsonEncode(client);
     } catch (exception) {
-      print("Oh no! Something went wrong.");
-      print(exception.toString());
+      log.severe("Oh no! Something went wrong.");
+      log.severe(exception.toString());
+      log.info("Config:\n${config}\n");
+      log.info("Cache:\n${cache}");
     }
 
     //SENDS DATA TO SERVER
@@ -103,24 +112,54 @@ main(List<String> args) async {
           config.sendBalanceNotifications &&
           status == "Farming") url += "&balance=" + Uri.encodeComponent(balance.toString());
 
-      //print(url);  //UNCOMMENT FOR DEBUG PURPOSES
-
       http.post(url, body: {"data": sendJson});
 
       String type = (config.type == ClientType.Farmer) ? "farmer" : "harvester";
 
-      print("Sent " +
+      log.warning("Sent " +
           type +
           " report to server.\nRetrying in " +
           delay.inMinutes.toString() +
           " minutes");
+      log.info("url:${url}");
+      log.info("data sent:\n${sendJson}");
 
       if (io.Platform.isWindows) print("Do NOT close this window.");
+
+      clearLog(); //clears log if over 50k lines
     } catch (exception) {
-      print("Oh no, failed to connect to server!");
-      print(exception.toString());
+      log.severe("Oh no, failed to connect to server!");
+      log.severe(exception.toString());
     }
 
     await Future.delayed(delay);
   }
+}
+
+final io.File logFile = io.File("log.txt");
+
+void clearLog() {
+  //Deletes log file if it already exists
+  // or deletes it if has more than 50 thousand lines
+  if (logFile.existsSync() && logFile.readAsLinesSync().length > 5e4) logFile.delete();
+
+  //Creates log file
+  logFile.createSync();
+}
+
+void initLogger() {
+  clearLog();
+
+  //Initializes logger
+  Logger.root.level = Level.ALL; // defaults to Level.INFO
+  Logger.root.onRecord.listen((record) {
+    String output = '${record.message}';
+    if (record.level.value >= Level.WARNING.value)
+      print(output); //prints output if level is warning/error
+
+    //otherwise logs stuff to log file
+    //2021-05-02 03:02:26.548953 Client: Sent farmer report to server.
+    logFile.writeAsStringSync('\n${record.time} ${record.loggerName}: ' + output,
+        mode: io.FileMode.append);
+  });
 }

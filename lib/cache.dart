@@ -2,10 +2,13 @@ import 'dart:core';
 import 'dart:io' as io;
 import 'dart:convert';
 
+import 'package:logging/logging.dart';
 import 'package:uuid/uuid.dart';
 
 import 'plot.dart';
 import 'log/filter.dart';
+
+final log = Logger('Cache');
 
 class Cache {
   String id;
