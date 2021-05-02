@@ -499,7 +499,7 @@ void showFilters(Harvester harvester, [bool showStdDev = true]) {
     //Calculates ratio based on each harvesters proportion (farmer's filterRatio)
     double ratio = (harvester is Farmer)
         ? harvester.filterRatio / harvester.totalPlots
-        : (totalEligiblePlots / harvester.filters.length * 512 / harvester.plots.length);
+        : (totalEligiblePlots / harvester.numberFilters * 512 / harvester.plots.length);
     String ratioString = ratio.toStringAsFixed(2);
     String luck = ((ratio) * 100).toStringAsFixed(0) + "%";
 
