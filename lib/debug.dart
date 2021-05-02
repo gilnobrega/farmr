@@ -24,6 +24,7 @@ class Log {
   Log(String chiaDebugPath, Cache cache, bool parseLogs) {
     _parseUntil = cache.parseUntil;
     _filters = cache.filters; //loads cached filters
+    subSlots = cache.subSlots; //loads cached subslots
 
     debugPath = chiaDebugPath + "debug.log";
 
@@ -55,7 +56,7 @@ class Log {
       }
     }
 
-    filterDuplicates();
+    filterDuplicateFilters();
 
     filters.shuffle();
   }
@@ -74,10 +75,11 @@ class Log {
             "Warning: could not parse SubSlots in debug.log${ext}, make sure chia log level is set to INFO");
       }
     }
-    
+
     //Won't count with last SubSlot if it's incomplete
-    if (!subSlots.last.complete)
-    subSlots.removeLast();
+    if (!subSlots.last.complete) subSlots.removeLast();
+
+    filterDuplicateSubSlots();
   }
 
   //Parses debug file and looks for filters
@@ -142,7 +144,10 @@ class Log {
         //Parses date from debug.log
         timestamp = parseTimestamp(match.group(1), match.group(2), match.group(3));
 
-        if (timestamp > parseUntil) {
+        bool inCache = subSlots.any((subSlot) => subSlot.timestamp == timestamp);
+
+        //only adds subslot if its not already in cache
+        if (timestamp > parseUntil && !inCache) {
           int currentStep = int.parse(match.group(4));
 
           SubSlot signagePoint;
@@ -168,9 +173,15 @@ class Log {
     }
   }
 
-  void filterDuplicates() {
+  void filterDuplicateFilters() {
 //Removes filters with same timestamps!
     final ids = _filters.map((filter) => filter.timestamp).toSet();
     _filters.retainWhere((filter) => ids.remove(filter.timestamp));
+  }
+
+  void filterDuplicateSubSlots() {
+//Removes subslots with same timestamps!
+    final ids = subSlots.map((subSlot) => subSlot.timestamp).toSet();
+    subSlots.retainWhere((subSlot) => ids.remove(subSlot.timestamp));
   }
 }

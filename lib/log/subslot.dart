@@ -12,12 +12,20 @@ class SubSlot extends LogItem {
 
   int get lastStep => signagePoints.last;
 
+  Map toJson() => {'timestamp': timestamp, 'signagePoints': signagePoints};
+
   SubSlot(int timestamp, [List<int> initialSPs = null, bool first = false])
       : super(timestamp, LogItemType.FullNode) {
-    log.info("New SubSlot ${timestamp}");
+    log.info("New SubSlot ${timestamp} with signage point ${initialSPs[0]}/64");
 
     if (signagePoints != null) signagePoints = initialSPs;
     _first = first;
+  }
+
+  SubSlot.fromJson(dynamic json) : super.fromJson(json, LogItemType.FullNode) {
+    if (json['signagePoints'] != null) {
+      for (var signagePoint in json['signagePoints']) signagePoints.add(signagePoint);
+    }
   }
 
   addSignagePoint(int signagepoint) {

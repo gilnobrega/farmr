@@ -7,6 +7,7 @@ import 'package:uuid/uuid.dart';
 
 import 'plot.dart';
 import 'log/filter.dart';
+import 'log/subslot.dart';
 
 final log = Logger('Cache');
 
@@ -20,6 +21,9 @@ class Cache {
 
   List<Filter> _filters = [];
   List<Filter> get filters => _filters;
+
+  List<SubSlot> _subSlots = [];
+  List<SubSlot> get subSlots => _subSlots;
 
   final io.File _cache = io.File(".chiabot_cache.json");
 
@@ -50,7 +54,7 @@ class Cache {
   //saves cache file
   void save() {
     String contents = jsonEncode([
-      {"id": id, "binPath": binPath, "plots": plots, "filters": filters}
+      {"id": id, "binPath": binPath, "plots": plots, "filters": filters, "subSlots": subSlots}
     ]);
     _cache.writeAsStringSync(contents);
   }
@@ -84,6 +88,16 @@ class Cache {
           if (filter.timestamp != null && filter.timestamp > parseUntil) _filters.add(filter);
         }
       }
+
+      //loads subslots list from cache file
+      if (contents[0]['subSlots'] != null) {
+        var subslotsJson = contents[0]['subSlots'];
+
+        for (var subslotJson in subslotsJson) {
+          SubSlot subSlot = SubSlot.fromJson(subslotJson);
+          if (subSlot.timestamp != null && subSlot.timestamp > parseUntil) _subSlots.add(subSlot);
+        }
+      }
     }
   }
 
@@ -94,6 +108,11 @@ class Cache {
 
   void saveFilters(List<Filter> filters) {
     _filters = filters;
+    save();
+  }
+
+  void saveSubSlots(List<SubSlot> subSlots) {
+    _subSlots = subSlots;
     save();
   }
 }
