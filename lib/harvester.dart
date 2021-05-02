@@ -44,6 +44,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
         'maxTime': maxTime,
         'minTime': minTime,
         'avgTime': avgTime,
+        'medianTime': medianTime,
         'stdDeviation': stdDeviation
       };
 

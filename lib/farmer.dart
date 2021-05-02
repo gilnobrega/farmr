@@ -51,6 +51,7 @@ class Farmer extends Harvester {
         'maxTime': maxTime,
         'minTime': minTime,
         'avgTime': avgTime,
+        'medianTime': medianTime,
         'stdDeviation': stdDeviation
       };
 
