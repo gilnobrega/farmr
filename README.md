@@ -71,23 +71,27 @@ These are the default settings:
 ```json
 [
     {
-        "chiaPath": null,
+        "name": null,
         "showBalance": true,
         "sendBalanceNotifications": true,
         "sendPlotNotifications": false,
         "sendOfflineNotifications": false,
-        "parseLogs": false
+        "parseLogs": false,
+        "chiaPath": null
     }
 ]
 ```
 
+#### Name your client
+You can name your client by changing ``name`` from ``null`` to ``"Your farmer name here"``. This will identify every client in `` !chia workers ``.
+
 #### Sharing XCH Balance
-Set ``showBalance`` to ``false`` if you do not want your balance to be reported to the server.
+Set ``showBalance`` to ``false`` if you do not want your balance to be reported to the server. Setting this to false will disable Block notifications.
 
 #### Plot Notifications
 Set ``sendPlotNotifications`` to ``true`` if you wish to be notified when your farmer/harvester completes a plot.
 
-#### Block/Balance Notifications
+#### Block Notifications
 Set ``sendBalanceNotifications`` to ``false`` if you do not wish to be notified when your farmer finds a block.
 
 #### Offline Notifications
