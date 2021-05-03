@@ -42,6 +42,7 @@ function chiaPrice(msg) {
     .setColor(0x40ab5c)
     .setTitle("XCH Exchange Rate")
     .setDescription("XCH/USD: " + usdprice.toFixed(2) + " ")
+    .setFooter("source: coinmarketcap.com");
 
     msg.channel.send(embed);
 
