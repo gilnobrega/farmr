@@ -85,7 +85,7 @@ Future<void> main(List<String> args) async {
         if (harvester.name == null)
           print("**Harvester " + (k + 1).toString() + "**");
         else
-          print("**${harvester.name}");
+          print("**${harvester.name}**");
 
         farmStatus(harvester, networkSize);
         mainText(harvester, false);
