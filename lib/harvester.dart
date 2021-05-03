@@ -17,6 +17,10 @@ final log = Logger('Harvester');
 
 class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
   Config _config;
+
+  String _name;
+  String get name => _name;
+
   List<String> _plotDests = []; //plot destination paths
 
   final String id = Uuid().v4();
@@ -33,6 +37,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
   ClientType get type => _type;
 
   Map toJson() => {
+        'name': name,
         'plots': allPlots, //important
         'totalDiskSpace': totalDiskSpace,
         'freeDiskSpace': freeDiskSpace,
@@ -51,6 +56,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
 
   Harvester(Config config, Debug.Log log) {
     _config = config;
+    _name = config.name; //loads name from config
 
     allPlots = config.cache.plots; //loads plots from cache
 
@@ -64,6 +70,8 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     allPlots = [];
 
     var object = jsonDecode(json)[0];
+
+    if (object['name'] != null) _name = object['name'];
 
     for (int i = 0; i < object['plots'].length; i++) {
       allPlots.add(Plot.fromJson(object['plots'][i]));

@@ -35,6 +35,7 @@ class Farmer extends Harvester {
 
   @override
   Map toJson() => {
+        'name': name,
         'status': status,
         'balance': balance,
         'networkSize': networkSize,

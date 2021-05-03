@@ -16,6 +16,10 @@ class Config {
   ClientType _type;
   ClientType get type => _type;
 
+  //Optional, custom, user defined name
+  String _name;
+  String get name => _name;
+
   String _chiaPath;
   String get chiaPath => _chiaPath;
 
@@ -74,12 +78,13 @@ class Config {
     var encoder = new JsonEncoder.withIndent("    ");
     String contents = encoder.convert([
       {
-        "chiaPath": chiaPath,
+        "name": name,
         "showBalance": showBalance,
         "sendBalanceNotifications": sendBalanceNotifications,
         "sendPlotNotifications": sendPlotNotifications,
         "sendOfflineNotifications": sendOfflineNotifications,
-        "parseLogs": parseLogs
+        "parseLogs": parseLogs,
+        "chiaPath": chiaPath
       }
     ]);
 
@@ -181,6 +186,9 @@ class Config {
     //leave this here for compatibility with old versions,
     //old versions stored id in config file
     if (contents[0]['id'] != null) cache.id = contents[0]['id'];
+
+    //loads custom client name
+    if (contents[0]['name'] != null) _name = contents[0]['name'];
 
     _chiaPath = contents[0]['chiaPath'];
 

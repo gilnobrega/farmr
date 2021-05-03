@@ -54,7 +54,10 @@ Future<void> main(List<String> args) async {
     String networkSize = farm.networkSize;
 
     if (args.contains("workers")) {
-      print("**Farmer:**");
+      if (farm.name == null)
+        print("**Farmer**");
+      else
+        print("**${farm.name}**");
 
       farm.filterDuplicates(false); //filters duplicates
       farm.sortPlots();
@@ -79,7 +82,11 @@ Future<void> main(List<String> args) async {
         harvester.filterDuplicates(false); //filters duplicates in harvester
         harvester.sortPlots();
 
-        print("**Harvester " + (k + 1).toString() + ":**");
+        if (harvester.name == null)
+          print("**Harvester " + (k + 1).toString() + "**");
+        else
+          print("**${harvester.name}");
+
         farmStatus(harvester, networkSize);
         mainText(harvester, false);
         print("");

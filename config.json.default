@@ -1,10 +1,11 @@
 [
     {
-        "chiaPath": null,
+        "name": null,
         "showBalance": true,
         "sendBalanceNotifications": true,
         "sendPlotNotifications": false,
         "sendOfflineNotifications": false,
-        "parseLogs": false
+        "parseLogs": false,
+        "chiaPath": null
     }
 ]
