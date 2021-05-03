@@ -65,7 +65,7 @@ main(List<String> args) async {
 
       //Throws exception in case no plots were found
       if (client.plots.length == 0)
-        throw Exception(
+        log.warning(
             "No plots have been found! Make sure your user has access to the folders where plots are stored.");
 
       //if plot notifications are off then it will default to 0

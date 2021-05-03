@@ -16,6 +16,7 @@ class HarvesterPlots {
 
   //Returns list of complete plots
   List<Plot> get plots => allPlots.where((plot) => plot.complete).toList();
+
   //Returns list of incomplete plots
   List<Plot> get incompletePlots => allPlots.where((plot) => !plot.complete).toList();
 
@@ -107,9 +108,13 @@ class HarvesterPlots {
 
   //makes an id based on end and start timestamps for the last plot, necessary to call notifications webhook
   String lastPlotID() {
-    Plot last = lastPlot(plots); //last completed plot
+    if (plots.length > 0) {
+      Plot last = lastPlot(plots); //last completed plot
 
-    return last.id;
+      return last.id;
+    } else {
+      return "0";
+    }
   }
 
   void sortPlots() {

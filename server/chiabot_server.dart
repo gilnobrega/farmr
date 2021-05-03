@@ -129,21 +129,23 @@ Future<void> main(List<String> args) async {
 }
 
 void mainText(Harvester client, [bool showPerDay = true]) {
-  Duration farmedTime = farmingTime(client.plots);
-  double chiaPerDay =
-      (client is Farmer) ? (client.balance / farmingTime(client.plots).inMinutes) * (60 * 24) : 0;
+  if (client.plots.length > 0) {
+    Duration farmedTime = farmingTime(client.plots);
+    double chiaPerDay =
+        (client is Farmer) ? (client.balance / farmingTime(client.plots).inMinutes) * (60 * 24) : 0;
 
-  lastPlotTime(client.plots);
-  lastPlotSize(client);
+    lastPlotTime(client.plots);
+    lastPlotSize(client);
 
-  //hides balance if client is harvester or if it's farmer and showBalance is false
-  String chiaPerDayString = (!(client is Farmer) || ((client is Farmer) && client.balance < 0.0))
-      ? "" //for some reason needs a new line here
-      : "(" +
-          chiaPerDay.toStringAsFixed(2) +
-          " XCH per day)"; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
+    //hides balance if client is harvester or if it's farmer and showBalance is false
+    String chiaPerDayString = (!(client is Farmer) || ((client is Farmer) && client.balance < 0.0))
+        ? "" //for some reason needs a new line here
+        : "(" +
+            chiaPerDay.toStringAsFixed(2) +
+            " XCH per day)"; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
 
-  print(":clock10: Farmed for " + durationToTime(farmedTime) + " " + chiaPerDayString);
+    print(":clock10: Farmed for " + durationToTime(farmedTime) + " " + chiaPerDayString);
+  }
 }
 
 void fullText(Harvester client) {
@@ -228,16 +230,18 @@ void fullText(Harvester client) {
 
   print("");
 
-  for (int i = 0; i < n.length; i++) {
-    if (n[i] == null) {
-      Duration avg = averagePlotDuration(client.plots);
+  if (client.plots.length > 0) {
+    for (int i = 0; i < n.length; i++) {
+      if (n[i] == null) {
+        Duration avg = averagePlotDuration(client.plots);
 
-      print("All time average plot length: " + durationToTime(avg));
-    } else if (client.plots.length > n[i]) {
-      //LAST N PLOT AVERAGE
-      Duration avg = averagePlotDuration(lastNPlots(client.plots, n[i]));
+        print("All time average plot length: " + durationToTime(avg));
+      } else if (client.plots.length > n[i]) {
+        //LAST N PLOT AVERAGE
+        Duration avg = averagePlotDuration(lastNPlots(client.plots, n[i]));
 
-      print("Last " + n[i].toString() + " plots average: " + durationToTime(avg));
+        print("Last " + n[i].toString() + " plots average: " + durationToTime(avg));
+      }
     }
   }
 
@@ -257,13 +261,13 @@ void farmStatus(Harvester client, String networkSize, [bool showETW = true]) {
 
   //if its farmer then shows balance and farming status
   etw = estimateETW(client, networkSize).toStringAsFixed(1);
-  etwtext = (showETW) ? "(next block in " + etw + " days)" : '';
+  etwtext = (showETW && client.plots.length > 0) ? "(next block in " + etw + " days)" : '';
 
   double balance = (client is Farmer) ? client.balance : -1.0;
 
   String balanceText = '\<:chia:833767070201151528> ';
 
-  balanceText += (balance <= 0.0)
+  balanceText += (balance < 0.0)
       ? "Next block in ~" + etw + " days"
       : "**" +
           balance.toString() +
@@ -285,7 +289,8 @@ void farmStatus(Harvester client, String networkSize, [bool showETW = true]) {
 //calculates plot time of last plot
 void lastPlotTime(List<Plot> plots) {
   Plot plot = lastPlot(plots);
-  Duration average = averagePlotDuration(plots.where((plot) => plot.duration.inMinutes > 0).toList());
+  Duration average =
+      averagePlotDuration(plots.where((plot) => plot.duration.inMinutes > 0).toList());
 
   //relative difference in % of plot duration vs average plot duration
   double ratio = 1 - (plot.duration.inMilliseconds / average.inMilliseconds);

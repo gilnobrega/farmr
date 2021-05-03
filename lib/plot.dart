@@ -128,14 +128,20 @@ DateTime stringToDate(String input) {
 
 //finds the last plot in a list of plots
 Plot lastPlot(List<Plot> plots) {
-  return plots.reduce((plot1, plot2) =>
-      (plot1.end.millisecondsSinceEpoch > plot2.end.millisecondsSinceEpoch) ? plot1 : plot2);
+  if (plots.length > 0)
+    return plots.reduce((plot1, plot2) =>
+        (plot1.end.millisecondsSinceEpoch > plot2.end.millisecondsSinceEpoch) ? plot1 : plot2);
+  else
+    return null;
 }
 
 //finds the first plot in a list of plots
 Plot firstPlot(List<Plot> plots) {
-  return plots.reduce((plot1, plot2) =>
-      (plot1.begin.millisecondsSinceEpoch < plot2.begin.millisecondsSinceEpoch) ? plot1 : plot2);
+  if (plots.length > 0)
+    return plots.reduce((plot1, plot2) =>
+        (plot1.begin.millisecondsSinceEpoch < plot2.begin.millisecondsSinceEpoch) ? plot1 : plot2);
+  else
+    return null;
 }
 
 //Returns sum of size of plots in a given list
