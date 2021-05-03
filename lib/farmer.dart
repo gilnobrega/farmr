@@ -91,6 +91,15 @@ class Farmer extends Harvester {
     _balance = object['balance'];
     _networkSize = object['networkSize'];
 
+    //PiB to EiB converter
+    if (_networkSize.contains("PiB")) {
+      double value = double.parse(_networkSize.replaceAll("PiB", "").trim());
+      if (value > 1024) {
+        value = value / 1024;
+        _networkSize = "${value.toStringAsFixed(4)} EiB";
+      }
+    }
+
     if (object['completeSubSlots'] != null) _completeSubSlots = object['completeSubSlots'];
     if (object['looseSignagePoints'] != null) _looseSignagePoints = object['looseSignagePoints'];
 

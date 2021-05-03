@@ -129,13 +129,13 @@ Future<void> main(List<String> args) async {
 }
 
 void mainText(Harvester client, [bool showPerDay = true]) {
+  if (client.plots.length > 0) lastPlotTime(client.plots);
+  lastPlotSize(client);
+
   if (client.plots.length > 0) {
     Duration farmedTime = farmingTime(client.plots);
     double chiaPerDay =
         (client is Farmer) ? (client.balance / farmingTime(client.plots).inMinutes) * (60 * 24) : 0;
-
-    lastPlotTime(client.plots);
-    lastPlotSize(client);
 
     //hides balance if client is harvester or if it's farmer and showBalance is false
     String chiaPerDayString = (!(client is Farmer) || ((client is Farmer) && client.balance < 0.0))
@@ -308,17 +308,20 @@ void lastPlotTime(List<Plot> plots) {
 
 //calculates plot size of last plot
 void lastPlotSize(Harvester client) {
-  Duration finishedAgo = DateTime.now().difference(lastPlot(client.plots).end);
+  if (client.plots.length > 0) {
+    Duration finishedAgo = DateTime.now().difference(lastPlot(client.plots).end);
 
-  //If the finished timestamp is less than 1 minute ago then it assumes it's still copying the plot to the destination
-  String finishedAgoString = (finishedAgo.inMinutes == 0)
-      ? "(moving to destination)"
-      : ("(completed " + durationToTime(finishedAgo) + "ago)");
+    //If the finished timestamp is less than 1 minute ago then it assumes it's still copying the plot to the destination
+    String finishedAgoString = (finishedAgo.inMinutes == 0)
+        ? "(moving to destination)"
+        : ("(completed " + durationToTime(finishedAgo) + "ago)");
 
-  print("\<:hdd:831678109018751037> Size: " +
-      fileSize(lastPlot(client.plots).size, 1) +
-      " " +
-      finishedAgoString);
+    print("\<:hdd:831678109018751037> Size: " +
+        fileSize(lastPlot(client.plots).size, 1) +
+        " " +
+        finishedAgoString);
+  }
+
   if (client is Farmer) print(":satellite: Network size: " + client.networkSize);
 }
 
