@@ -54,10 +54,7 @@ Future<void> main(List<String> args) async {
     String networkSize = farm.networkSize;
 
     if (args.contains("workers")) {
-      if (farm.name == null)
-        print("**Farmer**");
-      else
-        print("**${farm.name}**");
+      print(getName(farm));
 
       farm.filterDuplicates(false); //filters duplicates
       farm.sortPlots();
@@ -82,10 +79,7 @@ Future<void> main(List<String> args) async {
         harvester.filterDuplicates(false); //filters duplicates in harvester
         harvester.sortPlots();
 
-        if (harvester.name == null)
-          print("**Harvester " + (k + 1).toString() + "**");
-        else
-          print("**${harvester.name}**");
+        print(getName(harvester, k + 1));
 
         farmStatus(harvester, networkSize);
         mainText(harvester, false);
@@ -133,6 +127,19 @@ Future<void> main(List<String> args) async {
     log.shout("Farmer could not be found.\nMake sure your farmer client is running.");
     log.info("${userID} - Exception: ${Exception.toString()}");
   }
+}
+
+String getName(Harvester harvester, [int count = null]) {
+  String name = '';
+
+  if (harvester.name != null)
+    name = harvester.name;
+  else if (harvester is Farmer)
+    name = "Farmer";
+  else
+    name = "Harvester " + count.toString();
+
+  return ":tractor: **${name}**";
 }
 
 void mainText(Harvester client, [bool showPerDay = true]) {
