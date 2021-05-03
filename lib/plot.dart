@@ -48,9 +48,9 @@ class Plot {
   Plot(io.File file) {
     log.info("Added plot: " + file.path);
 
-    List<String> list = basenameWithoutExtension(file.path).split('-');
-
     try {
+      List<String> list = basenameWithoutExtension(file.path).split('-');
+
       _plotSize = list[1];
 
       _year = int.parse(list[2]);
@@ -66,6 +66,7 @@ class Plot {
       //in the client plotid is that long hash, while in the server its based on timestamps
       //this solves problems with copying plots
     } catch (e) {
+      _plotSize = "k32";
       _id = Uuid().v1();
       //if failed to parse timestamp, set begin date to current date
       _begin = DateTime.now();
