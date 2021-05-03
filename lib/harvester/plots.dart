@@ -61,10 +61,16 @@ class HarvesterPlots {
       await dir.list(recursive: false).forEach((file) {
         //Checks if file extension is .plot
         if (extension(file.path) == ".plot") {
-          String id = basenameWithoutExtension(file.path).split('-').last;
+          String id;
 
-          bool inCache = allPlots.any((cachedPlot) => cachedPlot.id == id);
-          bool duplicate = newplots.any((plot) => plot.id == id);
+          try {
+            id = basenameWithoutExtension(file.path).split('-').last;
+          } catch (exception) {
+            log.info("Failed to parse id of plot in ${file.path}");
+          }
+
+          bool inCache = (id != null) ? allPlots.any((cachedPlot) => cachedPlot.id == id) : false;
+          bool duplicate = (id != null) ? newplots.any((plot) => plot.id == id) : false;
 
           //If plot id it is in cache then adds old plot information (timestamps, etc.)
           //but updates plot size
