@@ -1,4 +1,4 @@
-# ChiaBot
+# Joaquim's ChiaBot
 
 A discord bot that monitors your chia farm summary and sends notifications when blocks are found and new plots are completed. It can link multiple farmers/harvesters to your account.
 
@@ -94,7 +94,7 @@ Set ``sendBalanceNotifications`` to ``false`` if you do not wish to be notified 
 Set ``sendOfflineNotifications`` to ``true`` if you wish to be notified when your farmer/harvester loses connection.
 
 #### Chia Log Parsing
-If your chia debug level is set to ``INFO``, setting ``parseLogs`` to ``true`` will enable extra stats, such as number of challenges in the last 24 hours, max, min and average challenge response times and incomplete SubSlots.
+If your chia debug level is set to ``INFO`` ([find how to do that here](https://thechiafarmer.com/2021/04/20/how-to-enable-chia-logs-on-windows/)), setting ``parseLogs`` to ``true`` will enable extra stats, such as number of challenges in the last 24 hours, max, min and average challenge response times and incomplete SubSlots.
 
 You may delete ``config.json`` and ``.chiabot_cache.json`` to reset settings and generate a new id once the client is started again.
 
