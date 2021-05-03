@@ -6,6 +6,7 @@ import 'package:logging/logging.dart';
 
 import 'package:path/path.dart';
 import 'package:filesize/filesize.dart';
+import 'package:uuid/uuid.dart';
 
 final log = Logger('Plot');
 
@@ -49,15 +50,27 @@ class Plot {
 
     List<String> list = basenameWithoutExtension(file.path).split('-');
 
-    _plotSize = list[1];
+    try {
+      _plotSize = list[1];
 
-    _year = int.parse(list[2]);
-    _month = int.parse(list[3]);
-    _day = int.parse(list[4]);
-    _hour = int.parse(list[5]);
-    _minute = int.parse(list[6]);
+      _year = int.parse(list[2]);
+      _month = int.parse(list[3]);
+      _day = int.parse(list[4]);
+      _hour = int.parse(list[5]);
+      _minute = int.parse(list[6]);
 
-    _begin = new DateTime(_year, _month, _day, _hour, _minute);
+      _id = list[7];
+
+      _begin = new DateTime(_year, _month, _day, _hour, _minute);
+
+      //in the client plotid is that long hash, while in the server its based on timestamps
+      //this solves problems with copying plots
+    } catch (e) {
+      _id = Uuid().v1();
+      //if failed to parse timestamp, set begin date to current date
+      _begin = DateTime.now();
+      log.info("Failed to parse timestamp about plot in ${file.path}");
+    }
 
     io.FileStat stat = io.FileStat.statSync(file.path);
     _end = stat.modified; // CHANGED OR MODIFIED??
@@ -67,10 +80,6 @@ class Plot {
     _duration = _end.difference(_begin);
 
     _size = stat.size;
-
-    _id = list[7];
-    //in the client plotid is that long hash, while in the server its based on timestamps
-    //this solves problems with copying plots
   }
 
   //Generate plot from json string
