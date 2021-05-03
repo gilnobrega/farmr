@@ -210,6 +210,7 @@ client.on('message', (msg) => {
           + "`` !chia `` - displays your chia farm summary \n"
           + "`` !chia full `` - shows farm summary with additional statistics\n"
           + "`` !chia workers `` - show stats for each of your workers\n"
+          + "`` !chia price `` - shows current XCH Exchange Rates\n"
           + "`` !chia api `` - link to your farm's data\n"
           + "`` !chia donate `` - shows developer's wallet address");
 
