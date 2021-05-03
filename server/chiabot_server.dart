@@ -139,7 +139,7 @@ String getName(Harvester harvester, [int count = null]) {
   else
     name = "Harvester " + count.toString();
 
-  return ":tractor: **${name}**";
+  return ":farmer: **${name}**";
 }
 
 void mainText(Harvester client, [bool showPerDay = true]) {
@@ -297,7 +297,7 @@ void farmStatus(Harvester client, String networkSize, [bool showETW = true]) {
     plotInfo +=
         " out of " + fileSize(client.freeDiskSpace + plotsSize); //if farm supports disk space then
 
-  print(":farmer: **" + client.plots.length.toString() + " plots** " + plotInfo + ")");
+  print(":tractor: **" + client.plots.length.toString() + " plots** " + plotInfo + ")");
 }
 
 //calculates plot time of last plot
