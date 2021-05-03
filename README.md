@@ -1,4 +1,4 @@
-# ChiaBot
+# Joaquim's ChiaBot
 
 A discord bot that monitors your chia farm summary and sends notifications when blocks are found and new plots are completed. It can link multiple farmers/harvesters to your account.
 
