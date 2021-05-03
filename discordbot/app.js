@@ -18,6 +18,39 @@ const { exec } = require("child_process");
 
 const minsTimeout = 15; //message timeout in mins
 
+function chiaPrice(msg) {
+
+  const rp = require('request-promise');
+  const requestOptions = {
+    method: 'GET',
+    uri: 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest',
+    qs: {
+      'convert': 'USD',
+      'symbol': 'XCH'
+    },
+    headers: {
+      'X-CMC_PRO_API_KEY': process.env.COINMARKETCAP
+    },
+    json: true,
+    gzip: true
+  };
+
+  rp(requestOptions).then(response => {
+    var usdprice = response['data']['XCH']['quote']['USD']['price'];
+
+    const embed = new MessageEmbed()
+    .setColor(0x40ab5c)
+    .setTitle("XCH Exchange Rate")
+    .setDescription("XCH/USD: " + usdprice.toFixed(2) + " ")
+
+    msg.channel.send(embed);
+
+  }).catch((err) => {
+    console.log('API call error:', err.message);
+  });
+
+}
+
 //executes shell command
 function runCommand(command, msg) {
   exec(command, (error, stdout, stderr) => {
@@ -46,15 +79,14 @@ function runCommand(command, msg) {
         .setColor(0x40ab5c)
         .setDescription(text)
         .setFooter(lastUpdated);
-      
-        msg.channel.send(embed).then( sentmsg => {
 
-          if (msg.channel.type != "dm")
-          {
-            setTimeout(() => msg.delete(), minsTimeout * 60 * 1000);
-            setTimeout(() => sentmsg.delete(), minsTimeout * 60 * 1000);
-          }
-        });
+      msg.channel.send(embed).then(sentmsg => {
+
+        if (msg.channel.type != "dm") {
+          setTimeout(() => msg.delete(), minsTimeout * 60 * 1000);
+          setTimeout(() => sentmsg.delete(), minsTimeout * 60 * 1000);
+        }
+      });
 
     });
 
@@ -209,14 +241,17 @@ client.on('message', (msg) => {
         .setColor(0x40ab5c)
         .setTitle("Linked ID to your Discord account successfully")
         .setDescription("");
-      msg.channel.send(embed).then( sentmsg => {
+      msg.channel.send(embed).then(sentmsg => {
 
-        if (msg.channel.type != "dm")
-        {
+        if (msg.channel.type != "dm") {
           setTimeout(() => msg.delete(), 1);
           setTimeout(() => sentmsg.delete(), minsTimeout * 60 * 1000);
         }
       });
+    }
+    else if (command === "chia" && args.length==1 && args[0] == "price")
+    {
+      chiaPrice(msg);
     }
 
     //If no block number is specified then it uses flexpool api to find the latest block's number (even if it's unconfirmed)
