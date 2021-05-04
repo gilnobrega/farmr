@@ -267,7 +267,7 @@ class Stats {
     String output = '\n';
     String count = "--"; // -- is last updated split character
     count +=
-        (harvestersCount > 0 || farmersCount > 0) ? "${farmersCount} farmer, " + harvestersCount.toString() + " harvesters - " : "";
+        (harvestersCount > 0 || farmersCount > 0) ? "${farmersCount} farmers, " + harvestersCount.toString() + " harvesters - " : "";
     Duration difference = DateTime.now().difference(client.lastUpdated);
     if (difference.inSeconds >= 60) {
       output += count + "updated " + difference.inMinutes.toString() + " minutes ago";

@@ -1,5 +1,4 @@
 import 'dart:core';
-import 'dart:math' as Math;
 import 'dart:io' as io;
 
 import 'package:http/http.dart' as http;
@@ -93,9 +92,14 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount, String
     farmersCount = 0;
   }
 
-  String main = Stats.showName(harvester) +
-      Stats.showPlotsInfo(harvester) +
+  String name = (isWorkers) ? Stats.showName(harvester) : '';
+  String lastUpdated = (!isFull && !isWorkers)
+      ? Stats.showLastUpdated(harvester, farmersCount, harvestersCount)
+      : '';
+
+  String main = name +
       Stats.showBalanceAndETW(harvester, networkSize) +
+      Stats.showPlotsInfo(harvester) +
       Stats.showLastPlotInfo(harvester) +
       Stats.showNetworkSize(harvester) +
       Stats.showFarmedTime(harvester);
@@ -107,7 +111,7 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount, String
           Stats.showSubSlots(harvester)
       : '';
 
-  print(main + full + Stats.showLastUpdated(harvester, harvestersCount, farmersCount));
+  print(main + full + lastUpdated);
 }
 
 final io.File logFile = io.File("log.txt");
