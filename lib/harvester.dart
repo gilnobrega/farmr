@@ -12,6 +12,7 @@ import 'harvester/diskspace.dart';
 
 import 'debug.dart' as Debug;
 import 'harvester/filters.dart';
+import 'farmer.dart';
 
 final log = Logger('Harvester');
 
@@ -19,7 +20,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
   Config _config;
 
   String _name;
-  String get name => _name;
+  String get name => _getName();
 
   List<String> _plotDests = []; //plot destination paths
 
@@ -37,7 +38,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
   ClientType get type => _type;
 
   Map toJson() => {
-        'name': name,
+        'name': _name,
         'plots': allPlots, //important
         'totalDiskSpace': totalDiskSpace,
         'freeDiskSpace': freeDiskSpace,
@@ -120,4 +121,15 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
         .shuffle(); //shuffles filters so that harvester can't be tracked by answered challenges time
   }
 
+  String _getName() {
+    String name = '';
+
+    if (_name != null) name = _name;
+    else if (this is Farmer)
+      name = "Farmer";
+    else
+      name = "Harvester";
+
+    return name;
+  }
 }

@@ -52,9 +52,6 @@ Future<void> main(List<String> args) async {
     harvesters.sort((client2, client1) => (client1.lastUpdated.millisecondsSinceEpoch
         .compareTo(client2.lastUpdated.millisecondsSinceEpoch)));
 
-    //Sorts harvesters by farmer/harvester type
-    harvesters.sort((client1, client2) => client1.type.index.compareTo(client2.type.index));
-
     Farmer farm =
         harvesters.where((client) => client is Farmer).first; //Selects newest farm as main farm
     String networkSize = farm.networkSize;
@@ -63,6 +60,12 @@ Future<void> main(List<String> args) async {
     farmersCount = harvesters.length - harvestersCount;
 
     if (args.contains("workers")) {
+      //Sorts workers by alphabetical order
+      harvesters.sort((harvester1, harvester2) => harvester1.name.compareTo(harvester2.name));
+
+      //Sorts workers by farmer/harvester type
+      harvesters.sort((client1, client2) => client1.type.index.compareTo(client2.type.index));
+
       for (Harvester harvester in harvesters) {
         harvester.filterDuplicates(false);
         harvester.sortPlots();
@@ -73,6 +76,10 @@ Future<void> main(List<String> args) async {
         print(';;');
       }
     } else {
+
+      //Sorts harvesters by farmer/harvester type
+      harvesters.sort((client1, client2) => client1.type.index.compareTo(client2.type.index));
+
       farm.filterDuplicates(false);
       farm.sortPlots();
 
@@ -89,7 +96,7 @@ Future<void> main(List<String> args) async {
     if (farmersCount == 0)
       log.shout("Error: Farmer not found.");
     else if (harvesters.length > 0)
-      log.shout("Error: ${farmersCount} farmers and ${harvestersCount} harvesters found."); 
+      log.shout("Error: ${farmersCount} farmers and ${harvestersCount} harvesters found.");
     else
       log.shout("No clients found!");
 

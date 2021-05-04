@@ -6,14 +6,7 @@ import 'dart:math' as Math;
 
 class Stats {
   static String showName(Harvester harvester, [int count = null]) {
-    String name = '';
-
-    if (harvester.name != null)
-      name = harvester.name;
-    else if (harvester is Farmer)
-      name = "Farmer";
-    else
-      name = "Harvester " + count.toString();
+    String name = harvester.name + ((count == null) ? '' : count.toString());
 
     return ":farmer: **${name}**";
   }
