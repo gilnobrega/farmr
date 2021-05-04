@@ -271,7 +271,7 @@ void farmStatus(Harvester client, String networkSize, [bool showETW = true]) {
   String etw = "";
   String etwtext = "";
 
-  if (client is Farmer && client.status != "Farming") print(":warning: **NOT FARMING** :warning:");
+  if (client is Farmer && client.status != "Farming") print(":warning: **${client.status}** :warning:");
 
   //if its farmer then shows balance and farming status
   etw = estimateETW(client, networkSize).toStringAsFixed(1);
