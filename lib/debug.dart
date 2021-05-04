@@ -90,46 +90,50 @@ class Log {
 
   //Parses debug file and looks for filters
   bool parseFilters(String contents, int parseUntil) {
-    RegExp filtersRegex = RegExp(
-        "([0-9-]+)T([0-9:]+)\\.([0-9]+) harvester chia\\.harvester\\.harvester:\\s+INFO\\s+([0-9]+) plots were eligible for farming \\S+ Found ([0-9]+) proofs\\. Time: ([0-9\\.]+) s\\. Total ([0-9]+) plots\\s",
-        multiLine: true);
-
-    var matches = filtersRegex.allMatches(contents).toList();
-
-    int timestamp = DateTime.now().millisecondsSinceEpoch;
-
     bool keepParsing = true;
     bool inCache = false;
 
-    for (int i = matches.length - 1; i >= 0; i--) {
-      try {
-        if (keepParsing && !inCache) {
-          RegExpMatch match = matches[i];
+    try {
+      RegExp filtersRegex = RegExp(
+          "([0-9-]+)T([0-9:]+)\\.([0-9]+) harvester chia\\.harvester\\.harvester:\\s+INFO\\s+([0-9]+) plots were eligible for farming \\S+ Found ([0-9]+) proofs\\. Time: ([0-9\\.]+) s\\. Total ([0-9]+) plots\\s",
+          multiLine: true);
 
-          //Parses date from debug.log
-          timestamp = parseTimestamp(match.group(1), match.group(2), match.group(3));
+      var matches = filtersRegex.allMatches(contents).toList();
 
-          //if filter's timestamp is outside parsing date rang
-          keepParsing = timestamp > parseUntil;
+      int timestamp = DateTime.now().millisecondsSinceEpoch;
 
-          //if filter is in cache
-          inCache = filters.any((cachedFilter) => cachedFilter.timestamp == timestamp);
+      for (int i = matches.length - 1; i >= 0; i--) {
+        try {
+          if (keepParsing && !inCache) {
+            RegExpMatch match = matches[i];
 
-          if (!inCache && keepParsing) {
-            //print(timestamp);
+            //Parses date from debug.log
+            timestamp = parseTimestamp(match.group(1), match.group(2), match.group(3));
 
-            int eligiblePlots = int.parse(match.group(4));
-            int proofs = int.parse(match.group(5));
-            double time = double.parse(match.group(6));
-            int totalPlots = int.parse(match.group(7));
-            Filter filter = Filter(timestamp, eligiblePlots, proofs, time, totalPlots);
+            //if filter's timestamp is outside parsing date rang
+            keepParsing = timestamp > parseUntil;
 
-            _filters.add(filter);
+            //if filter is in cache
+            inCache = filters.any((cachedFilter) => cachedFilter.timestamp == timestamp);
+
+            if (!inCache && keepParsing) {
+              //print(timestamp);
+
+              int eligiblePlots = int.parse(match.group(4));
+              int proofs = int.parse(match.group(5));
+              double time = double.parse(match.group(6));
+              int totalPlots = int.parse(match.group(7));
+              Filter filter = Filter(timestamp, eligiblePlots, proofs, time, totalPlots);
+
+              _filters.add(filter);
+            }
           }
+        } catch (Exception) {
+          log.warning("Error parsing filters!");
         }
-      } catch (Exception) {
-        print("Error parsing filters!");
       }
+    } catch (e) {
+      log.warning("Warning: could not parse filters, make sure chia log level is set to INFO");
     }
 
     return keepParsing && !inCache;
@@ -161,7 +165,7 @@ class Log {
         }
       }
     } catch (Exception) {
-      print("Error parsing signage points.");
+      log.info("Error parsing signage points.");
     }
   }
 
