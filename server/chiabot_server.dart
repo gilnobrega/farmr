@@ -65,6 +65,8 @@ Future<void> main(List<String> args) async {
 
         showHarvester(harvester, harvestersCount, farmersCount, networkSize, args.contains("full"),
             args.contains("workers"));
+
+        print(';;');
       }
     } else {
       farm.filterDuplicates(false);
@@ -93,9 +95,8 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount, String
   }
 
   String name = (isWorkers) ? Stats.showName(harvester) : '';
-  String lastUpdated = (isFull || isWorkers)
-      ? Stats.showLastUpdated(harvester, farmersCount, harvestersCount)
-      : '';
+  String lastUpdated =
+      (isFull || isWorkers) ? Stats.showLastUpdated(harvester, farmersCount, harvestersCount) : '';
 
   String main = name +
       Stats.showBalanceAndETW(harvester, networkSize) +
