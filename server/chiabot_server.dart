@@ -44,6 +44,8 @@ Future<void> main(List<String> args) async {
       }
     }
 
+    if (harvesters.length == 0) throw new Exception("No Harvesters found.");
+
     //Sorts harvesters by newest
     harvesters.sort((client2, client1) => (client1.lastUpdated.millisecondsSinceEpoch
         .compareTo(client2.lastUpdated.millisecondsSinceEpoch)));
@@ -82,7 +84,11 @@ Future<void> main(List<String> args) async {
           args.contains("workers"));
     }
   } catch (Exception) {
-    log.shout(harvesters.length.toString() + " clients found.");
+    if (harvesters.length > 0)
+      log.shout(harvesters.length.toString() + " clients found.");
+    else
+      log.shout("No clients found!");
+
     log.info("${userID} - Exception: ${Exception.toString()}");
   }
 }
