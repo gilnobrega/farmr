@@ -47,6 +47,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
         'type': type.index,
         'numberFilters': numberFilters,
         'eligiblePlots': eligiblePlots,
+        'totalPlots': totalPlots,
         'missedChallenges': missedChallenges,
         'maxTime': maxTime,
         'minTime': minTime,
@@ -79,7 +80,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     }
 
     //check harvester/filters.dart
-    loadFiltersStatsJson(object);
+    loadFiltersStatsJson(object, plots.length);
 
     if (object['totalDiskSpace'] != null && object['freeDiskSpace'] != null) {
       totalDiskSpace = object['totalDiskSpace'];

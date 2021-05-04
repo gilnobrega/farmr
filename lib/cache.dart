@@ -91,7 +91,7 @@ class Cache {
           var filtersJson = contents[0]['filters'];
 
           for (var filterJson in filtersJson) {
-            Filter filter = Filter.fromJson(filterJson);
+            Filter filter = Filter.fromJson(filterJson, plots.length);
             if (filter.timestamp != null && filter.timestamp > parseUntil) _filters.add(filter);
           }
         }

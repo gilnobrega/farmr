@@ -55,12 +55,13 @@ main(List<String> args) async {
     //PARSES DATA
     try {
       log.info("Generating new report");
-      
+
       cache.init(config.parseLogs);
       Log chiaLog = new Log(chiaDebugPath, cache, config.parseLogs);
 
-      var client =
-          (config.type == ClientType.Farmer) ? new Farmer(config, chiaLog) : new Harvester(config, chiaLog);
+      var client = (config.type == ClientType.Farmer)
+          ? new Farmer(config, chiaLog)
+          : new Harvester(config, chiaLog);
       await client.init(chiaConfigPath);
 
       //Throws exception in case no plots were found
@@ -112,7 +113,9 @@ main(List<String> args) async {
           config.sendBalanceNotifications &&
           status == "Farming") url += "&balance=" + Uri.encodeComponent(balance.toString());
 
-      http.post(url, body: {"data": sendJson});
+      http.post(url, body: {"data": sendJson}).catchError(() {
+        log.warning("Server timeout.");
+      });
 
       String type = (config.type == ClientType.Farmer) ? "farmer" : "harvester";
 
@@ -126,7 +129,7 @@ main(List<String> args) async {
 
       if (io.Platform.isWindows) print("Do NOT close this window.");
 
-      clearLog(); //clears log if over 50k lines
+      clearLog(); //clears log
     } catch (exception) {
       log.severe("Oh no, failed to connect to server!");
       log.severe(exception.toString());
@@ -140,8 +143,7 @@ final io.File logFile = io.File("log.txt");
 
 void clearLog() {
   //Deletes log file if it already exists
-  // or deletes it if has more than 50 thousand lines
-  if (logFile.existsSync() && logFile.readAsLinesSync().length > 5e4) logFile.delete();
+  if (logFile.existsSync()) logFile.delete();
 
   //Creates log file
   logFile.createSync();

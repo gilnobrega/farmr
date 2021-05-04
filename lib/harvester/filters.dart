@@ -34,7 +34,10 @@ class HarvesterFilters {
   double get stdDeviation => _stdDeviation;
 
   double filterRatio = 0;
-  int totalPlots = 0;
+
+  //average of all Total Plots in filter's log which
+  double _totalPlots = 0;
+  double get totalPlots => (_totalPlots == 0) ? _getTotalPlots() : _totalPlots;
 
   loadFilters([Log log]) {
     if (log != null) filters = log.filters;
@@ -56,11 +59,11 @@ class HarvesterFilters {
     _eligiblePlots = _getEligiblePlots();
   }
 
-  loadFiltersStatsJson(dynamic json) {
+  loadFiltersStatsJson(dynamic json, int numPlots) {
     //Old clients
     if (json['filters'] != null) {
       for (int i = 0; i < json['filters'].length; i++) {
-        filters.add(Filter.fromJson(json['filters'][i]));
+        filters.add(Filter.fromJson(json['filters'][i], numPlots));
       }
       loadFilters(); //calculates stats
     }
@@ -69,6 +72,10 @@ class HarvesterFilters {
       if (json['numberFilters'] != null) _numberFilters = json['numberFilters'];
       if (json['eligiblePlots'] != null) _eligiblePlots = json['eligiblePlots'];
       if (json['missedChallenges'] != null) _missedChallenges = json['missedChallenges'];
+      if (json['totalPlots'] != null)
+        _totalPlots = json['totalPlots'];
+      else
+        _totalPlots = (numPlots / 1.0);
 
       if (json['maxTime'] != null) _maxTime = json['maxTime'];
       if (json['minTime'] != null) _minTime = json['minTime'];
@@ -84,7 +91,17 @@ class HarvesterFilters {
     return count;
   }
 
+  double _getTotalPlots() {
+    int count = 0;
+    for (Filter filter in filters) count += filter.totalPlots;
+    _totalPlots = count / filters.length;
+
+    return _totalPlots;
+  }
+
   void addHarversterFilters(Harvester harvester) {
+    _totalPlots += harvester.totalPlots;
+
     calculateFilterRatio(harvester);
 
     filters.addAll(harvester.filters);
@@ -104,10 +121,7 @@ class HarvesterFilters {
 
   void calculateFilterRatio(Harvester harvester) {
     if (harvester.numberFilters > 0) {
-      int totalFilters = harvester.numberFilters;
-
-      filterRatio += (harvester.eligiblePlots / totalFilters) * 512;
-      totalPlots += harvester.plots.length;
+      filterRatio += (harvester.eligiblePlots / harvester.numberFilters) * 512;
     }
   }
 
