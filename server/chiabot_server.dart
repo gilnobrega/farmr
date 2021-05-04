@@ -93,7 +93,7 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount, String
   }
 
   String name = (isWorkers) ? Stats.showName(harvester) : '';
-  String lastUpdated = (!isFull && !isWorkers)
+  String lastUpdated = (isFull || isWorkers)
       ? Stats.showLastUpdated(harvester, farmersCount, harvestersCount)
       : '';
 
