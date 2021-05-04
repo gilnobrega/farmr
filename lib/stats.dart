@@ -209,7 +209,7 @@ class Stats {
     return output;
   }
 
-  static String showFilters(Harvester harvester, bool showStdDev) {
+  static String showFilters(Harvester harvester) {
     String output = '';
     if (harvester.numberFilters > 0) {
       int totalEligiblePlots = harvester.eligiblePlots;
@@ -231,7 +231,7 @@ class Stats {
 
       int decimals = 3;
 
-      if (showStdDev)
+      if (harvester.medianTime > 0 || harvester.avgTime > 0)
         output +=
             "\nMedian: ${harvester.medianTime.toStringAsFixed(decimals)}s Avg: ${harvester.avgTime.toStringAsFixed(decimals)}s σ: ${harvester.stdDeviation.toStringAsFixed(decimals)}s";
 

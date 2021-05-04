@@ -110,4 +110,10 @@ class HarvesterFilters {
       totalPlots += harvester.plots.length;
     }
   }
+
+  void disableDetailedTimeStats() {
+    _avgTime = 0;
+    _medianTime = 0;
+    _stdDeviation = 0;
+  }
 }

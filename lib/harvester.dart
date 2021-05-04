@@ -119,4 +119,5 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     filters
         .shuffle(); //shuffles filters so that harvester can't be tracked by answered challenges time
   }
+
 }

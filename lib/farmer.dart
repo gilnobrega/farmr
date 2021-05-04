@@ -118,6 +118,9 @@ class Farmer extends Harvester {
     //Adds harvester total and free disk space when merging
     totalDiskSpace += harvester.totalDiskSpace;
     freeDiskSpace += harvester.freeDiskSpace;
+
+    //Disables avg, median, etc. in !chia full
+    this.disableDetailedTimeStats();
   }
 
   void calculateSubSlots(Debug.Log log) {

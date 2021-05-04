@@ -108,7 +108,7 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount, String
   String full = (isFull || isWorkers)
       ? Stats.showLastNDaysPlots(harvester, 8) +
           Stats.showIncompletePlotsWarning(harvester) +
-          Stats.showFilters(harvester, true) +
+          Stats.showFilters(harvester) +
           Stats.showSubSlots(harvester)
       : '';
 
