@@ -19,6 +19,8 @@ Future<void> main(List<String> args) async {
   String contents = await http.read("https://chiabot.znc.sh/read.php?user=" + userID);
 
   List<Harvester> harvesters = [];
+  int farmersCount = 0;
+  int harvestersCount = 0;
 
   try {
     contents = contents.trim(); //filters last , of send page, can be fixed on server side later
@@ -57,8 +59,8 @@ Future<void> main(List<String> args) async {
         harvesters.where((client) => client is Farmer).first; //Selects newest farm as main farm
     String networkSize = farm.networkSize;
 
-    int harvestersCount = harvesters.where((client) => !(client is Farmer)).length;
-    int farmersCount = harvesters.length - harvestersCount;
+    harvestersCount = harvesters.where((client) => !(client is Farmer)).length;
+    farmersCount = harvesters.length - harvestersCount;
 
     if (args.contains("workers")) {
       for (Harvester harvester in harvesters) {
@@ -84,8 +86,10 @@ Future<void> main(List<String> args) async {
           args.contains("workers"));
     }
   } catch (Exception) {
-    if (harvesters.length > 0)
-      log.shout(harvesters.length.toString() + " clients found.");
+    if (farmersCount == 0)
+      log.shout("Error: Farmer not found.");
+    else if (harvesters.length > 0)
+      log.shout("Error: ${farmersCount} farmers and ${harvestersCount} harvesters found."); 
     else
       log.shout("No clients found!");
 
