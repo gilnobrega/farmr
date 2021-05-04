@@ -59,9 +59,9 @@ class Stats {
   }
 
   static String showLastPlotInfo(Harvester client) {
-    if (client.plots.length > 0) {
-      String output = '';
+    String output = '';
 
+    if (client.plots.length > 0) {
       Plot plot = lastPlot(client.plots);
       Duration average =
           averagePlotDuration(client.plots.where((plot) => plot.duration.inMinutes > 0).toList());
@@ -87,9 +87,9 @@ class Stats {
 
       output +=
           "\n\<:hdd:831678109018751037> Size: " + fileSize(plot.size, 1) + " " + finishedAgoString;
-      return output;
-    } else
-      return null;
+    }
+
+    return output;
   }
 
   static String showNetworkSize(Harvester client) {
@@ -138,7 +138,8 @@ class Stats {
         if (k == 0) {
           text += "\n\nToday: completed " + count.toString() + " plots";
         } else {
-          text += "\n" + humanReadableDate(nDaysAgoString(client, k)) +
+          text += "\n" +
+              humanReadableDate(nDaysAgoString(client, k)) +
               ": completed " +
               count.toString() +
               " plots";
@@ -266,8 +267,9 @@ class Stats {
   static String showLastUpdated(Harvester client, int farmersCount, int harvestersCount) {
     String output = '\n';
     String count = "--"; // -- is last updated split character
-    count +=
-        (harvestersCount > 0 || farmersCount > 0) ? "${farmersCount} farmers, " + harvestersCount.toString() + " harvesters - " : "";
+    count += (harvestersCount > 0 || farmersCount > 0)
+        ? "${farmersCount} farmers, " + harvestersCount.toString() + " harvesters - "
+        : "";
     Duration difference = DateTime.now().difference(client.lastUpdated);
     if (difference.inSeconds >= 60) {
       output += count + "updated " + difference.inMinutes.toString() + " minutes ago";
