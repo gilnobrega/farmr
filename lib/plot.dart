@@ -154,15 +154,6 @@ Plot firstPlot(List<Plot> plots) {
     return null;
 }
 
-//Returns sum of size of plots in a given list
-int plotSumSize(List<Plot> plots) {
-  int totalSize = 0;
-
-  for (int i = 0; i < plots.length; i++) totalSize += plots[i].size;
-
-  return totalSize;
-}
-
 String fileSize(int input, [int decimals = 2]) {
   return filesize(input, decimals)
       .replaceAll("TB", "TiB")
