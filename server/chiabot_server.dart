@@ -82,7 +82,7 @@ Future<void> main(List<String> args) async {
           args.contains("workers"));
     }
   } catch (Exception) {
-    if (harvesters.length > 0) log.shout(harvesters.length.toString() + " clients found.");
+    log.shout(harvesters.length.toString() + " clients found.");
     log.info("${userID} - Exception: ${Exception.toString()}");
   }
 }
