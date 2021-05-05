@@ -114,6 +114,11 @@ class Farmer extends Harvester {
 
     addHarversterFilters(harvester);
 
+    if (harvester is Farmer) {
+      _completeSubSlots += harvester.completeSubSlots;
+      _looseSignagePoints += harvester._looseSignagePoints;
+    }
+
     if (harvester.totalDiskSpace == 0 || harvester.freeDiskSpace == 0) supportDiskSpace = false;
 
     //Adds harvester total and free disk space when merging

@@ -65,6 +65,8 @@ class HarvesterFilters {
       for (int i = 0; i < json['filters'].length; i++) {
         filters.add(Filter.fromJson(json['filters'][i], numPlots));
       }
+      _totalPlots = (numPlots / 1.0);
+
       loadFilters(); //calculates stats
     }
     //New client
