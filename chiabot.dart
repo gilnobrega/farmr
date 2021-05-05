@@ -16,14 +16,14 @@ final log = Logger('Client');
 final Duration delay = Duration(minutes: 10); //10 minutes delay between updates
 
 //Sets config file path according to platform
-String chiaConfigPath = (io.Platform.isLinux)
+String chiaConfigPath = (io.Platform.isLinux || io.Platform.isMacOS)
     ? io.Platform.environment['HOME'] + "/.chia/mainnet/config/"
     : (io.Platform.isWindows)
         ? io.Platform.environment['UserProfile'] + "\\.chia\\mainnet\\config\\"
         : "";
 
 //Sets config file path according to platform
-String chiaDebugPath = (io.Platform.isLinux)
+String chiaDebugPath = (io.Platform.isLinux || io.Platform.isMacOS)
     ? io.Platform.environment['HOME'] + "/.chia/mainnet/log/"
     : (io.Platform.isWindows)
         ? io.Platform.environment['UserProfile'] + "\\.chia\\mainnet\\log\\"
@@ -151,7 +151,7 @@ void clearLog() {
     //Creates log file
     if (io.Platform.isWindows)
       logFile.create().catchError( () {});
-    else if (io.Platform.isLinux) logFile.createSync();
+    else if (io.Platform.isLinux || io.Platform.isMacOS) logFile.createSync();
   } catch (e) {
     log.info("Failed to delete/create log.txt.\n${e}");
   }

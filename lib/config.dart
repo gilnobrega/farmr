@@ -92,7 +92,7 @@ class Config {
   }
 
   Future<void> _askForBinPath() async {
-    String exampleDir = (io.Platform.isLinux)
+    String exampleDir = (io.Platform.isLinux || io.Platform.isMacOS)
         ? "/home/user/chia-blockchain"
         : (io.Platform.isWindows)
             ? "C:\\Users\\user\\AppData\\Local\\chia-blockchain or C:\\Users\\user\\AppData\\Local\\chia-blockchain\\app-1.0.3\\resources\\app.asar.unpacked"
@@ -113,8 +113,9 @@ class Config {
       _chiaPath = io.stdin.readLineSync();
       log.info("Input chia path: '${_chiaPath}'");
 
-      cache.binPath =
-          (io.Platform.isLinux) ? _chiaPath + "/venv/bin/chia" : _chiaPath + "\\daemon\\chia.exe";
+      cache.binPath = (io.Platform.isLinux || io.Platform.isMacOS)
+          ? _chiaPath + "/venv/bin/chia"
+          : _chiaPath + "\\daemon\\chia.exe";
 
       if (io.File(cache.binPath).existsSync())
         validDirectory = true;
@@ -154,12 +155,20 @@ class Config {
           }
         });
       }
-    } else if (io.Platform.isLinux) {
-      chiaRootDir = io.Directory("/lib/chia-blockchain");
-      file = "/resources/app.asar.unpacked/daemon/chia";
+    } else if (io.Platform.isLinux || io.Platform.isMacOS) {
+      List<String> possiblePaths = [];
 
-      List<String> possiblePaths = [
-        // checks if binary exists in /lib/chia-blockchain/resources/app.asar.unpacked/daemon/chia
+      if (io.Platform.isLinux) {
+        chiaRootDir = io.Directory("/lib/chia-blockchain");
+        file = "/resources/app.asar.unpacked/daemon/chia";
+      } else if (io.Platform.isMacOS) {
+        chiaRootDir = io.Directory("/Applications/Chia.app/Contents");
+        file = "/Resources/app.asar.unpacked/daemon/chia";
+      }
+
+      possiblePaths = [
+        // checks if binary exists in /lib/chia-blockchain/resources/app.asar.unpacked/daemon/chia in linux or
+        // checks if binary exists in /Applications/Chia.app/Contents/Resources/app.asar.unpacked/daemon/chia in macOS
         chiaRootDir.path + file,
         // Checks if binary exists in /usr/lib/chia-blockchain/resources/app.asar.unpacked/daemon/chia
         "/usr" + chiaRootDir.path + file,
