@@ -169,7 +169,9 @@ void initLogger() {
 
     //otherwise logs stuff to log file
     //2021-05-02 03:02:26.548953 Client: Sent farmer report to server.
-      logFile.writeAsString('\n${record.time} ${record.loggerName}: ' + output,
-          mode: io.FileMode.append).catchError( () {});
+    try {
+      logFile.writeAsStringSync('\n${record.time} ${record.loggerName}: ' + output,
+          mode: io.FileMode.writeOnlyAppend);
+    } catch (e) {}
   });
 }
