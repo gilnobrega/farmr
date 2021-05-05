@@ -83,7 +83,7 @@ These are the default settings:
 ```
 
 #### Name your client
-You can name your client by changing ``name`` from ``null`` to ``"Your farmer name here"``. This will identify every client in `` !chia workers ``.
+You can name your client by changing `` "name": null,`` to ``"name": "YourFarmer",`` (notice **quote marks**). This will identify the client as ``YourFarmer`` in `` !chia workers ``.
 
 #### Sharing XCH Balance
 Set ``showBalance`` to ``false`` if you do not want your balance to be reported to the server. Setting this to false will disable Block notifications.
