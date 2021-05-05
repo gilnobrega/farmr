@@ -54,6 +54,8 @@ main(List<String> args) async {
 
     //PARSES DATA
     try {
+      clearLog(); //clears log
+
       log.info("Generating new report");
 
       cache.init(config.parseLogs);
@@ -128,8 +130,6 @@ main(List<String> args) async {
       log.info("data sent:\n${sendJson}");
 
       if (io.Platform.isWindows) print("Do NOT close this window.");
-
-      clearLog(); //clears log
     } catch (exception) {
       log.severe("Oh no, failed to connect to server!");
       log.severe(exception.toString());
@@ -150,7 +150,7 @@ void clearLog() {
 
     //Creates log file
     if (io.Platform.isWindows)
-      logFile.create().catchError( () {});
+      logFile.create().catchError(() {});
     else if (io.Platform.isLinux || io.Platform.isMacOS) logFile.createSync();
   } catch (e) {
     log.info("Failed to delete/create log.txt.\n${e}");

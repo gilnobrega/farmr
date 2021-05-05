@@ -81,6 +81,8 @@ class Plot {
     _duration = _end.difference(_begin);
 
     _size = stat.size;
+
+    if (!complete) log.warning("Warning: plot " + file.path + " is incomplete!");
   }
 
   //Generate plot from json string
