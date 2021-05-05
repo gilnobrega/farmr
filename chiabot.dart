@@ -147,7 +147,7 @@ void clearLog() {
     if (logFile.existsSync()) logFile.delete();
 
     //Creates log file
-    logFile.createSync();
+    logFile.create();
   } catch (e) {
     log.info("Failed to delete/create log.txt.\n${e}");
   }
@@ -165,7 +165,10 @@ void initLogger() {
 
     //otherwise logs stuff to log file
     //2021-05-02 03:02:26.548953 Client: Sent farmer report to server.
-    logFile.writeAsStringSync('\n${record.time} ${record.loggerName}: ' + output,
+    try {
+    logFile.writeAsString('\n${record.time} ${record.loggerName}: ' + output,
         mode: io.FileMode.append);
+    }
+    catch (Exception) {}
   });
 }
