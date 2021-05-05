@@ -142,11 +142,15 @@ main(List<String> args) async {
 final io.File logFile = io.File("log.txt");
 
 void clearLog() {
-  //Deletes log file if it already exists
-  if (logFile.existsSync()) logFile.delete();
+  try {
+    //Deletes log file if it already exists
+    if (logFile.existsSync()) logFile.delete();
 
-  //Creates log file
-  logFile.createSync();
+    //Creates log file
+    logFile.createSync();
+  } catch (e) {
+    log.info("Failed to delete/create log.txt.\n${e}");
+  }
 }
 
 void initLogger() {
