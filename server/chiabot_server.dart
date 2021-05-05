@@ -1,22 +1,18 @@
 import 'dart:core';
-import 'dart:io' as io;
 
 import 'package:http/http.dart' as http;
-import 'package:logging/logging.dart';
 
 import '../lib/farmer.dart';
 import '../lib/harvester.dart';
 import '../lib/stats.dart';
 
-final log = Logger('Server');
-
 Future<void> main(List<String> args) async {
-  initLogger();
 
   //Discord User ID
   String userID = args[0];
 
-  String contents = await http.read("https://chiabot.znc.sh/read.php?user=" + userID);
+  //use chiabot.znc.sh if not hosted on local server
+  String contents = await http.read("http://127.0.0.1/read.php?user=" + userID);
 
   List<Harvester> harvesters = [];
   int farmersCount = 0;
@@ -76,7 +72,6 @@ Future<void> main(List<String> args) async {
         print(';;');
       }
     } else {
-
       //Sorts harvesters by farmer/harvester type
       harvesters.sort((client1, client2) => client1.type.index.compareTo(client2.type.index));
 
@@ -94,13 +89,13 @@ Future<void> main(List<String> args) async {
     }
   } catch (Exception) {
     if (farmersCount == 0)
-      log.shout("Error: Farmer not found.");
+      print("Error: Farmer not found.");
     else if (harvesters.length > 0)
-      log.shout("Error: ${farmersCount} farmers and ${harvestersCount} harvesters found.");
+      print("Error: ${farmersCount} farmers and ${harvestersCount} harvesters found.");
     else
-      log.shout("No clients found!");
+      print("No clients found!");
 
-    log.info("${userID} - Exception: ${Exception.toString()}");
+    //print("${userID} - Exception: ${Exception.toString()}");
   }
 }
 
@@ -132,22 +127,3 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount, String
   print(main + full + lastUpdated);
 }
 
-final io.File logFile = io.File("log.txt");
-
-void initLogger() {
-  //Creates log file
-  logFile.createSync();
-
-  //Initializes logger
-  Logger.root.level = Level.SHOUT; // defaults to Level.INFO
-  Logger.root.onRecord.listen((record) {
-    String output = '${record.message}';
-    if (record.level.value >= Level.SHOUT.value)
-      print(output); //prints output if level is warning/error
-
-    //otherwise logs stuff to log file
-    //2021-05-02 03:02:26.548953 Client: Sent farmer report to server.
-    //logFile.writeAsStringSync('\n${record.time} ${record.loggerName}: ' + output,
-    //    mode: io.FileMode.append);
-  });
-}
