@@ -92,9 +92,11 @@ class HarvesterFilters {
   }
 
   double _getTotalPlots() {
-    int count = 0;
-    for (Filter filter in filters) count += filter.totalPlots;
-    _totalPlots = count / filters.length;
+    if (filters.length > 0) {
+      int count = 0;
+      for (Filter filter in filters) count += filter.totalPlots;
+      _totalPlots = count / filters.length;
+    }
 
     return _totalPlots;
   }
