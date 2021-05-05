@@ -144,10 +144,16 @@ final io.File logFile = io.File("log.txt");
 void clearLog() {
   try {
     //Deletes log file if it already exists
-    if (logFile.existsSync()) logFile.delete();
+    if (logFile.existsSync()) {
+      if (io.Platform.isWindows)
+        logFile.delete();
+      else if (io.Platform.isLinux) logFile.deleteSync();
+    }
 
     //Creates log file
-    logFile.create();
+    if (io.Platform.isWindows)
+      logFile.create();
+    else if (io.Platform.isLinux) logFile.createSync();
   } catch (e) {
     log.info("Failed to delete/create log.txt.\n${e}");
   }
@@ -166,9 +172,8 @@ void initLogger() {
     //otherwise logs stuff to log file
     //2021-05-02 03:02:26.548953 Client: Sent farmer report to server.
     try {
-    logFile.writeAsString('\n${record.time} ${record.loggerName}: ' + output,
-        mode: io.FileMode.append);
-    }
-    catch (Exception) {}
+      logFile.writeAsString('\n${record.time} ${record.loggerName}: ' + output,
+          mode: io.FileMode.append);
+    } catch (Exception) {}
   });
 }
