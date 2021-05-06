@@ -33,7 +33,7 @@ class Stats {
     double balanceUSD = balance * price;
 
     String balanceText = '';
-    String priceText = (price > 0) ? " (" + balanceUSD.toStringAsFixed(2) + " USD)" : '';
+    String priceText = (price > 0) ? " (" + balanceUSD.toStringAsFixed(2) + "\$)" : '';
 
     balanceText += (balance >= 0.0)
         ? "\n\<:chia:833767070201151528> **${balance} XCH**" + priceText
