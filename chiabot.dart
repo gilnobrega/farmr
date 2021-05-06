@@ -160,12 +160,12 @@ main(List<String> args) async {
   }
 }
 
-final io.File logFile = io.File("log.txt");
-
 void clearLog() {
   //logging on windows is disabled
   if (!io.Platform.isWindows) {
     try {
+      io.File logFile = io.File("log.txt");
+
       //Deletes log file if it already exists
       if (logFile.existsSync()) {
         logFile.deleteSync();
@@ -194,6 +194,8 @@ void initLogger() {
     //logs on windows is disabled
     if (!io.Platform.isWindows) {
       try {
+        io.File logFile = io.File("log.txt");
+
         logFile.writeAsStringSync('\n${record.time} ${record.loggerName}: ' + output,
             mode: io.FileMode.writeOnlyAppend);
       } catch (e) {}
