@@ -12,6 +12,7 @@ import 'lib/cache.dart';
 import 'lib/debug.dart';
 
 import 'server/chiabot_server.dart' as Stats;
+import 'server/price.dart';
 
 final log = Logger('Client');
 
@@ -86,7 +87,7 @@ main(List<String> args) async {
 
       //shows stats in client
       Stats.showHarvester(
-          client, 0, 0, (client is Farmer) ? client.networkSize : "0", false, true, false);
+          client, 0, 0, (client is Farmer) ? client.networkSize : "0", false, true, 0.0, false);
 
       //copies object to a json string
       copyJson = jsonEncode(client);

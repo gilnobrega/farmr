@@ -5,17 +5,25 @@ import 'package:http/http.dart' as http;
 import '../lib/farmer.dart';
 import '../lib/harvester.dart';
 import '../lib/stats.dart';
+import 'price.dart';
 
 Future<void> main(List<String> args) async {
   //Discord User ID
   String userID = args[0];
 
+  String contents = '';
+
   //use chiabot.znc.sh if not hosted on local server
-  String contents = await http.read("http://127.0.0.1/read.php?user=" + userID);
+  contents = await http
+      .read("http://chiabot.znc.sh/read.php?user=" + userID)
+      .then((value) => contents = value);
 
   List<Harvester> harvesters = [];
   int farmersCount = 0;
   int harvestersCount = 0;
+
+  Price price = Price();
+  await price.init();
 
   try {
     contents = contents.trim(); //filters last , of send page, can be fixed on server side later
@@ -66,7 +74,7 @@ Future<void> main(List<String> args) async {
         harvester.sortPlots();
 
         showHarvester(harvester, harvestersCount, farmersCount, networkSize, args.contains("full"),
-            args.contains("workers"));
+            args.contains("workers"), price.price);
 
         print(';;');
       }
@@ -84,7 +92,7 @@ Future<void> main(List<String> args) async {
       }
 
       showHarvester(farm, harvestersCount, farmersCount, networkSize, args.contains("full"),
-          args.contains("workers"));
+          args.contains("workers"), price.price);
     }
   } catch (Exception) {
     if (farmersCount == 0)
@@ -99,9 +107,8 @@ Future<void> main(List<String> args) async {
 }
 
 showHarvester(Harvester harvester, int harvestersCount, int farmersCount, String networkSize,
-    bool isFull, bool isWorkers,
+    bool isFull, bool isWorkers, double price,
     [bool discord = true]) {
-      
   String output;
 
   try {
@@ -116,7 +123,7 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount, String
         : '';
 
     String main = name +
-        Stats.showBalanceAndETW(harvester, networkSize) +
+        Stats.showBalanceAndETW(harvester, networkSize, true, price) +
         Stats.showPlotsInfo(harvester) +
         Stats.showLastPlotInfo(harvester) +
         Stats.showNetworkSize(harvester) +

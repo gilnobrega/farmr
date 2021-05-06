@@ -23,29 +23,42 @@ class Stats {
     return "\n:tractor: **" + client.plots.length.toString() + " plots** " + plotInfo + ")";
   }
 
-  static String showBalanceAndETW(Harvester client, String networkSize, [bool showETW = true]) {
+  static String showBalanceAndETW(Harvester client, String networkSize,
+      [bool showETW = true, double price]) {
     String output = '';
-    String etw = "";
+    double etw = 0;
     String etwtext = "";
 
     if (client is Farmer && client.status != "Farming")
       output += "\n:warning: **${client.status}** :warning:";
 
     //if its farmer then shows balance and farming status
-    etw = estimateETW(client, networkSize).toStringAsFixed(1);
-    etwtext = (showETW && client.plots.length > 0) ? "(next block in " + etw + " days)" : '';
+    etw = estimateETW(client, networkSize);
+    etwtext = (showETW && client.plots.length > 0)
+        ? "(next block in " + etw.toStringAsFixed(1) + " days)"
+        : '';
 
     double balance = (client is Farmer) ? client.balance : -1.0;
 
     String balanceText = '\n\<:chia:833767070201151528> ';
 
     balanceText += (balance < 0.0 && etw != "0.0")
-        ? "Next block in ~" + etw + " days"
+        ? "Next block in ~" + etw.toStringAsFixed(1) + " days"
         : (etw != "0.0")
             ? "**" + balance.toString() + " XCH** " + etwtext
             : ''; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
 
     output += balanceText;
+
+    if (price > 0) {
+      final double blockSize = 2.0;
+      double XCHPerDay = blockSize / etw;
+      double epd = estimateEPD(etw, price);
+      String epdString =
+          "\n:moneybag: Earning approx. ${XCHPerDay.toStringAsPrecision(3)} XCH (${epd.toStringAsPrecision(3)} USD) per day";
+
+      output += epdString;
+    }
 
     return output;
   }
@@ -318,6 +331,12 @@ class Stats {
     double calc = (networkSizeBytes / size) / (blocks * 6.0 * 24.0);
 
     return calc;
+  }
+
+  //estimated price per day
+  static double estimateEPD(double etw, double price) {
+    final double blockSize = 2.0;
+    return blockSize * price / etw;
   }
 
 //Converts a dart duration to something human-readable
