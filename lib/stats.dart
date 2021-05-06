@@ -23,42 +23,40 @@ class Stats {
     return "\n:tractor: **" + client.plots.length.toString() + " plots** " + plotInfo + ")";
   }
 
-  static String showBalanceAndETW(Harvester client, String networkSize,
-      [bool showETW = true, double price]) {
+  static String showBalance(Harvester client, double price) {
     String output = '';
-    double etw = 0;
-    String etwtext = "";
 
     if (client is Farmer && client.status != "Farming")
       output += "\n:warning: **${client.status}** :warning:";
 
-    //if its farmer then shows balance and farming status
-    etw = estimateETW(client, networkSize);
-    etwtext = (showETW && client.plots.length > 0)
-        ? "(next block in " + etw.toStringAsFixed(1) + " days)"
-        : '';
-
     double balance = (client is Farmer) ? client.balance : -1.0;
+    double balanceUSD = balance * price;
 
-    String balanceText = '\n\<:chia:833767070201151528> ';
+    String balanceText = '';
+    String priceText = (price > 0) ? " (" + balanceUSD.toStringAsFixed(2) + " USD)" : '';
 
-    balanceText += (balance < 0.0 && etw != "0.0")
-        ? "Next block in ~" + etw.toStringAsFixed(1) + " days"
-        : (etw != "0.0")
-            ? "**" + balance.toString() + " XCH** " + etwtext
-            : ''; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
+    balanceText += (balance >= 0.0)
+        ? "\n\<:chia:833767070201151528> **${balance} XCH**" + priceText
+        : ''; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
 
     output += balanceText;
 
+    return output;
+  }
+
+  static String showETWEDV(Harvester client, String networkSize, double price) {
+    String output = '';
+
+    double etw = estimateETW(client, networkSize);
+    String etwString = "\n:moneybag: ETW: ${etw.toStringAsFixed(1)} days";
     if (price > 0) {
       final double blockSize = 2.0;
       double XCHPerDay = blockSize / etw;
-      double epd = estimateEPD(etw, price);
-      String epdString =
-          "\n:moneybag: **${XCHPerDay.toStringAsPrecision(3)} XCH** (${epd.toStringAsPrecision(3)} USD) expected per day";
-
-      output += epdString;
+      double epd = estimateEDV(etw, price);
+      etwString += " EDV: ${XCHPerDay.toStringAsPrecision(3)} XCH (${epd.toStringAsFixed(2)} USD)";
     }
+
+    output += etwString;
 
     return output;
   }
@@ -77,7 +75,7 @@ class Stats {
           ? (ratio * 100).toStringAsFixed(0) + "% below Ø"
           : (-ratio * 100).toStringAsFixed(0) + "% above Ø";
 
-      output += "\n:hourglass: Last plot length: **" +
+      output += "\n\n:hourglass: Last plot length: **" +
           durationToTime(plot.duration) +
           "** " +
           "(" +
@@ -164,7 +162,7 @@ class Stats {
   }
 
   static String showWeekPlots(Harvester client, int weekCount, int weekSize, int daysWithPlots) {
-    String output = '\n';
+    String output = '';
 
     if (weekCount > 0) {
       //Calculates when it will run out of space based on last week's statistics
@@ -172,7 +170,7 @@ class Stats {
           (weekSize > 0) ? ((client.freeDiskSpace / weekSize) * daysWithPlots * 24).round() : 0;
       String outOfSpace = durationToTime(Duration(hours: outOfSpaceHours));
 
-      output += "\nLast week: completed ${weekCount.toString()} plots";
+      output += "\n\nLast week: completed ${weekCount.toString()} plots";
 
       if (client.supportDiskSpace) {
         //If free space is less than a k32 plot size
@@ -334,7 +332,7 @@ class Stats {
   }
 
   //estimated price per day
-  static double estimateEPD(double etw, double price) {
+  static double estimateEDV(double etw, double price) {
     final double blockSize = 2.0;
     return blockSize * price / etw;
   }

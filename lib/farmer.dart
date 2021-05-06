@@ -99,7 +99,7 @@ class Farmer extends Harvester {
       double value = double.parse(_networkSize.replaceAll("PiB", "").trim());
       if (value > 1024) {
         value = value / 1024;
-        _networkSize = "${value.toStringAsFixed(4)} EiB";
+        _networkSize = "${value.toStringAsPrecision(3)} EiB";
       }
     }
 

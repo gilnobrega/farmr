@@ -110,7 +110,7 @@ Future<void> main(List<String> args) async {
 Future<String> _getUserData(String userID) async {
   //use chiabot.znc.sh if not hosted on local server
 
-  String contents = await http.read("http://127.0.0.1/read.php?user=" + userID);
+  String contents = await http.read("http://chiabot.znc.sh/read.php?user=" + userID);
 
   return contents;
 }
@@ -140,14 +140,15 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount, String
         : '';
 
     String main = name +
-        Stats.showBalanceAndETW(harvester, networkSize, true, price) +
+        Stats.showBalance(harvester, price) +
         Stats.showPlotsInfo(harvester) +
-        Stats.showLastPlotInfo(harvester) +
+        Stats.showETWEDV(harvester, networkSize, price) +
         Stats.showNetworkSize(harvester) +
         Stats.showFarmedTime(harvester);
 
     String full = (isFull || isWorkers)
-        ? Stats.showLastNDaysPlots(harvester, 8) +
+        ? Stats.showLastPlotInfo(harvester) +
+            Stats.showLastNDaysPlots(harvester, 8) +
             Stats.showIncompletePlotsWarning(harvester) +
             Stats.showFilters(harvester) +
             Stats.showSubSlots(harvester)
