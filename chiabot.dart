@@ -142,22 +142,23 @@ main(List<String> args) async {
 final io.File logFile = io.File("log.txt");
 
 void clearLog() {
-  try {
-    //Deletes log file if it already exists
-    if (logFile.existsSync()) {
-      logFile.deleteSync();
+  //logging on windows is disabled
+  if (!io.Platform.isWindows) {
+    try {
+      //Deletes log file if it already exists
+      if (logFile.existsSync()) {
+        logFile.deleteSync();
+      }
+      //creates log.txt
+      logFile.createSync();
+    } catch (e) {
+      log.info("Failed to delete/create log.txt.\n${e}");
     }
-
-    //Creates log file
-    if (io.Platform.isWindows)
-      logFile.create().catchError(() {});
-    else if (io.Platform.isLinux || io.Platform.isMacOS) logFile.createSync();
-  } catch (e) {
-    log.info("Failed to delete/create log.txt.\n${e}");
   }
 }
 
 void initLogger() {
+  //logging on windows is disabled. Temporary, needs fixing
   clearLog();
 
   //Initializes logger
@@ -169,9 +170,12 @@ void initLogger() {
 
     //otherwise logs stuff to log file
     //2021-05-02 03:02:26.548953 Client: Sent farmer report to server.
-    try {
-      logFile.writeAsStringSync('\n${record.time} ${record.loggerName}: ' + output,
-          mode: io.FileMode.writeOnlyAppend);
-    } catch (e) {}
+    //logs on windows is disabled
+    if (!io.Platform.isWindows) {
+      try {
+        logFile.writeAsStringSync('\n${record.time} ${record.loggerName}: ' + output,
+            mode: io.FileMode.writeOnlyAppend);
+      } catch (e) {}
+    }
   });
 }
