@@ -126,6 +126,9 @@ If the client crashes:
 
 ##### What if I have two or more farmers?
   Run one of them as a farmer and the others as harvesters.
+ 
+##### Help, I linked the same device twice and it's showing two devices.
+  Inactive clients will expire after 15 minutes.
   
 ## FAQ
 
