@@ -127,6 +127,7 @@ class HarvesterFilters {
     _numberFilters += harvester.numberFilters;
     _eligiblePlots += harvester.eligiblePlots;
     _missedChallenges += harvester.missedChallenges;
+    _proofsFound += harvester.proofsFound;
 
     _maxTime = Math.max(_maxTime, harvester.maxTime);
     _minTime = Math.min(_minTime, harvester.minTime);
