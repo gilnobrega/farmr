@@ -110,7 +110,7 @@ Future<void> main(List<String> args) async {
 Future<String> _getUserData(String userID) async {
   //use chiabot.znc.sh if not hosted on local server
 
-  String contents = await http.read("http://chiabot.znc.sh/read.php?user=" + userID);
+  String contents = await http.read("http://127.0.0.1/read.php?user=" + userID);
 
   return contents;
 }
