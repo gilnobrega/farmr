@@ -7,7 +7,6 @@ import '../lib/harvester.dart';
 import '../lib/stats.dart';
 
 Future<void> main(List<String> args) async {
-
   //Discord User ID
   String userID = args[0];
 
@@ -100,15 +99,17 @@ Future<void> main(List<String> args) async {
 }
 
 showHarvester(Harvester harvester, int harvestersCount, int farmersCount, String networkSize,
-    bool isFull, bool isWorkers) {
+    bool isFull, bool isWorkers,
+    [bool discord = true]) {
   if (!isFull) {
     harvestersCount = 0;
     farmersCount = 0;
   }
 
   String name = (isWorkers) ? Stats.showName(harvester) : '';
-  String lastUpdated =
-      (isFull || isWorkers) ? Stats.showLastUpdated(harvester, farmersCount, harvestersCount) : '';
+  String lastUpdated = ((isFull || isWorkers) && discord)
+      ? Stats.showLastUpdated(harvester, farmersCount, harvestersCount)
+      : '';
 
   String main = name +
       Stats.showBalanceAndETW(harvester, networkSize) +
@@ -124,6 +125,20 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount, String
           Stats.showSubSlots(harvester)
       : '';
 
-  print(main + full + lastUpdated);
-}
+  String output = main + full + lastUpdated;
 
+  //removes discord emojis
+  if (!discord) {
+    try {
+      RegExp emojiRegex = RegExp('(:[\\S]+: )');
+      RegExp externalEmojiRegex = RegExp('(<:[\\S]+:[0-9]+> )');
+
+      var matches = emojiRegex.allMatches(output).toList();
+      matches.addAll(externalEmojiRegex.allMatches(output).toList());
+
+      for (var match in matches) output = output.replaceAll(match.group(1), "").replaceAll("**", "");
+    } catch (e) {}
+  }
+
+  print(output);
+}

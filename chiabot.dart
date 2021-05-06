@@ -11,6 +11,8 @@ import 'lib/config.dart';
 import 'lib/cache.dart';
 import 'lib/debug.dart';
 
+import 'server/chiabot_server.dart' as Stats;
+
 final log = Logger('Client');
 
 final Duration delay = Duration(minutes: 10); //10 minutes delay between updates
@@ -79,6 +81,9 @@ main(List<String> args) async {
         status = client.status;
       }
 
+      //shows stats in client
+      Stats.showHarvester(client, 0, 0, (client is Farmer) ? client.networkSize : "0", false, true, false);
+
       //copies object to a json string
       copyJson = jsonEncode(client);
     } catch (exception) {
@@ -103,7 +108,10 @@ main(List<String> args) async {
       String notifyOffline = (config.sendOfflineNotifications)
           ? '1'
           : '0'; //whether user wants to be notified when rig goes offline
-      String isFarming = ((config.type == ClientType.Farmer && status == "Farming") || config.type == ClientType.Harvester) ? '1' : '0';
+      String isFarming = ((config.type == ClientType.Farmer && status == "Farming") ||
+              config.type == ClientType.Harvester)
+          ? '1'
+          : '0';
 
       String url = "https://chiabot.znc.sh/send3.php?id=" +
           config.cache.id +

@@ -39,12 +39,12 @@ class Stats {
 
     String balanceText = '\n\<:chia:833767070201151528> ';
 
-    balanceText += (balance < 0.0)
+    balanceText += (balance < 0.0 && etw != "0.0")
         ? "Next block in ~" + etw + " days"
-        : "**" +
+        : (etw != "0.0") ? "**" +
             balance.toString() +
             " XCH** " +
-            etwtext; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
+            etwtext : ''; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
 
     output += balanceText;
 
@@ -210,10 +210,13 @@ class Stats {
       output +=
           "\n\nLast 24 hours: ${totalEligiblePlots} plots passed ${harvester.numberFilters} filters";
 
+      double totalPlots =
+          (harvester.totalPlots > 0) ? harvester.totalPlots : (harvester.plots.length / 1.0);
+      
       //Calculates ratio based on each harvesters proportion (farmer's filterRatio)
-      double ratio = (harvester is Farmer)
-          ? harvester.filterRatio / harvester.totalPlots
-          : (totalEligiblePlots / harvester.numberFilters * 512 / harvester.plots.length);
+      double ratio = (harvester is Farmer && harvester.filterRatio > 0)
+          ? harvester.filterRatio / totalPlots
+          : (totalEligiblePlots / harvester.numberFilters * 512 / totalPlots);
       String ratioString = ratio.toStringAsFixed(2);
       String luck = ((ratio) * 100).toStringAsFixed(0) + "%";
 
