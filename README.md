@@ -104,6 +104,9 @@ Set ``sendBalanceNotifications`` to ``false`` if you do not wish to be notified 
 #### Offline Notifications
 Set ``sendOfflineNotifications`` to ``true`` if you wish to be notified when your farmer/harvester loses connection.
 
+#### Status Notifications
+Set ``sendStatusNotifications`` to ``true`` if you wish to be notified when your farmer loses sync and stops farming.
+
 #### Chia Log Parsing
 If your chia debug level is set to ``INFO`` ([find how to do that here](https://thechiafarmer.com/2021/04/20/how-to-enable-chia-logs-on-windows/)), setting ``parseLogs`` to ``true`` will enable extra stats, such as number of challenges in the last 24 hours, max, min and average challenge response times and incomplete SubSlots.
 

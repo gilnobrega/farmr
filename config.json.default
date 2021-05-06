@@ -5,6 +5,7 @@
         "sendBalanceNotifications": true,
         "sendPlotNotifications": false,
         "sendOfflineNotifications": false,
+        "sendStatusNotifications": false,
         "parseLogs": false,
         "chiaPath": null
     }
