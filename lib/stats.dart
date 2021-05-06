@@ -55,7 +55,7 @@ class Stats {
       double XCHPerDay = blockSize / etw;
       double epd = estimateEPD(etw, price);
       String epdString =
-          "\n:moneybag: **${XCHPerDay.toStringAsPrecision(3)} XCH** (${epd.toStringAsPrecision(3)} USD) per day";
+          "\n:moneybag: ~**${XCHPerDay.toStringAsPrecision(3)} XCH** (${epd.toStringAsPrecision(3)} USD) expected per day";
 
       output += epdString;
     }
