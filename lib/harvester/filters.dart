@@ -15,7 +15,7 @@ class HarvesterFilters {
 
   //plots which passed filter
   int _eligiblePlots = 0;
-  int get eligiblePlots => _eligiblePlots;
+  int get eligiblePlots => (_eligiblePlots == 0) ? _getEligiblePlots() : _eligiblePlots;
 
   //number of challenges which response time is above 25s
   int _missedChallenges = 0;
@@ -39,6 +39,10 @@ class HarvesterFilters {
   double _totalPlots = 0;
   double get totalPlots => (_totalPlots == 0) ? _getTotalPlots() : _totalPlots;
 
+  //displays number of proofs found
+  int _proofsFound = 0;
+  int get proofsFound => (_proofsFound == 0) ? _getProofsFound() : _proofsFound;
+
   loadFilters([Log log]) {
     if (log != null) filters = log.filters;
 
@@ -56,7 +60,6 @@ class HarvesterFilters {
     }
 
     _numberFilters = filters.length;
-    _eligiblePlots = _getEligiblePlots();
   }
 
   loadFiltersStatsJson(dynamic json, int numPlots) {
@@ -73,6 +76,7 @@ class HarvesterFilters {
     else {
       if (json['numberFilters'] != null) _numberFilters = json['numberFilters'];
       if (json['eligiblePlots'] != null) _eligiblePlots = json['eligiblePlots'];
+      if (json['proofsFound'] != null) _proofsFound = json['proofsFound'];
       if (json['missedChallenges'] != null) _missedChallenges = json['missedChallenges'];
       if (json['totalPlots'] != null)
         _totalPlots = json['totalPlots'];
@@ -90,6 +94,16 @@ class HarvesterFilters {
   int _getEligiblePlots() {
     int count = 0;
     for (Filter filter in filters) count += filter.eligiblePlots;
+
+    _eligiblePlots = count;
+    return count;
+  }
+
+  int _getProofsFound() {
+    int count = 0;
+    for (Filter filter in filters) count += filter.proofs;
+
+    _proofsFound = count;
     return count;
   }
 

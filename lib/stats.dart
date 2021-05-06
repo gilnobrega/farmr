@@ -41,10 +41,9 @@ class Stats {
 
     balanceText += (balance < 0.0 && etw != "0.0")
         ? "Next block in ~" + etw + " days"
-        : (etw != "0.0") ? "**" +
-            balance.toString() +
-            " XCH** " +
-            etwtext : ''; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
+        : (etw != "0.0")
+            ? "**" + balance.toString() + " XCH** " + etwtext
+            : ''; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
 
     output += balanceText;
 
@@ -210,9 +209,12 @@ class Stats {
       output +=
           "\n\nLast 24 hours: ${totalEligiblePlots} plots passed ${harvester.numberFilters} filters";
 
+      //displays number of proofs found if > 0
+      if (harvester.proofsFound > 0) output += "\nFound ${harvester.proofsFound} proofs";
+
       double totalPlots =
           (harvester.totalPlots > 0) ? harvester.totalPlots : (harvester.plots.length / 1.0);
-      
+
       //Calculates ratio based on each harvesters proportion (farmer's filterRatio)
       double ratio = (harvester is Farmer && harvester.filterRatio > 0)
           ? harvester.filterRatio / totalPlots
