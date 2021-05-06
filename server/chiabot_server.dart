@@ -101,43 +101,51 @@ Future<void> main(List<String> args) async {
 showHarvester(Harvester harvester, int harvestersCount, int farmersCount, String networkSize,
     bool isFull, bool isWorkers,
     [bool discord = true]) {
-  if (!isFull) {
-    harvestersCount = 0;
-    farmersCount = 0;
-  }
+      
+  String output;
 
-  String name = (isWorkers) ? Stats.showName(harvester) : '';
-  String lastUpdated = ((isFull || isWorkers) && discord)
-      ? Stats.showLastUpdated(harvester, farmersCount, harvestersCount)
-      : '';
+  try {
+    if (!isFull) {
+      harvestersCount = 0;
+      farmersCount = 0;
+    }
 
-  String main = name +
-      Stats.showBalanceAndETW(harvester, networkSize) +
-      Stats.showPlotsInfo(harvester) +
-      Stats.showLastPlotInfo(harvester) +
-      Stats.showNetworkSize(harvester) +
-      Stats.showFarmedTime(harvester);
+    String name = (isWorkers) ? Stats.showName(harvester) : '';
+    String lastUpdated = ((isFull || isWorkers) && discord)
+        ? Stats.showLastUpdated(harvester, farmersCount, harvestersCount)
+        : '';
 
-  String full = (isFull || isWorkers)
-      ? Stats.showLastNDaysPlots(harvester, 8) +
-          Stats.showIncompletePlotsWarning(harvester) +
-          Stats.showFilters(harvester) +
-          Stats.showSubSlots(harvester)
-      : '';
+    String main = name +
+        Stats.showBalanceAndETW(harvester, networkSize) +
+        Stats.showPlotsInfo(harvester) +
+        Stats.showLastPlotInfo(harvester) +
+        Stats.showNetworkSize(harvester) +
+        Stats.showFarmedTime(harvester);
 
-  String output = main + full + lastUpdated;
+    String full = (isFull || isWorkers)
+        ? Stats.showLastNDaysPlots(harvester, 8) +
+            Stats.showIncompletePlotsWarning(harvester) +
+            Stats.showFilters(harvester) +
+            Stats.showSubSlots(harvester)
+        : '';
 
-  //removes discord emojis
-  if (!discord) {
-    try {
-      RegExp emojiRegex = RegExp('(:[\\S]+: )');
-      RegExp externalEmojiRegex = RegExp('(<:[\\S]+:[0-9]+> )');
+    output = main + full + lastUpdated;
 
-      var matches = emojiRegex.allMatches(output).toList();
-      matches.addAll(externalEmojiRegex.allMatches(output).toList());
+    //removes discord emojis
+    if (!discord) {
+      try {
+        RegExp emojiRegex = RegExp('(:[\\S]+: )');
+        RegExp externalEmojiRegex = RegExp('(<:[\\S]+:[0-9]+> )');
 
-      for (var match in matches) output = output.replaceAll(match.group(1), "").replaceAll("**", "");
-    } catch (e) {}
+        var matches = emojiRegex.allMatches(output).toList();
+        matches.addAll(externalEmojiRegex.allMatches(output).toList());
+
+        for (var match in matches)
+          output = output.replaceAll(match.group(1), "").replaceAll("**", "");
+      } catch (e) {}
+    }
+  } catch (e) {
+    output = "Failed to display stats.";
   }
 
   print(output);

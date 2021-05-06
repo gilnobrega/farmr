@@ -39,6 +39,9 @@ main(List<String> args) async {
     io.exit(0);
   });
 
+  //launches client in standalone mode where it doesnt send info to server
+  bool standalone = args.contains("standalone") || args.contains("offline");
+
   Cache cache = new Cache(chiaConfigPath);
   cache.init();
 
@@ -82,7 +85,8 @@ main(List<String> args) async {
       }
 
       //shows stats in client
-      Stats.showHarvester(client, 0, 0, (client is Farmer) ? client.networkSize : "0", false, true, false);
+      Stats.showHarvester(
+          client, 0, 0, (client is Farmer) ? client.networkSize : "0", false, true, false);
 
       //copies object to a json string
       copyJson = jsonEncode(client);
@@ -93,60 +97,62 @@ main(List<String> args) async {
       log.info("Cache:\n${cache}");
     }
 
-    //SENDS DATA TO SERVER
-    try {
-      var copy = (config.type == ClientType.Farmer)
-          ? Farmer.fromJson("[" + copyJson + "]")
-          : Harvester.fromJson("[" + copyJson + "]");
+    if (!standalone) {
+      //SENDS DATA TO SERVER
+      try {
+        var copy = (config.type == ClientType.Farmer)
+            ? Farmer.fromJson("[" + copyJson + "]")
+            : Harvester.fromJson("[" + copyJson + "]");
 
-      //clones farm so it can clear ids before sending them to server
-      copy.clearIDs();
+        //clones farm so it can clear ids before sending them to server
+        copy.clearIDs();
 
-      //String that's actually sent to server
-      String sendJson = jsonEncode(copy);
+        //String that's actually sent to server
+        String sendJson = jsonEncode(copy);
 
-      String notifyOffline = (config.sendOfflineNotifications)
-          ? '1'
-          : '0'; //whether user wants to be notified when rig goes offline
-      String isFarming = ((config.type == ClientType.Farmer && status == "Farming") ||
-              config.type == ClientType.Harvester)
-          ? '1'
-          : '0';
+        String notifyOffline = (config.sendOfflineNotifications)
+            ? '1'
+            : '0'; //whether user wants to be notified when rig goes offline
+        String isFarming = ((config.type == ClientType.Farmer && status == "Farming") ||
+                config.type == ClientType.Harvester)
+            ? '1'
+            : '0';
 
-      String url = "https://chiabot.znc.sh/send3.php?id=" +
-          config.cache.id +
-          "&notifyOffline=" +
-          notifyOffline;
+        String url = "https://chiabot.znc.sh/send3.php?id=" +
+            config.cache.id +
+            "&notifyOffline=" +
+            notifyOffline;
 
-      if (config.type == ClientType.Farmer && config.sendStatusNotifications)
-        url += "&isFarming=" + isFarming;
+        if (config.type == ClientType.Farmer && config.sendStatusNotifications)
+          url += "&isFarming=" + isFarming;
 
-      //Adds the following if sendPlotNotifications is enabled then it will send plotID
-      if (config.sendPlotNotifications) url += "&lastPlot=" + lastPlotID;
+        //Adds the following if sendPlotNotifications is enabled then it will send plotID
+        if (config.sendPlotNotifications) url += "&lastPlot=" + lastPlotID;
 
-      //If the client is a farmer and it is farming and sendBalanceNotifications is enabled then it will send balance
-      if (config.type == ClientType.Farmer &&
-          config.sendBalanceNotifications &&
-          status == "Farming") url += "&balance=" + Uri.encodeComponent(balance.toString());
+        //If the client is a farmer and it is farming and sendBalanceNotifications is enabled then it will send balance
+        if (config.type == ClientType.Farmer &&
+            config.sendBalanceNotifications &&
+            status == "Farming") url += "&balance=" + Uri.encodeComponent(balance.toString());
 
-      http.post(url, body: {"data": sendJson}).catchError(() {
-        log.warning("Server timeout.");
-      });
+        http.post(url, body: {"data": sendJson}).catchError(() {
+          log.warning("Server timeout.");
+        });
 
-      String type = (config.type == ClientType.Farmer) ? "farmer" : "harvester";
+        String type = (config.type == ClientType.Farmer) ? "farmer" : "harvester";
 
-      log.warning("Sent " +
-          type +
-          " report to server.\nRetrying in " +
-          delay.inMinutes.toString() +
-          " minutes");
-      log.info("url:${url}");
-      log.info("data sent:\n${sendJson}");
+        log.warning("\nSent " +
+            type +
+            " report to server.\nRetrying in " +
+            delay.inMinutes.toString() +
+            " minutes");
+        log.info("url:${url}");
+        log.info("data sent:\n${sendJson}");
 
-      if (io.Platform.isWindows) print("Do NOT close this window.");
-    } catch (exception) {
-      log.severe("Oh no, failed to connect to server!");
-      log.severe(exception.toString());
+        if (io.Platform.isWindows) print("Do NOT close this window.");
+      } catch (exception) {
+        log.severe("Oh no, failed to connect to server!");
+        log.severe(exception.toString());
+      }
     }
 
     await Future.delayed(delay);
