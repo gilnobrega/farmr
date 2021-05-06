@@ -100,12 +100,18 @@ main(List<String> args) async {
       //String that's actually sent to server
       String sendJson = jsonEncode(copy);
 
-      String notifyOffline = (config.sendOfflineNotifications) ? '1' : '0';
+      String notifyOffline = (config.sendOfflineNotifications)
+          ? '1'
+          : '0'; //whether user wants to be notified when rig goes offline
+      String isFarming = (config.type == ClientType.Farmer && status == "Farming") ? '1' : '0';
 
-      String url = "https://chiabot.znc.sh/send.php?id=" +
+      String url = "https://chiabot.znc.sh/send3.php?id=" +
           config.cache.id +
           "&notifyOffline=" +
           notifyOffline;
+
+      if (config.type == ClientType.Farmer && config.sendStatusNotifications)
+        url += "&isFarming=" + isFarming;
 
       //Adds the following if sendPlotNotifications is enabled then it will send plotID
       if (config.sendPlotNotifications) url += "&lastPlot=" + lastPlotID;

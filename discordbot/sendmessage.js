@@ -22,8 +22,9 @@ async function sendmsg(args) {
     var command = args[3];
 
     if (command == "block") message = ":money_mouth: Your farm just found a block!";
-    else if (command == "plot") message = ":tada: Your farm just completed a plot!";
+    else if (command == "plot") message = ":tada: Your farm just completed another plot.";
     else if (command == "offline") message = ":skull_crossbones: Lost connection to farmer/harvester!";
+    else if (command == "stopped") message = ":scream: Your farmer stopped farming!";
     else exit();
 
     const user = await client.users.fetch(id).catch(() => null);

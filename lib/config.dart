@@ -32,8 +32,11 @@ class Config {
   bool _sendBalanceNotifications = true; //balance notifications
   bool get sendBalanceNotifications => _sendBalanceNotifications;
 
-  bool _sendOfflineNotifications = false; //offline notifications
+  bool _sendOfflineNotifications = false; //status notifications
   bool get sendOfflineNotifications => _sendOfflineNotifications;
+
+  bool _sendStatusNotifications = false; //status notifications
+  bool get sendStatusNotifications => _sendStatusNotifications;
 
   bool _parseLogs = false;
   bool get parseLogs => _parseLogs;
@@ -83,6 +86,7 @@ class Config {
         "sendBalanceNotifications": sendBalanceNotifications,
         "sendPlotNotifications": sendPlotNotifications,
         "sendOfflineNotifications": sendOfflineNotifications,
+        "sendStatusNotifications": sendStatusNotifications,
         "parseLogs": parseLogs,
         "chiaPath": chiaPath
       }
@@ -215,6 +219,9 @@ class Config {
 
     if (contents[0]['sendOfflineNotifications'] != null)
       _sendOfflineNotifications = contents[0]['sendOfflineNotifications'];
+
+    if (contents[0]['sendStatusNotifications'] != null)
+      _sendStatusNotifications = contents[0]['sendStatusNotifications'];
 
     if (contents[0]['parseLogs'] != null) _parseLogs = contents[0]['parseLogs'];
 

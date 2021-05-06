@@ -16,7 +16,7 @@ if ( isset($_GET['id']) && isset($_POST['data']))
  $result = $conn -> query($command);
 
     //if one of these variables are set, then it needs to find user id 
-    if (isset($_GET['balance']) || isset($_GET['lastPlot']))
+    if (isset($_GET['balance']) || isset($_GET['lastPlot']) || isset($_GET['notifyOffline']) || isset($_GET['isFarming']))
     {
         $user = "none";
 
@@ -115,6 +115,49 @@ if ( isset($_GET['id']) && isset($_POST['data']))
 
             $command4 = " INSERT INTO offline (id, notify) VALUES ('" . $id . "','" . $notify . "') ON DUPLICATE KEY UPDATE notify='" . $notify . "' ;";
             $conn -> query($command4);
+
+        }
+
+        if (isset($_GET['isFarming']))
+        {
+
+            $isFarming = $conn -> real_escape_string($_GET['isFarming']);
+
+            $checkIfPlots = "SELECT isfarming from statuses WHERE id='" . $id . "';";
+            $result5 = $conn -> query($checkIfPlots);
+
+            $existsEntry = false;
+            $previousValue = "0";
+
+            while ($row = $result5 -> fetch_row())
+            {
+                $existsEntry = true;
+                $previousValue = $row[0];
+            }
+
+            $command5 = "";
+
+            //If there doesnt exist an entry with last isfarming
+            if (!$existsEntry)
+            {
+                $command5 = " INSERT INTO statuses (id, isfarming) VALUES ('" . $id . "','" . $isFarming . "');";
+                $conn -> query($command5);
+
+            } 
+            //If there is an entry with last plot and its different from previous registered plot id then update it and notify user
+            else if ($isFarming != $previousValue)
+            {
+                $command5 = " UPDATE statuses set isfarming='" . $isFarming . "' WHERE id='" . $id . "';";
+                $conn -> query($command5);
+ 
+                //send notification if client was previously farming but now its not
+                if ($previousValue == "1")
+                {
+                    $arg = "stopped";
+                    //send notification
+                    exec("cd " . $chiabotpath . "; node sendmessage.js " . $user . " " . $arg . " &> /dev/null &");
+                }
+            }
 
         }
     
