@@ -47,7 +47,7 @@ main(List<String> args) async {
 
   //Initializes config, either creates a new one or loads a config file
   Config config = new Config(cache, chiaConfigPath,
-      (args.length == 1 && (args[0] == "harvester" || args[0] == '-h'))); //checks if is harvester
+      (args.contains("harvester") || args.contains('-h'))); //checks if is harvester
 
   await config.init();
 
