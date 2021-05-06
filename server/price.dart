@@ -21,7 +21,7 @@ class Price {
 
   Price() {}
 
-  init() async {
+  Future<void> init() async {
     if (_cacheFile.existsSync())
       await _load();
     else

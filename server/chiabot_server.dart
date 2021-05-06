@@ -12,18 +12,18 @@ Future<void> main(List<String> args) async {
   String userID = args[0];
 
   String contents = '';
+  Price price;
 
-  //use chiabot.znc.sh if not hosted on local server
-  contents = await http
-      .read("http://127.0.0.1/read.php?user=" + userID)
-      .then((value) => contents = value);
+  //Gets user data and Price in parallel, since both are parsed from web
+  var async1 = _getUserData(userID);
+  var async2 = _getPrice();
+
+  contents = await async1;
+  price = await async2;
 
   List<Harvester> harvesters = [];
   int farmersCount = 0;
   int harvestersCount = 0;
-
-  Price price = Price();
-  await price.init();
 
   try {
     contents = contents.trim(); //filters last , of send page, can be fixed on server side later
@@ -104,6 +104,23 @@ Future<void> main(List<String> args) async {
 
     //print("${userID} - Exception: ${Exception.toString()}");
   }
+}
+
+//getUserDate isolate
+Future<String> _getUserData(String userID) async {
+  //use chiabot.znc.sh if not hosted on local server
+
+  String contents = await http.read("http://127.0.0.1/read.php?user=" + userID);
+
+  return contents;
+}
+
+//get price in an isolate
+Future<Price> _getPrice() async {
+  Price price = Price();
+  await price.init();
+
+  return price;
 }
 
 showHarvester(Harvester harvester, int harvestersCount, int farmersCount, String networkSize,
