@@ -33,7 +33,7 @@ class Stats {
     double balanceUSD = balance * price;
 
     String balanceText = '';
-    String priceText = (price > 0) ? " (" + balanceUSD.toStringAsFixed(2) + "\$)" : '';
+    String priceText = (price > 0) ? " (" + balanceUSD.toStringAsFixed(2) + " USD)" : '';
 
     balanceText += (balance >= 0.0)
         ? "\n\<:chia:833767070201151528> **${balance} XCH**" + priceText
@@ -53,7 +53,7 @@ class Stats {
       final double blockSize = 2.0;
       double XCHPerDay = blockSize / etw;
       double epd = estimateEDV(etw, price);
-      etwString += " EDV: ${XCHPerDay.toStringAsPrecision(3)} XCH (${epd.toStringAsFixed(2)} USD)";
+      etwString += " EDV: ${XCHPerDay.toStringAsPrecision(3)} XCH (${epd.toStringAsFixed(2)}\$)";
     }
 
     output += etwString;
