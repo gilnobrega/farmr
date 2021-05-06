@@ -15,7 +15,7 @@ Future<void> main(List<String> args) async {
 
   //use chiabot.znc.sh if not hosted on local server
   contents = await http
-      .read("http://chiabot.znc.sh/read.php?user=" + userID)
+      .read("http://127.0.0.1/read.php?user=" + userID)
       .then((value) => contents = value);
 
   List<Harvester> harvesters = [];
