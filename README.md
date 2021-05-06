@@ -2,7 +2,7 @@
 
 A discord bot that monitors your chia farm summary and sends notifications when blocks are found and new plots are completed. It can link multiple farmers/harvesters to your account.
 
-The ChiaBot client is available for Linux and Windows. You can interact with the bot in [ChiaBot playground](https://discord.gg/aEkYWQGWdS) discord server.
+The ChiaBot client is available for Windows, Linux and macOS. You can interact with the bot in [ChiaBot playground](https://discord.gg/aEkYWQGWdS) discord server.
 
 ### Main Features
 | ``!chia`` command | Block, Plot and Offline notifications |
@@ -30,7 +30,7 @@ Download this repository, then proceed with the following platform-specific inst
 1. Open terminal in project's root directory and then run 
    - `` sh run.sh `` if you're setting up your farmer (main machine) 
    - ``sh run_harvester.sh `` if it's a harvester.
-   
+
 The script will install dart, git, screen and setup the client for you. Do **not run it as root**, it will issue "sudo" and ask for your password when/if necessary.
 
 #### Other amd64/arm64 Linux distros
@@ -38,9 +38,16 @@ The script will install dart, git, screen and setup the client for you. Do **not
 2. Run 
    - `` sh run.sh `` if you're setting up your farmer (main machine)
    - `` sh run_harvester.sh `` if it's a harvester.
-   
+
 If you have trouble running the script try running `` dart pub get`` and `` dart chiabot.dart `` manually.
 
+#### macOS
+1. Install [dart](https://dart.dev/get-dart)
+2. Open terminal in project's root directory and then run `` dart pub get ``
+3. While in the project's root directory, run:
+   - `` dart chiabot.dart `` if you're setting up your farmer (main machine) 
+   - ``dart chiabot.dart harvester `` if it's a harvester.
+   
 ### First time
 ChiaBot will generate an id for your device. You can link this device to your discord account by heading to [ChiaBot playground](https://discord.gg/aEkYWQGWdS) and sending the following message:
 ```
