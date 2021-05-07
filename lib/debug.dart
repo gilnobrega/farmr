@@ -190,8 +190,10 @@ class Log {
         subSlot.addSignagePoint(signagePoint);
     }
 
-    //Won't count with last SubSlot if it's incomplete
-    if (!subSlots.last.complete) subSlots.removeLast();
+    try {
+      //Won't count with last SubSlot if it's incomplete
+      if (!subSlots.last.complete) subSlots.removeLast();
+    } catch (e) {}
   }
 
   void filterDuplicateFilters() {
