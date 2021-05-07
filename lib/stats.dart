@@ -22,15 +22,14 @@ class Stats {
     String plotsSizeUnits = plotsSizeString.split(' ')[1];
 
     //displays 15/16TiB when both units match
-    String plotInfo = (client.supportDiskSpace && totalSizeUnits == plotsSizeUnits) ? plotsSizeString.split(' ')[0] : plotsSizeString;
+    String plotInfo = (client.supportDiskSpace && totalSizeUnits == plotsSizeUnits)
+        ? plotsSizeString.split(' ')[0]
+        : plotsSizeString;
 
     if (client.supportDiskSpace) {
       double percentage = (plotsSize / (client.freeDiskSpace + plotsSize)) * 100;
       String percentageString = "(" + percentage.toStringAsFixed(0) + "%)";
-      plotInfo += "/" +
-          totalSizeString +
-          " " +
-          percentageString; //if farm supports disk space then
+      plotInfo += "/" + totalSizeString + " " + percentageString; //if farm supports disk space then
     }
 
     return "\n:tractor: **" + client.plots.length.toString() + " plots** - " + plotInfo + "";
@@ -259,9 +258,8 @@ class Stats {
             "\nMedian: ${harvester.medianTime.toStringAsFixed(decimals)}s Avg: ${harvester.avgTime.toStringAsFixed(decimals)}s σ: ${harvester.stdDeviation.toStringAsFixed(decimals)}s";
 
       if (harvester.maxTime > 25) {
-        output += "\n:warning: ** Response time too long ** :warning:";
-        if (harvester.missedChallenges > 1)
-          output += "\nPotentially missed ${harvester.missedChallenges} challenges";
+        output += "\n:warning: **Missed ${harvester.missedChallenges} challenges** :warning:";
+        output += "\nFailed challenges with response times > 30 seconds";
       }
     }
 
