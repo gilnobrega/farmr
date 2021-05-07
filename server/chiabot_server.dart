@@ -102,15 +102,16 @@ Future<List<Harvester>> _getUserData(String userID) async {
       db: 'chiabot');
   var conn = await mysql.MySqlConnection.connect(settings);
 
-  var results =
-      await conn.query("SELECT data FROM farms WHERE user='${userID}' AND data<>'' AND data<>';;'");
+  var results = await conn.query("SELECT data FROM farms WHERE user='${userID}'");
 
   for (var result in results) {
-    String data = "[" + result[0].toString() + "]";
+    if (result[0].toString().contains('"type"')) {
+      String data = "[" + result[0].toString() + "]";
 
-    if (data.contains('"type":0'))
-      harvesters.add(Farmer.fromJson(data));
-    else if (data.contains('"type":1')) harvesters.add(Harvester.fromJson(data));
+      if (data.contains('"type":0'))
+        harvesters.add(Farmer.fromJson(data));
+      else if (data.contains('"type":1')) harvesters.add(Harvester.fromJson(data));
+    }
   }
 
   conn.close();
