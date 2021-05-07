@@ -1,6 +1,7 @@
 import 'dart:core';
 
 import 'package:http/http.dart' as http;
+import 'package:mysql1/mysql1.dart' as mysql;
 import 'package:dotenv/dotenv.dart' as dotenv;
 
 import '../lib/farmer.dart';
@@ -10,46 +11,23 @@ import 'price.dart';
 
 Future<void> main(List<String> args) async {
   dotenv.load();
+
   //Discord User ID
   String userID = args[0];
 
-  String contents = '';
   Price price;
 
   //Gets user data and Price in parallel, since both are parsed from web
   var async1 = _getUserData(userID);
   var async2 = _getPrice();
 
-  contents = await async1;
   price = await async2;
+  List<Harvester> harvesters = await async1;
 
-  List<Harvester> harvesters = [];
   int farmersCount = 0;
   int harvestersCount = 0;
 
   try {
-    contents = contents.trim(); //filters last , of send page, can be fixed on server side later
-
-    var clientsSerial = contents
-        .replaceAll("[;;]", "")
-        .split(';;')
-        .where((element) => element != "[]" && element != "")
-        .toList();
-
-    for (int i = 0; i < clientsSerial.length; i++) {
-      String clientSerial = clientsSerial[i];
-
-      var client;
-
-      //If this object is a farmer then adds it to farmers list, if not adds it to harvesters list
-      if (clientSerial.contains('"type":0')) {
-        client = Farmer.fromJson(clientSerial);
-        harvesters.add(client);
-      } else if (clientSerial.contains('"type":1')) {
-        client = Harvester.fromJson(clientSerial);
-        harvesters.add(client);
-      }
-    }
 
     if (harvesters.length == 0) throw new Exception("No Harvesters found.");
 
@@ -108,13 +86,30 @@ Future<void> main(List<String> args) async {
   }
 }
 
-//getUserDate isolate
-Future<String> _getUserData(String userID) async {
-  //use chiabot.znc.sh if not hosted on local server
+//gets harvesters linked to user from mysql db
+Future<List<Harvester>> _getUserData(String userID) async {
+  List<Harvester> harvesters = [];
 
-  String contents = await http.read("http://chiabot.znc.sh/read.php?user=" + userID);
+  var settings = new mysql.ConnectionSettings(
+      host: 'localhost',
+      port: 3306,
+      user: dotenv.env['MYSQL_USER'],
+      password: dotenv.env['MYSQL_PASSWORD'],
+      db: 'chiabot');
+  var conn = await mysql.MySqlConnection.connect(settings);
 
-  return contents;
+  var results =
+      await conn.query("SELECT data FROM farms WHERE user='${userID}' AND data<>'' AND data<>';;'");
+
+  for (var result in results) {
+    String data = result[0];
+
+    if (data.contains('"type":1'))
+      harvesters.add(Farmer.fromJson(data));
+    else if (data.contains('"type":0')) harvesters.add(Harvester.fromJson(data));
+  }
+
+  return harvesters;
 }
 
 //get price in an isolate

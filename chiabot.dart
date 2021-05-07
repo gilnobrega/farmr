@@ -12,7 +12,6 @@ import 'lib/cache.dart';
 import 'lib/debug.dart';
 
 import 'server/chiabot_server.dart' as Stats;
-import 'server/price.dart';
 
 final log = Logger('Client');
 

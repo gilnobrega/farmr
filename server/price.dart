@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'dart:io' as io;
 
-import 'package:dotenv/dotenv.dart' as dotenv;
 import 'package:http/http.dart' as http;
 
 class Price {
+  String _apiKey = '';
+
   final int _untilTimeStamp = DateTime.now().subtract(Duration(minutes: 5)).millisecondsSinceEpoch;
   final io.File _cacheFile = io.File("price.json");
 
@@ -19,7 +20,9 @@ class Price {
 
   Map toJson() => {"price": price, "currency": currency, "timestamp": timestamp};
 
-  Price() {}
+  Price(String apikey) {
+    _apiKey = apikey;
+  }
 
   Future<void> init() async {
     if (_cacheFile.existsSync())
@@ -45,12 +48,11 @@ class Price {
 
   _getPriceFromApi() async {
     try {
-      dotenv.load();
 //gets xch/usd exchange rate from coinbase
       var json = jsonDecode(await http.read(
           "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=XCH&convert=" +
               currency,
-          headers: {'X-CMC_PRO_API_KEY': dotenv.env['COINMARKETCAP']}));
+          headers: {'X-CMC_PRO_API_KEY': _apiKey}));
 
       _price = json['data']['XCH']['quote']['USD']['price'];
     } catch (e) {}

@@ -16,3 +16,4 @@ dependencies:
   intl: ^0.17.0
   logging: ^1.0.1
   dotenv: ^2.0.0
+  mysql1: ^0.19.2
