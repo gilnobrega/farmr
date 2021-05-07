@@ -163,7 +163,7 @@ class Config {
       List<String> possiblePaths = [];
 
       if (io.Platform.isLinux) {
-        chiaRootDir = io.Directory("/package/chiabot/chia-blockchain");
+        chiaRootDir = io.Directory("/usr/lib/chia-blockchain");
         file = "/resources/app.asar.unpacked/daemon/chia";
       } else if (io.Platform.isMacOS) {
         chiaRootDir = io.Directory("/Applications/Chia.app/Contents");
