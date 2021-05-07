@@ -23,11 +23,12 @@ Future<void> main(List<String> args) async {
 
   try {
     //Gets user data and Price in parallel, since both are parsed from web
-    var async1 = _getUserData(userID);
-    var async2 = _getPrice();
+    final async1 = _getUserData(userID);
+    final async2 = _getPrice();
 
-    price = await async2;
     harvesters = await async1;
+    price = await async2;
+
   } catch (e) {
     print("Failed to connect to server.");
   }
