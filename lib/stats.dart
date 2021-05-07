@@ -1,6 +1,6 @@
-import 'harvester.dart';
-import 'farmer.dart';
-import 'plot.dart';
+import 'package:chiabot/harvester.dart';
+import 'package:chiabot/farmer.dart';
+import 'package:chiabot/plot.dart';
 
 import 'dart:math' as Math;
 

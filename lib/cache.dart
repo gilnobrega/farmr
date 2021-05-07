@@ -5,9 +5,9 @@ import 'dart:convert';
 import 'package:logging/logging.dart';
 import 'package:uuid/uuid.dart';
 
-import 'plot.dart';
-import 'log/filter.dart';
-import 'log/signagepoint.dart';
+import 'package:chiabot/plot.dart';
+import 'package:chiabot/log/filter.dart';
+import 'package:chiabot/log/signagepoint.dart';
 
 final log = Logger('Cache');
 

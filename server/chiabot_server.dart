@@ -3,10 +3,10 @@ import 'dart:core';
 import 'package:mysql1/mysql1.dart' as mysql;
 import 'package:dotenv/dotenv.dart' as dotenv;
 
-import '../lib/farmer.dart';
-import '../lib/harvester.dart';
-import '../lib/stats.dart';
-import 'price.dart';
+import 'package:chiabot/farmer.dart';
+import 'package:chiabot/harvester.dart';
+import 'package:chiabot/stats.dart';
+import 'package:chiabot/price.dart';
 
 Future<void> main(List<String> args) async {
   dotenv.load();
@@ -28,7 +28,6 @@ Future<void> main(List<String> args) async {
 
     harvesters = await async1;
     price = await async2;
-
   } catch (e) {
     print("Failed to connect to server.");
   }

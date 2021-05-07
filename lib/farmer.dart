@@ -4,9 +4,9 @@ import 'dart:convert';
 
 import 'package:logging/logging.dart';
 
-import 'config.dart';
-import 'harvester.dart';
-import 'debug.dart' as Debug;
+import 'package:chiabot/config.dart';
+import 'package:chiabot/harvester.dart';
+import 'package:chiabot/debug.dart' as Debug;
 
 final log = Logger('Farmer');
 

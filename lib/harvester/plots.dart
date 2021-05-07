@@ -5,8 +5,8 @@ import 'package:yaml/yaml.dart';
 import 'package:path/path.dart';
 import 'package:logging/logging.dart';
 
-import '../plot.dart';
-import '../config.dart';
+import 'package:chiabot/plot.dart';
+import 'package:chiabot/config.dart';
 
 final Logger log = Logger('Harvester.Plots');
 

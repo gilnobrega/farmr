@@ -6,7 +6,7 @@ import 'package:logging/logging.dart';
 import 'package:dart_console/dart_console.dart';
 import 'package:qr/qr.dart';
 
-import 'cache.dart';
+import 'package:chiabot/cache.dart';
 
 final log = Logger('Config');
 
@@ -163,7 +163,7 @@ class Config {
       List<String> possiblePaths = [];
 
       if (io.Platform.isLinux) {
-        chiaRootDir = io.Directory("/lib/chia-blockchain");
+        chiaRootDir = io.Directory("/package:chiabot/chia-blockchain");
         file = "/resources/app.asar.unpacked/daemon/chia";
       } else if (io.Platform.isMacOS) {
         chiaRootDir = io.Directory("/Applications/Chia.app/Contents");
@@ -171,10 +171,10 @@ class Config {
       }
 
       possiblePaths = [
-        // checks if binary exists in /lib/chia-blockchain/resources/app.asar.unpacked/daemon/chia in linux or
+        // checks if binary exists in /package:chiabot/chia-blockchain/resources/app.asar.unpacked/daemon/chia in linux or
         // checks if binary exists in /Applications/Chia.app/Contents/Resources/app.asar.unpacked/daemon/chia in macOS
         chiaRootDir.path + file,
-        // Checks if binary exists in /usr/lib/chia-blockchain/resources/app.asar.unpacked/daemon/chia
+        // Checks if binary exists in /usr/package:chiabot/chia-blockchain/resources/app.asar.unpacked/daemon/chia
         "/usr" + chiaRootDir.path + file,
         //checks if binary exists in /home/user/.local/bin/chia
         io.Platform.environment['HOME'] + "/.local/bin/chia"

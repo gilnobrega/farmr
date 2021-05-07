@@ -5,11 +5,11 @@ import 'dart:core';
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 
-import 'lib/farmer.dart';
-import 'lib/harvester.dart';
-import 'lib/config.dart';
-import 'lib/cache.dart';
-import 'lib/debug.dart';
+import 'package:chiabot/farmer.dart';
+import 'package:chiabot/harvester.dart';
+import 'package:chiabot/config.dart';
+import 'package:chiabot/cache.dart';
+import 'package:chiabot/debug.dart';
 
 import 'server/chiabot_server.dart' as Stats;
 

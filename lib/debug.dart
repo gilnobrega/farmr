@@ -3,12 +3,11 @@ import 'dart:io' as io;
 
 import 'package:logging/logging.dart';
 
-import 'cache.dart';
-
-import 'log/filter.dart';
-import 'log/subslot.dart';
-import 'log/logitem.dart';
-import 'log/signagepoint.dart';
+import 'package:chiabot/cache.dart';
+import 'package:chiabot/log/filter.dart';
+import 'package:chiabot/log/subslot.dart';
+import 'package:chiabot/log/logitem.dart';
+import 'package:chiabot/log/signagepoint.dart';
 
 final log = Logger('LOG');
 
