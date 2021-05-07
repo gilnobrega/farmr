@@ -68,6 +68,7 @@ class Cache {
   void load(bool parseLogs) {
     _filters = [];
     _plots = [];
+    _signagePoints = [];
 
     var contents = jsonDecode(_cache.readAsStringSync());
 
