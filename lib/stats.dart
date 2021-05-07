@@ -15,7 +15,7 @@ class Stats {
     int plotsSize = plotSumSize(client.plots);
     //e.g. using 3.7 TB out of 7TB
     String plotsSizeString = fileSize(plotsSize);
-    String plotInfo = (plotsSizeString.contains("TiB")) ? plotsSizeString.split(' ')[0] : plotsSizeString;
+    String plotInfo = (plotsSizeString.contains("TiB") || client.supportDiskSpace) ? plotsSizeString.split(' ')[0] : plotsSizeString;
 
     if (client.supportDiskSpace) {
       double percentage = (plotsSize/(client.freeDiskSpace + plotsSize)) * 100;
