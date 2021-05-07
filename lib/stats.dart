@@ -14,13 +14,17 @@ class Stats {
   static String showPlotsInfo(Harvester client) {
     int plotsSize = plotSumSize(client.plots);
     //e.g. using 3.7 TB out of 7TB
-    String plotInfo = "(using " + fileSize(plotsSize);
+    String plotsSizeString = fileSize(plotsSize);
+    String plotInfo = (plotsSizeString.contains("TiB")) ? plotsSizeString.split(' ')[0] : plotsSizeString;
 
-    if (client.supportDiskSpace)
-      plotInfo += " out of " +
-          fileSize(client.freeDiskSpace + plotsSize); //if farm supports disk space then
+    if (client.supportDiskSpace) {
+      double percentage = (plotsSize/(client.freeDiskSpace + plotsSize)) * 100;
+      String percentageString = "("+percentage.toStringAsFixed(0) + "%)";
+      plotInfo +=
+          "/" + fileSize(client.freeDiskSpace + plotsSize) + " " + percentageString; //if farm supports disk space then
+    }
 
-    return "\n:tractor: **" + client.plots.length.toString() + " plots** " + plotInfo + ")";
+    return "\n:tractor: **" + client.plots.length.toString() + " plots** - " + plotInfo + "";
   }
 
   static String showBalance(Harvester client, double price) {
