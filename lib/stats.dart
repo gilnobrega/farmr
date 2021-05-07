@@ -12,16 +12,25 @@ class Stats {
   }
 
   static String showPlotsInfo(Harvester client) {
+    //sums size occupied by plots
     int plotsSize = plotSumSize(client.plots);
-    //e.g. using 3.7 TB out of 7TB
+    //total space available
+    String totalSizeString = fileSize(client.freeDiskSpace + plotsSize);
+    String totalSizeUnits = totalSizeString.split(' ')[1];
+    //total space used by plots
     String plotsSizeString = fileSize(plotsSize);
-    String plotInfo = (plotsSizeString.contains("TiB") || client.supportDiskSpace) ? plotsSizeString.split(' ')[0] : plotsSizeString;
+    String plotsSizeUnits = plotsSizeString.split(' ')[1];
+
+    //displays 15/16TiB when both units match
+    String plotInfo = (client.supportDiskSpace && totalSizeUnits == plotsSizeUnits) ? plotsSizeString.split(' ')[0] : plotsSizeString;
 
     if (client.supportDiskSpace) {
-      double percentage = (plotsSize/(client.freeDiskSpace + plotsSize)) * 100;
-      String percentageString = "("+percentage.toStringAsFixed(0) + "%)";
-      plotInfo +=
-          "/" + fileSize(client.freeDiskSpace + plotsSize) + " " + percentageString; //if farm supports disk space then
+      double percentage = (plotsSize / (client.freeDiskSpace + plotsSize)) * 100;
+      String percentageString = "(" + percentage.toStringAsFixed(0) + "%)";
+      plotInfo += "/" +
+          totalSizeString +
+          " " +
+          percentageString; //if farm supports disk space then
     }
 
     return "\n:tractor: **" + client.plots.length.toString() + " plots** - " + plotInfo + "";

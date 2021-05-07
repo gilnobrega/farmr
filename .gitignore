@@ -121,3 +121,4 @@ log.txt
 config.json
 price.json
 db.php
+*.exe
