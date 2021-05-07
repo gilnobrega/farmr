@@ -1,6 +1,5 @@
 import 'dart:core';
 
-import 'package:http/http.dart' as http;
 import 'package:mysql1/mysql1.dart' as mysql;
 import 'package:dotenv/dotenv.dart' as dotenv;
 
@@ -17,18 +16,23 @@ Future<void> main(List<String> args) async {
 
   Price price;
 
-  //Gets user data and Price in parallel, since both are parsed from web
-  var async1 = _getUserData(userID);
-  var async2 = _getPrice();
-
-  price = await async2;
-  List<Harvester> harvesters = await async1;
+  List<Harvester> harvesters;
 
   int farmersCount = 0;
   int harvestersCount = 0;
 
   try {
+    //Gets user data and Price in parallel, since both are parsed from web
+    var async1 = _getUserData(userID);
+    var async2 = _getPrice();
 
+    price = await async2;
+    harvesters = await async1;
+  } catch (e) {
+    print("Failed to connect to server.");
+  }
+
+  try {
     if (harvesters.length == 0) throw new Exception("No Harvesters found.");
 
     //Sorts harvesters by newest
@@ -102,12 +106,14 @@ Future<List<Harvester>> _getUserData(String userID) async {
       await conn.query("SELECT data FROM farms WHERE user='${userID}' AND data<>'' AND data<>';;'");
 
   for (var result in results) {
-    String data = result[0];
+    String data = "[" + result[0].toString() + "]";
 
-    if (data.contains('"type":1'))
+    if (data.contains('"type":0'))
       harvesters.add(Farmer.fromJson(data));
-    else if (data.contains('"type":0')) harvesters.add(Harvester.fromJson(data));
+    else if (data.contains('"type":1')) harvesters.add(Harvester.fromJson(data));
   }
+
+  conn.close();
 
   return harvesters;
 }
