@@ -121,16 +121,17 @@ class HarvesterFilters {
     _totalPlots += harvester.totalPlots;
 
     calculateFilterRatio(harvester);
-
     filters.addAll(harvester.filters);
 
-    _numberFilters += harvester.numberFilters;
-    _eligiblePlots += harvester.eligiblePlots;
-    _missedChallenges += harvester.missedChallenges;
-    _proofsFound += harvester.proofsFound;
+    if (harvester.numberFilters > 0) {
+      _numberFilters += harvester.numberFilters;
+      _eligiblePlots += harvester.eligiblePlots;
+      _missedChallenges += harvester.missedChallenges;
+      _proofsFound += harvester.proofsFound;
 
-    _maxTime = Math.max(_maxTime, harvester.maxTime);
-    _minTime = Math.min(_minTime, harvester.minTime);
+      _maxTime = Math.max(_maxTime, harvester.maxTime);
+      _minTime = Math.min(_minTime, harvester.minTime);
+    }
 
     //Can't load standard deviation, average time or median time without a list of filters
     _stdDeviation = 0;
