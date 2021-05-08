@@ -12,8 +12,15 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  deploy:
+    # A strategy is used to define various build environments this job will run.
+    #
+    # To say it simple, this will create 3 separate independent jobs which will
+    # run on ubuntu, mac & windows.
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v2
@@ -35,9 +42,17 @@ jobs:
       - name: Analyze project source
         run: dart analyze
         
-      - name: Compile
-        run: dart compile exe chiabot.dart
-
+      - name: Building Linux release
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+             dart compile exe chiabot.dart
+             mv chiabot.exe chiabot-linux-amd64
+             
+      - name: Building Windows release
+        if: matrix.os == 'windows-latest'
+        run: |
+             dart compile exe chiabot.dart
+             
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -45,6 +60,7 @@ jobs:
           release_name: Release ${{ github.ref }}
           draft: true
           files: |
+            ./chiabot-linux-amd64
             ./chiabot.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
