@@ -42,8 +42,8 @@ jobs:
              mv .github/workflows/config.test .github/workflows/config.yaml
              ./dart-sdk/bin/dart compile exe chiabot.dart
              chmod +x chiabot.exe
-             ./chiabot.exe harvester onetime
              mv chiabot.exe chiabot
+             mv config.json.default config.json
              tar -czvf ./chiabot-linux-arm64.tar.gz ./chiabot ./config.json
         
       - name: Release
@@ -59,7 +59,7 @@ jobs:
             ./chiabot-windows-amd64.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
-  deploy:
+  amd64:
     # A strategy is used to define various build environments this job will run.
     #
     # To say it simple, this will create 3 separate independent jobs which will
@@ -83,11 +83,15 @@ jobs:
           architecture: ${{ matrix.architecture }}
           sdk: stable
 
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Analyze project source
+        run: dart analyze
+
       - name: Building Linux release
         if: matrix.os == 'ubuntu-latest' && matrix.architecture == 'x64'
         run: |
-             dart pub get
-             dart analyze
              mv .github/workflows/config.test .github/workflows/config.yaml
              dart compile exe chiabot.dart
              chmod +x chiabot.exe
@@ -98,8 +102,6 @@ jobs:
       - name: Building macOS release
         if: matrix.os == 'macos-latest' && matrix.architecture == 'x64'
         run: |
-             dart pub get
-             dart analyze
              mv .github/workflows/config.test .github/workflows/config.yaml
              dart compile exe chiabot.dart
              chmod +x chiabot.exe
@@ -110,8 +112,6 @@ jobs:
       - name: Building Windows release
         if: matrix.os == 'windows-latest' && matrix.architecture == 'x64'
         run: |
-             dart pub get
-             dart analyze
              mv .github/workflows/config.test .github/workflows/config.yaml
              dart compile exe chiabot.dart
              ./chiabot.exe harvester onetime
