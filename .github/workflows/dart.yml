@@ -22,7 +22,7 @@ jobs:
       - name: wget
         uses: wei/wget@v1
         with:
-          args: -O dart.zip https://storage.googleapis.com/dart-archive/channels/stable/release/2.12.2/sdk/dartsdk-linux-arm64-release.zip
+          args: -O dart.zip https://storage.googleapis.com/dart-archive/channels/stable/release/2.12.4/sdk/dartsdk-linux-arm64-release.zip
       
       - name: Decompress
         uses: TonyBogdanov/zip@1.0
