@@ -68,7 +68,7 @@ jobs:
              tar -czvf ./chiabot-macOS-${{ matrix.architecture }}.tar.gz ./release/chiabot ./release/config.json
              
       - name: Building Windows release
-        if: matrix.os == 'windows-latest' && matrix.architecture == 'x64'
+        if: matrix.os == 'windows-latest'
         run: |
              mv .github/workflows/config.test .github/workflows/config.yaml
              dart compile exe chiabot.dart
@@ -88,7 +88,8 @@ jobs:
             ./chiabot-linux-x64.tar.gz
             ./chiabot-linux-arm64.tar.gz
             ./chiabot-macOS-x64.tar.gz
-            ./chiabot-windows-x64.exe
+            ./chiabot-windows-x64.zip
+            ./chiabot-windows-arm64.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
           
