@@ -76,7 +76,7 @@ jobs:
              mkdir release
              move chiabot.exe release/chiabot.exe
              move config.json release/config.json
-             tar -czvf ./chiabot-windows-${{ matrix.architecture }}.zip ./release/chiabot ./release/config.json
+             tar -czvf ./chiabot-windows-${{ matrix.architecture }}.zip ./release/chiabot.exe ./release/config.json
         
       - name: Release
         uses: softprops/action-gh-release@v1
