@@ -76,7 +76,7 @@ jobs:
              mkdir release
              move chiabot.exe release/chiabot.exe
              move config.json release/config.json
-             tar.exe -a -c -f chiabot-windows.zip ./release/chiabot.exe ./release/config.json
+             tar -czvf ./chiabot-windows-${{ matrix.architecture }}.zip ./release/chiabot ./release/config.json
         
       - name: Release
         uses: softprops/action-gh-release@v1
@@ -88,7 +88,7 @@ jobs:
             ./chiabot-linux-x64.tar.gz
             ./chiabot-linux-arm64.tar.gz
             ./chiabot-macOS-x64.tar.gz
-            ./chiabot.exe
+            ./chiabot-windows-x64.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
           
