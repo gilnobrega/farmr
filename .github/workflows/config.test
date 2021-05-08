@@ -1,0 +1,3 @@
+harvester:
+  plot_directories:
+  - .github/workflows

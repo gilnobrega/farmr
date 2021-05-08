@@ -17,12 +17,15 @@ final log = Logger('Client');
 
 final Duration delay = Duration(minutes: 10); //10 minutes delay between updates
 
+//test mode for github releases
+String chiaConfigPath = (io.File(".github/workflows/config.yaml").existsSync())
+    ? ".github/workflows/"
 //Sets config file path according to platform
-String chiaConfigPath = (io.Platform.isLinux || io.Platform.isMacOS)
-    ? io.Platform.environment['HOME'] + "/.chia/mainnet/config/"
-    : (io.Platform.isWindows)
-        ? io.Platform.environment['UserProfile'] + "\\.chia\\mainnet\\config\\"
-        : "";
+    : (io.Platform.isLinux || io.Platform.isMacOS)
+        ? io.Platform.environment['HOME'] + "/.chia/mainnet/config/"
+        : (io.Platform.isWindows)
+            ? io.Platform.environment['UserProfile'] + "\\.chia\\mainnet\\config\\"
+            : "";
 
 //Sets config file path according to platform
 String chiaDebugPath = (io.Platform.isLinux || io.Platform.isMacOS)
