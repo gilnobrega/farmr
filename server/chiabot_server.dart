@@ -17,8 +17,7 @@ Future<void> main(List<String> args) async {
   } else if (args[0] == "price") {
     Price price = await _getPrice();
 
-    print("**XCH Exchange Rates**");
-    print("XCH/USD: " + price.price.toStringAsFixed(2));
+    print("XCH/USD: **${price.price.toStringAsFixed(2)}**");
 
     Duration difference =
         DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(price.timestamp));
