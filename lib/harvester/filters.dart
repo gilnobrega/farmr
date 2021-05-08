@@ -135,7 +135,7 @@ class HarvesterFilters {
     for (Filter filter in filters) {
       for (List<double> boundary in boundaries) {
         //if filter is in between category boundaries
-        if (filter.time > boundary[0] && filter.time < boundary[1]) {
+        if (filter.time >= boundary[0] && filter.time < boundary[1]) {
           String key = '${boundary[0]}-${boundary[1]}';
           filterCategories.putIfAbsent(key, () => 0);
           //adds +1 to the count of that key
