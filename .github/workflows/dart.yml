@@ -19,6 +19,16 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       
+      - name: wget
+        uses: wei/wget@v1
+        with:
+          args: -O dart.zip https://storage.googleapis.com/dart-archive/channels/stable/release/2.12.2/sdk/dartsdk-linux-arm64-release.zip
+      
+      - name: Decompress
+        uses: TonyBogdanov/zip@1.0
+        with:
+          args: unzip -qq ./dart.zip -d ./dart-sdk
+          
       - uses: uraimo/run-on-arch-action@v2.0.9
         name: Building Linux Arm release
         id: runcmd
@@ -27,8 +37,7 @@ jobs:
           distro: ubuntu20.04
           if: matrix.arch == 'arm64'
           run: |
-             wget https://storage.googleapis.com/dart-archive/channels/stable/release/2.12.2/sdk/dartsdk-linux-arm64-release.zip -O dart.zip;             
-             unzip dart.zip
+             ls dart-sdk
              dart-sdk/bin/dart pub get
              dart-sdk/bin/dart analyze
              mv .github/workflows/config.test .github/workflows/config.yaml
