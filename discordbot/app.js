@@ -201,6 +201,9 @@ client.on('message', (msg) => {
     else if (command === "chia" && args.length == 1 && args[0] == "workers") {
       runCommand("../server/chiabot_server.exe " + msg.author.id + " workers", msg, true);
     }
+    else if (command === "chia" && args.length == 1 && args[0] == "status") {
+      runCommand("../server/chiabot_server.exe status", msg, true);
+    }
     else if (command === 'chia' && args.length == 1 && args[0] == 'help') {
 
       const embed = new MessageEmbed()

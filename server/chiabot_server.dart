@@ -11,82 +11,87 @@ import 'package:chiabot/price.dart';
 Future<void> main(List<String> args) async {
   dotenv.load();
 
-  //Discord User ID
-  String userID = args[0];
+  //prints chiabot status
+  if (args[0] == "status") {
+    await _getUsers();
+  } else {
+    //Discord User ID
+    String userID = args[0];
 
-  Price price;
+    Price price;
 
-  List<Harvester> harvesters;
+    List<Harvester> harvesters;
 
-  int farmersCount = 0;
-  int harvestersCount = 0;
+    int farmersCount = 0;
+    int harvestersCount = 0;
 
-  try {
-    //Gets user data and Price in parallel, since both are parsed from web
-    final async1 = _getUserData(userID);
-    final async2 = _getPrice();
+    try {
+      //Gets user data and Price in parallel, since both are parsed from web
+      final async1 = _getUserData(userID);
+      final async2 = _getPrice();
 
-    harvesters = await async1;
-    price = await async2;
-  } catch (e) {
-    print("Failed to connect to server.");
-  }
-
-  try {
-    if (harvesters.length == 0) throw new Exception("No Harvesters found.");
-
-    //Sorts harvesters by newest
-    harvesters.sort((client2, client1) => (client1.lastUpdated.millisecondsSinceEpoch
-        .compareTo(client2.lastUpdated.millisecondsSinceEpoch)));
-
-    Farmer farm =
-        harvesters.where((client) => client is Farmer).first; //Selects newest farm as main farm
-    String networkSize = farm.networkSize;
-
-    harvestersCount = harvesters.where((client) => !(client is Farmer)).length;
-    farmersCount = harvesters.length - harvestersCount;
-
-    if (args.contains("workers")) {
-      //Sorts workers by alphabetical order
-      harvesters.sort((harvester1, harvester2) => harvester1.name.compareTo(harvester2.name));
-
-      //Sorts workers by farmer/harvester type
-      harvesters.sort((client1, client2) => client1.type.index.compareTo(client2.type.index));
-
-      for (Harvester harvester in harvesters) {
-        harvester.filterDuplicates(false);
-        harvester.sortPlots();
-
-        showHarvester(harvester, harvestersCount, farmersCount, networkSize, args.contains("full"),
-            args.contains("workers"), price.price);
-
-        print(';;');
-      }
-    } else {
-      //Sorts harvesters by farmer/harvester type
-      harvesters.sort((client1, client2) => client1.type.index.compareTo(client2.type.index));
-
-      farm.filterDuplicates(false);
-      farm.sortPlots();
-
-      harvesters.remove(farm);
-
-      for (Harvester harvester in harvesters) {
-        farm.addHarvester(harvester);
-      }
-
-      showHarvester(farm, harvestersCount, farmersCount, networkSize, args.contains("full"),
-          args.contains("workers"), price.price);
+      harvesters = await async1;
+      price = await async2;
+    } catch (e) {
+      print("Failed to connect to server.");
     }
-  } catch (Exception) {
-    if (farmersCount == 0)
-      print("Error: Farmer not found.");
-    else if (harvesters.length > 0)
-      print("Error: ${farmersCount} farmers and ${harvestersCount} harvesters found.");
-    else
-      print("No clients found!");
 
-    //print("${userID} - Exception: ${Exception.toString()}");
+    try {
+      if (harvesters.length == 0) throw new Exception("No Harvesters found.");
+
+      //Sorts harvesters by newest
+      harvesters.sort((client2, client1) => (client1.lastUpdated.millisecondsSinceEpoch
+          .compareTo(client2.lastUpdated.millisecondsSinceEpoch)));
+
+      Farmer farm =
+          harvesters.where((client) => client is Farmer).first; //Selects newest farm as main farm
+      String networkSize = farm.networkSize;
+
+      harvestersCount = harvesters.where((client) => !(client is Farmer)).length;
+      farmersCount = harvesters.length - harvestersCount;
+
+      if (args.contains("workers")) {
+        //Sorts workers by alphabetical order
+        harvesters.sort((harvester1, harvester2) => harvester1.name.compareTo(harvester2.name));
+
+        //Sorts workers by farmer/harvester type
+        harvesters.sort((client1, client2) => client1.type.index.compareTo(client2.type.index));
+
+        for (Harvester harvester in harvesters) {
+          harvester.filterDuplicates(false);
+          harvester.sortPlots();
+
+          showHarvester(harvester, harvestersCount, farmersCount, networkSize,
+              args.contains("full"), args.contains("workers"), price.price);
+
+          print(';;');
+        }
+      } else {
+        //Sorts harvesters by farmer/harvester type
+        harvesters.sort((client1, client2) => client1.type.index.compareTo(client2.type.index));
+
+        farm.filterDuplicates(false);
+        farm.sortPlots();
+
+        harvesters.remove(farm);
+
+        for (Harvester harvester in harvesters) {
+          farm.addHarvester(harvester);
+        }
+
+        showHarvester(farm, harvestersCount, farmersCount, networkSize, args.contains("full"),
+            args.contains("workers"), price.price);
+      }
+    } catch (Exception) {
+      if (farmersCount == 0)
+        print("Error: Farmer not found.");
+      else if (harvesters.length > 0)
+        print("Error: ${farmersCount} farmers and ${harvestersCount} harvesters found.");
+      else
+        print("No clients found!");
+
+      //print("${userID} - Exception: ${Exception.toString()}");
+    }
   }
 }
 
@@ -117,6 +122,27 @@ Future<List<Harvester>> _getUserData(String userID) async {
   conn.close();
 
   return harvesters;
+}
+
+//gets harvesters linked to user from mysql db
+void _getUsers() async {
+  var settings = new mysql.ConnectionSettings(
+      host: 'localhost',
+      port: 3306,
+      user: dotenv.env['MYSQL_USER'],
+      password: dotenv.env['MYSQL_PASSWORD'],
+      db: 'chiabot');
+  var conn = await mysql.MySqlConnection.connect(settings);
+
+  int users = (await conn.query(
+          "SELECT user FROM farms WHERE data<>'' AND data<>';' AND user<>'none' group by user"))
+      .length;
+
+  int devices = (await conn.query("SELECT id FROM farms WHERE data<>'' AND data<>';'")).length;
+
+  conn.close();
+
+  print("${users} active users and ${devices} active devices");
 }
 
 //get price in an isolate
