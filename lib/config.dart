@@ -240,7 +240,9 @@ class Config {
 
     String line = "";
 
-    for (int i = 0; i < console.windowWidth; i++) line += "=";
+    try {
+      for (int i = 0; i < console.windowWidth; i++) line += "=";
+    } catch (e) {}
 
     print(line);
     log.warning("Your id is " + cache.id + ", run");
