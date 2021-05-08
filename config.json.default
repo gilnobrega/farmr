@@ -2,6 +2,7 @@
     {
         "name": null,
         "showBalance": true,
+        "showWalletBalance": false,
         "sendBalanceNotifications": true,
         "sendPlotNotifications": false,
         "sendOfflineNotifications": false,
