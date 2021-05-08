@@ -70,8 +70,9 @@ class Config {
     else
       _loadConfig(); //chiabot.json
 
-    //and asks for bin path if path is not defined/not found
-    if (cache.binPath == null || !io.File(cache.binPath).existsSync()) await _askForBinPath();
+    //and asks for bin path if path is not defined/not found and is Farmer
+    if (type == ClientType.Farmer &&
+        (cache.binPath == null || !io.File(cache.binPath).existsSync())) await _askForBinPath();
 
     _info(); //shows first screen info with qr code, id, !chia, etc.
   }
