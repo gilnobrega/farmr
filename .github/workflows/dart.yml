@@ -1,0 +1,77 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: chiabot
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    # A strategy is used to define various build environments this job will run.
+    #
+    # To say it simple, this will create 3 separate independent jobs which will
+    # run on ubuntu, mac & windows.
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        architecture: [x64, arm64]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      # Note: This workflow uses the latest stable version of the Dart SDK.
+      # You can specify other versions if desired, see documentation here:
+      # https://github.com/dart-lang/setup-dart/blob/main/README.md
+      # - uses: dart-lang/setup-dart@v1
+      - uses: dart-lang/setup-dart@9a04e6d73cca37bd455e0608d7e5092f881fd603
+
+      - name: Install dependencies
+        run: dart pub get
+
+      # Uncomment this step to verify the use of 'dart format' on each commit.
+      # - name: Verify formatting
+      #   run: dart format --output=none --set-exit-if-changed .
+
+      # Consider passing '--fatal-infos' for slightly stricter analysis.
+      - name: Analyze project source
+        run: dart analyze
+        
+      - name: Building Linux release
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+             dart compile exe chiabot.dart
+             mv chiabot.exe chiabot-linux-${{ matrix.architecture }}
+        
+      - name: Building macOS release
+        if: matrix.os == 'macos-latest' && matrix.architecture == 'x64'
+        run: |
+             dart compile exe chiabot.dart
+             mv chiabot.exe chiabot-macos-x64
+             
+      - name: Building Windows release
+        if: matrix.os == 'windows-latest' && matrix.architecture == 'x64'
+        run: |
+             dart compile exe chiabot.dart
+             
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: true
+          files: |
+            ./chiabot-linux-x64
+            ./chiabot-linux-arm64
+            ./chiabot-macOS-x64
+            ./chiabot.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
+          
+          
