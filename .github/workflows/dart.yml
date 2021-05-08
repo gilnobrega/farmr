@@ -21,6 +21,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         architecture: [x64, arm64]
+        
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -31,6 +32,9 @@ jobs:
       # https://github.com/dart-lang/setup-dart/blob/main/README.md
       # - uses: dart-lang/setup-dart@v1
       - uses: dart-lang/setup-dart@9a04e6d73cca37bd455e0608d7e5092f881fd603
+        with:
+          architecture: ${{ matrix.architecture }}
+          sdk: stable
 
       - name: Install dependencies
         run: dart pub get
