@@ -82,10 +82,8 @@ ChiaBot will save your id in its cache file (``.chiabot_cache.json``), so you on
 If your device was linked sucessfully, you may use `` !chia `` to see your farm summary, or `` !chia full `` to display additional statistics about it and `` !chia workers `` to show them per farmer/harvester.
 To see the full list of commands you can use, type: `` !chia help ``
 
-Please note that on Windows, you **must not close** ``run.bat`` or ``run_harvester.bat`` as doing that will kill the client. If you do so, open it again.
-
-On Linux it is safe to close ``run.sh``, as it runs it in background and reopening will reattach to the client's process.
-Press ``ctrl+c`` when you want to close the client. You must reopen ``run.sh`` after restarting your computer.
+You **must not close its window** as doing that will kill the client. If you do so, open it again.
+Press ``ctrl+c`` when you want to close the client. You must reopen it after restarting your computer.
 
 ### Configuration
 ChiaBot stores your current configuration in ``config.json``
