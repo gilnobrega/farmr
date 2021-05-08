@@ -42,9 +42,6 @@ jobs:
       # Consider passing '--fatal-infos' for slightly stricter analysis.
       - name: Analyze project source
         run: dart analyze
-      
-      - name: Install zip
-        uses: montudor/action-zip@v1
         
       - name: Building Linux release
         if: matrix.os == 'ubuntu-latest'
@@ -79,7 +76,7 @@ jobs:
              mkdir release
              move chiabot.exe release/chiabot.exe
              move config.json release/config.json
-             zip -qq -r chiabot-windows.zip ./release/chiabot.exe ./release/config.json
+             tar.exe -a -c -f chiabot-windows.zip ./release/chiabot.exe ./release/config.json
         
       - name: Release
         uses: softprops/action-gh-release@v1
