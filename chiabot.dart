@@ -39,8 +39,10 @@ main(List<String> args) async {
     io.exit(0);
   });
 
+  //launches client in onetime mode, where it runs one time and doesnt loop
+  bool onetime = args.contains("onetime");
   //launches client in standalone mode where it doesnt send info to server
-  bool standalone = args.contains("standalone") || args.contains("offline");
+  bool standalone = onetime || args.contains("standalone") || args.contains("offline");
 
   Cache cache = new Cache(chiaConfigPath);
   cache.init();
@@ -51,7 +53,9 @@ main(List<String> args) async {
 
   await config.init();
 
-  while (true) {
+  int counter = 1;
+
+  while (!onetime || counter == 1) {
     String lastPlotID = "";
     String balance = "";
     String status = "";
@@ -61,7 +65,7 @@ main(List<String> args) async {
     try {
       clearLog(); //clears log
 
-      log.info("Generating new report");
+      log.info("Generating new report #${counter}");
 
       cache.init(config.parseLogs);
       Log chiaLog = new Log(chiaDebugPath, cache, config.parseLogs);
@@ -155,8 +159,12 @@ main(List<String> args) async {
       }
     }
 
-    await Future.delayed(delay);
+    counter += 1;
+
+    if (!onetime) await Future.delayed(delay);
   }
+
+  io.exit(0);
 }
 
 void clearLog() {
