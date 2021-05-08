@@ -22,7 +22,7 @@ Proceed with the following platform-specific instructions:
 
 #### Windows
 - If you're setting up a **farmer/full-node**
-   1. Download ``chiabot-windows-amd64.exe`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and move it to an **empty**.
+   1. Download ``chiabot-windows-amd64.exe`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and move it to an **empty** folder.
    2. Open ``chiabot-windows-amd64.exe``, once you see the main screen with your id and farmer stats you're good to go.
 
 - If you're setting up a **harvester**
@@ -73,10 +73,9 @@ ChiaBot will generate an id for your device. You can link this device to your di
 ChiaBot will save your id in its cache file (``.chiabot_cache.json``), so you only need to run this command once per device.
 
 ### Upgrading
-To upgrade, download this repository again and replace the previous files. 
-If you're on Windows, there's no need to run `` install.bat ``.
-You will need to reconfigure ``config.json`` with your chosen settings.
-You may keep ``.chiabot_cache.json`` file which stores your device's id so you don't have to link it again.
+To upgrade, repeat [Installation](#installation) instructions again with the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest).
+If you wish to keep its settings, move ``config.json`` from the previous installation folder to the new folder.
+Similarly, you may keep the previous cache file by doing the same with ``.chiabot_cache.json``. This file is hidden in Linux/macOS.
 
 ## Usage
 If your device was linked sucessfully, you may use `` !chia `` to see your farm summary, or `` !chia full `` to display additional statistics about it and `` !chia workers `` to show them per farmer/harvester.
