@@ -102,6 +102,7 @@ main(List<String> args) async {
       log.severe(exception.toString());
       log.info("Config:\n${config}\n");
       log.info("Cache:\n${cache}");
+      if (onetime) io.exit(1);
     }
 
     if (!standalone) {
