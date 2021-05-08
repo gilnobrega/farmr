@@ -98,7 +98,7 @@ class HarvesterFilters {
 
       //loads filterCategories map
       if (json['filterCategories'] != null)
-        _filterCategories = Map<String,int>.from(json['filterCategories']);
+        _filterCategories = Map<String, int>.from(json['filterCategories']);
     }
   }
 
@@ -172,6 +172,13 @@ class HarvesterFilters {
 
       _maxTime = Math.max(_maxTime, harvester.maxTime);
       _minTime = Math.min(_minTime, harvester.minTime);
+
+      if (harvester.filterCategories.isNotEmpty) {
+        for (var entry in harvester.filterCategories.entries) {
+          this.filterCategories.putIfAbsent(entry.key, () => 0);
+          this.filterCategories.update(entry.key, (value) => value + entry.value);
+        }
+      }
     }
 
     //Can't load standard deviation, average time or median time without a list of filters
