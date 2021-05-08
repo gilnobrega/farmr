@@ -315,7 +315,7 @@ class Stats {
           lines.add("${entry.key}s: ${entry.value} filters (${percentageString}%)" + newline);
         }
 
-        //if total percentage doesnt add up to 100 then it assumes its missing filters with 0s
+        //if total percentage doesnt add up to 100% then it assumes its missing filters with 0s
         //NASTY FIX FOR OLD CLIENTS WITH 0.0000s bug (only affects windows afaik)
         if (totalPercentage < 99) {
           int firstCategory =
@@ -323,7 +323,8 @@ class Stats {
           double percentage = 100 * (firstCategory / harvester.numberFilters);
           String percentageString = percentage.toStringAsPrecision(3);
 
-          lines.first = "${list.first.key}s: ${firstCategory} filters (${percentageString}%)";
+          String newline = (list.last.key != list.first.key) ? '\n' : '';
+          lines.first = "${list.first.key}s: ${firstCategory} filters (${percentageString}%)" + newline;
         }
 
         for (String line in lines) output += line;
