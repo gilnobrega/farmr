@@ -39,7 +39,6 @@ jobs:
           run: |
              ls
              ./dart-sdk/bin/dart pub get
-             ./dart-sdk/bin/dart analyze
              mv .github/workflows/config.test .github/workflows/config.yaml
              ./dart-sdk/bin/dart compile exe chiabot.dart
              chmod +x chiabot.exe
