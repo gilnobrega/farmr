@@ -128,7 +128,11 @@ class Farmer extends Harvester {
       }
     }
 
-    if (object['walletBalance'] != null) _walletBalance = object['walletBalance'];
+    if (object['walletBalance'] != null)
+      _walletBalance = object['walletBalance'];
+    else
+      _walletBalance = -1.0;
+      
     if (object['completeSubSlots'] != null) _completeSubSlots = object['completeSubSlots'];
     if (object['looseSignagePoints'] != null) _looseSignagePoints = object['looseSignagePoints'];
 
