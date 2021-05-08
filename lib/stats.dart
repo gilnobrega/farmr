@@ -58,17 +58,19 @@ class Stats {
 
   static String showETWEDV(Harvester client, String networkSize, double price) {
     String output = '';
-
     double etw = estimateETW(client, networkSize);
-    String etwString = "\n:moneybag: ETW: ${etw.toStringAsFixed(1)} days";
-    if (price > 0) {
-      final double blockSize = 2.0;
-      double XCHPerDay = blockSize / etw;
-      double epd = estimateEDV(etw, price);
-      etwString += " EDV: ${XCHPerDay.toStringAsPrecision(3)} XCH (${epd.toStringAsFixed(2)}\$)";
-    }
 
-    output += etwString;
+    if (etw > 0) {
+      String etwString = "\n:moneybag: ETW: ${etw.toStringAsFixed(1)} days";
+      if (price > 0) {
+        final double blockSize = 2.0;
+        double XCHPerDay = blockSize / etw;
+        double epd = estimateEDV(etw, price);
+        etwString += " EDV: ${XCHPerDay.toStringAsPrecision(3)} XCH (${epd.toStringAsFixed(2)}\$)";
+      }
+
+      output += etwString;
+    }
 
     return output;
   }
@@ -87,7 +89,7 @@ class Stats {
           ? (ratio * 100).toStringAsFixed(0) + "% below Ø"
           : (-ratio * 100).toStringAsFixed(0) + "% above Ø";
 
-      output += "\n\n:hourglass: Last plot length: **" +
+      output += "\n:hourglass: Last plot length: **" +
           durationToTime(plot.duration) +
           "** " +
           "(" +
@@ -132,6 +134,35 @@ class Stats {
 
       output += "\n:clock10: Farmed for " + durationToTime(farmedTime) + " " + chiaPerDayString;
     }
+    return output;
+  }
+
+  //Counts types of plots, k32, k33, etc.
+  static String showPlotTypes(Harvester client) {
+    String output = '';
+    List<Plot> plots = client.plots;
+
+    if (plots.length > 0) {
+      output += '\n\nTypes: ';
+
+      //creates a map with the following structure { 'k32' : 3, 'k33' : 2 } etc.
+      Map<String, int> typeCount = {};
+
+      for (Plot plot in plots) {
+        String type = plot.plotSize;
+        if (type.startsWith("k")) {
+          typeCount.putIfAbsent(type, () => 0);
+          typeCount.update(type, (value) => value + 1);
+        }
+      }
+
+      for (var type in typeCount.entries) {
+        //adds comma if not the last key
+        String comma = (typeCount.entries.last.key != type.key) ? ', ' : '';
+        output += "${type.value} ${type.key} plots" + comma;
+      }
+    }
+
     return output;
   }
 

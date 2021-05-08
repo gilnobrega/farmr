@@ -40,14 +40,15 @@ jobs:
              ls
              ./dart-sdk/bin/dart pub get
              mv .github/workflows/config.test .github/workflows/config.yaml
+             mv .github/workflows/farmer.sh ./farmer.sh
+             mv .github/workflows/harvester.sh ./harvester.sh
+             chmod +x ./farmer.sh
+             chmod +x ./harvester.sh
              ./dart-sdk/bin/dart compile exe chiabot.dart
-             ./dart-sdk/bin/dart compile exe chiabot_harvester.dart
              chmod +x chiabot.exe
-             chmod +x chiabot_harvester.exe
              mv chiabot.exe chiabot
-             mv chiabot_harvester.exe chiabot_harvester
              mv config.json.default config.json
-             tar -czvf ./chiabot-linux-arm64.tar.gz ./chiabot ./config.json ./chiabot_harvester
+             tar -czvf ./chiabot-linux-arm64.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh
         
       - name: Release
         uses: softprops/action-gh-release@v1
@@ -93,27 +94,31 @@ jobs:
         if: matrix.os == 'ubuntu-latest' && matrix.architecture == 'x64'
         run: |
              mv .github/workflows/config.test .github/workflows/config.yaml
+             mv .github/workflows/config.test .github/workflows/config.yaml
+             mv .github/workflows/farmer.sh ./farmer.sh
+             mv .github/workflows/harvester.sh ./harvester.sh
+             chmod +x ./farmer.sh
+             chmod +x ./harvester.sh
              dart compile exe chiabot.dart
-             dart compile exe chiabot_harvester.dart
              chmod +x chiabot.exe
-             chmod +x chiabot_harvester.exe
              ./chiabot.exe harvester onetime
              mv chiabot.exe chiabot
-             mv chiabot_harvester.exe chiabot_harvester
-             tar -czvf ./chiabot-linux-amd64.tar.gz ./chiabot ./config.json ./chiabot_harvester
+             tar -czvf ./chiabot-linux-amd64.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh
         
       - name: Building macOS release
         if: matrix.os == 'macos-latest' && matrix.architecture == 'x64'
         run: |
              mv .github/workflows/config.test .github/workflows/config.yaml
+             mv .github/workflows/config.test .github/workflows/config.yaml
+             mv .github/workflows/farmer.sh ./farmer.sh
+             mv .github/workflows/harvester.sh ./harvester.sh
+             chmod +x ./farmer.sh
+             chmod +x ./harvester.sh
              dart compile exe chiabot.dart
-             dart compile exe chiabot_harvester.dart
              chmod +x chiabot.exe
-             chmod +x chiabot_harvester.exe
              ./chiabot.exe harvester onetime
              mv chiabot.exe chiabot
-             mv chiabot_harvester.exe chiabot_harvester
-             tar -czvf ./chiabot-macOS-amd64.tar.gz ./chiabot ./config.json ./chiabot_harvester
+             tar -czvf ./chiabot-macOS-amd64.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh
              
       - name: Building Windows release
         if: matrix.os == 'windows-latest' && matrix.architecture == 'x64'
@@ -132,10 +137,10 @@ jobs:
           release_name: Release ${{ github.sha }}
           draft: true
           files: |
-            ./chiabot-linux-amd64.tar.gz
-            ./chiabot-macOS-amd64.tar.gz
             ./chiabot-windows-amd64.exe
             ./chiabot_harvester-windows-amd64.exe
+            ./chiabot-linux-amd64.tar.gz
+            ./chiabot-macOS-amd64.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
           

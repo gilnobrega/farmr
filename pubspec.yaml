@@ -1,5 +1,5 @@
 name: chiabot
-version: 1.2.2
+version: 1.2.3
 description: 
 environment: 
   sdk: '>=2.10.0 < 3.0.0'
