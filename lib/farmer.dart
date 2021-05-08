@@ -14,8 +14,13 @@ class Farmer extends Harvester {
   String _status;
   String get status => _status;
 
+  //Farmed balance
   double _balance = 0;
   double get balance => _balance; //hides balance if string
+
+  //wallet balance
+  double _walletBalance = 0;
+  double get walletBalance => _walletBalance; //hides balance if string
 
   String _networkSize = "0";
   String get networkSize => _networkSize;
@@ -36,7 +41,8 @@ class Farmer extends Harvester {
   Map toJson() => {
         'name': name,
         'status': status,
-        'balance': balance,
+        'balance': balance, //farmed balance
+        'walletBalance': walletBalance, //wallet balance
         'networkSize': networkSize,
         'plots': allPlots, //important
         'totalDiskSpace': totalDiskSpace,
@@ -79,10 +85,29 @@ class Farmer extends Harvester {
       print("Error parsing Farm info.");
     }
 
+    //If user enabled showWalletBalance then parses ``chia wallet show``
+    if (config.showWalletBalance) {
+      parseWalletBalance(config);
+    } else
+      _walletBalance = -1.0; //sets wallet balance to -1.0 if its disabled by user
+
     //Parses logs for sub slots info
     if (config.parseLogs) {
       log.loadSignagePoints();
       calculateSubSlots(log);
+    }
+  }
+
+  void parseWalletBalance(Config config) {
+    try {
+      var walletOutput =
+          io.Process.runSync(config.cache.binPath, ["wallet", "show"]).stdout.toString();
+
+      RegExp walletRegex = RegExp("-Total Balance: ([0-9\\.]+)", multiLine: false);
+
+      _walletBalance = double.parse(walletRegex.firstMatch(walletOutput).group(1));
+    } catch (e) {
+      log.warning("Error: could not parse wallet balance.");
     }
   }
 
@@ -103,6 +128,7 @@ class Farmer extends Harvester {
       }
     }
 
+    if (object['walletBalance'] != null) _walletBalance = object['walletBalance'];
     if (object['completeSubSlots'] != null) _completeSubSlots = object['completeSubSlots'];
     if (object['looseSignagePoints'] != null) _looseSignagePoints = object['looseSignagePoints'];
 

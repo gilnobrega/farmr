@@ -23,8 +23,13 @@ class Config {
   String _chiaPath;
   String get chiaPath => _chiaPath;
 
+  //farmed balance
   bool _showBalance = true;
   bool get showBalance => _showBalance;
+
+  //wallet balance
+  bool _showWalletBalance = false;
+  bool get showWalletBalance => _showWalletBalance;
 
   bool _sendPlotNotifications = false; //plot notifications
   bool get sendPlotNotifications => _sendPlotNotifications;
@@ -84,6 +89,7 @@ class Config {
       {
         "name": name,
         "showBalance": showBalance,
+        "showWalletBalance": showWalletBalance,
         "sendBalanceNotifications": sendBalanceNotifications,
         "sendPlotNotifications": sendPlotNotifications,
         "sendOfflineNotifications": sendOfflineNotifications,
@@ -211,6 +217,7 @@ class Config {
     if (contents[0]['binPath'] != null) cache.binPath = contents[0]['binPath'];
 
     if (contents[0]['showBalance'] != null) _showBalance = contents[0]['showBalance'];
+    if (contents[0]['showWalletBalance'] != null) _showWalletBalance = contents[0]['showWalletBalance'];
 
     if (contents[0]['sendPlotNotifications'] != null)
       _sendPlotNotifications = contents[0]['sendPlotNotifications'];

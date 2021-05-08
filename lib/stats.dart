@@ -45,10 +45,24 @@ class Stats {
     double balanceUSD = balance * price;
 
     String balanceText = '';
-    String priceText = (price > 0) ? " (" + balanceUSD.toStringAsFixed(2) + " USD)" : '';
+
+    double walletBalance = (client is Farmer) ? client.walletBalance : -1.0;
+    double walletBalanceUSD = walletBalance * price;
+
+    String walletBalanceText =
+        (client is Farmer && walletBalance >= 0.0 && client.walletBalance != client.balance)
+            ? "/${client.walletBalance}"
+            : '';
+    String walletPriceText =
+        (price > 0 && walletBalanceText != '') ? "/${walletBalanceUSD.toStringAsFixed(2)}" : '';
+
+    String priceText =
+        (price > 0) ? " (${balanceUSD.toStringAsFixed(2)}${walletPriceText} USD)" : '';
+
+    String info = (walletBalanceText != '') ? ' (farmed/in wallet)' : '';
 
     balanceText += (balance >= 0.0)
-        ? "\n\<:chia:833767070201151528> **${balance} XCH**" + priceText
+        ? "\n\<:chia:833767070201151528> **${balance}**${walletBalanceText} **XCH**" + priceText + info
         : ''; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
 
     output += balanceText;
@@ -324,7 +338,8 @@ class Stats {
           String percentageString = percentage.toStringAsPrecision(3);
 
           String newline = (list.last.key != list.first.key) ? '\n' : '';
-          lines.first = "${list.first.key}s: ${firstCategory} filters (${percentageString}%)" + newline;
+          lines.first =
+              "${list.first.key}s: ${firstCategory} filters (${percentageString}%)" + newline;
         }
 
         for (String line in lines) output += line;
