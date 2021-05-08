@@ -14,6 +14,19 @@ Future<void> main(List<String> args) async {
   //prints chiabot status
   if (args[0] == "status") {
     await _getUsers();
+  } else if (args[0] == "price") {
+    Price price = await _getPrice();
+
+    print("**XCH Exchange Rates**");
+    print("XCH/USD: " + price.price.toStringAsFixed(2));
+
+    Duration difference =
+        DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(price.timestamp));
+
+    if (difference.inMinutes > 0)
+      print("-- last updated ${difference.inMinutes} minutes ago");
+    else
+      print("-- last updated ${difference.inSeconds} seconds ago");
   } else {
     //Discord User ID
     String userID = args[0];

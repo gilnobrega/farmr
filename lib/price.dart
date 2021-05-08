@@ -35,7 +35,7 @@ class Price {
     var json = jsonDecode(_cacheFile.readAsStringSync());
     Price previousPrice = Price.fromJson(json);
 
-    //if last time price was parsed from api was longer than 5 minutes ago
+    //if last time price was parsed from api was longer than 1 minute ago
     //then parses new price from api
     if (previousPrice.timestamp < _untilTimeStamp) {
       await _getPriceFromApi();

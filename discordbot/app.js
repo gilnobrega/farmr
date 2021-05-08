@@ -204,6 +204,9 @@ client.on('message', (msg) => {
     else if (command === "chia" && args.length == 1 && args[0] == "status") {
       runCommand("../server/chiabot_server.exe status", msg, true);
     }
+    else if (command === "chia" && args.length == 1 && args[0] == "price") {
+      runCommand("../server/chiabot_server.exe price", msg, true);
+    }
     else if (command === 'chia' && args.length == 1 && args[0] == 'help') {
 
       const embed = new MessageEmbed()
@@ -253,10 +256,6 @@ client.on('message', (msg) => {
           setTimeout(() => sentmsg.delete(), minsTimeout * 60 * 1000);
         }
       });
-    }
-    else if (command === "chia" && args.length==1 && args[0] == "price")
-    {
-      chiaPrice(msg);
     }
 
     //If no block number is specified then it uses flexpool api to find the latest block's number (even if it's unconfirmed)
