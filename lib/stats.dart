@@ -297,8 +297,10 @@ class Stats {
         output += '\n';
         for (var entry in harvester.filterCategories.entries) {
           //adds comma if not the last key
+          double percentage = 100 * (entry.value / harvester.numberFilters);
+          String percentageString = percentage.toStringAsPrecision(3);
           String comma = (harvester.filterCategories.entries.last.key != entry.key) ? ', ' : '';
-          output += "${entry.key}s: ${entry.value} filters" + comma;
+          output += "${entry.key}s: ${entry.value} filters (${percentageString}%)" + comma;
         }
       }
     }

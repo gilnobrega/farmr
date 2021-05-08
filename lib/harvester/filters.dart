@@ -1,5 +1,4 @@
 import 'dart:math' as Math;
-import 'dart:convert';
 
 import 'package:chiabot/log/filter.dart';
 import 'package:chiabot/debug.dart';
@@ -10,7 +9,7 @@ import 'package:stats/stats.dart';
 class HarvesterFilters {
   //Deprecated
   List<Filter> filters = [];
-  final List<double> _timeCategories = [0, 5, 10, 15, 20, 25, 30];
+  final List<double> _timeCategories = [0, 0.25, 0.5, 1, 5, 10, 15, 20, 25, 30];
 
   int _numberFilters = 0;
   int get numberFilters => _numberFilters;
