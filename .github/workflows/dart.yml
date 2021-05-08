@@ -11,39 +11,8 @@ on:
   pull_request:
     branches: [ main ]
 
-jobs:
-  arm64:
-    runs-on: ubuntu-latest
-    steps: 
-    
-      - uses: dart-lang/setup-dart@v1
-        with:
-          architecture: ${{ matrix.architecture }}
-          sdk: stable
-
-      - name: Install dependencies
-        run: dart pub get
-
-      # Uncomment this step to verify the use of 'dart format' on each commit.
-      # - name: Verify formatting
-      #   run: dart format --output=none --set-exit-if-changed .
-
-      # Consider passing '--fatal-infos' for slightly stricter analysis.
-      - name: Analyze project source
-        run: dart analyze
-          
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: Release ${{ github.sha }}
-          release_name: Release ${{ github.sha }}
-          draft: true
-          files: |
-            ./chiabot-linux-arm64.tar.gz
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
-          
-  amd64:
+jobs:  
+  deploy:
     # A strategy is used to define various build environments this job will run.
     #
     # To say it simple, this will create 3 separate independent jobs which will
@@ -89,10 +58,8 @@ jobs:
              tar -czvf ./chiabot-linux-amd64.tar.gz ./chiabot ./config.json
              
        
-      - name: Building Linux Arm release
-
       - uses: uraimo/run-on-arch-action@v2.0.9
-        name: Run commands
+        name: Building Linux Arm release
         id: runcmd
         with:
           arch: aarch64
