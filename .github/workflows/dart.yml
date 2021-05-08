@@ -15,13 +15,7 @@ jobs:
   arm64:
     runs-on: ubuntu-latest
     steps: 
-      - uses: uraimo/run-on-arch-action@v2.0.9
-        name: Run commands
-        id: runcmd
-        with:
-          arch: aarch64
-          distro: ubuntu20.04
-          
+    
       - uses: dart-lang/setup-dart@v1
         with:
           architecture: ${{ matrix.architecture }}
@@ -38,16 +32,6 @@ jobs:
       - name: Analyze project source
         run: dart analyze
           
-      - name: Building Linux release
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-             mv .github/workflows/config.test .github/workflows/config.yaml
-             dart compile exe chiabot.dart
-             chmod +x chiabot.exe
-             ./chiabot.exe harvester onetime
-             mv chiabot.exe chiabot
-             tar -czvf ./chiabot-linux-arm64.tar.gz ./chiabot ./config.json
-             
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -67,7 +51,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        architecture: [x64]
+        architecture: [x64, arm64]
         
     runs-on: ${{ matrix.os }}
 
@@ -95,7 +79,7 @@ jobs:
         run: dart analyze
         
       - name: Building Linux release
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest' && matrix.architecture == 'x64'
         run: |
              mv .github/workflows/config.test .github/workflows/config.yaml
              dart compile exe chiabot.dart
@@ -103,9 +87,27 @@ jobs:
              ./chiabot.exe harvester onetime
              mv chiabot.exe chiabot
              tar -czvf ./chiabot-linux-amd64.tar.gz ./chiabot ./config.json
+             
+       
+      - name: Building Linux Arm release
+
+      - uses: uraimo/run-on-arch-action@v2.0.9
+        name: Run commands
+        id: runcmd
+        with:
+          arch: aarch64
+          distro: ubuntu20.04
+          if: matrix.arch == 'arm64'
+          run: |
+             mv .github/workflows/config.test .github/workflows/config.yaml
+             dart compile exe chiabot.dart
+             chmod +x chiabot.exe
+             ./chiabot.exe harvester onetime
+             mv chiabot.exe chiabot
+             tar -czvf ./chiabot-linux-arm64.tar.gz ./chiabot ./config.json
         
       - name: Building macOS release
-        if: matrix.os == 'macos-latest'
+        if: matrix.os == 'macos-latest' && matrix.architecture == 'x64'
         run: |
              mv .github/workflows/config.test .github/workflows/config.yaml
              dart compile exe chiabot.dart
@@ -115,12 +117,12 @@ jobs:
              tar -czvf ./chiabot-macOS-amd64.tar.gz ./chiabot ./config.json
              
       - name: Building Windows release
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-latest' && matrix.architecture == 'x64'
         run: |
              mv .github/workflows/config.test .github/workflows/config.yaml
              dart compile exe chiabot.dart
              ./chiabot.exe harvester onetime
-             tar -czvf ./chiabot-windows-amd64.zip ./chiabot.exe ./config.json
+             move chiabot.exe chiabot-windows-amd64.exe
         
       - name: Release
         uses: softprops/action-gh-release@v1
@@ -130,8 +132,9 @@ jobs:
           draft: true
           files: |
             ./chiabot-linux-amd64.tar.gz
+            ./chiabot-linux-arm64.tar.gz
             ./chiabot-macOS-amd64.tar.gz
-            ./chiabot-windows-amd64.zip
+            ./chiabot-windows-amd64.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
           
