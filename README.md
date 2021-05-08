@@ -18,36 +18,59 @@ The ChiaBot client is available for Windows, Linux and macOS. You can interact w
 |![challenges](https://i.imgur.com/PpmlJj6_d.webp?maxwidth=450&fidelity=grand)|![fullnode](https://i.imgur.com/R1OOemY_d.webp?maxwidth=450&fidelity=grand)|
 
 ## Installation 
-Download this repository, then proceed with the following platform-specific instructions:
+Proceed with the following platform-specific instructions:
 
 #### Windows
-1. Open `` install.bat `` as an **administrator**
-2. As a regular user, open 
-   - `` run.bat `` if you're setting up your farmer (main machine) 
-   - `` run_harvester.bat `` if it's a harvester.
+- If you're setting up a **farmer/full-node**
+   1. Download ``chiabot-windows-amd64.exe`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and move it to an **empty** folder.
+   2. Open ``chiabot-windows-amd64.exe``, once you see the main screen with your id and farmer stats you're good to go.
+   3. Link your device to your discord account as shown in [First Time](#first-time)
 
-#### Ubuntu (16.04+), Debian, Ubuntu for Raspberry Pi and other Debian-based distros
-1. Open terminal in project's root directory and then run 
-   - `` sh run.sh `` if you're setting up your farmer (main machine) 
-   - ``sh run_harvester.sh `` if it's a harvester.
+- If you're setting up a **harvester**
+   1. Download ``chiabot_harvester-windows-amd64.exe`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and move it to an **empty** folder.
+   2. Open ``chiabot_harvester-windows-amd64.exe``, once you see the main screen with your id and harvester stats you're good to go.
+   3. Link your device to your discord account as shown in [First Time](#first-time)
 
-The script will install dart, git, screen and setup the client for you. Do **not run it as root**, it will issue "sudo" and ask for your password when/if necessary.
+#### Ubuntu (16.04+), and other amd64 Linux distros
+1. Download ``chiabot-linux-amd64.tar.gz`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and extract it to an **empty** folder.
+2. Open the following file:
+      - If you're setting up a **farmer/full-node** Open ``farmer.sh``, once you see the main screen with your id and farmer stats you're good to go.
+      - If you're setting up a **harvester** Open ``harvester.sh``, once you see the main screen with your id and harvester stats you're good to go.
+3. Link your device to your discord account as shown in [First Time](#first-time)
 
-#### Other amd64/arm64 Linux distros
-1. Install dart, git and screen using your distro's package manager
-2. Run 
-   - `` sh run.sh `` if you're setting up your farmer (main machine)
-   - `` sh run_harvester.sh `` if it's a harvester.
+#### Ubuntu for Raspberry Pi and other arm64 Linux distros
+1. Download ``chiabot-linux-arm64.tar.gz`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and extract it to an **empty** folder.
+2. Open the following file:
+      - If you're setting up a **farmer/full-node** Open ``farmer.sh``, once you see the main screen with your id and farmer stats you're good to go.
+      - If you're setting up a **harvester** Open ``harvester.sh``, once you see the main screen with your id and harvester stats you're good to go.
+3. Link your device to your discord account as shown in [First Time](#first-time)
 
-If you have trouble running the script try running `` dart pub get`` and `` dart chiabot.dart `` manually.
+#### macOS (use Rosetta for m1 devices)
+1. Download ``chiabot-macos-amd64.tar.gz`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and extract it to an **empty** folder.
+2. Open the following file:
+      - If you're setting up a **farmer/full-node** Open ``farmer.sh``, once you see the main screen with your id and farmer stats you're good to go.
+      - If you're setting up a **harvester** Open ``harvester.sh``, once you see the main screen with your id and harvester stats you're good to go.
+3. Link your device to your discord account as shown in [First Time](#first-time)
 
-#### macOS
-1. Install [dart](https://dart.dev/get-dart)
-2. Open terminal in project's root directory and then run `` dart pub get ``
-3. While in the project's root directory, run:
-   - `` dart chiabot.dart `` if you're setting up your farmer (main machine) 
-   - ``dart chiabot.dart harvester `` if it's a harvester.
-   
+#### Compile from source (every platform/architecture)
+1. Download ``source.tar.gz`` or ``source.zip`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and extract it to a folder.
+2. Download and install [dart sdk](https://dart.dev/get-dart)
+3. Open the terminal in the folder you just extracted and run:
+   - If you're setting up a **farmer**:
+```
+dart pub get; 
+dart compile exe chiabot.dart; 
+mv chiabot.exe chiabot;
+```
+   - If you're setting up a **harvester**:
+```
+dart pub get; 
+dart compile exe chiabot_harvester.dart; 
+mv chiabot_harvester.exe chiabot;
+```
+4. Run ``./chiabot`` once you see the main screen with your id and farmer/harvester stats you're good to go.
+5. Link your device to your discord account as shown in [First Time](#first-time)
+
 ### First time
 ChiaBot will generate an id for your device. You can link this device to your discord account by heading to [ChiaBot playground](https://discord.gg/aEkYWQGWdS) and sending the following message:
 ```
@@ -55,20 +78,12 @@ ChiaBot will generate an id for your device. You can link this device to your di
 ```
 ChiaBot will save your id in its cache file (``.chiabot_cache.json``), so you only need to run this command once per device.
 
-### Upgrading
-To upgrade, download this repository again and replace the previous files. 
-If you're on Windows, there's no need to run `` install.bat ``.
-You will need to reconfigure ``config.json`` with your chosen settings.
-You may keep ``.chiabot_cache.json`` file which stores your device's id so you don't have to link it again.
-
 ## Usage
 If your device was linked sucessfully, you may use `` !chia `` to see your farm summary, or `` !chia full `` to display additional statistics about it and `` !chia workers `` to show them per farmer/harvester.
 To see the full list of commands you can use, type: `` !chia help ``
 
-Please note that on Windows, you **must not close** ``run.bat`` or ``run_harvester.bat`` as doing that will kill the client. If you do so, open it again.
-
-On Linux it is safe to close ``run.sh``, as it runs it in background and reopening will reattach to the client's process.
-Press ``ctrl+c`` when you want to close the client. You must reopen ``run.sh`` after restarting your computer.
+You **must not close its window** as doing that will kill the client. If you do so, open it again.
+Press ``ctrl+c`` when you want to close the client. You must reopen it after restarting your computer.
 
 ### Configuration
 ChiaBot stores your current configuration in ``config.json``
@@ -112,14 +127,17 @@ If your chia debug level is set to ``INFO`` ([find how to do that here](https://
 
 You may delete ``config.json`` and ``.chiabot_cache.json`` to reset settings and generate a new id once the client is started again.
 
+### Upgrading
+To upgrade, repeat [Installation](#installation) instructions again with the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest).
+If you wish to keep its settings, move ``config.json`` from the previous installation folder to the new folder.
+Similarly, you may keep the previous cache file by doing the same with ``.chiabot_cache.json``. This file is hidden in Linux/macOS.
+
 ### Troubleshooting
 
 ##### My farmer/harvester doesn't have plots. Can I still use ChiaBot?
 Yes, your client will add itself when chia completes a plot.
 
 If the client crashes:
-##### Do ``run.bat`` or ``run_harvester.bat`` close suddenly after being opened?
-  Try launching CMD as an administrator and opening ``install.bat`` from there. Then do the same with ``run.bat`` or ``run_harvester.bat``.
 ##### Is your chia farm running? 
   You can check this by running ` chia farm summary `, if it shows "Status: Farming", then it is.
 ##### Are your plot drives mounted?
@@ -140,6 +158,7 @@ No. The only command issued by chiabot client is ``chia farm summary``. It does 
 
 ##### How can I trust you?
 This project is open-source, so you don't have to trust me. Read the code yourself :)
+Besides, every binary is built by a github action and signed with a GPG key.
 
 ##### What data is collected?
 You can see the data that's currently tied to your discord ID with ``!chia api``
