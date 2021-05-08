@@ -18,40 +18,6 @@ const { exec } = require("child_process");
 
 const minsTimeout = 15; //message timeout in mins
 
-function chiaPrice(msg) {
-
-  const rp = require('request-promise');
-  const requestOptions = {
-    method: 'GET',
-    uri: 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest',
-    qs: {
-      'convert': 'USD',
-      'symbol': 'XCH'
-    },
-    headers: {
-      'X-CMC_PRO_API_KEY': process.env.COINMARKETCAP
-    },
-    json: true,
-    gzip: true
-  };
-
-  rp(requestOptions).then(response => {
-    var usdprice = response['data']['XCH']['quote']['USD']['price'];
-
-    const embed = new MessageEmbed()
-    .setColor(0x40ab5c)
-    .setTitle("XCH Exchange Rate")
-    .setDescription("XCH/USD: " + usdprice.toFixed(2) + " ")
-    .setFooter("source: coinmarketcap.com");
-
-    msg.channel.send(embed);
-
-  }).catch((err) => {
-    console.log('API call error:', err.message);
-  });
-
-}
-
 //executes shell command
 function runCommand(command, msg) {
   exec(command, (error, stdout, stderr) => {
