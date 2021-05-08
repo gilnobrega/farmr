@@ -74,8 +74,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       
-      - name: Run on architecture
-
       # Note: This workflow uses the latest stable version of the Dart SDK.
       # You can specify other versions if desired, see documentation here:
       # https://github.com/dart-lang/setup-dart/blob/main/README.md
