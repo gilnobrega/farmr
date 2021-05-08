@@ -297,16 +297,36 @@ class Stats {
         output += '\n';
         var list = harvester.filterCategories.entries.toList();
 
-        //orders entries by doubles in ranges 
-        list.sort((entry1, entry2) => double.parse(entry1.key.split('-')[0]).compareTo(double.parse(entry2.key.split('-')[0])));
+        //orders entries by doubles in ranges
+        list.sort((entry1, entry2) => double.parse(entry1.key.split('-')[0])
+            .compareTo(double.parse(entry2.key.split('-')[0])));
 
+        //sums percentage and then assumes missing % comes from challenges with 0s
+        double totalPercentage = 0 + 100 * (harvester.missedChallenges / harvester.numberFilters);
+        List<String> lines = [];
         for (var entry in list) {
           //adds comma if not the last key
           double percentage = 100 * (entry.value / harvester.numberFilters);
+
+          totalPercentage += percentage;
+
           String percentageString = percentage.toStringAsPrecision(3);
           String newline = (list.last.key != entry.key) ? '\n' : '';
-          output += "${entry.key}s: ${entry.value} filters (${percentageString}%)" + newline;
+          lines.add("${entry.key}s: ${entry.value} filters (${percentageString}%)" + newline);
         }
+
+        //if total percentage doesnt add up to 100 then it assumes its missing filters with 0s
+        //NASTY FIX FOR OLD CLIENTS WITH 0.0000s bug (only affects windows afaik)
+        if (totalPercentage < 99) {
+          int firstCategory =
+              list.first.value + (harvester.numberFilters * (100 - totalPercentage) / 100).floor();
+          double percentage = 100 * (firstCategory / harvester.numberFilters);
+          String percentageString = percentage.toStringAsPrecision(3);
+
+          lines.first = "${list.first.key}s: ${firstCategory} filters (${percentageString}%)";
+        }
+
+        for (String line in lines) output += line;
       }
     }
 
