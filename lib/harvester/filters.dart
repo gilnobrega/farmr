@@ -1,4 +1,5 @@
 import 'dart:math' as Math;
+import 'dart:convert';
 
 import 'package:chiabot/log/filter.dart';
 import 'package:chiabot/debug.dart';
@@ -9,6 +10,7 @@ import 'package:stats/stats.dart';
 class HarvesterFilters {
   //Deprecated
   List<Filter> filters = [];
+  final List<double> _timeCategories = [0, 5, 10, 15, 20, 25, 30];
 
   int _numberFilters = 0;
   int get numberFilters => _numberFilters;
@@ -17,9 +19,22 @@ class HarvesterFilters {
   int _eligiblePlots = 0;
   int get eligiblePlots => (_eligiblePlots == 0) ? _getEligiblePlots() : _eligiblePlots;
 
-  //number of challenges which response time is above 25s
+  //number of challenges which response time is above 30s
   int _missedChallenges = 0;
   int get missedChallenges => _missedChallenges;
+
+  //average of all Total Plots in filter's log which
+  double _totalPlots = 0;
+  double get totalPlots => (_totalPlots == 0) ? _getTotalPlots() : _totalPlots;
+
+  //displays number of proofs found
+  int _proofsFound = 0;
+  int get proofsFound => (_proofsFound == 0) ? _getProofsFound() : _proofsFound;
+
+  //displays number of challenges response times split in categories
+  Map<String, int> _filterCategories = {};
+  Map<String, int> get filterCategories =>
+      (_filterCategories.isEmpty) ? _getFilterCategories() : _filterCategories;
 
   double _maxTime = 0;
   double _minTime = 0;
@@ -35,20 +50,12 @@ class HarvesterFilters {
 
   double filterRatio = 0;
 
-  //average of all Total Plots in filter's log which
-  double _totalPlots = 0;
-  double get totalPlots => (_totalPlots == 0) ? _getTotalPlots() : _totalPlots;
-
-  //displays number of proofs found
-  int _proofsFound = 0;
-  int get proofsFound => (_proofsFound == 0) ? _getProofsFound() : _proofsFound;
-
   loadFilters([Log log]) {
     if (log != null) filters = log.filters;
 
     List<double> _times = filters.map((filter) => filter.time).toList();
-    //number of challenges which response time is above 25s
-    _missedChallenges = _times.where((time) => time >= 25).length;
+    //number of challenges which response time is above 30s
+    _missedChallenges = _times.where((time) => time >= 30).length;
 
     if (_times.length > 0) {
       Stats timeStats = Stats.fromData(_times);
@@ -83,11 +90,16 @@ class HarvesterFilters {
       else
         _totalPlots = (numPlots / 1.0);
 
+      //loads stats about filters
       if (json['maxTime'] != null) _maxTime = json['maxTime'];
       if (json['minTime'] != null) _minTime = json['minTime'];
       if (json['avgTime'] != null) _avgTime = json['avgTime'];
       if (json['medianTime'] != null) _medianTime = json['medianTime'];
       if (json['stdDeviation'] != null) _stdDeviation = json['stdDeviation'];
+
+      //loads filterCategories map
+      if (json['filterCategories'] != null)
+        _filterCategories = Map<String,int>.from(json['filterCategories']);
     }
   }
 
@@ -105,6 +117,36 @@ class HarvesterFilters {
 
     _proofsFound = count;
     return count;
+  }
+
+  Map<String, int> _getFilterCategories() {
+    Map<String, int> filterCategories = {};
+
+    List<List<double>> boundaries = [];
+
+    for (int i = 0; i < _timeCategories.length; i++) {
+      double step = _timeCategories[i];
+
+      if (i != _timeCategories.length - 1) {
+        double nextStep = _timeCategories[i + 1];
+        boundaries.add([step, nextStep]);
+      }
+    }
+
+    for (Filter filter in filters) {
+      for (List<double> boundary in boundaries) {
+        //if filter is in between category boundaries
+        if (filter.time > boundary[0] && filter.time < boundary[1]) {
+          String key = '${boundary[0]}-${boundary[1]}';
+          filterCategories.putIfAbsent(key, () => 0);
+          //adds +1 to the count of that key
+          filterCategories.update(key, (value) => value + 1);
+        }
+      }
+    }
+
+    _filterCategories = filterCategories;
+    return filterCategories;
   }
 
   double _getTotalPlots() {

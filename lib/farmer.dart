@@ -55,7 +55,8 @@ class Farmer extends Harvester {
         'minTime': minTime,
         'avgTime': avgTime,
         'medianTime': medianTime,
-        'stdDeviation': stdDeviation
+        'stdDeviation': stdDeviation,
+        'filterCategories': filterCategories
       };
 
   Farmer(Config config, Debug.Log log) : super(config, log) {

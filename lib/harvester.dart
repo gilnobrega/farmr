@@ -52,7 +52,8 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
         'minTime': minTime,
         'avgTime': avgTime,
         'medianTime': medianTime,
-        'stdDeviation': stdDeviation
+        'stdDeviation': stdDeviation,
+        'filterCategories': filterCategories
       };
 
   Harvester(Config config, Debug.Log log) {

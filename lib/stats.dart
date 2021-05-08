@@ -143,7 +143,7 @@ class Stats {
     List<Plot> plots = client.plots;
 
     if (plots.length > 0) {
-      output += '\n\nTypes: ';
+      output += '\n\n:abacus: Types: ';
 
       //creates a map with the following structure { 'k32' : 3, 'k33' : 2 } etc.
       Map<String, int> typeCount = {};
@@ -291,6 +291,15 @@ class Stats {
       if (harvester.maxTime > 25) {
         output += "\n:warning: **Missed ${harvester.missedChallenges} challenges** :warning:";
         output += "\nFailed challenges with response times > 30 seconds";
+      }
+
+      if (harvester.filterCategories.isNotEmpty) {
+        output += '\n';
+        for (var entry in harvester.filterCategories.entries) {
+          //adds comma if not the last key
+          String comma = (harvester.filterCategories.entries.last.key != entry.key) ? ', ' : '';
+          output += "${entry.key}s: ${entry.value} filters" + comma;
+        }
       }
     }
 
