@@ -20,7 +20,6 @@ class Farmer extends Harvester {
   String _networkSize = "0";
   String get networkSize => _networkSize;
 
-  @override
   ClientType _type = ClientType.Farmer;
   @override
   ClientType get type => _type;
