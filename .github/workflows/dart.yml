@@ -36,18 +36,11 @@ jobs:
           architecture: ${{ matrix.architecture }}
           sdk: stable
 
-      # Uncomment this step to verify the use of 'dart format' on each commit.
-      # - name: Verify formatting
-      #   run: dart format --output=none --set-exit-if-changed .
-
-      # Consider passing '--fatal-infos' for slightly stricter analysis.
-      - name: Analyze project source
-        run: dart analyze
-        
       - name: Building Linux release
         if: matrix.os == 'ubuntu-latest' && matrix.architecture == 'x64'
         run: |
              dart pub get
+             dart analyze
              mv .github/workflows/config.test .github/workflows/config.yaml
              dart compile exe chiabot.dart
              chmod +x chiabot.exe
@@ -64,6 +57,7 @@ jobs:
           if: matrix.arch == 'arm64'
           run: |
              dart pub get
+             dart analyze
              mv .github/workflows/config.test .github/workflows/config.yaml
              dart compile exe chiabot.dart
              chmod +x chiabot.exe
@@ -75,6 +69,7 @@ jobs:
         if: matrix.os == 'macos-latest' && matrix.architecture == 'x64'
         run: |
              dart pub get
+             dart analyze
              mv .github/workflows/config.test .github/workflows/config.yaml
              dart compile exe chiabot.dart
              chmod +x chiabot.exe
@@ -86,6 +81,7 @@ jobs:
         if: matrix.os == 'windows-latest' && matrix.architecture == 'x64'
         run: |
              dart pub get
+             dart analyze
              mv .github/workflows/config.test .github/workflows/config.yaml
              dart compile exe chiabot.dart
              ./chiabot.exe harvester onetime
