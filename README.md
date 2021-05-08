@@ -24,28 +24,33 @@ Proceed with the following platform-specific instructions:
 - If you're setting up a **farmer/full-node**
    1. Download ``chiabot-windows-amd64.exe`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and move it to an **empty** folder.
    2. Open ``chiabot-windows-amd64.exe``, once you see the main screen with your id and farmer stats you're good to go.
+   3. Link your device to your discord account as shown in [First Time](#first-time)
 
 - If you're setting up a **harvester**
    1. Download ``chiabot_harvester-windows-amd64.exe`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and move it to an **empty** folder.
    2. Open ``chiabot_harvester-windows-amd64.exe``, once you see the main screen with your id and harvester stats you're good to go.
+   3. Link your device to your discord account as shown in [First Time](#first-time)
 
 #### Ubuntu (16.04+), and other amd64 Linux distros
 1. Download ``chiabot-linux-amd64.tar.gz`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and extract it to an **empty** folder.
 2. Open the following file:
       - If you're setting up a **farmer/full-node** Open ``farmer.sh``, once you see the main screen with your id and farmer stats you're good to go.
       - If you're setting up a **harvester** Open ``harvester.sh``, once you see the main screen with your id and harvester stats you're good to go.
+3. Link your device to your discord account as shown in [First Time](#first-time)
 
 #### Ubuntu for Raspberry Pi and other arm64 Linux distros
 1. Download ``chiabot-linux-arm64.tar.gz`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and extract it to an **empty** folder.
 2. Open the following file:
       - If you're setting up a **farmer/full-node** Open ``farmer.sh``, once you see the main screen with your id and farmer stats you're good to go.
       - If you're setting up a **harvester** Open ``harvester.sh``, once you see the main screen with your id and harvester stats you're good to go.
+3. Link your device to your discord account as shown in [First Time](#first-time)
 
 #### macOS (m1 not supported)
 1. Download ``chiabot-macos-amd64.tar.gz`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and extract it to an **empty** folder.
 2. Open the following file:
       - If you're setting up a **farmer/full-node** Open ``farmer.sh``, once you see the main screen with your id and farmer stats you're good to go.
       - If you're setting up a **harvester** Open ``harvester.sh``, once you see the main screen with your id and harvester stats you're good to go.
+3. Link your device to your discord account as shown in [First Time](#first-time)
 
 #### Compile from source (every platform/architecture)
 1. Download ``source.tar.gz`` or ``source.zip`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and extract it to a folder.
@@ -64,6 +69,7 @@ dart compile exe chiabot_harvester.dart;
 mv chiabot_harvester.exe chiabot;
 ```
 4. Run ``./chiabot`` once you see the main screen with your id and farmer/harvester stats you're good to go.
+5. Link your device to your discord account as shown in [First Time](#first-time)
 
 ### First time
 ChiaBot will generate an id for your device. You can link this device to your discord account by heading to [ChiaBot playground](https://discord.gg/aEkYWQGWdS) and sending the following message:
