@@ -74,8 +74,8 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: Release ${{ GITHUB_SHA }}
-          release_name: Release ${{ GITHUB_SHA }}
+          tag_name: Release ${{ github.sha }}
+          release_name: Release ${{ github.sha }}
           draft: true
           files: |
             ./chiabot-linux-x64.tar.gz
