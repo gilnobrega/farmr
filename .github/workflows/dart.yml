@@ -12,43 +12,13 @@ on:
     branches: [ main ]
 
 jobs:  
-  deploy:
-    # A strategy is used to define various build environments this job will run.
-    #
-    # To say it simple, this will create 3 separate independent jobs which will
-    # run on ubuntu, mac & windows.
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        architecture: [x64, arm64]
-        
-    runs-on: ${{ matrix.os }}
+  arm64:
+  
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
       
-      # Note: This workflow uses the latest stable version of the Dart SDK.
-      # You can specify other versions if desired, see documentation here:
-      # https://github.com/dart-lang/setup-dart/blob/main/README.md
-      # - uses: dart-lang/setup-dart@v1
-        if: matrix.arch == 'x64'
-      - uses: dart-lang/setup-dart@v1
-        with:
-          architecture: ${{ matrix.architecture }}
-          sdk: stable
-
-      - name: Building Linux release
-        if: matrix.os == 'ubuntu-latest' && matrix.architecture == 'x64'
-        run: |
-             dart pub get
-             dart analyze
-             mv .github/workflows/config.test .github/workflows/config.yaml
-             dart compile exe chiabot.dart
-             chmod +x chiabot.exe
-             ./chiabot.exe harvester onetime
-             mv chiabot.exe chiabot
-             tar -czvf ./chiabot-linux-amd64.tar.gz ./chiabot ./config.json
-             
       - uses: uraimo/run-on-arch-action@v2.0.9
         name: Building Linux Arm release
         id: runcmd
@@ -67,6 +37,55 @@ jobs:
              ./chiabot.exe harvester onetime
              mv chiabot.exe chiabot
              tar -czvf ./chiabot-linux-arm64.tar.gz ./chiabot ./config.json
+        
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: Release ${{ github.sha }}
+          release_name: Release ${{ github.sha }}
+          draft: true
+          files: |
+            ./chiabot-linux-amd64.tar.gz
+            ./chiabot-linux-arm64.tar.gz
+            ./chiabot-macOS-amd64.tar.gz
+            ./chiabot-windows-amd64.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
+  deploy:
+    # A strategy is used to define various build environments this job will run.
+    #
+    # To say it simple, this will create 3 separate independent jobs which will
+    # run on ubuntu, mac & windows.
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        architecture: [x64]
+        
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v2
+      
+      # Note: This workflow uses the latest stable version of the Dart SDK.
+      # You can specify other versions if desired, see documentation here:
+      # https://github.com/dart-lang/setup-dart/blob/main/README.md
+      # - uses: dart-lang/setup-dart@v1
+      - uses: dart-lang/setup-dart@v1
+        with:
+          architecture: ${{ matrix.architecture }}
+          sdk: stable
+
+      - name: Building Linux release
+        if: matrix.os == 'ubuntu-latest' && matrix.architecture == 'x64'
+        run: |
+             dart pub get
+             dart analyze
+             mv .github/workflows/config.test .github/workflows/config.yaml
+             dart compile exe chiabot.dart
+             chmod +x chiabot.exe
+             ./chiabot.exe harvester onetime
+             mv chiabot.exe chiabot
+             tar -czvf ./chiabot-linux-amd64.tar.gz ./chiabot ./config.json
         
       - name: Building macOS release
         if: matrix.os == 'macos-latest' && matrix.architecture == 'x64'
