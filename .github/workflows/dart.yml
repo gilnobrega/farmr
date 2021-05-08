@@ -36,9 +36,6 @@ jobs:
           architecture: ${{ matrix.architecture }}
           sdk: stable
 
-      - name: Install dependencies
-        run: dart pub get
-
       # Uncomment this step to verify the use of 'dart format' on each commit.
       # - name: Verify formatting
       #   run: dart format --output=none --set-exit-if-changed .
@@ -50,6 +47,7 @@ jobs:
       - name: Building Linux release
         if: matrix.os == 'ubuntu-latest' && matrix.architecture == 'x64'
         run: |
+             dart pub get
              mv .github/workflows/config.test .github/workflows/config.yaml
              dart compile exe chiabot.dart
              chmod +x chiabot.exe
@@ -57,7 +55,6 @@ jobs:
              mv chiabot.exe chiabot
              tar -czvf ./chiabot-linux-amd64.tar.gz ./chiabot ./config.json
              
-       
       - uses: uraimo/run-on-arch-action@v2.0.9
         name: Building Linux Arm release
         id: runcmd
@@ -66,6 +63,7 @@ jobs:
           distro: ubuntu20.04
           if: matrix.arch == 'arm64'
           run: |
+             dart pub get
              mv .github/workflows/config.test .github/workflows/config.yaml
              dart compile exe chiabot.dart
              chmod +x chiabot.exe
@@ -76,6 +74,7 @@ jobs:
       - name: Building macOS release
         if: matrix.os == 'macos-latest' && matrix.architecture == 'x64'
         run: |
+             dart pub get
              mv .github/workflows/config.test .github/workflows/config.yaml
              dart compile exe chiabot.dart
              chmod +x chiabot.exe
@@ -86,6 +85,7 @@ jobs:
       - name: Building Windows release
         if: matrix.os == 'windows-latest' && matrix.architecture == 'x64'
         run: |
+             dart pub get
              mv .github/workflows/config.test .github/workflows/config.yaml
              dart compile exe chiabot.dart
              ./chiabot.exe harvester onetime
