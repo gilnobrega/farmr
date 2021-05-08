@@ -80,18 +80,12 @@ jobs:
              move chiabot.exe release/chiabot.exe
              move config.json release/config.json
              zip -qq -r chiabot-windows.zip ./release/chiabot.exe ./release/config.json
-             
-      - name: Bump version and push tag
-        uses: anothrNick/github-tag-action@1.26.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          WITH_V: true
         
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ new_tag }}
-          release_name: Release ${{ new_tag }}
+          tag_name: Release
+          release_name: Release
           draft: true
           files: |
             ./chiabot-linux-x64.tar.gz
