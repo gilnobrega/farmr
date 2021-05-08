@@ -42,6 +42,9 @@ jobs:
       # Consider passing '--fatal-infos' for slightly stricter analysis.
       - name: Analyze project source
         run: dart analyze
+      
+      - name: Install zip
+        uses: montudor/action-zip@v1
         
       - name: Building Linux release
         if: matrix.os == 'ubuntu-latest'
@@ -70,13 +73,25 @@ jobs:
       - name: Building Windows release
         if: matrix.os == 'windows-latest' && matrix.architecture == 'x64'
         run: |
+             mv .github/workflows/config.test .github/workflows/config.yaml
              dart compile exe chiabot.dart
+             ./chiabot.exe harvester onetime
+             mkdir release
+             move chiabot.exe release/chiabot.exe
+             move config.json release/config.json
+             zip -qq -r chiabot-windows.zip ./release/chiabot.exe ./release/config.json
              
+      - name: Bump version and push tag
+        uses: anothrNick/github-tag-action@1.26.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
+        
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: ${{ new_tag }}
+          release_name: Release ${{ new_tag }}
           draft: true
           files: |
             ./chiabot-linux-x64.tar.gz
