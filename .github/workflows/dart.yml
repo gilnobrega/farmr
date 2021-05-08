@@ -34,4 +34,6 @@ jobs:
       # Consider passing '--fatal-infos' for slightly stricter analysis.
       - name: Analyze project source
         run: dart analyze
-
+        
+      - name: Compile
+        run: dart compile exe chiabot.dart
