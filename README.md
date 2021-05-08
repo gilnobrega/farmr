@@ -162,6 +162,7 @@ No. The only command issued by chiabot client is ``chia farm summary``. It does 
 
 ##### How can I trust you?
 This project is open-source, so you don't have to trust me. Read the code yourself :)
+Besides, every binary is built by a github action and signed with a GPG key.
 
 ##### What data is collected?
 You can see the data that's currently tied to your discord ID with ``!chia api``
