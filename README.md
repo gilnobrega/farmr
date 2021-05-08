@@ -78,11 +78,6 @@ ChiaBot will generate an id for your device. You can link this device to your di
 ```
 ChiaBot will save your id in its cache file (``.chiabot_cache.json``), so you only need to run this command once per device.
 
-### Upgrading
-To upgrade, repeat [Installation](#installation) instructions again with the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest).
-If you wish to keep its settings, move ``config.json`` from the previous installation folder to the new folder.
-Similarly, you may keep the previous cache file by doing the same with ``.chiabot_cache.json``. This file is hidden in Linux/macOS.
-
 ## Usage
 If your device was linked sucessfully, you may use `` !chia `` to see your farm summary, or `` !chia full `` to display additional statistics about it and `` !chia workers `` to show them per farmer/harvester.
 To see the full list of commands you can use, type: `` !chia help ``
@@ -134,14 +129,17 @@ If your chia debug level is set to ``INFO`` ([find how to do that here](https://
 
 You may delete ``config.json`` and ``.chiabot_cache.json`` to reset settings and generate a new id once the client is started again.
 
+### Upgrading
+To upgrade, repeat [Installation](#installation) instructions again with the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest).
+If you wish to keep its settings, move ``config.json`` from the previous installation folder to the new folder.
+Similarly, you may keep the previous cache file by doing the same with ``.chiabot_cache.json``. This file is hidden in Linux/macOS.
+
 ### Troubleshooting
 
 ##### My farmer/harvester doesn't have plots. Can I still use ChiaBot?
 Yes, your client will add itself when chia completes a plot.
 
 If the client crashes:
-##### Do ``run.bat`` or ``run_harvester.bat`` close suddenly after being opened?
-  Try launching CMD as an administrator and opening ``install.bat`` from there. Then do the same with ``run.bat`` or ``run_harvester.bat``.
 ##### Is your chia farm running? 
   You can check this by running ` chia farm summary `, if it shows "Status: Farming", then it is.
 ##### Are your plot drives mounted?
