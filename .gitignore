@@ -122,3 +122,4 @@ config.json
 price.json
 db.php
 *.exe
+commit.sh

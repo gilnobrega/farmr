@@ -94,7 +94,6 @@ jobs:
         if: matrix.os == 'ubuntu-latest' && matrix.architecture == 'x64'
         run: |
              mv .github/workflows/config.test .github/workflows/config.yaml
-             mv .github/workflows/config.test .github/workflows/config.yaml
              mv .github/workflows/farmer.sh ./farmer.sh
              mv .github/workflows/harvester.sh ./harvester.sh
              chmod +x ./farmer.sh
@@ -108,7 +107,6 @@ jobs:
       - name: Building macOS release
         if: matrix.os == 'macos-latest' && matrix.architecture == 'x64'
         run: |
-             mv .github/workflows/config.test .github/workflows/config.yaml
              mv .github/workflows/config.test .github/workflows/config.yaml
              mv .github/workflows/farmer.sh ./farmer.sh
              mv .github/workflows/harvester.sh ./harvester.sh
