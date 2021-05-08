@@ -295,12 +295,17 @@ class Stats {
 
       if (harvester.filterCategories.isNotEmpty) {
         output += '\n';
-        for (var entry in harvester.filterCategories.entries) {
+        var list = harvester.filterCategories.entries.toList();
+
+        //orders entries by doubles in ranges 
+        list.sort((entry1, entry2) => double.parse(entry1.key.split('-')[0]).compareTo(double.parse(entry2.key.split('-')[0])));
+
+        for (var entry in list) {
           //adds comma if not the last key
           double percentage = 100 * (entry.value / harvester.numberFilters);
           String percentageString = percentage.toStringAsPrecision(3);
-          String comma = (harvester.filterCategories.entries.last.key != entry.key) ? ', ' : '';
-          output += "${entry.key}s: ${entry.value} filters (${percentageString}%)" + comma;
+          String newline = (list.last.key != entry.key) ? '\n' : '';
+          output += "${entry.key}s: ${entry.value} filters (${percentageString}%)" + newline;
         }
       }
     }

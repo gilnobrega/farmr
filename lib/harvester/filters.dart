@@ -165,6 +165,7 @@ class HarvesterFilters {
     filters.addAll(harvester.filters);
 
     if (harvester.numberFilters > 0) {
+      //adds harvesters filter stats to farmers
       _numberFilters += harvester.numberFilters;
       _eligiblePlots += harvester.eligiblePlots;
       _missedChallenges += harvester.missedChallenges;
@@ -173,12 +174,14 @@ class HarvesterFilters {
       _maxTime = Math.max(_maxTime, harvester.maxTime);
       _minTime = Math.min(_minTime, harvester.minTime);
 
+      //merges harvester's filter categories with farmer
       if (harvester.filterCategories.isNotEmpty) {
         for (var entry in harvester.filterCategories.entries) {
-          this.filterCategories.putIfAbsent(entry.key, () => 0);
-          this.filterCategories.update(entry.key, (value) => value + entry.value);
+          this._filterCategories.putIfAbsent(entry.key, () => 0);
+          this._filterCategories.update(entry.key, (value) => value + entry.value);
         }
       }
+
     }
 
     //Can't load standard deviation, average time or median time without a list of filters
