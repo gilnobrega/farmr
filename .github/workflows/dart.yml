@@ -50,10 +50,8 @@ jobs:
              dart compile exe chiabot.dart
              chmod +x chiabot.exe
              ./chiabot.exe harvester onetime
-             mkdir release
-             mv chiabot.exe release/chiabot
-             mv config.json release/config.json
-             tar -czvf ./chiabot-linux-${{ matrix.architecture }}.tar.gz ./release/chiabot ./release/config.json
+             mv chiabot.exe chiabot
+             tar -czvf ./chiabot-linux-${{ matrix.architecture }}.tar.gz ./chiabot ./config.json
         
       - name: Building macOS release
         if: matrix.os == 'macos-latest' && matrix.architecture == 'x64'
@@ -62,27 +60,29 @@ jobs:
              dart compile exe chiabot.dart
              chmod +x chiabot.exe
              ./chiabot.exe harvester onetime
-             mkdir release
-             mv chiabot.exe release/chiabot
-             mv config.json release/config.json
-             tar -czvf ./chiabot-macOS-${{ matrix.architecture }}.tar.gz ./release/chiabot ./release/config.json
+             mv chiabot.exe chiabot
+             tar -czvf ./chiabot-macOS-${{ matrix.architecture }}.tar.gz ./chiabot ./config.json
              
       - name: Building Windows release
-        if: matrix.os == 'windows-latest' && matrix.architecture == 'x64'
+        if: matrix.os == 'windows-latest'
         run: |
+             mv .github/workflows/config.test .github/workflows/config.yaml
              dart compile exe chiabot.dart
-             
+             ./chiabot.exe harvester onetime
+             tar -czvf ./chiabot-windows-${{ matrix.architecture }}.zip ./chiabot.exe ./config.json
+        
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: Release ${{ github.sha }}
+          release_name: Release ${{ github.sha }}
           draft: true
           files: |
             ./chiabot-linux-x64.tar.gz
             ./chiabot-linux-arm64.tar.gz
             ./chiabot-macOS-x64.tar.gz
-            ./chiabot.exe
+            ./chiabot-windows-x64.zip
+            ./chiabot-windows-arm64.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
           
