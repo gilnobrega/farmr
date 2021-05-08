@@ -46,14 +46,26 @@ jobs:
       - name: Building Linux release
         if: matrix.os == 'ubuntu-latest'
         run: |
+             mv .github/workflows/config.test .github/workflows/config.yaml
              dart compile exe chiabot.dart
-             mv chiabot.exe chiabot-linux-${{ matrix.architecture }}
+             chmod +x chiabot.exe
+             ./chiabot.exe harvester onetime
+             mkdir release
+             mv chiabot.exe release/chiabot
+             mv config.json release/config.json
+             tar -czvf ./chiabot-linux-${{ matrix.architecture }}.tar.gz ./release/chiabot ./release/config.json
         
       - name: Building macOS release
         if: matrix.os == 'macos-latest' && matrix.architecture == 'x64'
         run: |
+             mv .github/workflows/config.test .github/workflows/config.yaml
              dart compile exe chiabot.dart
-             mv chiabot.exe chiabot-macos-x64
+             chmod +x chiabot.exe
+             ./chiabot.exe harvester onetime
+             mkdir release
+             mv chiabot.exe release/chiabot
+             mv config.json release/config.json
+             tar -czvf ./chiabot-macOS-${{ matrix.architecture }}.tar.gz ./release/chiabot ./release/config.json
              
       - name: Building Windows release
         if: matrix.os == 'windows-latest' && matrix.architecture == 'x64'
@@ -67,9 +79,9 @@ jobs:
           release_name: Release ${{ github.ref }}
           draft: true
           files: |
-            ./chiabot-linux-x64
-            ./chiabot-linux-arm64
-            ./chiabot-macOS-x64
+            ./chiabot-linux-x64.tar.gz
+            ./chiabot-linux-arm64.tar.gz
+            ./chiabot-macOS-x64.tar.gz
             ./chiabot.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
