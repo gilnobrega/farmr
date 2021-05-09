@@ -61,6 +61,12 @@ function runCommand(command, msg) {
 
   });
 }
+
+//shows disclaimer when user runs command in #general
+function tooPowerful(msg) {
+  msg.reply("Oh no! This command is too powerful for this channel!\nPlease run it in <#838813418793336832> so we can keep this channel free of SPAM.");
+}
+
 //takes values in wei and outputs in eth, rounded up to 3 decimal places
 function weiToEth(wei) {
 
@@ -162,10 +168,20 @@ client.on('message', (msg) => {
       runCommand("../server/chiabot_server.exe " + args[0], msg, true);
     }
     else if (command === "chia" && args.length == 1 && args[0] == "full") {
-      runCommand("../server/chiabot_server.exe " + msg.author.id + " full", msg, true);
+      if (msg.channel.id == "829057822213931062") {
+        tooPowerful(msg);
+      }
+      else {
+        runCommand("../server/chiabot_server.exe " + msg.author.id + " full", msg, true);
+      }
     }
     else if (command === "chia" && args.length == 1 && args[0] == "workers") {
-      runCommand("../server/chiabot_server.exe " + msg.author.id + " workers", msg, true);
+      if (msg.channel.id == "829057822213931062") {
+        tooPowerful(msg);
+      }
+      else {
+        runCommand("../server/chiabot_server.exe " + msg.author.id + " workers", msg, true);
+      }
     }
     else if (command === "chia" && args.length == 1 && args[0] == "status") {
       runCommand("../server/chiabot_server.exe status", msg, true);
