@@ -43,7 +43,9 @@ class Farmer extends Harvester {
         'status': status,
         'balance': balance, //farmed balance
         'walletBalance': _wallet.balance, //wallet balance
-        'daysSinceLastBlock': _wallet.daysSinceLastBlock,
+        //rounds days since last blocks so its harder to track wallets
+        //precision of 0.1 days means uncertainty of 140 minutes
+        'daysSinceLastBlock': double.parse(_wallet.daysSinceLastBlock.toStringAsFixed(1)),
         'networkSize': networkSize,
         'plots': allPlots, //important
         'totalDiskSpace': totalDiskSpace,
