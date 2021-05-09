@@ -1,5 +1,6 @@
 import 'dart:core';
 import 'dart:io' as io;
+import 'dart:convert';
 
 import 'package:logging/logging.dart';
 
@@ -53,8 +54,13 @@ class Log {
           _debugFile = io.File(debugPath + ext);
 
           //stops parsing once it reaches parseUntil date limit
-          if (_debugFile.existsSync())
-            keepParsing = parseFilters(_debugFile.readAsStringSync(), _parseUntil);
+          if (_debugFile.existsSync()) {
+            var bytes = _debugFile.readAsBytesSync();
+
+            //reads files this way because of UTF 16 decoding??
+            String content = utf8.decode(bytes, allowMalformed: true);
+            keepParsing = parseFilters(content, _parseUntil);
+          }
         } catch (Exception) {
           log.warning(
               "Warning: could not parse filters in debug.log${ext}, make sure chia log level is set to INFO");
@@ -75,7 +81,13 @@ class Log {
         _debugFile = io.File(debugPath + ext);
 
         //stops parsing once it reaches parseUntil date limit
-        if (_debugFile.existsSync()) parseSignagePoints(_debugFile.readAsStringSync(), _parseUntil);
+        if (_debugFile.existsSync()) {
+          var bytes = _debugFile.readAsBytesSync();
+
+          //reads files this way because of UTF 16 decoding??
+          String content = utf8.decode(bytes, allowMalformed: true);
+          parseSignagePoints(content, _parseUntil);
+        }
       } catch (Exception) {
         log.info(
             "Warning: could not parse SubSlots in debug.log${ext}, make sure chia log level is set to INFO");
