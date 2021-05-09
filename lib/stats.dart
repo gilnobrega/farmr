@@ -41,31 +41,32 @@ class Stats {
     if (client is Farmer && client.status != "Farming")
       output += "\n:warning: **${client.status}** :warning:";
 
+    //Farmed balance
     double balance = (client is Farmer) ? client.balance : -1.0;
     double balanceUSD = balance * price;
 
     String balanceText = '';
 
-    double walletBalance = (client is Farmer) ? client.walletBalance : -1.0;
-    double walletBalanceUSD = walletBalance * price;
-
-    String walletBalanceText =
-        (client is Farmer && walletBalance >= 0.0 && client.walletBalance != client.balance)
-            ? "/${client.walletBalance}"
-            : '';
-    String walletPriceText =
-        (price > 0 && walletBalanceText != '') ? "/${walletBalanceUSD.toStringAsFixed(2)}" : '';
-
-    String priceText =
-        (price > 0) ? " (${balanceUSD.toStringAsFixed(2)}${walletPriceText} USD)" : '';
-
-    String info = (walletBalanceText != '') ? ' (farmed/in wallet)' : '';
+    String priceText = (price > 0) ? " (${balanceUSD.toStringAsFixed(2)} USD)" : '';
 
     balanceText += (balance >= 0.0)
-        ? "\n\<:chia:833767070201151528> **${balance}**${walletBalanceText} **XCH**" + priceText + info
+        ? "\n\<:chia:833767070201151528> **${balance}** **XCH**" + priceText
         : ''; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
 
     output += balanceText;
+
+    //Wallet balance
+    double walletBalance = (client is Farmer) ? client.wallet.balance : -1.0;
+    double walletBalanceUSD = walletBalance * price;
+
+    String walletPriceText = (price > 0) ? "(${walletBalanceUSD.toStringAsFixed(2)} USD)" : '';
+
+    String walletBalanceText =
+        (client is Farmer && walletBalance >= 0.0 && client.wallet.balance != client.balance)
+            ? "\n:credit_card: ${client.wallet.balance} XCH ${walletPriceText}"
+            : '';
+
+    output += walletBalanceText;
 
     return output;
   }
@@ -84,6 +85,12 @@ class Stats {
       }
 
       output += etwString;
+    }
+
+    double effort = (client is Farmer) ? client.wallet.getCurrentEffort(etw) : 0.0;
+
+    if (effort > 0.0) {
+      output += "\n:person_lifting_weights: Current effort: ${effort.toStringAsFixed(1)}%";
     }
 
     return output;

@@ -7,6 +7,7 @@ import 'package:logging/logging.dart';
 import 'package:chiabot/config.dart';
 import 'package:chiabot/harvester.dart';
 import 'package:chiabot/debug.dart' as Debug;
+import 'package:chiabot/farmer/wallet.dart';
 
 final log = Logger('Farmer');
 
@@ -14,13 +15,12 @@ class Farmer extends Harvester {
   String _status;
   String get status => _status;
 
+  Wallet _wallet = Wallet(-1.0, 0);
+  Wallet get wallet => _wallet;
+
   //Farmed balance
   double _balance = 0;
   double get balance => _balance; //hides balance if string
-
-  //wallet balance
-  double _walletBalance = 0;
-  double get walletBalance => _walletBalance; //hides balance if string
 
   String _networkSize = "0";
   String get networkSize => _networkSize;
@@ -42,7 +42,8 @@ class Farmer extends Harvester {
         'name': name,
         'status': status,
         'balance': balance, //farmed balance
-        'walletBalance': walletBalance, //wallet balance
+        'walletBalance': _wallet.balance, //wallet balance
+        'daysSinceLastBlock': _wallet.daysSinceLastBlock,
         'networkSize': networkSize,
         'plots': allPlots, //important
         'totalDiskSpace': totalDiskSpace,
@@ -69,6 +70,9 @@ class Farmer extends Harvester {
     //runs chia farm summary if it is a farmer
     var result = io.Process.runSync(config.cache.binPath, ["farm", "summary"]);
     List<String> lines = result.stdout.toString().replaceAll("\r", "").split('\n');
+
+    //needs last farmed block to calculate effort, this is never stored
+    int lastBlockFarmed = 0;
     try {
       for (int i = 0; i < lines.length; i++) {
         String line = lines[i];
@@ -80,6 +84,8 @@ class Farmer extends Harvester {
           _status = line.split("Farming status: ")[1];
         else if (line.startsWith("Estimated network space: "))
           _networkSize = line.split("Estimated network space: ")[1];
+        else if (line.startsWith("Last height farmed: "))
+          lastBlockFarmed = int.tryParse(line.split("Last height farmed: ")[1]);
       }
     } catch (exception) {
       print("Error parsing Farm info.");
@@ -87,27 +93,13 @@ class Farmer extends Harvester {
 
     //If user enabled showWalletBalance then parses ``chia wallet show``
     if (config.showWalletBalance) {
-      parseWalletBalance(config);
-    } else
-      _walletBalance = -1.0; //sets wallet balance to -1.0 if its disabled by user
+      _wallet.parseWalletBalance(config.cache.binPath, lastBlockFarmed);
+    }
 
     //Parses logs for sub slots info
     if (config.parseLogs) {
       log.loadSignagePoints();
       calculateSubSlots(log);
-    }
-  }
-
-  void parseWalletBalance(Config config) {
-    try {
-      var walletOutput =
-          io.Process.runSync(config.cache.binPath, ["wallet", "show"]).stdout.toString();
-
-      RegExp walletRegex = RegExp("-Total Balance: ([0-9\\.]+)", multiLine: false);
-
-      _walletBalance = double.parse(walletRegex.firstMatch(walletOutput).group(1));
-    } catch (e) {
-      log.warning("Error: could not parse wallet balance.");
     }
   }
 
@@ -128,11 +120,15 @@ class Farmer extends Harvester {
       }
     }
 
-    if (object['walletBalance'] != null)
-      _walletBalance = object['walletBalance'];
-    else
-      _walletBalance = -1.0;
-      
+    double walletBalance = -1.0;
+    double daysSinceLastBlock = 0;
+
+    //initializes wallet with given balance and number of days since last block
+    if (object['walletBalance'] != null) walletBalance = object['walletBalance'];
+    if (object['daysSinceLastBlock'] != null) daysSinceLastBlock = object['daysSinceLastBlock'];
+
+    _wallet = Wallet(walletBalance, daysSinceLastBlock);
+
     if (object['completeSubSlots'] != null) _completeSubSlots = object['completeSubSlots'];
     if (object['looseSignagePoints'] != null) _looseSignagePoints = object['looseSignagePoints'];
 
