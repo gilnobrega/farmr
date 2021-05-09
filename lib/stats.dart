@@ -91,7 +91,8 @@ class Stats {
     int daysAgo = (client is Farmer) ? client.wallet.daysSinceLastBlock.round() : 0;
 
     if (effort > 0.0 && full) {
-      output += "\n:person_lifting_weights: Current effort: ${effort.toStringAsFixed(1)}% (last block ~${daysAgo} days ago)";
+      output +=
+          "\n:person_lifting_weights: Current effort: ${effort.toStringAsFixed(1)}% (last block ~${daysAgo} days ago)";
     }
 
     return output;
@@ -310,7 +311,7 @@ class Stats {
         output +=
             "\nMedian: ${harvester.medianTime.toStringAsFixed(decimals)}s Avg: ${harvester.avgTime.toStringAsFixed(decimals)}s σ: ${harvester.stdDeviation.toStringAsFixed(decimals)}s";
 
-      if (harvester.maxTime > 25) {
+      if (harvester.maxTime >= 30) {
         output += "\n:warning: **Missed ${harvester.missedChallenges} challenges** :warning:";
         output += "\nFailed challenges with response times > 30 seconds";
       }
@@ -348,6 +349,13 @@ class Stats {
           String newline = (list.last.key != list.first.key) ? '\n' : '';
           lines.first =
               "${list.first.key}s: ${firstCategory} filters (${percentageString}%)" + newline;
+        }
+
+        if (harvester.missedChallenges > 0) {
+          double missedPercentage = 100 * (harvester.missedChallenges / harvester.numberFilters);
+          String missedPercentageText = missedPercentage.toStringAsPrecision(3);
+
+          lines.add("\n>30s: ${harvester.missedChallenges} filters (${missedPercentageText}%)");
         }
 
         for (String line in lines) output += line;
