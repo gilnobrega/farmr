@@ -71,7 +71,7 @@ class Stats {
     return output;
   }
 
-  static String showETWEDV(Harvester client, String networkSize, double price) {
+  static String showETWEDV(Harvester client, String networkSize, double price, bool full) {
     String output = '';
     double etw = estimateETW(client, networkSize);
 
@@ -90,7 +90,7 @@ class Stats {
     double effort = (client is Farmer) ? client.wallet.getCurrentEffort(etw) : 0.0;
     int daysAgo = (client is Farmer) ? client.wallet.daysSinceLastBlock.round() : 0;
 
-    if (effort > 0.0) {
+    if (effort > 0.0 && full) {
       output += "\n:person_lifting_weights: Current effort: ${effort.toStringAsFixed(1)}% (last block ~${daysAgo} days ago)";
     }
 

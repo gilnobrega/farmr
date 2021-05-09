@@ -184,7 +184,7 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount, String
     String main = name +
         Stats.showBalance(harvester, price) +
         Stats.showPlotsInfo(harvester) +
-        Stats.showETWEDV(harvester, networkSize, price) +
+        Stats.showETWEDV(harvester, networkSize, price, isFull) +
         Stats.showNetworkSize(harvester) +
         Stats.showFarmedTime(harvester);
 
