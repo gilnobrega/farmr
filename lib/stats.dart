@@ -102,7 +102,7 @@ class Stats {
     String output = '';
 
     if (client.plots.length > 0) {
-      Plot plot = lastPlot(client.plots);
+      Plot plot = lastPlot(client.plots.where((plot) => plot.duration.inMinutes > 0).toList());
       Duration average =
           averagePlotDuration(client.plots.where((plot) => plot.duration.inMinutes > 0).toList());
 
