@@ -37,9 +37,10 @@ class Wallet {
     }
   }
 
-  double getCurrentEffort(double etw) {
+  double getCurrentEffort(double etw, double farmedTimeDays) {
     if (etw > 0 && daysSinceLastBlock > 0) {
-      double percentage = 100 * (daysSinceLastBlock / etw);
+      //if user has not found a block then it will assume that effort starts counting from when it began farming
+      double percentage = (farmedTimeDays > daysSinceLastBlock) ? 100 * (daysSinceLastBlock / etw) : 100*(farmedTimeDays/etw);
       return percentage;
     }
     return 0.0;

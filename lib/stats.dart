@@ -87,7 +87,7 @@ class Stats {
       output += etwString;
     }
 
-    double effort = (client is Farmer) ? client.wallet.getCurrentEffort(etw) : 0.0;
+    double effort = (client is Farmer) ? client.wallet.getCurrentEffort(etw, (farmedTime(client.plots).inHours/24.0)) : 0.0;
     int daysAgo = (client is Farmer) ? client.wallet.daysSinceLastBlock.round() : 0;
 
     if (effort > 0.0 && full) {
