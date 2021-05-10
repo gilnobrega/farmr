@@ -2,6 +2,7 @@ import 'dart:core';
 
 import 'package:mysql1/mysql1.dart' as mysql;
 import 'package:dotenv/dotenv.dart' as dotenv;
+import 'package:http/http.dart' as http;
 
 import 'package:chiabot/farmer.dart';
 import 'package:chiabot/harvester.dart';
@@ -111,27 +112,54 @@ Future<void> main(List<String> args) async {
 Future<List<Harvester>> _getUserData(String userID) async {
   List<Harvester> harvesters = [];
 
-  var settings = new mysql.ConnectionSettings(
-      host: 'localhost',
-      port: 3306,
-      user: dotenv.env['MYSQL_USER'],
-      password: dotenv.env['MYSQL_PASSWORD'],
-      db: 'chiabot');
-  var conn = await mysql.MySqlConnection.connect(settings);
+  try {
+    var settings = new mysql.ConnectionSettings(
+        host: 'localhost',
+        port: 3306,
+        user: dotenv.env['MYSQL_USER'],
+        password: dotenv.env['MYSQL_PASSWORD'],
+        db: 'chiabot');
+    var conn = await mysql.MySqlConnection.connect(settings);
 
-  var results = await conn.query("SELECT data FROM farms WHERE user='${userID}'");
+    var results = await conn.query("SELECT data FROM farms WHERE user='${userID}'");
 
-  for (var result in results) {
-    if (result[0].toString().contains('"type"')) {
-      String data = "[" + result[0].toString() + "]";
+    for (var result in results) {
+      if (result[0].toString().contains('"type"')) {
+        String data = "[" + result[0].toString() + "]";
 
-      if (data.contains('"type":0'))
-        harvesters.add(Farmer.fromJson(data));
-      else if (data.contains('"type":1')) harvesters.add(Harvester.fromJson(data));
+        if (data.contains('"type":0'))
+          harvesters.add(Farmer.fromJson(data));
+        else if (data.contains('"type":1')) harvesters.add(Harvester.fromJson(data));
+      }
+    }
+
+    conn.close();
+  } catch (e) {
+    String contents = await http.read("http://chiabot.znc.sh/read.php?user=" + userID);
+
+    contents = contents.trim(); //filters last , of send page, can be fixed on server side later
+
+    var clientsSerial = contents
+        .replaceAll("[;;]", "")
+        .split(';;')
+        .where((element) => element != "[]" && element != "")
+        .toList();
+
+    for (int i = 0; i < clientsSerial.length; i++) {
+      String clientSerial = clientsSerial[i];
+
+      var client;
+
+      //If this object is a farmer then adds it to farmers list, if not adds it to harvesters list
+      if (clientSerial.contains('"type":0')) {
+        client = Farmer.fromJson(clientSerial);
+        harvesters.add(client);
+      } else if (clientSerial.contains('"type":1')) {
+        client = Harvester.fromJson(clientSerial);
+        harvesters.add(client);
+      }
     }
   }
-
-  conn.close();
 
   return harvesters;
 }
