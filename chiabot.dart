@@ -15,6 +15,8 @@ import 'server/chiabot_server.dart' as Stats;
 
 final log = Logger('Client');
 
+final String version = '1.2.6';
+
 final Duration delay = Duration(minutes: 10); //10 minutes delay between updates
 
 //test mode for github releases
@@ -74,8 +76,8 @@ main(List<String> args) async {
       Log chiaLog = new Log(chiaDebugPath, cache, config.parseLogs);
 
       var client = (config.type == ClientType.Farmer)
-          ? new Farmer(config, chiaLog)
-          : new Harvester(config, chiaLog);
+          ? new Farmer(config, chiaLog, version)
+          : new Harvester(config, chiaLog, version);
       await client.init(chiaConfigPath);
 
       //Throws exception in case no plots were found

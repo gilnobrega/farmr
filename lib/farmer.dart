@@ -65,10 +65,11 @@ class Farmer extends Harvester {
         'avgTime': avgTime,
         'medianTime': medianTime,
         'stdDeviation': stdDeviation,
-        'filterCategories': filterCategories
+        'filterCategories': filterCategories,
+        'version': version
       };
 
-  Farmer(Config config, Debug.Log log) : super(config, log) {
+  Farmer(Config config, Debug.Log log, [String version = '']) : super(config, log, version) {
     //runs chia farm summary if it is a farmer
     var result = io.Process.runSync(config.cache.binPath, ["farm", "summary"]);
     List<String> lines = result.stdout.toString().replaceAll("\r", "").split('\n');

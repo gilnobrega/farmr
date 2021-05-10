@@ -134,7 +134,9 @@ Future<List<Harvester>> _getUserData(String userID) async {
     }
 
     conn.close();
-  } catch (e) {
+  } 
+  //reads from public api in case connection to mysql database fails 
+  catch (e) {
     String contents = await http.read("http://chiabot.znc.sh/read.php?user=" + userID);
 
     contents = contents.trim(); //filters last , of send page, can be fixed on server side later

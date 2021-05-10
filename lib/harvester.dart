@@ -20,6 +20,10 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
   String _name;
   String get name => _getName();
 
+  // pubspec.yaml version
+  String _version = '';
+  String get version => _version;
+
   List<String> _plotDests = []; //plot destination paths
 
   final String id = Uuid().v4();
@@ -53,10 +57,12 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
         'avgTime': avgTime,
         'medianTime': medianTime,
         'stdDeviation': stdDeviation,
-        'filterCategories': filterCategories
+        'filterCategories': filterCategories,
+        'version': version
       };
 
-  Harvester(Config config, Debug.Log log) {
+  Harvester(Config config, Debug.Log log, [String version = '']) {
+    _version = version;
     _config = config;
     _name = config.name; //loads name from config
 
@@ -73,7 +79,10 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
 
     var object = jsonDecode(json)[0];
 
+    //loads name from json file 
     if (object['name'] != null) _name = object['name'];
+    //loads version from json
+    if (object['version'] != null) _version = object['version'];
 
     for (int i = 0; i < object['plots'].length; i++) {
       allPlots.add(Plot.fromJson(object['plots'][i]));
@@ -125,7 +134,8 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
   String _getName() {
     String name = '';
 
-    if (_name != null) name = _name;
+    if (_name != null)
+      name = _name;
     else if (this is Farmer)
       name = "Farmer";
     else

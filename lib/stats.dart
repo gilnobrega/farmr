@@ -391,15 +391,19 @@ class Stats {
 //Shows harvester count and when farm was last updated
   static String showLastUpdated(Harvester client, int farmersCount, int harvestersCount) {
     String output = '\n';
-    String count = "--"; // -- is last updated split character
+    String count = "--"; // '--' is 'last updated' split character to be used in discord bot
     count += (harvestersCount > 0 || farmersCount > 0)
         ? "${farmersCount} farmers, " + harvestersCount.toString() + " harvesters - "
         : "";
+    
+    //client version
+    String version = (client.version != '' && count == '--') ? " - v${client.version}" : '';
+
     Duration difference = DateTime.now().difference(client.lastUpdated);
     if (difference.inSeconds >= 60) {
-      output += count + "updated " + difference.inMinutes.toString() + " minutes ago";
+      output += count + "updated " + difference.inMinutes.toString() + " minutes ago" + version;
     } else {
-      output += count + "updated " + difference.inSeconds.toString() + " seconds ago";
+      output += count + "updated " + difference.inSeconds.toString() + " seconds ago" + version;
     }
     return output;
   }
