@@ -87,12 +87,15 @@ class Stats {
       output += etwString;
     }
 
-    double effort = (client is Farmer) ? client.wallet.getCurrentEffort(etw, (farmedTime(client.plots).inHours/24.0)) : 0.0;
+    double farmedTimeDays = (farmedTime(client.plots).inHours / 24.0);
+
+    double effort = (client is Farmer) ? client.wallet.getCurrentEffort(etw, farmedTimeDays) : 0.0;
     int daysAgo = (client is Farmer) ? client.wallet.daysSinceLastBlock.round() : 0;
 
     if (effort > 0.0 && full) {
-      output +=
-          "\n:person_lifting_weights: Effort: ${effort.toStringAsFixed(1)}% (last block ~${daysAgo} days ago)";
+      //doesnt show last block days ago if user has not found a block at all
+      String lastBlock = (farmedTimeDays > daysAgo) ? "(last block ~${daysAgo} days ago)" : '';
+      output += "\n:person_lifting_weights: Effort: ${effort.toStringAsFixed(1)}% ${lastBlock}";
     }
 
     return output;
