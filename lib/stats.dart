@@ -47,7 +47,7 @@ class Stats {
 
     String balanceText = '';
 
-    String priceText = (price > 0) ? " (${balanceUSD.toStringAsFixed(2)} USD)" : '';
+    String priceText = (price > 0) ? " (${balanceUSD.toStringAsFixed(2)} ${client.currency})" : '';
 
     balanceText += (balance >= 0.0)
         ? "\n\<:chia:833767070201151528> **${balance}** **XCH**" + priceText
@@ -59,7 +59,7 @@ class Stats {
     double walletBalance = (client is Farmer) ? client.wallet.balance : -1.0;
     double walletBalanceUSD = walletBalance * price;
 
-    String walletPriceText = (price > 0) ? "(${walletBalanceUSD.toStringAsFixed(2)} USD)" : '';
+    String walletPriceText = (price > 0) ? "(${walletBalanceUSD.toStringAsFixed(2)} ${client.currency})" : '';
 
     String walletBalanceText =
         (client is Farmer && walletBalance >= 0.0 && client.wallet.balance != client.balance)

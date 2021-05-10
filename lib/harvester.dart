@@ -20,6 +20,9 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
   String _name;
   String get name => _getName();
 
+  String _currency = 'USD';
+  String get currency => _currency.toUpperCase();
+
   // pubspec.yaml version
   String _version = '';
   String get version => _version;
@@ -41,6 +44,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
 
   Map toJson() => {
         'name': _name,
+        'currency': currency,
         'plots': allPlots, //important
         'totalDiskSpace': totalDiskSpace,
         'freeDiskSpace': freeDiskSpace,
@@ -65,6 +69,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     _version = version;
     _config = config;
     _name = config.name; //loads name from config
+    _currency = config.currency; // loads currency from config
 
     allPlots = config.cache.plots; //loads plots from cache
 
@@ -79,8 +84,12 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
 
     var object = jsonDecode(json)[0];
 
-    //loads name from json file 
+    //loads name from json file
     if (object['name'] != null) _name = object['name'];
+
+    //loads currency from json file
+    if (object['currency'] != null) _currency = object['currency'];
+
     //loads version from json
     if (object['version'] != null) _version = object['version'];
 

@@ -18,7 +18,10 @@ Future<void> main(List<String> args) async {
   } else if (args[0] == "price") {
     Price price = await _getPrice();
 
-    print("XCH/USD: **${price.price.toStringAsFixed(2)}**");
+    final List<String> currencies = ['USD', 'EUR', 'GBP', 'CAD', 'AUD'];
+
+    for (String currency in currencies)
+    print("XCH/${currency}: **${price.rates[currency].toStringAsFixed(2)}**");
 
     Duration difference =
         DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(price.timestamp));
@@ -75,7 +78,7 @@ Future<void> main(List<String> args) async {
           harvester.sortPlots();
 
           showHarvester(harvester, harvestersCount, farmersCount, networkSize,
-              args.contains("full"), args.contains("workers"), price.price);
+              args.contains("full"), args.contains("workers"), price.rates[harvester.currency]);
 
           print(';;');
         }
@@ -93,7 +96,7 @@ Future<void> main(List<String> args) async {
         }
 
         showHarvester(farm, harvestersCount, farmersCount, networkSize, args.contains("full"),
-            args.contains("workers"), price.price);
+            args.contains("workers"), price.rates[farm.currency]);
       }
     } catch (Exception) {
       if (farmersCount == 0)
@@ -134,8 +137,8 @@ Future<List<Harvester>> _getUserData(String userID) async {
     }
 
     conn.close();
-  } 
-  //reads from public api in case connection to mysql database fails 
+  }
+  //reads from public api in case connection to mysql database fails
   catch (e) {
     String contents = await http.read("http://chiabot.znc.sh/read.php?user=" + userID);
 

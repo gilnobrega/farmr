@@ -40,6 +40,7 @@ class Farmer extends Harvester {
   @override
   Map toJson() => {
         'name': name,
+        'currency': currency,
         'status': status,
         'balance': balance, //farmed balance
         'walletBalance': _wallet.balance, //wallet balance

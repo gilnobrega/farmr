@@ -20,6 +20,10 @@ class Config {
   String _name;
   String get name => _name;
 
+  //Optional, custom 3 letter currency
+  String _currency = 'USD';
+  String get currency => _currency.toUpperCase();
+
   String _chiaPath;
   String get chiaPath => _chiaPath;
 
@@ -88,6 +92,7 @@ class Config {
     String contents = encoder.convert([
       {
         "name": name,
+        "currency": currency,
         "showBalance": showBalance,
         "showWalletBalance": showWalletBalance,
         "sendBalanceNotifications": sendBalanceNotifications,
@@ -209,6 +214,9 @@ class Config {
 
     //loads custom client name
     if (contents[0]['name'] != null) _name = contents[0]['name'];
+
+    //loads custom currency
+    if (contents[0]['currency'] != null) _currency = contents[0]['currency'];
 
     _chiaPath = contents[0]['chiaPath'];
 
