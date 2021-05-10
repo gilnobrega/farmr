@@ -19,9 +19,15 @@ Future<void> main(List<String> args) async {
     Price price = await _getPrice();
 
     final List<String> currencies = ['USD', 'EUR', 'GBP', 'CAD', 'AUD'];
+    final List<String> cryptos = ['BTC', 'ETH'];
 
     for (String currency in currencies)
-    print("XCH/${currency}: **${price.rates[currency].toStringAsFixed(2)}**");
+      print("XCH/${currency}: **${price.rates[currency].toStringAsFixed(2)}**");
+
+    print("");
+
+    for (String currency in cryptos)
+      print("XCH/${currency}: **${price.rates[currency].toStringAsPrecision(3)}**");
 
     Duration difference =
         DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(price.timestamp));

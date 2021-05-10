@@ -28,7 +28,10 @@ class Price {
     'BRL',
     'DKK',
     'NZD',
-    'TRY'
+    'TRY',
+    'ETH',
+    'BTC',
+    'ETC'
   ];
   Map<String, double> rates = {};
 
