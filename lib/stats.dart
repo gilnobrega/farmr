@@ -92,7 +92,7 @@ class Stats {
 
     if (effort > 0.0 && full) {
       output +=
-          "\n:person_lifting_weights: Current effort: ${effort.toStringAsFixed(1)}% (last block ~${daysAgo} days ago)";
+          "\n:person_lifting_weights: Effort: ${effort.toStringAsFixed(1)}% (last block ~${daysAgo} days ago)";
     }
 
     return output;
