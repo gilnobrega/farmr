@@ -55,10 +55,17 @@ class Log {
 
           //stops parsing once it reaches parseUntil date limit
           if (_debugFile.existsSync()) {
-            var bytes = _debugFile.readAsBytesSync();
+            String content;
 
-            //reads files this way because of UTF 16 decoding??
-            String content = utf8.decode(bytes, allowMalformed: true);
+            try {
+              content = _debugFile.readAsStringSync();
+            } catch (e) {
+              var bytes = _debugFile.readAsBytesSync();
+
+              //reads files this way because of UTF 16 decoding??
+              content = utf8.decode(bytes, allowMalformed: true);
+            }
+
             keepParsing = parseFilters(content, _parseUntil);
           }
         } catch (Exception) {
@@ -82,10 +89,17 @@ class Log {
 
         //stops parsing once it reaches parseUntil date limit
         if (_debugFile.existsSync()) {
-          var bytes = _debugFile.readAsBytesSync();
+          String content;
 
-          //reads files this way because of UTF 16 decoding??
-          String content = utf8.decode(bytes, allowMalformed: true);
+          try {
+            content = _debugFile.readAsStringSync();
+          } catch (e) {
+            var bytes = _debugFile.readAsBytesSync();
+
+            //reads files this way because of UTF 16 decoding??
+            content = utf8.decode(bytes, allowMalformed: true);
+          }
+
           parseSignagePoints(content, _parseUntil);
         }
       } catch (Exception) {
