@@ -12,7 +12,7 @@ client.on('ready', () => {
   console.log('Bot is ready');
 });
 
-client.login(process.env.BOT_TOKEN); //loads discord token from environment variables file
+client.login(process.env.BOT_TOKEN2); //loads discord token from environment variables file
 
 const { exec } = require("child_process");
 
@@ -31,6 +31,7 @@ function runCommand(command, msg) {
     }
 
     output = stdout.split(';;'); //splits when ;; appears (workers)
+    console.log(output.length);
     output.forEach(worker => {
 
       var array = worker.split('--');
@@ -42,18 +43,21 @@ function runCommand(command, msg) {
         lastUpdated = array[1];
       }
 
-      const embed = new MessageEmbed()
-        .setColor(0x40ab5c)
-        .setDescription(text)
-        .setFooter(lastUpdated);
+      if (text !== null && text !== '' && text.length > 0)
+      {
+        const embed = new MessageEmbed()
+          .setColor(0x40ab5c)
+          .setDescription(text)
+          .setFooter(lastUpdated);
 
-      msg.channel.send(embed).then(sentmsg => {
+        msg.channel.send(embed).then(sentmsg => {
 
-        if (msg.channel.type != "dm") {
-          setTimeout(() => msg.delete(), minsTimeout * 60 * 1000);
-          setTimeout(() => sentmsg.delete(), minsTimeout * 60 * 1000);
-        }
-      });
+          if (msg.channel.type != "dm") {
+            setTimeout(() => msg.delete().catch(), minsTimeout * 60 * 1000);
+            setTimeout(() => sentmsg.delete().catch(), minsTimeout * 60 * 1000);
+          }
+        }).catch(); 
+      }
 
     });
 

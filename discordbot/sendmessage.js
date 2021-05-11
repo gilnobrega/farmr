@@ -12,7 +12,7 @@ client.on('ready', () => {
     sendmsg(process.argv);
 });
 
-client.login(process.env.BOT_TOKEN); //loads discord token from environment variables file
+client.login(process.env.BOT_TOKEN2); //loads discord token from environment variables file
 
 const { exit } = require('process');
 

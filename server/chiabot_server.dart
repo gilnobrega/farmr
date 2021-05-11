@@ -86,7 +86,7 @@ Future<void> main(List<String> args) async {
           showHarvester(harvester, harvestersCount, farmersCount, networkSize,
               args.contains("full"), args.contains("workers"), price.rates[harvester.currency]);
 
-          print(';;');
+          if (harvester != harvesters.last) print(';;');
         }
       } else {
         //Sorts harvesters by farmer/harvester type
