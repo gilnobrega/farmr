@@ -125,7 +125,7 @@ main(List<String> args) async {
             : '0'; //whether user wants to be notified when rig goes offline
         String isFarming = ((config.type == ClientType.Farmer && status == "Farming") ||
                 config.type == ClientType.Harvester)
-            ? '1'
+            ? '1' //1 means is farming
             : '0';
 
         String url = "https://chiabot.znc.sh/send3.php?id=" +

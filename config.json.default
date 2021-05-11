@@ -1,6 +1,7 @@
 [
     {
         "name": null,
+        "currency": "USD",
         "showBalance": true,
         "showWalletBalance": false,
         "sendBalanceNotifications": true,
