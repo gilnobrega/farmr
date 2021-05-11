@@ -1,6 +1,7 @@
 import 'package:chiabot/harvester.dart';
 import 'package:chiabot/farmer.dart';
 import 'package:chiabot/plot.dart';
+import 'package:chiabot/price.dart';
 
 import 'dart:math' as Math;
 
@@ -59,7 +60,8 @@ class Stats {
     double walletBalance = (client is Farmer) ? client.wallet.balance : -1.0;
     double walletBalanceUSD = walletBalance * price;
 
-    String walletPriceText = (price > 0) ? "(${walletBalanceUSD.toStringAsFixed(2)} ${client.currency})" : '';
+    String walletPriceText =
+        (price > 0) ? "(${walletBalanceUSD.toStringAsFixed(2)} ${client.currency})" : '';
 
     String walletBalanceText =
         (client is Farmer && walletBalance >= 0.0 && client.wallet.balance != client.balance)
@@ -81,7 +83,8 @@ class Stats {
         final double blockSize = 2.0;
         double XCHPerDay = blockSize / etw;
         double epd = estimateEDV(etw, price);
-        etwString += " EDV: ${XCHPerDay.toStringAsPrecision(3)} XCH (${epd.toStringAsFixed(2)}\$)";
+        etwString +=
+            " EDV: ${XCHPerDay.toStringAsPrecision(3)} XCH (${epd.toStringAsFixed(2)}${Price.currencies[client.currency]})";
       }
 
       output += etwString;
@@ -395,7 +398,7 @@ class Stats {
     count += (harvestersCount > 0 || farmersCount > 0)
         ? "${farmersCount} farmers, " + harvestersCount.toString() + " harvesters - "
         : "";
-    
+
     //client version
     String version = (client.version != '' && count == '--') ? " - v${client.version}" : '';
 

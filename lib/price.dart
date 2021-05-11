@@ -9,36 +9,36 @@ class Price {
   final int _untilTimeStamp = DateTime.now().subtract(Duration(minutes: 5)).millisecondsSinceEpoch;
   final io.File _cacheFile = io.File("price.json");
 
-  //main currency supported in coinmarketapi xch conversion
-  String _currency = 'USD';
+  //list of currencies to get from api and their symbols
+  static final Map<String, String> currencies = {
+    'USD': '\$',
+    'EUR': '€',
+    'CAD': '\$',
+    'GBP': '£',
+    'AUD': '\$',
+    'SGD': '\$',
+    'JPY': '¥',
+    'INR': '₹',
+    'MYR': 'RM',
+    'CNY': '¥',
+    'CHF': 'Fr',
+    'HKD': 'HK\$',
+    'BRL': 'R\$',
+    'DKK': 'kr.',
+    'NZD': '\$',
+    'TRY': '₺',
+    'THB': '฿',
+    'ETH': 'ETH',
+    'BTC': '₿',
+    'ETC': 'ETC'
+  };
 
-  //list of currencies to get from api 
-  final List<String> _otherCurrencies = [
-    'EUR',
-    'CAD',
-    'GBP',
-    'AUD',
-    'SGD',
-    'JPY',
-    'INR',
-    'RMB',
-    'CNY',
-    'CHF',
-    'HKD',
-    'BRL',
-    'DKK',
-    'NZD',
-    'TRY',
-    'ETH',
-    'BTC',
-    'ETC'
-  ];
   Map<String, double> rates = {};
 
   int _timestamp = 0;
   int get timestamp => _timestamp;
 
-  Map toJson() => {"rates": rates, "currency": _currency, "timestamp": timestamp};
+  Map toJson() => {"rates": rates, "timestamp": timestamp};
 
   Price(String apikey) {
     _apiKey = apikey;
@@ -69,7 +69,6 @@ class Price {
       _save();
     } else {
       _timestamp = previousPrice.timestamp;
-      _currency = previousPrice._currency;
       rates = previousPrice.rates;
     }
   }
@@ -79,12 +78,12 @@ class Price {
 //gets xch/usd exchange rate from coinbase
       var json = jsonDecode(await http.read(
           "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=XCH&convert=" +
-              _currency,
+              currencies.entries.first.key,
           headers: {'X-CMC_PRO_API_KEY': _apiKey}));
 
-      var rate = json['data']['XCH']['quote'][_currency]['price'];
+      var rate = json['data']['XCH']['quote'][currencies.entries.first.key]['price'];
 
-      rates.putIfAbsent(_currency, () => rate);
+      rates.putIfAbsent(currencies.entries.first.key, () => rate);
     } catch (e) {}
   }
 
@@ -94,14 +93,17 @@ class Price {
 
     final mainjson = jsonDecode(await http.read("https://api.coinbase.com/v2/prices/USD/spot"));
 
-    for (String otherCurrency in _otherCurrencies) {
+    for (String otherCurrency in currencies.entries
+        .where((entry) => entry != currencies.entries.first)
+        .map((entry) => entry.key)
+        .toList()) {
       try {
         var data = mainjson['data'];
         double rate = 0.0;
 
         for (var object in data) {
           if (object['base'] == otherCurrency) {
-            rate = 1/double.parse(object['amount']);
+            rate = 1 / double.parse(object['amount']);
           }
         }
 
@@ -116,7 +118,7 @@ class Price {
 
         if (rate > 0) {
           // xch price = usd/eur price * xch/usd price
-          double xchprice = (rate) * rates[_currency];
+          double xchprice = (rate) * rates[currencies.entries.first.key];
 
           rates.putIfAbsent(otherCurrency, () => xchprice);
         }
@@ -131,7 +133,6 @@ class Price {
 
   Price.fromJson(dynamic json) {
     if (json['rates'] != null) rates = Map<String, double>.from(json['rates']);
-    if (json['currency'] != null) _currency = json['currency'];
     if (json['timestamp'] != null) _timestamp = json['timestamp'];
   }
 }
