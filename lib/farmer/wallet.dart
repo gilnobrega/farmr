@@ -23,24 +23,31 @@ class Wallet {
   void parseWalletBalance(String binPath, int lastBlockFarmed) {
     _lastBlockFarmed = lastBlockFarmed;
 
-    try {
       var walletOutput = io.Process.runSync(binPath, ["wallet", "show"]).stdout.toString();
 
-      RegExp walletRegex = RegExp("-Total Balance: ([0-9\\.]+)", multiLine: false);
+    try {
 
-      _balance = double.parse(walletRegex.firstMatch(walletOutput).group(1));
+      RegExp walletRegex = RegExp("-Total Balance:(.*)xch \\(([0-9]+) mojo\\)", multiLine: false);
+      //converts mojo to xch
+      _balance = int.parse(walletRegex.firstMatch(walletOutput).group(2)) / 1e12;
+    } catch (e) {
+      log.warning("Error: could not parse wallet balance.");
+    }
 
+    try {
       RegExp walletHeightRegex = RegExp("Wallet height: ([0-9]+)", multiLine: false);
       _syncedBlockHeight = int.parse(walletHeightRegex.firstMatch(walletOutput).group(1));
     } catch (e) {
-      log.warning("Error: could not parse wallet balance.");
+      log.warning("Error: could not parse wallet height");
     }
   }
 
   double getCurrentEffort(double etw, double farmedTimeDays) {
     if (etw > 0 && daysSinceLastBlock > 0) {
       //if user has not found a block then it will assume that effort starts counting from when it began farming
-      double percentage = (farmedTimeDays > daysSinceLastBlock) ? 100 * (daysSinceLastBlock / etw) : 100*(farmedTimeDays/etw);
+      double percentage = (farmedTimeDays > daysSinceLastBlock)
+          ? 100 * (daysSinceLastBlock / etw)
+          : 100 * (farmedTimeDays / etw);
       return percentage;
     }
     return 0.0;
