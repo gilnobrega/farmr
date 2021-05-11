@@ -6,7 +6,6 @@ import 'package:logging/logging.dart';
 
 import 'package:path/path.dart';
 import 'package:filesize/filesize.dart';
-import 'package:uuid/uuid.dart';
 
 final log = Logger('Plot');
 
@@ -67,7 +66,8 @@ class Plot {
       //this solves problems with copying plots
     } catch (e) {
       _plotSize = "k32";
-      _id = Uuid().v1();
+      //if plot has been renamed then the id will be its name
+      _id = basenameWithoutExtension(file.path);
       //if failed to parse timestamp, set begin date to current date
       _begin = DateTime.now();
       log.info("Failed to parse timestamp about plot in ${file.path}");
@@ -117,9 +117,9 @@ class Plot {
       };
 
   //Replaces long hash with timestamp id before sending to server
-  void clearID() {
+  /*void clearID() {
     _id = null;
-  }
+  }*/
 
   void updateSize(int size) {
     _size = size;

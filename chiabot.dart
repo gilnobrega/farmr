@@ -15,7 +15,7 @@ import 'server/chiabot_server.dart' as Stats;
 
 final log = Logger('Client');
 
-final String version = '1.2.6';
+final String version = '1.2.7';
 
 final Duration delay = Duration(minutes: 10); //10 minutes delay between updates
 
@@ -110,15 +110,12 @@ main(List<String> args) async {
     if (!standalone) {
       //SENDS DATA TO SERVER
       try {
-        var copy = (config.type == ClientType.Farmer)
-            ? Farmer.fromJson("[" + copyJson + "]")
-            : Harvester.fromJson("[" + copyJson + "]");
-
         //clones farm so it can clear ids before sending them to server
-        copy.clearIDs();
+        //copy.clearIDs();
+        //deprecated
 
         //String that's actually sent to server
-        String sendJson = jsonEncode(copy);
+        String sendJson = copyJson;
 
         String notifyOffline = (config.sendOfflineNotifications)
             ? '1'

@@ -131,14 +131,9 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
   }
 
   //clears plots ids before sending info to server
-  //clears filters timestamps before sending info to server
-  void clearIDs() {
+  /*void clearIDs() {
     for (int i = 0; i < allPlots.length; i++) allPlots[i].clearID();
-    for (int i = 0; i < filters.length; i++) filters[i].clearTimestamp();
-
-    filters
-        .shuffle(); //shuffles filters so that harvester can't be tracked by answered challenges time
-  }
+  }*/
 
   String _getName() {
     String name = '';
