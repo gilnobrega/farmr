@@ -494,9 +494,16 @@ class Stats {
     return averageDuration;
   }
 
-//Duration between first plot started being plotted and last plot is completed
-  static Duration farmedTime(List<Plot> plots) {
-    return lastPlot(plots).end.difference(firstPlot(plots).begin);
+//Duration between first plot is completed and current time
+// NEED TO CHANGE THIS FUNCTION'S NAME BUT I DONT KNOW A BETTER NAME
+  static Duration farmingTime(List<Plot> plots) {
+    Duration duration1 = DateTime.now().difference(firstPlot(plots).begin);
+    Duration duration2 = DateTime.now().difference(firstPlot(plots).end);
+
+    if (duration1.inMilliseconds > duration2.inMilliseconds)
+    return duration1;
+    else 
+    return duration2;
   }
 
 //Duration between first plot is completed and current time
