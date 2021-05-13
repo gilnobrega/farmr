@@ -64,7 +64,8 @@ if ( isset($_GET['id']) && isset($_POST['data']))
                 //send
                 $arg = "plot";
                 //send notification
-                exec("cd " . $chiabotpath . "; node sendmessage.js " . $user . " " . $arg . " &> /dev/null &");
+                $commandNotif = " INSERT INTO notifications(user,type) VALUES ('" . $user . "', '" . $arg . "');";
+                $conn -> query($commandNotif);
             }
 
         }
@@ -102,9 +103,10 @@ if ( isset($_GET['id']) && isset($_POST['data']))
                 $conn -> query($command3);
 
                 //send
-                $arg = "block";
+                $arg = "block";                
                 //send notification
-                exec("cd " . $chiabotpath . "; node sendmessage.js " . $user . " " . $arg . " &> /dev/null &");
+                $commandNotif = " INSERT INTO notifications(user,type) VALUES ('" . $user . "', '" . $arg . "');";
+                $conn -> query($commandNotif);
             }
 
         }
@@ -155,7 +157,8 @@ if ( isset($_GET['id']) && isset($_POST['data']))
                 {
                     $arg = "stopped";
                     //send notification
-                    exec("cd " . $chiabotpath . "; node sendmessage.js " . $user . " " . $arg . " &> /dev/null &");
+                    $commandNotif = " INSERT INTO notifications(user,type) VALUES ('" . $user . "', '" . $arg . "');";
+                    $conn -> query($commandNotif);
                 }
             }
 
