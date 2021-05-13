@@ -29,7 +29,8 @@ while ($row = $result1 -> fetch_row())
         //send
         $arg = "offline";
         //send notification
-        exec("cd " . $chiabotpath . "; node sendmessage.js " . $user . " " . $arg . " &> /dev/null &");
+        $commandNotif = " INSERT INTO notifications(user,type) VALUES ('" . $user . "', '" . $arg . "');";
+        $conn -> query($commandNotif);
       }
     }
 }
