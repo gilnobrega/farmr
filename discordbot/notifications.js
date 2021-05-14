@@ -38,45 +38,74 @@ async function sendmsg(id, command) {
 
 }
 
-async function checkNotifs() {
-    var mysql = require('mysql');
-    var connection = mysql.createConnection({
-        host: 'localhost',
-        user: process.env.MYSQL_USER,
-        password: process.env.MYSQL_PASSWORD,
-        database: 'chiabot'
-    });
+var db_config = {
+    host: 'localhost',
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASSWORD,
+    database: 'chiabot'
+};
 
-    connection.connect();
+var connection;
+
+var mysql = require('mysql');
+
+//http://sudoall.com/node-js-handling-mysql-disconnects/
+function handleDisconnect() {
+    connection = mysql.createConnection(db_config); // Recreate the connection, since
+    // the old one cannot be reused.
+
+    connection.connect(function (err) {              // The server is either down
+        if (err) {                                     // or restarting (takes a while sometimes).
+            console.log('error when connecting to db:', err);
+            setTimeout(handleDisconnect, 2000); // We introduce a delay before attempting to reconnect,
+        }                                     // to avoid a hot loop, and to allow our node script to
+    });                                     // process asynchronous requests in the meantime.
+    // If you're also serving http, display a 503 error.
+    connection.on('error', function (err) {
+        console.log('db error', err);
+        setTimeout(handleDisconnect, 2000); // We introduce a delay before attempting to reconnect,
+            handleDisconnect();                         // lost due to either server restart, or a
+    });
+}
+
+async function checkNotifs() {
 
     while (true) {
 
-        connection.query('SELECT notificationID,user,type from notifications', async function (error, results, fields) {
-            if (error) throw error;
+        try {
+            handleDisconnect();
+            connection.query('SELECT notificationID,user,type from notifications', async function (error, results, fields) {
+                if (error) console.log(error);
+                else {
+                    await results.forEach(async function (result) {
+                        var notificationID = result['notificationID'];
+                        var userID = result['user'];
+                        var type = result['type'];
 
-            await results.forEach(async function (result) {
-                var notificationID = result['notificationID'];
-                var userID = result['user'];
-                var type = result['type'];
+                        connection.query('DELETE from notifications where notificationID=' + notificationID, function (error1, results1, fields1) { });
 
-                console.log(userID);
+                        console.log(userID);
 
-                //sends notification
-                await sendmsg(userID, type);
+                        //sends notification
+                        await sendmsg(userID, type);
 
-                connection.query('DELETE from notifications where notificationID=' + notificationID, function (error1, results1, fields1) { });
+                    });
+                }
+
 
             });
 
+            //sleep 1 minute
+            await sleep(1 * 60 * 1000);
 
-        });
+            connection.end();
 
-        //sleep 1 minute
-        await sleep(1 * 60 * 1000);
-
+        }
+        catch (e) {
+            console.log(e);
+        }
     }
-    
-    connection.end();
+
 }
 
 //https://stackoverflow.com/questions/30514584/delay-each-loop-iteration-in-node-js-async

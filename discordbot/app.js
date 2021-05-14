@@ -66,89 +66,43 @@ function runCommand(command, msg) {
   });
 }
 
+function linkUser (id, user, msg)
+{
+  var mysql = require('mysql');
+    var connection = mysql.createConnection({
+        host: 'localhost',
+        user: process.env.MYSQL_USER,
+        password: process.env.MYSQL_PASSWORD,
+        database: 'chiabot'
+    });
+
+    var idEscaped = mysql.escape(id);
+    var userEscaped = mysql.escape(user);
+    console.log(idEscaped);
+
+    connection.connect();
+
+    connection.query(" INSERT INTO farms (id, data, user) VALUES ("  + idEscaped +  ", ';;', " + userEscaped +  ") ON DUPLICATE KEY UPDATE user=IF(user='none'," + userEscaped +  ", user);", function (error, results, fields) {
+
+      const embed = new MessageEmbed()
+        .setColor(0x40ab5c)
+        .setTitle("Linked ID to your Discord account successfully")
+        .setDescription("");
+      msg.channel.send(embed).then(sentmsg => {
+
+        if (msg.channel.type != "dm") {
+          setTimeout(() => msg.delete().catch(), 1);
+          setTimeout(() => sentmsg.delete().catch(), minsTimeout * 60 * 1000);
+        }
+      });
+    });
+
+    connection.end();
+}
+
 //shows disclaimer when user runs command in #general
 function tooPowerful(msg) {
   msg.reply("Oh no! This command is too powerful for this channel!\nPlease run it in <#838813418793336832> so we can keep this channel free of SPAM.");
-}
-
-//takes values in wei and outputs in eth, rounded up to 3 decimal places
-function weiToEth(wei) {
-
-  decimal = 2;
-
-  return +(wei * Math.pow(10, -18)).toFixed(decimal); //+ in the beginning converts the string to int
-
-}
-
-function intToPerc(value) {
-  decimal = 0;
-  if (value < 0.05) decimal = 1;
-  if (value < 0.01) decimal = 2;
-  if (value < 0.001) decimal = 3;
-  if (value < 0.0001) decimal = 4;
-
-  console.log(value);
-  return +(value * 100).toFixed(decimal);
-}
-
-//takes a block number and outputs discord message with info about that block
-function blockInfo(number, msg, luck, number2) {
-  //ETHERSCAN BLOCK APIS, basically only used to get block reward
-  const etherscanurlblock = 'https://api.etherscan.io/api?module=block&action=getblockreward&blockno=' + number + '&apikey=' + etherscanAPIKey;
-  console.log(etherscanurlblock);
-  fetch(etherscanurlblock)
-    .then(function (u) { return u.json(); })
-    .then(function (json) {
-      block = json['result'];
-      reward = block['blockReward'];
-      mev = 0;
-      prob = 0;
-      //ETHERSCAN INTERNAL TRANSACTIONS APIS, BLOCK NUMBER IS A PARAMETER
-      //filters mev transactions by block number
-      if (number2 == undefined) number2 = number;
-
-      const etherscanurlinttxs = 'https://api.etherscan.io/api?module=account&action=txlistinternal&address=0x7f101fe45e6649a6fb8f3f8b43ed03d353f2b90c&startblock=' + number + '&endblock=' + number2 + '&sort=asc&apikey=' + etherscanAPIKey;
-      console.log(etherscanurlinttxs);
-      fetch(etherscanurlinttxs)
-        .then(function (v) { return v.json(); })
-        .then(function (json2) {
-
-          //bunch of mev transactions associated with that block number
-          txs = json2['result'];
-          //console.log(txs);
-
-          //sums all of those mev transactions values into mevrewards
-          for (i = 0; i < txs.length; i++) {
-            mev = mev + txs[i]['value'];
-          }
-
-          //converts wei to eth and sums mev and reward
-          mevEth = weiToEth(mev);
-          rewardEth = weiToEth(reward);
-          totalEth = weiToEth(+(mev) + +(reward));
-
-          //if luck is defined adds a luck string to description
-          luckstr = "";
-          if (luck != undefined) {
-            prob = (1 / Math.exp(1 / luck));
-            if ((1 - prob) < prob) prob = 1 - prob;
-            luckstr = "\n:four_leaf_clover: Luck/Effort: " + intToPerc(luck) + "% / " + intToPerc(1 / luck) + "%"
-              + "\n:game_die: Probability: " + intToPerc(prob) + "%"; // " + intToPerc(1-prob) + "%";
-          }
-          //displays final message with info regarding that block
-          const embed = new MessageEmbed()
-            .setTitle('Block #' + number)
-            .setColor(0xff0000)
-            .setDescription(':money_mouth: Block Reward: ' + rewardEth + ' ETH\n' +
-              ':money_with_wings: MEV: ' + mevEth + ' ETH\n' +
-              ':moneybag: Total Reward: ' + totalEth + ' ETH'
-              + luckstr); //luck string is optional whether its specified or not
-          msg.channel.send(embed);
-
-        });
-    });
-
-
 }
 
 const prefix = "!"
@@ -229,55 +183,7 @@ client.on('message', (msg) => {
       var id = args[1];
       var user = msg.author.id;
 
-      fetch("https://chiabot.znc.sh/assign.php?id=" + id + "&user=" + user);
-
-      const embed = new MessageEmbed()
-        .setColor(0x40ab5c)
-        .setTitle("Linked ID to your Discord account successfully")
-        .setDescription("");
-      msg.channel.send(embed).then(sentmsg => {
-
-        if (msg.channel.type != "dm") {
-          setTimeout(() => msg.delete(), 1);
-          setTimeout(() => sentmsg.delete(), minsTimeout * 60 * 1000);
-        }
-      });
-    }
-
-    //If no block number is specified then it uses flexpool api to find the latest block's number (even if it's unconfirmed)
-    else if (command === "mev" && args.length == 0) {
-      let blocks;
-      //Flexpool API page, loads last 10 blocks
-      const flexurl = 'https://flexpool.io/api/v1/pool/blocks?page=0';
-
-      fetch(flexurl)
-        .then(function (u) { return u.json(); })
-        .then(function (json) {
-          blocks = json['result']['data'];
-
-          //loads last block
-          lastblock = blocks[0];
-
-          number = lastblock['number'];
-          totalreward = lastblock['total_rewards'];
-          mevreward = 0;
-          luck = lastblock['luck'];
-
-          console.log(number); //DELETE THIS LATER
-
-          blockInfo(number, msg, luck);
-        });
-
-    }
-    //IF a block number is specified next to the command then it searches etherscan directly for that block's info
-    else if (command === "mev" && args.length == 1) {
-      number = args[0];
-      blockInfo(number, msg);
-    }
-    else if (command === "mev" && args.length == 2) {
-      number = args[0];
-      number2 = args[1];
-      blockInfo(number, msg, undefined, number2);
+      linkUser(id, user, msg);
 
     }
 
