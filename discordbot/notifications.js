@@ -64,7 +64,7 @@ function handleDisconnect() {
     connection.on('error', function (err) {
         console.log('db error', err);
         setTimeout(handleDisconnect, 2000); // We introduce a delay before attempting to reconnect,
-            handleDisconnect();                         // lost due to either server restart, or a
+        handleDisconnect();                         // lost due to either server restart, or a
     });
 }
 
@@ -95,6 +95,8 @@ async function checkNotifs() {
 
             });
 
+            updateStatus();
+
             //sleep 1 minute
             await sleep(1 * 60 * 1000);
 
@@ -106,6 +108,32 @@ async function checkNotifs() {
         }
     }
 
+}
+
+var userCount = 0;
+var devicesCount = 0;
+
+function updateStatus() {
+
+    connection.query(
+        "SELECT user FROM farms WHERE data<>'' AND data<>';' AND user<>'none' group by user", function (error, results, fields) {
+            if (error) console.log(error);
+            else {
+                userCount = results.length;
+            }
+        });
+
+
+    connection.query(
+        "SELECT id FROM farms WHERE data<>'' AND data<>';'", function (error, results, fields) {
+            if (error) console.log(error);
+            else {
+                devicesCount = results.length;
+            }
+        });
+
+    var status = userCount + " users, " + devicesCount + " devices";
+    client.user.setActivity(status, { type: "LISTENING" });
 }
 
 //https://stackoverflow.com/questions/30514584/delay-each-loop-iteration-in-node-js-async
