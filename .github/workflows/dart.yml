@@ -126,7 +126,7 @@ jobs:
              dart compile exe chiabot_harvester.dart
              ./chiabot.exe harvester onetime
              move ./chiabot.exe ./farmer.exe
-             move ./chiabot.exe ./harvester.exe
+             move ./chiabot_harvester.exe ./harvester.exe
              
       - name: Build
         shell: bash
