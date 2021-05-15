@@ -14,7 +14,12 @@ client.on('ready', () => {
 
 client.login(process.env.BOT_TOKEN2); //loads discord token from environment variables file
 
-const { exit } = require('process');
+//handles promise rejections
+process.on('unhandledRejection', error => {
+    // Will print "unhandledRejection err is not defined"
+    console.log('unhandledRejection', error.message);
+    throw error;
+});
 
 async function sendmsg(id, command) {
 
@@ -89,7 +94,7 @@ async function updateStatus(connection) {
         "SELECT user FROM farms WHERE data<>'' AND data<>';' AND user<>'none' group by user");
 
     userCount = results1.length;
-    
+
     [results2, fields2] = await connection.execute(
         "SELECT id FROM farms WHERE data<>'' AND data<>';'");
 

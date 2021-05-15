@@ -102,14 +102,14 @@ Future<void> main(List<String> args) async {
         //Sorts harvesters by farmer/harvester type
         harvesters.sort((client1, client2) => client1.type.index.compareTo(client2.type.index));
 
-        farm.filterDuplicates(false);
-        farm.sortPlots();
-
         harvesters.remove(farm);
 
         for (Harvester harvester in harvesters) {
           farm.addHarvester(harvester);
         }
+
+        farm.filterDuplicates(false);
+        farm.sortPlots();
 
         showHarvester(farm, harvestersCount, farmersCount, netspace, args.contains("full"),
             args.contains("workers"), price.rates[farm.currency]);
