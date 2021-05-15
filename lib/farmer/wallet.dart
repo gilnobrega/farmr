@@ -20,20 +20,23 @@ class Wallet {
 
   Wallet(this._balance, this._daysSinceLastBlock);
 
-  void parseWalletBalance(String binPath, int lastBlockFarmed) {
+  void parseWalletBalance(String binPath, int lastBlockFarmed, bool showWalletBalance) {
     _lastBlockFarmed = lastBlockFarmed;
 
-      var walletOutput = io.Process.runSync(binPath, ["wallet", "show"]).stdout.toString();
+    var walletOutput = io.Process.runSync(binPath, ["wallet", "show"]).stdout.toString();
 
-    try {
-
-      RegExp walletRegex = RegExp("-Total Balance:(.*)xch \\(([0-9]+) mojo\\)", multiLine: false);
-      //converts mojo to xch
-      _balance = int.parse(walletRegex.firstMatch(walletOutput).group(2)) / 1e12;
-    } catch (e) {
-      log.warning("Error: could not parse wallet balance.");
+    if (showWalletBalance) {
+      try {
+        //If user enabled showWalletBalance then parses ``chia wallet show``
+        RegExp walletRegex = RegExp("-Total Balance:(.*)xch \\(([0-9]+) mojo\\)", multiLine: false);
+        //converts mojo to xch
+        _balance = int.parse(walletRegex.firstMatch(walletOutput).group(2)) / 1e12;
+      } catch (e) {
+        log.warning("Error: could not parse wallet balance.");
+      }
     }
 
+    //tries to get synced wallet height
     try {
       RegExp walletHeightRegex = RegExp("Wallet height: ([0-9]+)", multiLine: false);
       _syncedBlockHeight = int.parse(walletHeightRegex.firstMatch(walletOutput).group(1));

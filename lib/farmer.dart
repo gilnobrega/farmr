@@ -96,10 +96,8 @@ class Farmer extends Harvester {
       print("Error parsing Farm info.");
     }
 
-    //If user enabled showWalletBalance then parses ``chia wallet show``
-    if (config.showWalletBalance) {
-      _wallet.parseWalletBalance(config.cache.binPath, lastBlockFarmed);
-    }
+    //parses chia wallet show for block height
+      _wallet.parseWalletBalance(config.cache.binPath, lastBlockFarmed, config.showWalletBalance);
 
     //Parses logs for sub slots info
     if (config.parseLogs) {
