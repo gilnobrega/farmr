@@ -24,7 +24,6 @@ async function sendmsg(id, command) {
         else if (command == "plot") message = ":tada: Your farm just completed another plot.";
         else if (command == "offline") message = ":skull_crossbones: Lost connection to farmer/harvester!";
         else if (command == "stopped") message = ":scream: Your farmer stopped farming!";
-        else exit();
 
         const user = await client.users.fetch(id).catch(() => null);
 
@@ -45,67 +44,45 @@ var db_config = {
     database: 'chiabot'
 };
 
-var connection;
-
-var mysql = require('mysql');
-
-//http://sudoall.com/node-js-handling-mysql-disconnects/
-function handleDisconnect() {
-    connection = mysql.createConnection(db_config); // Recreate the connection, since
-    // the old one cannot be reused.
-
-    connection.connect(function (err) {              // The server is either down
-        if (err) {                                     // or restarting (takes a while sometimes).
-            console.log('error when connecting to db:', err);
-            setTimeout(handleDisconnect, 2000); // We introduce a delay before attempting to reconnect,
-        }                                     // to avoid a hot loop, and to allow our node script to
-    });                                     // process asynchronous requests in the meantime.
-    // If you're also serving http, display a 503 error.
-    connection.on('error', function (err) {
-        console.log('db error', err);
-        setTimeout(handleDisconnect, 2000); // We introduce a delay before attempting to reconnect,
-        handleDisconnect();                         // lost due to either server restart, or a
-    });
-}
-
 async function checkNotifs() {
 
     while (true) {
 
-        try {
-            handleDisconnect();
-            connection.query('SELECT notificationID,user,type from notifications', async function (error, results, fields) {
-                if (error) console.log(error);
-                else {
-                    await results.forEach(async function (result) {
-                        var notificationID = result['notificationID'];
-                        var userID = result['user'];
-                        var type = result['type'];
+        var mysql = require('mysql');
+    
+        var connection = mysql.createConnection(db_config); // Recreate the connection, since
+    
+        connection.connect();
+    
+        connection.query('SELECT notificationID,user,type from notifications', async function (error, results, fields) {
+            if (error) console.log(error);
+            else {
 
-                        connection.query('DELETE from notifications where notificationID=' + notificationID, function (error1, results1, fields1) { });
+                for (var i = 0; i < results.length; i++)
+                {
+                    var result = results[i];
+                    var notificationID = result['notificationID'];
+                    var userID = result['user'];
+                    var type = result['type'];
 
-                        console.log(userID);
+                    connection.query('DELETE from notifications where notificationID=' + notificationID, function (error1, results1, fields1) { });
 
-                        //sends notification
-                        await sendmsg(userID, type);
+                    console.log(type + " " + userID);
 
-                    });
+                    //sends notification
+                    await sendmsg(userID, type);
+
                 }
+            }
 
+        });
 
-            });
+        updateStatus(connection);
 
-            updateStatus();
+        //sleep 1 minute
+        await sleep(1 * 60 * 1000);
+        connection.end();
 
-            //sleep 1 minute
-            await sleep(1 * 60 * 1000);
-
-            connection.end();
-
-        }
-        catch (e) {
-            console.log(e);
-        }
     }
 
 }
@@ -113,7 +90,7 @@ async function checkNotifs() {
 var userCount = 0;
 var devicesCount = 0;
 
-function updateStatus() {
+function updateStatus(connection) {
 
     connection.query(
         "SELECT user FROM farms WHERE data<>'' AND data<>';' AND user<>'none' group by user", function (error, results, fields) {
@@ -132,6 +109,7 @@ function updateStatus() {
             }
         });
 
+    //thanks big O!
     var status = userCount + " users, " + devicesCount + " devices";
     client.user.setActivity(status, { type: "LISTENING" });
 }

@@ -120,7 +120,7 @@ class Log {
 
     try {
       RegExp filtersRegex = RegExp(
-          "([0-9-]+)T([0-9:]+)\\.([0-9]+) harvester chia\\.harvester\\.harvester:\\s+INFO\\s+([0-9]+) plots were eligible for farming \\S+ Found ([0-9]+) proofs\\. Time: ([0-9\\.]+) s\\. Total ([0-9]+) plots\\s",
+          "([0-9-]+)T([0-9:]+)\\.([0-9]+) harvester chia\\.harvester\\.harvester:\\s+INFO\\s+([0-9]+) plots were eligible for farming \\S+ Found ([0-9]+) proofs\\. Time: ([0-9\\.]+) s\\. Total ([0-9]+) plots",
           multiLine: true);
 
       var matches = filtersRegex.allMatches(contents).toList();

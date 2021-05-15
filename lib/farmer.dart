@@ -9,6 +9,8 @@ import 'package:chiabot/harvester.dart';
 import 'package:chiabot/debug.dart' as Debug;
 import 'package:chiabot/farmer/wallet.dart';
 
+import 'packagE:chiabot/server/netspace.dart';
+
 final log = Logger('Farmer');
 
 class Farmer extends Harvester {
@@ -22,12 +24,12 @@ class Farmer extends Harvester {
   double _balance = 0;
   double get balance => _balance; //hides balance if string
 
-  String _networkSize = "0";
-  String get networkSize => _networkSize;
-
   ClientType _type = ClientType.Farmer;
   @override
   ClientType get type => _type;
+
+  NetSpace _netSpace;
+  NetSpace get netSpace => _netSpace;
 
   //SubSlots with 64 signage points
   int _completeSubSlots = 0;
@@ -47,7 +49,6 @@ class Farmer extends Harvester {
         //rounds days since last blocks so its harder to track wallets
         //precision of 0.1 days means uncertainty of 140 minutes
         'daysSinceLastBlock': double.parse(_wallet.daysSinceLastBlock.toStringAsFixed(1)),
-        'networkSize': networkSize,
         'plots': allPlots, //important
         'totalDiskSpace': totalDiskSpace,
         'freeDiskSpace': freeDiskSpace,
@@ -86,10 +87,10 @@ class Farmer extends Harvester {
               (config.showBalance) ? double.parse(line.split('Total chia farmed: ')[1]) : -1.0;
         else if (line.startsWith("Farming status: "))
           _status = line.split("Farming status: ")[1];
-        else if (line.startsWith("Estimated network space: "))
-          _networkSize = line.split("Estimated network space: ")[1];
         else if (line.startsWith("Last height farmed: "))
           lastBlockFarmed = int.tryParse(line.split("Last height farmed: ")[1]);
+        else if (line.startsWith("Estimated network space: "))
+          _netSpace = NetSpace(line.split("Estimated network space: ")[1]);
       }
     } catch (exception) {
       print("Error parsing Farm info.");
@@ -113,16 +114,6 @@ class Farmer extends Harvester {
 
     _status = object['status'];
     _balance = object['balance'];
-    _networkSize = object['networkSize'];
-
-    //PiB to EiB converter
-    if (_networkSize.contains("PiB")) {
-      double value = double.parse(_networkSize.replaceAll("PiB", "").trim());
-      if (value > 1024) {
-        value = value / 1024;
-        _networkSize = "${value.toStringAsPrecision(3)} EiB";
-      }
-    }
 
     double walletBalance = -1.0;
     double daysSinceLastBlock = 0;

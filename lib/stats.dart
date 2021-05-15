@@ -1,7 +1,8 @@
 import 'package:chiabot/harvester.dart';
 import 'package:chiabot/farmer.dart';
 import 'package:chiabot/plot.dart';
-import 'package:chiabot/price.dart';
+import 'package:chiabot/server/price.dart';
+import 'package:chiabot/server/netspace.dart';
 
 import 'dart:math' as Math;
 
@@ -73,9 +74,9 @@ class Stats {
     return output;
   }
 
-  static String showETWEDV(Harvester client, String networkSize, double price, bool full) {
+  static String showETWEDV(Harvester client, NetSpace netSpace, double price, bool full) {
     String output = '';
-    double etw = estimateETW(client, networkSize);
+    double etw = estimateETW(client, netSpace);
 
     if (etw > 0) {
       String etwString = "\n:moneybag: ETW: ${etw.toStringAsFixed(1)} days";
@@ -141,9 +142,9 @@ class Stats {
     return output;
   }
 
-  static String showNetworkSize(Harvester client) {
+  static String showNetworkSize(Harvester client, NetSpace netSpace) {
     String output = '';
-    if (client is Farmer) output += "\n:satellite: Network size: " + client.networkSize;
+    if (client is Farmer) output += "\n:satellite: Network size: " + netSpace.humanReadableSize;
 
     return output;
   }
@@ -436,16 +437,10 @@ class Stats {
 
 //Estimates ETW in days
 //Decimals are more precise (in theory)
-  static double estimateETW(Harvester client, String networkSize) {
-    double networkSizeBytes = 0;
+  static double estimateETW(Harvester client, NetSpace netSpace) {
+    double networkSizeBytes = (netSpace.size*1.0);
 
     int size = plotSumSize(client.plots);
-
-    //1 PiB is 1024^5 bytes, 1 EiB is 1024^6 bytes
-    if (networkSize.contains("PiB"))
-      networkSizeBytes = double.parse(networkSize.replaceAll(" PiB", "")) * Math.pow(1024, 5);
-    else if (networkSize.contains("EiB"))
-      networkSizeBytes = double.parse(networkSize.replaceAll(" EiB", "")) * Math.pow(1024, 6);
 
     double blocks = 32.0; //32 blocks per 10 minutes
 
@@ -502,7 +497,13 @@ class Stats {
 //Duration between first plot is completed and current time
 // NEED TO CHANGE THIS FUNCTION'S NAME BUT I DONT KNOW A BETTER NAME
   static Duration farmingTime(List<Plot> plots) {
-    return DateTime.now().difference(firstPlot(plots).end);
+    Duration duration1 = DateTime.now().difference(firstPlot(plots).begin);
+    Duration duration2 = DateTime.now().difference(firstPlot(plots).end);
+
+    if (duration1.inMilliseconds > duration2.inMilliseconds)
+      return duration1;
+    else
+      return duration2;
   }
 
 //Human readable n days ago string seen above

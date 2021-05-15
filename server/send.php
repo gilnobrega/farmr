@@ -7,16 +7,16 @@ if ($conn -> connect_errno)
 echo "Failed to connect to database!";
 }
 
-if ( isset($_GET['id']) && isset($_POST['data']))
+if ( isset($_POST['id']) && isset($_POST['data']))
 {
- $id = $conn -> real_escape_string($_GET['id']);
+ $id = $conn -> real_escape_string($_POST['id']);
  $data = $conn -> real_escape_string($_POST['data']);
 
  $command = " INSERT INTO farms (id, data, user) VALUES ('" . $id . "','" . $data . "', 'none') ON DUPLICATE KEY UPDATE data='" . $data . "';";
  $result = $conn -> query($command);
 
     //if one of these variables are set, then it needs to find user id 
-    if (isset($_GET['balance']) || isset($_GET['lastPlot']) || isset($_GET['notifyOffline']) || isset($_GET['isFarming']))
+    if (isset($_POST['balance']) || isset($_POST['lastPlot']) || isset($_POST['notifyOffline']) || isset($_POST['isFarming']))
     {
         $user = "none";
 
@@ -29,10 +29,10 @@ if ( isset($_GET['id']) && isset($_POST['data']))
             $user = $row[0];
         }
 
-        if (isset($_GET['lastPlot']) && $_GET['lastPlot'] != "0")
+        if (isset($_POST['lastPlot']) && $_POST['lastPlot'] != "0")
         {
 
-            $lastPlot = $conn -> real_escape_string($_GET['lastPlot']);
+            $lastPlot = $conn -> real_escape_string($_POST['lastPlot']);
 
             $checkIfPlots = "SELECT lastplot from lastplots WHERE id='" . $id . "';";
             $result3 = $conn -> query($checkIfPlots);
@@ -56,7 +56,7 @@ if ( isset($_GET['id']) && isset($_POST['data']))
 
             } 
             //If there is an entry with last plot and its different from previous registered plot id then update it and notify user
-            else if ($previousID != $lastPlot)
+            else if (($previousID !== $lastPlot) && (gettype($previousID) === gettype($lastPlot)))
             {
                 $command2 = " UPDATE lastplots set lastplot='" . $lastPlot . "' WHERE id='" . $id . "';";
                 $conn -> query($command2);
@@ -70,9 +70,9 @@ if ( isset($_GET['id']) && isset($_POST['data']))
 
         }
 
-        if (isset($_GET['balance']))
+        if (isset($_POST['balance']))
         {
-            $balance = floatval($conn -> real_escape_string($_GET['balance']));
+            $balance = floatval($conn -> real_escape_string($_POST['balance']));
 
             //checks stored balance, or if there is an entry in the database
             $checkBalance = "SELECT balance from balances WHERE id='" . $id . "';";
@@ -111,22 +111,22 @@ if ( isset($_GET['id']) && isset($_POST['data']))
 
         }
 
-        if (isset($_GET['notifyOffline']))
+        if (isset($_POST['notifyOffline']))
         {
-            $notify = $conn -> real_escape_string($_GET['notifyOffline']);
+            $notify = $conn -> real_escape_string($_POST['notifyOffline']);
 
             $command4 = " INSERT INTO offline (id, notify) VALUES ('" . $id . "','" . $notify . "') ON DUPLICATE KEY UPDATE notify='" . $notify . "' ;";
             $conn -> query($command4);
 
         }
 
-        if (isset($_GET['isFarming']))
+        if (isset($_POST['isFarming']))
         {
 
-            $isFarming = $conn -> real_escape_string($_GET['isFarming']);
+            $isFarming = (int) $conn -> real_escape_string($_POST['isFarming']);
 
-            $checkIfPlots = "SELECT isfarming from statuses WHERE id='" . $id . "';";
-            $result5 = $conn -> query($checkIfPlots);
+            $checkIfFarming = "SELECT isfarming from statuses WHERE id='" . $id . "';";
+            $result5 = $conn -> query($checkIfFarming);
 
             $existsEntry = false;
             $previousValue = "0";
@@ -134,7 +134,7 @@ if ( isset($_GET['id']) && isset($_POST['data']))
             while ($row = $result5 -> fetch_row())
             {
                 $existsEntry = true;
-                $previousValue = $row[0];
+                $previousValue = (int) $row[0];
             }
 
             $command5 = "";
@@ -147,13 +147,13 @@ if ( isset($_GET['id']) && isset($_POST['data']))
 
             } 
             //If there is an entry with last plot and its different from previous registered plot id then update it and notify user
-            else if ($isFarming != $previousValue)
+            else if (($isFarming !== $previousValue) && (gettype($isFarming) === gettype($previousValue)))
             {
                 $command5 = " UPDATE statuses set isfarming='" . $isFarming . "' WHERE id='" . $id . "';";
                 $conn -> query($command5);
  
                 //send notification if client was previously farming but now its not
-                if ($previousValue == "1")
+                if ($previousValue === 1)
                 {
                     $arg = "stopped";
                     //send notification

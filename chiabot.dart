@@ -12,6 +12,7 @@ import 'package:chiabot/cache.dart';
 import 'package:chiabot/debug.dart';
 
 import 'server/chiabot_server.dart' as Stats;
+import 'package:chiabot/server/netspace.dart';
 
 final log = Logger('Client');
 
@@ -43,6 +44,8 @@ main(List<String> args) async {
   io.ProcessSignal.sigint.watch().listen((signal) {
     io.exit(0);
   });
+
+  String type = '';
 
   //launches client in onetime mode, where it runs one time and doesnt loop
   bool onetime = args.contains("onetime");
@@ -95,7 +98,7 @@ main(List<String> args) async {
 
       //shows stats in client
       Stats.showHarvester(
-          client, 0, 0, (client is Farmer) ? client.networkSize : "0", false, true, 0.0, false);
+          client, 0, 0, (client is Farmer) ? client.netSpace : NetSpace(), false, true, 0.0, false);
 
       //copies object to a json string
       copyJson = jsonEncode(client);
@@ -125,33 +128,38 @@ main(List<String> args) async {
             ? '1' //1 means is farming
             : '0';
 
-        String url = "https://chiabot.znc.sh/send3.php?id=" +
-            config.cache.id +
-            "&notifyOffline=" +
-            notifyOffline;
+        Map<String, String> post = {
+          "data": sendJson,
+          "notifyOffline": notifyOffline,
+          "id": config.cache.id
+        };
+
+        String url = "https://chiabot.znc.sh/send4.php";
 
         if (config.type == ClientType.Farmer && config.sendStatusNotifications)
-          url += "&isFarming=" + isFarming;
+          post.putIfAbsent("isFarming", () => isFarming);
 
         //Adds the following if sendPlotNotifications is enabled then it will send plotID
-        if (config.sendPlotNotifications) url += "&lastPlot=" + lastPlotID;
+        if (config.sendPlotNotifications) post.putIfAbsent("lastPlot", () => lastPlotID);
 
         //If the client is a farmer and it is farming and sendBalanceNotifications is enabled then it will send balance
         if (config.type == ClientType.Farmer &&
             config.sendBalanceNotifications &&
-            status == "Farming") url += "&balance=" + Uri.encodeComponent(balance.toString());
+            status == "Farming") post.putIfAbsent("balance", () => balance);
 
-        http.post(url, body: {"data": sendJson}).catchError(() {
+        type = (config.type == ClientType.Farmer) ? "farmer" : "harvester";
+
+        http.post(url, body: post).catchError((error) {
           log.warning("Server timeout.");
+          log.info(error.toString());
+        }).whenComplete(() {
+          log.warning("\nSent " +
+              type +
+              " report to server.\nRetrying in " +
+              delay.inMinutes.toString() +
+              " minutes");
         });
 
-        String type = (config.type == ClientType.Farmer) ? "farmer" : "harvester";
-
-        log.warning("\nSent " +
-            type +
-            " report to server.\nRetrying in " +
-            delay.inMinutes.toString() +
-            " minutes");
         log.info("url:${url}");
         log.info("data sent:\n${sendJson}");
 

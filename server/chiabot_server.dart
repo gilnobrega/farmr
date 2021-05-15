@@ -7,7 +7,8 @@ import 'package:http/http.dart' as http;
 import 'package:chiabot/farmer.dart';
 import 'package:chiabot/harvester.dart';
 import 'package:chiabot/stats.dart';
-import 'package:chiabot/price.dart';
+import 'package:chiabot/server/price.dart';
+import 'package:chiabot/server/netspace.dart';
 
 Future<void> main(List<String> args) async {
   dotenv.load();
@@ -32,10 +33,16 @@ Future<void> main(List<String> args) async {
     Duration difference =
         DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(price.timestamp));
 
+    String coinMarketCap = ' - coinmarketcap.com';
+
     if (difference.inMinutes > 0)
-      print("-- last updated ${difference.inMinutes} minutes ago");
+      print("-- last updated ${difference.inMinutes} minutes ago" + coinMarketCap);
     else
-      print("-- last updated ${difference.inSeconds} seconds ago");
+      print("-- last updated ${difference.inSeconds} seconds ago" + coinMarketCap);
+  } else if (args[0] == "netspace") {
+    NetSpace netspace = NetSpace();
+    await netspace.init();
+    print(netspace.humanReadableSize);
   } else {
     //Discord User ID
     String userID = args[0];
@@ -47,13 +54,17 @@ Future<void> main(List<String> args) async {
     int farmersCount = 0;
     int harvestersCount = 0;
 
+    NetSpace netspace = NetSpace();
+
     try {
       //Gets user data and Price in parallel, since both are parsed from web
       final async1 = _getUserData(userID);
       final async2 = _getPrice();
+      final async3 = netspace.init();
 
       harvesters = await async1;
       price = await async2;
+      await async3;
     } catch (e) {
       print("Failed to connect to server.");
     }
@@ -67,7 +78,6 @@ Future<void> main(List<String> args) async {
 
       Farmer farm =
           harvesters.where((client) => client is Farmer).first; //Selects newest farm as main farm
-      String networkSize = farm.networkSize;
 
       harvestersCount = harvesters.where((client) => !(client is Farmer)).length;
       farmersCount = harvesters.length - harvestersCount;
@@ -83,8 +93,8 @@ Future<void> main(List<String> args) async {
           harvester.filterDuplicates(false);
           harvester.sortPlots();
 
-          showHarvester(harvester, harvestersCount, farmersCount, networkSize,
-              args.contains("full"), args.contains("workers"), price.rates[harvester.currency]);
+          showHarvester(harvester, harvestersCount, farmersCount, netspace, args.contains("full"),
+              args.contains("workers"), price.rates[harvester.currency]);
 
           if (harvester != harvesters.last) print(';;');
         }
@@ -101,7 +111,7 @@ Future<void> main(List<String> args) async {
           farm.addHarvester(harvester);
         }
 
-        showHarvester(farm, harvestersCount, farmersCount, networkSize, args.contains("full"),
+        showHarvester(farm, harvestersCount, farmersCount, netspace, args.contains("full"),
             args.contains("workers"), price.rates[farm.currency]);
       }
     } catch (Exception) {
@@ -204,7 +214,7 @@ Future<Price> _getPrice() async {
   return price;
 }
 
-showHarvester(Harvester harvester, int harvestersCount, int farmersCount, String networkSize,
+showHarvester(Harvester harvester, int harvestersCount, int farmersCount, NetSpace netSpace,
     bool isFull, bool isWorkers, double price,
     [bool discord = true]) {
   String output;
@@ -223,8 +233,8 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount, String
     String main = name +
         Stats.showBalance(harvester, price) +
         Stats.showPlotsInfo(harvester) +
-        Stats.showETWEDV(harvester, networkSize, price, !isWorkers) +
-        Stats.showNetworkSize(harvester) +
+        Stats.showETWEDV(harvester, netSpace, price, !isWorkers) +
+        Stats.showNetworkSize(harvester, netSpace) +
         Stats.showFarmedTime(harvester);
 
     String full = (isFull || isWorkers)

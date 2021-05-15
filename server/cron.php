@@ -21,10 +21,10 @@ while ($row = $result1 -> fetch_row())
 
     while ($row3 = $result3 -> fetch_row())
     {
-      $notifyOffline = $row3[0];
+      $notifyOffline = (int) $row3[0];
 
       //sends notification if it is linked 
-      if ($notifyOffline == '1' && $user != "none")
+      if ($notifyOffline === 1 && $user !== "none" && gettype($user) == gettype("none"))
       {
         //send
         $arg = "offline";
