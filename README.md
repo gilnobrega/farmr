@@ -21,13 +21,13 @@ The ChiaBot client is available for Windows, Linux and macOS. You can interact w
 Proceed with the following platform-specific instructions:
 
 #### Windows
+1. Download ``chiabot-windows-amd64.zip`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and extract it to an **empty** folder.
+
 - If you're setting up a **farmer/full-node**
-   1. Download ``chiabot-windows-amd64.exe`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and move it to an **empty** folder.
    2. Open ``chiabot-windows-amd64.exe``, once you see the main screen with your id and farmer stats you're good to go.
    3. Link your device to your discord account as shown in [First Time](#first-time)
 
 - If you're setting up a **harvester**
-   1. Download ``chiabot_harvester-windows-amd64.exe`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and move it to an **empty** folder.
    2. Open ``chiabot_harvester-windows-amd64.exe``, once you see the main screen with your id and harvester stats you're good to go.
    3. Link your device to your discord account as shown in [First Time](#first-time)
 
