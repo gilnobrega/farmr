@@ -37,51 +37,44 @@ async function sendmsg(id, command) {
 
 }
 
-var db_config = {
+const db_config = {
     host: 'localhost',
     user: process.env.MYSQL_USER,
     password: process.env.MYSQL_PASSWORD,
-    database: 'chiabot'
+    database: 'chiabot',
+    waitForConnections: true,
+    connectionLimit: 1
 };
 
 async function checkNotifs() {
 
+    const mysql = require('mysql2/promise');
+
     while (true) {
 
-        var mysql = require('mysql');
-    
-        var connection = mysql.createConnection(db_config); // Recreate the connection, since
-    
-        connection.connect();
-    
-        connection.query('SELECT notificationID,user,type from notifications', async function (error, results, fields) {
-            if (error) console.log(error);
-            else {
+        const connection = await mysql.createConnection(db_config); // Recreate the connection, since
 
-                for (var i = 0; i < results.length; i++)
-                {
-                    var result = results[i];
-                    var notificationID = result['notificationID'];
-                    var userID = result['user'];
-                    var type = result['type'];
+        [results, fields] = await connection.execute('SELECT notificationID,user,type from notifications');
 
-                    connection.query('DELETE from notifications where notificationID=' + notificationID, function (error1, results1, fields1) { });
+        for (var i = 0; i < results.length; i++) {
+            var result = results[i];
+            var notificationID = result['notificationID'];
+            var userID = result['user'];
+            var type = result['type'];
 
-                    console.log(type + " " + userID);
+            await connection.execute('DELETE from notifications where notificationID=' + notificationID);
 
-                    //sends notification
-                    await sendmsg(userID, type);
+            console.log(type + " " + userID);
 
-                }
-            }
+            //sends notification
+            await sendmsg(userID, type);
 
-        });
+        }
 
-        updateStatus(connection);
+        await updateStatus(connection);
 
         //sleep 1 minute
         await sleep(1 * 60 * 1000);
-        connection.end();
 
     }
 
@@ -90,24 +83,14 @@ async function checkNotifs() {
 var userCount = 0;
 var devicesCount = 0;
 
-function updateStatus(connection) {
+async function updateStatus(connection) {
 
-    connection.query(
-        "SELECT user FROM farms WHERE data<>'' AND data<>';' AND user<>'none' group by user", function (error, results, fields) {
-            if (error) console.log(error);
-            else {
-                userCount = results.length;
-            }
-        });
+    await connection.execute(
+        "SELECT user FROM farms WHERE data<>'' AND data<>';' AND user<>'none' group by user");
 
 
-    connection.query(
-        "SELECT id FROM farms WHERE data<>'' AND data<>';'", function (error, results, fields) {
-            if (error) console.log(error);
-            else {
-                devicesCount = results.length;
-            }
-        });
+    await connection.execute(
+        "SELECT id FROM farms WHERE data<>'' AND data<>';'");
 
     //thanks big O!
     var status = userCount + " users, " + devicesCount + " devices";
