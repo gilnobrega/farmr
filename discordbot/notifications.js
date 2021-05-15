@@ -85,12 +85,15 @@ var devicesCount = 0;
 
 async function updateStatus(connection) {
 
-    await connection.execute(
+    [results1, fields1] = await connection.execute(
         "SELECT user FROM farms WHERE data<>'' AND data<>';' AND user<>'none' group by user");
 
-
-    await connection.execute(
+    userCount = results1.length;
+    
+    [results2, fields2] = await connection.execute(
         "SELECT id FROM farms WHERE data<>'' AND data<>';'");
+
+    devicesCount = results2.length;
 
     //thanks big O!
     var status = userCount + " users, " + devicesCount + " devices";
