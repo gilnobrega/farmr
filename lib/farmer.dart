@@ -25,11 +25,7 @@ class Farmer extends Harvester {
 
   //number of full nodes connected to farmer
   int _fullNodesConnected = 0;
-  int get fullNodesConnected => (_fullNodesConnected != 0)
-      ? _fullNodesConnected
-      : _connections.connections
-          .where((connection) => connection.type == ConnectionType.FullNode)
-          .length;
+  int get fullNodesConnected => _fullNodesConnected;
 
   //Farmed balance
   double _balance = 0;
@@ -111,7 +107,11 @@ class Farmer extends Harvester {
     //parses chia wallet show for block height
     _wallet.parseWalletBalance(config.cache.binPath, lastBlockFarmed, config.showWalletBalance);
 
+    //initializes connections and counts peers
     _connections = Connections(config.cache.binPath);
+    _fullNodesConnected = _connections.connections
+        .where((connection) => connection.type == ConnectionType.FullNode)
+        .length;
 
     //Parses logs for sub slots info
     if (config.parseLogs) {
