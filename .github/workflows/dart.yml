@@ -125,13 +125,15 @@ jobs:
              dart compile exe chiabot.dart
              dart compile exe chiabot_harvester.dart
              ./chiabot.exe harvester onetime
+             move ./chiabot.exe ./farmer.exe
+             move ./chiabot.exe ./harvester.exe
              
       - name: Build
         shell: bash
         if: matrix.os == 'windows-latest' && matrix.architecture == 'x64'
         run: |
           # Pack files WINDOWS
-          7z a -tzip "chiabot-windows-amd64.zip" "./*.exe"
+          7z a -tzip "chiabot-windows-amd64.zip" "./*.exe" "./config.json"
 
       - name: Release
         uses: softprops/action-gh-release@v1
