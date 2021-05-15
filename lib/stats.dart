@@ -384,9 +384,13 @@ class Stats {
 
       String percentage = (ratio * 100).toStringAsFixed(2);
 
-      output += "\n\n*EXPERIMENTAL*";
+      output += "\n\n*Full Node Stats*";
       output += "\n${harvester.completeSubSlots} complete Sub Slots";
       output += "\n${percentage}% loose Signage Points";
+    }
+
+    if (harvester is Farmer && harvester.fullNodesConnected > 0) {
+      output += "\nConnected to ${harvester.fullNodesConnected} peers";
     }
 
     return output;
@@ -438,7 +442,7 @@ class Stats {
 //Estimates ETW in days
 //Decimals are more precise (in theory)
   static double estimateETW(Harvester client, NetSpace netSpace) {
-    double networkSizeBytes = (netSpace.size*1.0);
+    double networkSizeBytes = (netSpace.size * 1.0);
 
     int size = plotSumSize(client.plots);
 
@@ -488,11 +492,11 @@ class Stats {
 
     return averageDuration;
   }
-  
+
   //Duration between first plot started being plotted and last plot is completed
-   static Duration farmedTime(List<Plot> plots) {
-     return lastPlot(plots).end.difference(firstPlot(plots).begin);
-   }
+  static Duration farmedTime(List<Plot> plots) {
+    return lastPlot(plots).end.difference(firstPlot(plots).begin);
+  }
 
 //Duration between first plot is completed and current time
 // NEED TO CHANGE THIS FUNCTION'S NAME BUT I DONT KNOW A BETTER NAME

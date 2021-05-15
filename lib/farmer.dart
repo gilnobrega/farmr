@@ -8,6 +8,7 @@ import 'package:chiabot/config.dart';
 import 'package:chiabot/harvester.dart';
 import 'package:chiabot/debug.dart' as Debug;
 import 'package:chiabot/farmer/wallet.dart';
+import 'package:chiabot/farmer/connections.dart';
 
 import 'packagE:chiabot/server/netspace.dart';
 
@@ -19,6 +20,16 @@ class Farmer extends Harvester {
 
   Wallet _wallet = Wallet(-1.0, 0);
   Wallet get wallet => _wallet;
+
+  Connections _connections;
+
+  //number of full nodes connected to farmer
+  int _fullNodesConnected = 0;
+  int get fullNodesConnected => (_fullNodesConnected != 0)
+      ? _fullNodesConnected
+      : _connections.connections
+          .where((connection) => connection.type == ConnectionType.FullNode)
+          .length;
 
   //Farmed balance
   double _balance = 0;
@@ -68,6 +79,7 @@ class Farmer extends Harvester {
         'medianTime': medianTime,
         'stdDeviation': stdDeviation,
         'filterCategories': filterCategories,
+        'fullNodesConnected': fullNodesConnected,
         'version': version
       };
 
@@ -97,7 +109,9 @@ class Farmer extends Harvester {
     }
 
     //parses chia wallet show for block height
-      _wallet.parseWalletBalance(config.cache.binPath, lastBlockFarmed, config.showWalletBalance);
+    _wallet.parseWalletBalance(config.cache.binPath, lastBlockFarmed, config.showWalletBalance);
+
+    _connections = Connections(config.cache.binPath);
 
     //Parses logs for sub slots info
     if (config.parseLogs) {
@@ -124,6 +138,8 @@ class Farmer extends Harvester {
 
     if (object['completeSubSlots'] != null) _completeSubSlots = object['completeSubSlots'];
     if (object['looseSignagePoints'] != null) _looseSignagePoints = object['looseSignagePoints'];
+
+    if (object['fullNodesConnected'] != null) _fullNodesConnected = object['fullNodesConnected'];
 
     calculateFilterRatio(this);
   }
