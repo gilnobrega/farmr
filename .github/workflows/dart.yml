@@ -125,8 +125,13 @@ jobs:
              dart compile exe chiabot.dart
              dart compile exe chiabot_harvester.dart
              ./chiabot.exe harvester onetime
-             move chiabot.exe chiabot-windows-amd64.exe
-             move chiabot_harvester.exe chiabot_harvester-windows-amd64.exe
+             
+      - name: Build
+        shell: bash
+        if: matrix.os == 'windows-latest' && matrix.architecture == 'x64'
+        run: |
+          # Pack files WINDOWS
+          7z a -tzip "chiabot-windows-amd64.zip" "./*.exe"
 
       - name: Release
         uses: softprops/action-gh-release@v1
@@ -135,8 +140,7 @@ jobs:
           release_name: Release ${{ github.sha }}
           draft: true
           files: |
-            ./chiabot-windows-amd64.exe
-            ./chiabot_harvester-windows-amd64.exe
+            ./chiabot-windows-amd64.zip
             ./chiabot-linux-amd64.tar.gz
             ./chiabot-macOS-amd64.tar.gz
         env:
