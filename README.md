@@ -21,15 +21,15 @@ The ChiaBot client is available for Windows, Linux and macOS. You can interact w
 Proceed with the following platform-specific instructions:
 
 #### Windows
+1. Download ``chiabot-windows-amd64.zip`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and extract it to an **empty** folder.
+
 - If you're setting up a **farmer/full-node**
-   1. Download ``chiabot-windows-amd64.exe`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and move it to an **empty** folder.
-   2. Open ``chiabot-windows-amd64.exe``, once you see the main screen with your id and farmer stats you're good to go.
-   3. Link your device to your discord account as shown in [First Time](#first-time)
+   1. Open ``farmer.exe``, once you see the main screen with your id and farmer stats you're good to go.
+   2. Link your device to your discord account as shown in [First Time](#first-time)
 
 - If you're setting up a **harvester**
-   1. Download ``chiabot_harvester-windows-amd64.exe`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and move it to an **empty** folder.
-   2. Open ``chiabot_harvester-windows-amd64.exe``, once you see the main screen with your id and harvester stats you're good to go.
-   3. Link your device to your discord account as shown in [First Time](#first-time)
+   1. Open ``harvester.exe``, once you see the main screen with your id and harvester stats you're good to go.
+   2. Link your device to your discord account as shown in [First Time](#first-time)
 
 #### Ubuntu (16.04+), and other amd64 Linux distros
 1. Download ``chiabot-linux-amd64.tar.gz`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and extract it to an **empty** folder.
@@ -94,10 +94,13 @@ These are the default settings:
 [
     {
         "name": null,
+        "currency": "USD",
         "showBalance": true,
+        "showWalletBalance": false,
         "sendBalanceNotifications": true,
         "sendPlotNotifications": false,
         "sendOfflineNotifications": false,
+        "sendStatusNotifications": false,
         "parseLogs": false,
         "chiaPath": null
     }
@@ -107,8 +110,14 @@ These are the default settings:
 #### Name your client
 You can name your client by changing `` "name": null,`` to ``"name": "YourFarmer",`` (notice **quote marks**). This will identify the client as ``YourFarmer`` in `` !chia workers ``.
 
-#### Sharing XCH Balance
-Set ``showBalance`` to ``false`` if you do not want your balance to be reported to the server. Setting this to false will disable Block notifications.
+### Choose your preferred currency
+Replace ``"USD"`` with any of the following 3-digit symbols: ‘USD’, 'EUR', 'CAD', 'GBP', 'AUD', 'SGD', 'JPY', 'INR', 'RMB', 'CNY', 'CHF', 'HKD', 'BRL', 'DKK', 'NZD', 'TRY', 'ETH', 'BTC', 'ETC'.
+
+#### Sharing farmed XCH Balance
+Set ``showBalance`` to ``false`` if you do not want your farmed balance to be reported to the server. Setting this to false will disable Block notifications.
+
+#### Sharing Wallet Balance
+Set ``showWalletBalance`` to ``true`` if you want your wallet balance to be displayed.
 
 #### Plot Notifications
 Set ``sendPlotNotifications`` to ``true`` if you wish to be notified when your farmer/harvester completes a plot.
@@ -154,7 +163,7 @@ If the client crashes:
 ## FAQ
 
 ##### Are you going to steal my keys?
-No. The only command issued by chiabot client is ``chia farm summary``. It does not use Chia's RCP servers, therefore it doesn't even need your private key.
+No. The only commands issued by chiabot client is ``chia farm summary`` for farmer stats, ``chia wallet show`` for wallet balance parsing and ``chia show -c`` to count how many peers are connected to your full node. It does not use Chia's RCP servers, therefore it doesn't even need your private key.
 
 ##### How can I trust you?
 This project is open-source, so you don't have to trust me. Read the code yourself :)
