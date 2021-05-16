@@ -144,7 +144,7 @@ class Stats {
 
   static String showNetworkSize(Harvester client, NetSpace netSpace) {
     String output = '';
-    if (client is Farmer) output += "\n:satellite: Network size: " + netSpace.humanReadableSize;
+    if (client is Farmer) output += "\n:satellite: Netspace: " + netSpace.humanReadableSize + " " + netSpace.dayDifference;
 
     return output;
   }

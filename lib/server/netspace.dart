@@ -2,13 +2,15 @@ import 'dart:io' as io;
 import 'dart:math' as Math;
 import 'dart:convert';
 
+import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 
 class NetSpace {
   int _size = 0;
   int get size => _size;
 
-  String get humanReadableSize => _generateHumanReadableSize();
+  String get humanReadableSize => generateHumanReadableSize(size);
+  String get dayDifference => _getDayDifference();
 
   int _timestamp = 0;
   int get timestamp => _timestamp;
@@ -19,7 +21,10 @@ class NetSpace {
   static final Map<String, int> units = {"K": 1, "M": 2, "G": 3, 'T': 4, 'P': 5, 'E': 6};
   static final Map<String, int> bases = {'B': 1000, 'iB': 1024};
 
-  Map toJson() => {"timestamp": timestamp, "size": size};
+  //timestamp, size
+  Map<String, int> pastSizes = {};
+
+  Map toJson() => {"timestamp": timestamp, "size": size, "pastSizes": pastSizes};
 
   NetSpace([String humanReadableSize = null]) {
     if (humanReadableSize != null) {
@@ -35,22 +40,59 @@ class NetSpace {
       await _load();
     else {
       await _getNetSpace();
+      await _getPastSizes();
       _save();
     }
   }
 
   _getNetSpace() async {
-    String contents = await http.read("https://chianetspace.azurewebsites.net/data/summary");
+    try {
+      String contents = await http.read("https://chianetspace.azurewebsites.net/data/summary");
 
-    var content = jsonDecode(contents);
+      var content = jsonDecode(contents);
 
-    var sizeString = content['netSpace']['largestWholeNumberBinaryValue'];
-    var units = content['netSpace']['largestWholeNumberBinarySymbol'];
+      var sizeString = content['netSpace']['largestWholeNumberBinaryValue'];
+      var units = content['netSpace']['largestWholeNumberBinarySymbol'];
 
-    _size = sizeStringToInt('${sizeString} ${units}');
+      _size = sizeStringToInt('${sizeString} ${units}');
+    } catch (e) {}
+  }
+
+  _getPastSizes() async {
+    try {
+      String contents = await http.read("http://alpha2.chianetspace.com/data.php");
+
+      var array = jsonDecode(contents);
+
+      for (var pastSize in array) {
+        int timestamp = DateFormat('y-M-d').parse(pastSize['date']).millisecondsSinceEpoch;
+        int size = sizeStringToInt("${pastSize['netspace']} PiB");
+        pastSizes.putIfAbsent(timestamp.toString(), () => size);
+      }
+    } catch (e) {}
+  }
+
+  String _getDayDifference() {
+    var entries = pastSizes.entries.toList();
+    if (entries.length > 0) entries.removeLast();
+    entries.sort((entry1, entry2) => int.parse(entry2.key).compareTo(int.parse(entry1.key)));
+
+    double ratio = 0;
+    String percentage = '';
+    if (entries.length > 0) {
+      ratio = 100 * ((size / entries.first.value)-1);
+
+      var sign = (ratio > 0) ? "+" : "-";
+
+      percentage = "(${sign}${ratio.abs().toStringAsFixed(1)}%)";
+    }
+   
+   return percentage;
   }
 
   _save() {
+    _timestamp = DateTime.now().millisecondsSinceEpoch;
+
     String serial = jsonEncode(this);
     _cacheFile.writeAsStringSync(serial);
   }
@@ -63,17 +105,18 @@ class NetSpace {
     //then parses new price from api
     if (previousNetSpace.timestamp < _untilTimeStamp) {
       await _getNetSpace();
-      _timestamp = DateTime.now().millisecondsSinceEpoch;
+      await _getPastSizes();
 
       _save();
     } else {
       _timestamp = previousNetSpace.timestamp;
       _size = previousNetSpace.size;
+      pastSizes = previousNetSpace.pastSizes;
     }
   }
 
   //generates a human readable string in xiB from an int size in bytes
-  String _generateHumanReadableSize() {
+  static String generateHumanReadableSize(int size) {
     try {
       var unit;
       for (var entry in units.entries) {
@@ -109,5 +152,7 @@ class NetSpace {
   NetSpace.fromJson(dynamic json) {
     if (json['timestamp'] != null) _timestamp = json['timestamp'];
     if (json['size'] != null) _size = json['size'];
+
+    if (json['pastSizes'] != null) pastSizes = Map<String, int>.from(json['pastSizes']);
   }
 }

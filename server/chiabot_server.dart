@@ -3,6 +3,7 @@ import 'dart:core';
 import 'package:mysql1/mysql1.dart' as mysql;
 import 'package:dotenv/dotenv.dart' as dotenv;
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 import 'package:chiabot/farmer.dart';
 import 'package:chiabot/harvester.dart';
@@ -42,7 +43,32 @@ Future<void> main(List<String> args) async {
   } else if (args[0] == "netspace") {
     NetSpace netspace = NetSpace();
     await netspace.init();
-    print(netspace.humanReadableSize);
+
+    var entries = netspace.pastSizes.entries.toList();
+    if (entries.length > 0) entries.removeLast();
+    entries.sort((entry1, entry2) => int.parse(entry2.key).compareTo(int.parse(entry1.key)));
+
+    print("Netspace: **${netspace.humanReadableSize}** ${netspace.dayDifference}\n");
+
+    int until = 6;
+    for (int i = 0; i < until && i < entries.length; i++) {
+      var pastSize = entries[i];
+
+      DateTime pastSizeDate = DateTime.fromMillisecondsSinceEpoch(int.parse(pastSize.key));
+
+      String date = DateFormat('MMM dd').format(pastSizeDate);
+      String size = NetSpace.generateHumanReadableSize(pastSize.value);
+
+      print("${date}: ${size}");
+    }
+
+    Duration difference =
+        DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(netspace.timestamp));
+
+    if (difference.inMinutes > 0)
+      print("-- last updated ${difference.inMinutes} minutes ago - chianetspace.com");
+    else
+      print("-- last updated ${difference.inSeconds} seconds ago - chianetspace.com");
   } else {
     //Discord User ID
     String userID = args[0];

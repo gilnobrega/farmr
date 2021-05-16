@@ -147,6 +147,9 @@ client.on('message', (msg) => {
     else if (command === "chia" && args.length == 1 && args[0] == "price") {
       runCommand("../server/chiabot_server.exe price", msg, true);
     }
+    else if (command === "chia" && args.length == 1 && args[0] == "netspace") {
+      runCommand("../server/chiabot_server.exe netspace", msg, true);
+    }
     else if (command === 'chia' && args.length == 1 && args[0] == 'help') {
 
       const embed = new MessageEmbed()
@@ -157,6 +160,7 @@ client.on('message', (msg) => {
           + "`` !chia full `` - shows farm summary with additional statistics\n"
           + "`` !chia workers `` - show stats for each of your workers\n"
           + "`` !chia price `` - shows current XCH Exchange Rates\n"
+          + "`` !chia netspace `` - shows current and past netspace\n"
           + "`` !chia api `` - link to your farm's data\n"
           + "`` !chia donate `` - shows developer's wallet address");
 
