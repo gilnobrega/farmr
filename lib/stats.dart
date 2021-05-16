@@ -234,7 +234,6 @@ class Stats {
       }
     }
 
-
     if (netSpace.pastSizes.entries.length > 7) {
       var entries = netSpace.pastSizes.entries.toList();
       entries.sort((entry1, entry2) => int.parse(entry2.key).compareTo(int.parse(entry1.key)));
@@ -253,8 +252,7 @@ class Stats {
     return text;
   }
 
-  static String showWeekPlots(
-      Harvester client, int weekCount, int weekSize, int daysWithPlots) {
+  static String showWeekPlots(Harvester client, int weekCount, int weekSize, int daysWithPlots) {
     String output = '';
 
     if (weekCount > 0) {

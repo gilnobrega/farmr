@@ -58,7 +58,7 @@ Future<void> main(List<String> args) async {
       String date = DateFormat('MMM dd').format(pastSizeDate);
       String size = NetSpace.generateHumanReadableSize(pastSize.value);
 
-      String percentage = (i != until && i != entries.length - 1) ? NetSpace.percentageDiff(pastSize.value, entries[i+1].value) : '';
+      String percentage = (i != until && i != entries.length - 1) ? NetSpace.percentageDiff(pastSize.value, entries[i+1].value, true) : '';
 
       print("${date}: ${size} ${percentage}");
     }
