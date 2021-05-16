@@ -74,7 +74,6 @@ class NetSpace {
 
   String _getDayDifference() {
     var entries = pastSizes.entries.toList();
-    if (entries.length > 0) entries.removeLast();
     entries.sort((entry1, entry2) => int.parse(entry2.key).compareTo(int.parse(entry1.key)));
 
     String percentage = '';
