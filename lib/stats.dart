@@ -401,7 +401,7 @@ class Stats {
 
       output += "\n\n*Full Node Stats*";
       output += "\n${harvester.completeSubSlots} complete Sub Slots";
-      output += "\n${percentage}% loose Signage Points";
+      output += "\n${percentage}% orphan Signage Points";
     }
 
     if (harvester is Farmer && harvester.fullNodesConnected > 0) {
