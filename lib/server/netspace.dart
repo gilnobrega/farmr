@@ -72,15 +72,20 @@ class NetSpace {
     }
   }
 
+  //generates a human readable string in xiB from an int size in bytes
   String _generateHumanReadableSize() {
-    var unit;
-    for (var entry in units.entries) {
-      if (size >= Math.pow(bases['iB'], entry.value)) unit = entry;
+    try {
+      var unit;
+      for (var entry in units.entries) {
+        if (size >= Math.pow(bases['iB'], entry.value)) unit = entry;
+      }
+
+      double value = size / (Math.pow(bases['iB'], unit.value) * 1.0);
+
+      return "${value.toStringAsFixed(3)} ${unit.key}iB";
+    } catch (e) {
+      return "0 B"; //when api fails
     }
-
-    double value = size / (Math.pow(bases['iB'], unit.value) * 1.0);
-
-    return "${value.toStringAsFixed(3)} ${unit.key}iB";
   }
 
   static int sizeStringToInt(String netspace) {
