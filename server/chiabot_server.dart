@@ -45,13 +45,12 @@ Future<void> main(List<String> args) async {
     await netspace.init();
 
     var entries = netspace.pastSizes.entries.toList();
-    if (entries.length > 0) entries.removeLast();
     entries.sort((entry1, entry2) => int.parse(entry2.key).compareTo(int.parse(entry1.key)));
 
     print("Netspace: **${netspace.humanReadableSize}** ${netspace.dayDifference}\n");
 
     int until = 6;
-    for (int i = 0; i < until && i < entries.length; i++) {
+    for (int i = 1; (i <= until && i < entries.length -1 ); i++) {
       var pastSize = entries[i];
 
       DateTime pastSizeDate = DateTime.fromMillisecondsSinceEpoch(int.parse(pastSize.key));
@@ -59,7 +58,9 @@ Future<void> main(List<String> args) async {
       String date = DateFormat('MMM dd').format(pastSizeDate);
       String size = NetSpace.generateHumanReadableSize(pastSize.value);
 
-      print("${date}: ${size}");
+      String percentage = (i != until && i != entries.length - 1) ? NetSpace.percentageDiff(pastSize.value, entries[i+1].value) : '';
+
+      print("${date}: ${size} ${percentage}");
     }
 
     Duration difference =

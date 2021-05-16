@@ -77,17 +77,20 @@ class NetSpace {
     if (entries.length > 0) entries.removeLast();
     entries.sort((entry1, entry2) => int.parse(entry2.key).compareTo(int.parse(entry1.key)));
 
-    double ratio = 0;
     String percentage = '';
-    if (entries.length > 0) {
-      ratio = 100 * ((size / entries.first.value)-1);
+    if (entries.length > 0) percentage = percentageDiff(size, entries.first.value);
 
-      var sign = (ratio > 0) ? "+" : "-";
+    return percentage;
+  }
 
-      percentage = "(${sign}${ratio.abs().toStringAsFixed(1)}%)";
-    }
-   
-   return percentage;
+  static String percentageDiff(int size1, int size2) {
+    double ratio = 100 * ((size1 / size2) - 1);
+
+    var sign = (ratio > 0) ? "+" : "-";
+
+    String percentage = "(${sign}${ratio.abs().toStringAsFixed(1)}%)";
+
+    return percentage;
   }
 
   _save() {
