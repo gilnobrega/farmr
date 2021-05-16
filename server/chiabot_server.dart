@@ -47,21 +47,26 @@ Future<void> main(List<String> args) async {
     var entries = netspace.pastSizes.entries.toList();
     entries.sort((entry1, entry2) => int.parse(entry2.key).compareTo(int.parse(entry1.key)));
 
-    print("Current Netspace: **${netspace.humanReadableSize}** ${netspace.dayDifference}\n");
+    print("Current Netspace: **${netspace.humanReadableSize}**");
+    print("Last 24 hours: ${netspace.dayDifference}\n");
 
     int until = 6;
-    for (int i = 0; (i <= until && i < entries.length -1 ); i++) {
+    for (int i = 0; (i <= until && i < entries.length - 1); i++) {
       var pastSize = entries[i];
 
       DateTime pastSizeDate = DateTime.fromMillisecondsSinceEpoch(int.parse(pastSize.key));
 
-      String date = DateFormat('MMM dd').format(pastSizeDate) + " 12am";
+      String date = DateFormat('MMM dd').format(pastSizeDate);
       String size = NetSpace.generateHumanReadableSize(pastSize.value);
 
-      String percentage = (i != until && i != entries.length - 1) ? NetSpace.percentageDiff(pastSize.value, entries[i+1].value, true) : '';
+      String growth = (i != until && i != entries.length - 1)
+          ? '(' + NetSpace.percentageDiff(pastSize, entries[i + 1], true) + ')'
+          : '';
 
-      print("${date}: ${size} ${percentage}");
+      print("${date}: ${size} ${growth}");
     }
+
+    print("Values recorded at 9pm UTC");
 
     Duration difference =
         DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(netspace.timestamp));

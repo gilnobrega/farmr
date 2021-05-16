@@ -65,7 +65,9 @@ class NetSpace {
       var array = jsonDecode(contents);
 
       for (var pastSize in array) {
-        int timestamp = DateFormat('y-M-d').parse(pastSize['date']).millisecondsSinceEpoch;
+        //parses timestamp and accounts for ChiaNetSpace's timezone
+        int timestamp = DateFormat('y-M-d').parseUTC(pastSize['date']).millisecondsSinceEpoch -
+            Duration(hours: 3).inMilliseconds;
         int size = sizeStringToInt("${pastSize['netspace']} PiB");
         pastSizes.putIfAbsent(timestamp.toString(), () => size);
       }
@@ -77,23 +79,44 @@ class NetSpace {
     entries.sort((entry1, entry2) => int.parse(entry2.key).compareTo(int.parse(entry1.key)));
 
     String percentage = '';
-    if (entries.length > 0) percentage = percentageDiff(size, entries.first.value, true);
+    if (entries.length > 1)
+      percentage = percentageDiff(
+          {"${this.timestamp}": this.size}.entries.first, entries[0], true, entries[1]);
 
     return percentage;
   }
 
-  static String percentageDiff(int size1, int size2, [bool showAbsoluteSize = false]) {
-    double ratio = 100 * ((size1 / size2) - 1);
+  //Always shows 24 hour average increase
+  static String percentageDiff(MapEntry size1, MapEntry size2,
+      [bool showAbsoluteSize = false, MapEntry size3]) {
+    String growth = '';
+    int millisecondsInDay = Duration(days: 1).inMilliseconds;
+
+    int timeDiff = int.parse(size1.key) - int.parse(size2.key);
+    double timeRatio = millisecondsInDay / timeDiff;
+
+    //if timestamps between size1 and size2 netspaces are shorter than a day
+    //then it will use a third timestamp called size3
+    if (timeRatio > 1 && size3 != null) {
+      timeDiff = int.parse(size1.key) - int.parse(size3.key);
+      timeRatio = millisecondsInDay / timeDiff;
+      size2 = size3; //this looks so bad i need to fix this
+    }
+
+    double sizeRatio = 100 * ((size1.value / size2.value) - 1);
+
+    double ratio = timeRatio * sizeRatio;
+    int avgSizeDiff = (timeRatio * (size1.value - size2.value)).round();
 
     var sign = (ratio > 0) ? "+" : "-";
 
     String absoluteSize = '';
 
-    if (showAbsoluteSize) absoluteSize = "${sign}${generateHumanReadableSize(size1 - size2)}, ";
+    if (showAbsoluteSize) absoluteSize = "${sign}${generateHumanReadableSize(avgSizeDiff)}, ";
 
-    String percentage = "(${absoluteSize}${sign}${ratio.abs().toStringAsFixed(1)}%)";
+    growth = "${absoluteSize}${sign}${ratio.abs().toStringAsFixed(1)}%";
 
-    return percentage;
+    return growth;
   }
 
   _save() {
