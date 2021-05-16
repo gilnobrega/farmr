@@ -144,7 +144,9 @@ class Stats {
 
   static String showNetworkSize(Harvester client, NetSpace netSpace) {
     String output = '';
-    if (client is Farmer) output += "\n:satellite: Netspace: " + netSpace.humanReadableSize + " " + netSpace.dayDifference;
+    if (client is Farmer)
+      output +=
+          "\n:satellite: Netspace: " + netSpace.humanReadableSize + " " + netSpace.dayDifference;
 
     return output;
   }
@@ -199,7 +201,7 @@ class Stats {
     return output;
   }
 
-  static String showLastNDaysPlots(Harvester client, int daysAgo) {
+  static String showLastNDaysPlots(Harvester client, int daysAgo, NetSpace netSpace) {
     int weekCount = 0; //counts plots in week of completed days
     int weekSize = 0;
     int daysWithPlots = 0; //days in the last week with plots
@@ -232,12 +234,27 @@ class Stats {
       }
     }
 
+
+    if (netSpace.pastSizes.entries.length > 7) {
+      var entries = netSpace.pastSizes.entries.toList();
+      entries.sort((entry1, entry2) => int.parse(entry2.key).compareTo(int.parse(entry1.key)));
+
+      double ratio = (entries.first.value / entries[6].value - 1);
+
+      //shows number of plots client needs to plot to keep up with netspace growth
+      if (ratio > 0) {
+        int plotsPerDay = (ratio * client.plots.length / 7).ceil();
+        text += "\nNeed ${plotsPerDay} plots per day to keep up with Netspace growth";
+      }
+    }
+
     text += showWeekPlots(client, weekCount, weekSize, daysWithPlots);
 
     return text;
   }
 
-  static String showWeekPlots(Harvester client, int weekCount, int weekSize, int daysWithPlots) {
+  static String showWeekPlots(
+      Harvester client, int weekCount, int weekSize, int daysWithPlots) {
     String output = '';
 
     if (weekCount > 0) {

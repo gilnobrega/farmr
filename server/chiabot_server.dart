@@ -267,7 +267,7 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount, NetSpa
     String full = (isFull || isWorkers)
         ? Stats.showPlotTypes(harvester) +
             Stats.showLastPlotInfo(harvester) +
-            Stats.showLastNDaysPlots(harvester, 8) +
+            Stats.showLastNDaysPlots(harvester, 8, netSpace) +
             Stats.showIncompletePlotsWarning(harvester) +
             Stats.showFilters(harvester) +
             Stats.showSubSlots(harvester)
