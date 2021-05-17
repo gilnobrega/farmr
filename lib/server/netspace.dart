@@ -145,7 +145,7 @@ class NetSpace {
     }
   }
 
-  static final Map<String, int> units = {"": 0, "K": 1, "M": 2, "G": 3, 'T': 4, 'P': 5, 'E': 6};
+  static final Map<String, int> units = {"K": 1, "M": 2, "G": 3, 'T': 4, 'P': 5, 'E': 6};
   static final Map<String, int> bases = {'B': 1000, 'iB': 1024};
 
   //generates a human readable string in xiB from an int size in bytes
