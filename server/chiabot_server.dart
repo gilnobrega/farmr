@@ -149,10 +149,10 @@ Future<void> main(List<String> args) async {
     } catch (Exception) {
       if (farmersCount == 0)
         print("Error: Farmer not found.");
-      else if (harvesters.length > 0)
+      if (harvesters.length > 0)
         print("Error: ${farmersCount} farmers and ${harvestersCount} harvesters found.");
       else
-        print("No clients found!");
+        print("No clients found! Find out how you can install ChiaBot in your farmer/harvester in <#838789194696097843>");
 
       //print("${userID} - Exception: ${Exception.toString()}");
     }
