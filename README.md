@@ -38,6 +38,13 @@ Proceed with the following platform-specific instructions:
       - If you're setting up a **harvester** Open ``harvester.sh``, once you see the main screen with your id and harvester stats you're good to go.
 3. Link your device to your discord account as shown in [First Time](#first-time)
 
+If you're on ubuntu and can't open ``farmer.sh`` or ``harvester.sh`` from file explorer you can run this command:
+```
+gsettings set org.gnome.nautilus.preferences executable-text-activation ask
+```
+Then reopen file explorer in the folder where ``chiabot-linux-amd64.tar.gz`` was extracted to. You should be able to double click ``farmer.sh`` or ``harvester.sh`` and let it "Run in terminal" when asked to.
+
+
 #### Ubuntu for Raspberry Pi and other arm64 Linux distros
 1. Download ``chiabot-linux-arm64.tar.gz`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and extract it to an **empty** folder.
 2. Open the following file:
@@ -110,7 +117,7 @@ These are the default settings:
 #### Name your client
 You can name your client by changing `` "name": null,`` to ``"name": "YourFarmer",`` (notice **quote marks**). This will identify the client as ``YourFarmer`` in `` !chia workers ``.
 
-### Choose your preferred currency
+#### Choose your preferred currency
 Replace ``"USD"`` with any of the following 3-digit symbols: ‘USD’, 'EUR', 'CAD', 'GBP', 'AUD', 'SGD', 'JPY', 'INR', 'RMB', 'CNY', 'CHF', 'HKD', 'BRL', 'DKK', 'NZD', 'TRY', 'ETH', 'BTC', 'ETC'.
 
 #### Sharing farmed XCH Balance
