@@ -87,6 +87,7 @@ async function checkNotifs() {
 
 var userCount = 0;
 var devicesCount = 0;
+var serverCount = 0;
 
 async function updateStatus(connection) {
 
@@ -100,8 +101,10 @@ async function updateStatus(connection) {
 
     devicesCount = results2.length;
 
+    serverCount = client.guilds.cache.size;
+
     //thanks big O!
-    var status = userCount + " users, " + devicesCount + " devices";
+    var status = userCount + " users, " + devicesCount + " devices, " + serverCount + " servers";
     client.user.setActivity(status, { type: "LISTENING" });
 }
 
