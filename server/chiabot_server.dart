@@ -108,11 +108,11 @@ Future<void> main(List<String> args) async {
       harvesters.sort((client2, client1) => (client1.lastUpdated.millisecondsSinceEpoch
           .compareTo(client2.lastUpdated.millisecondsSinceEpoch)));
 
-      Farmer farm =
-          harvesters.where((client) => client is Farmer).first; //Selects newest farm as main farm
-
       harvestersCount = harvesters.where((client) => !(client is Farmer)).length;
       farmersCount = harvesters.length - harvestersCount;
+
+      Farmer farm =
+          harvesters.where((client) => client is Farmer).first; //Selects newest farm as main farm
 
       if (args.contains("workers")) {
         //Sorts workers by alphabetical order
@@ -147,12 +147,12 @@ Future<void> main(List<String> args) async {
             args.contains("workers"), price.rates[farm.currency]);
       }
     } catch (Exception) {
-      if (farmersCount == 0)
-        print("Error: Farmer not found.");
+      if (farmersCount == 0) print("Error: Farmer not found.");
       if (harvesters.length > 0)
         print("Error: ${farmersCount} farmers and ${harvestersCount} harvesters found.");
       else
-        print("No clients found! Find out how you can install ChiaBot in your farmer/harvester in <#838789194696097843>");
+        print(
+            "No clients found! Find out how you can install ChiaBot in your farmer/harvester in <#838789194696097843>");
 
       //print("${userID} - Exception: ${Exception.toString()}");
     }
