@@ -23,7 +23,7 @@ Proceed with the following platform-specific instructions:
 #### Windows
 1. Download ``chiabot-windows-amd64.zip`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and extract it to an **empty** folder.
 
-- If you're setting up a **farmer/full-node**
+- If you're setting up a **farmer/full-node** (need to have at least 1 farmer/full-node linked to your account)
    1. Open ``farmer.exe``, once you see the main screen with your id and farmer stats you're good to go.
    2. Link your device to your discord account as shown in [First Time](#first-time)
 
