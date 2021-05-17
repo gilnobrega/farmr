@@ -18,9 +18,6 @@ class NetSpace {
   final int _untilTimeStamp = DateTime.now().subtract(Duration(minutes: 5)).millisecondsSinceEpoch;
   final io.File _cacheFile = io.File("netspace.json");
 
-  static final Map<String, int> units = {"K": 1, "M": 2, "G": 3, 'T': 4, 'P': 5, 'E': 6};
-  static final Map<String, int> bases = {'B': 1000, 'iB': 1024};
-
   //timestamp, size
   Map<String, int> pastSizes = {};
 
@@ -130,19 +127,26 @@ class NetSpace {
     var json = jsonDecode(_cacheFile.readAsStringSync());
     NetSpace previousNetSpace = NetSpace.fromJson(json);
 
+    //loads old past sizes
+    pastSizes = previousNetSpace.pastSizes;
+
     //if last time price was parsed from api was longer than 1 minute ago
     //then parses new price from api
     if (previousNetSpace.timestamp < _untilTimeStamp) {
       await _getNetSpace();
+
+      //adds new past sizes while keeping old ones
       await _getPastSizes();
 
       _save();
     } else {
       _timestamp = previousNetSpace.timestamp;
       _size = previousNetSpace.size;
-      pastSizes = previousNetSpace.pastSizes;
     }
   }
+
+  static final Map<String, int> units = {"": 0, "K": 1, "M": 2, "G": 3, 'T': 4, 'P': 5, 'E': 6};
+  static final Map<String, int> bases = {'B': 1000, 'iB': 1024};
 
   //generates a human readable string in xiB from an int size in bytes
   static String generateHumanReadableSize(int size) {
