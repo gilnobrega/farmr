@@ -39,7 +39,9 @@ Proceed with the following platform-specific instructions:
 3. Link your device to your discord account as shown in [First Time](#first-time)
 
 If you're on ubuntu and can't open ``farmer.sh`` or ``harvester.sh`` from file explorer you can run this command:
-``` gsettings set org.gnome.nautilus.preferences executable-text-activation ask ```
+```
+gsettings set org.gnome.nautilus.preferences executable-text-activation ask
+```
 Then reopen file explorer in the folder where ``chiabot-linux-amd64.tar.gz`` was extracted to. You should be able to double click ``farmer.sh`` or ``harvester.sh`` and let it "Run in terminal" when asked to.
 
 
