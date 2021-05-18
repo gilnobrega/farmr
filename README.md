@@ -23,7 +23,7 @@ Proceed with the following platform-specific instructions:
 #### Windows
 1. Download ``chiabot-windows-amd64.zip`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and extract it to an **empty** folder.
 
-- If you're setting up a **farmer/full-node**
+- If you're setting up a **farmer/full-node** (need to have at least 1 farmer/full-node linked to your account)
    1. Open ``farmer.exe``, once you see the main screen with your id and farmer stats you're good to go.
    2. Link your device to your discord account as shown in [First Time](#first-time)
 
@@ -193,4 +193,12 @@ Simple, stop using it. All data will be deleted 15 minutes after your client sen
 ```
 XCH: xch1z9wes90p356aqn9svvmr7du8yrr03payla02nkfpmfrtpeh23s4qmhx9q9
 ETH: 0x340281CbAd30702aF6dCA467e4f2524916bb9D61
+LTC: LWPkaD4P7bKpU28RTV4sP41jnrQ3NMDs5y
+ADA: addr1q8uw5jh3q0eujj6gqngrdgvr7r6gvqj5qv6tsp77d6usgcv6jehyxjelvffwv53r0avad874vk6snsq3tmmj7z27w73s9kxdkv
+USDC (ERC20/BEP20): 0x340281cbad30702af6dca467e4f2524916bb9d61
+USDT (ERC20/BEP20): 0x340281cbad30702af6dca467e4f2524916bb9d61
+USDT (TRC20): TFddaDuxHUFvtuhLtwodQmNB4ZjJRc4P8k
+BNB: 0x340281cbad30702af6dca467e4f2524916bb9d61
+BTC: 1Gdzsx6VjZrDxP43y1pgkNMZGsyL357odS
+BTC (BEP20): 0x340281cbad30702af6dca467e4f2524916bb9d61
 ```
