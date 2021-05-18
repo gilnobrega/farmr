@@ -81,7 +81,7 @@ Future<void> main(List<String> args) async {
 
     Price price;
 
-    List<Harvester> harvesters;
+    List<Harvester> harvesters = [];
 
     int farmersCount = 0;
     int harvestersCount = 0;
@@ -148,7 +148,7 @@ Future<void> main(List<String> args) async {
       }
     } catch (Exception) {
       if (farmersCount == 0) print("Error: Farmer not found.");
-      if (harvesters.length > 0)
+      if (harvesters.length != null && harvesters.length > 0)
         print("Error: ${farmersCount} farmers and ${harvestersCount} harvesters found.");
       else
         print(
