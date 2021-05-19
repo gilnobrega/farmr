@@ -2,7 +2,7 @@
 
 A discord bot that monitors your chia farm summary and sends notifications when blocks are found and new plots are completed. It can link multiple farmers/harvesters to your account.
 
-The ChiaBot client is available for Windows, Linux and macOS. You can interact with the bot in [Swar's Chia Community](https://discord.gg/V7uMDEsS) discord server.
+The ChiaBot client is available for Windows, Linux and macOS. You can interact with the bot in [Swar's Chia Community](https://discord.gg/q5T4QbwcnH) discord server.
 
 ### Main Features
 | ``!chia`` command | Block, Plot and Offline notifications |
@@ -84,7 +84,7 @@ mv chiabot_harvester.exe chiabot;
 5. Link your device to your discord account as shown in [First Time](#first-time)
 
 ### First time
-ChiaBot will generate an id for your device. You can link this device to your discord account by heading to [Swar's Chia Community](https://discord.gg/V7uMDEsS) and sending the following message:
+ChiaBot will generate an id for your device. You can link this device to your discord account by heading to [Swar's Chia Community](https://discord.gg/q5T4QbwcnH) and sending the following message:
 ```
 !chia link [your-client-id]
 ```
