@@ -21,7 +21,7 @@ if [ "$architecture" = "amd64" ]; then
 
         echo "Installing dependencies (dart, git, screen)";
         sleep 2 ;
-        wget https://storage.googleapis.com/dart-archive/channels/stable/release/latest/linux_packages/dart_2.12.4-1_amd64.deb -O dart.deb;
+        wget https://storage.googleapis.com/dart-archive/channels/stable/release/2.13.0/linux_packages/dart_2.13.0-1_amd64.deb -O dart.deb;
         sudo dpkg -i dart.deb;
         rm dart.deb;
         sudo apt-get install -f;
