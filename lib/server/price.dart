@@ -4,9 +4,8 @@ import 'dart:io' as io;
 import 'package:http/http.dart' as http;
 
 class Price {
-  String _apiKey = '';
-
-  final int _untilTimeStamp = DateTime.now().subtract(Duration(minutes: 5)).millisecondsSinceEpoch;
+  final int _untilTimeStamp =
+      DateTime.now().subtract(Duration(minutes: 5)).millisecondsSinceEpoch;
   final io.File _cacheFile = io.File("price.json");
 
   //list of currencies to get from api and their symbols
@@ -33,16 +32,17 @@ class Price {
     'ETC': 'ETC'
   };
 
-  Map<String, double> rates = {};
+  Map<String, Rate> rates = {};
 
   int _timestamp = 0;
   int get timestamp => _timestamp;
 
-  Map toJson() => {"rates": rates, "timestamp": timestamp};
+  Map toJson() => {
+        "rates": rates,
+        "timestamp": timestamp,
+      };
 
-  Price(String apikey) {
-    _apiKey = apikey;
-  }
+  Price() {}
 
   Future<void> init() async {
     if (_cacheFile.existsSync())
@@ -64,7 +64,6 @@ class Price {
     if (previousPrice.timestamp < _untilTimeStamp) {
       await _getPriceFromApi();
       await _getOtherCurrencies();
-      _timestamp = DateTime.now().millisecondsSinceEpoch;
 
       _save();
     } else {
@@ -75,15 +74,36 @@ class Price {
 
   _getPriceFromApi() async {
     try {
+      String currenciesParameter = '';
+
+      for (var currency in currencies.entries)
+        currenciesParameter +=
+            currency.key.toLowerCase() + Uri.encodeQueryComponent(",");
+
 //gets xch/usd exchange rate from coinbase
-      var json = jsonDecode(await http.read(
-          "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=XCH&convert=" +
-              currencies.entries.first.key,
-          headers: {'X-CMC_PRO_API_KEY': _apiKey}));
+      final json = jsonDecode(await http.read(
+          "https://api.coingecko.com/api/v3/simple/price?ids=chia&vs_currencies=${currenciesParameter}&include_24hr_vol=true&include_24hr_change=true&include_last_updated_at=true"));
 
-      var rate = json['data']['XCH']['quote'][currencies.entries.first.key]['price'];
+      for (var currency in currencies.entries) {
+        var lowerCase = currency.key.toLowerCase();
 
-      rates.putIfAbsent(currencies.entries.first.key, () => rate);
+        if (json['chia'][lowerCase] != null) {
+          double rate = 0.0;
+          double volume = 0.0;
+          double change = 0.0;
+
+          if (json['chia'][lowerCase] is double) {
+            rate = json['chia'][lowerCase];
+          }
+
+          volume = json['chia'][lowerCase + '_24h_vol'];
+          change = json['chia'][lowerCase + '_24h_change'] / 100;
+
+          rates.putIfAbsent(currency.key, () => Rate(rate, change, volume));
+        }
+      }
+
+      _timestamp = json['chia']['last_updated_at'] * 1000;
     } catch (e) {}
   }
 
@@ -91,7 +111,8 @@ class Price {
     //attempts to get main currencies rate in overall USD rates page,
     //if that fails then it gets them from individual pages
 
-    final mainjson = jsonDecode(await http.read("https://api.coinbase.com/v2/prices/USD/spot"));
+    final mainjson = jsonDecode(
+        await http.read("https://api.coinbase.com/v2/prices/USD/spot"));
 
     for (String otherCurrency in currencies.entries
         .where((entry) => entry != currencies.entries.first)
@@ -109,8 +130,10 @@ class Price {
 
         if (rate == 0.0) {
           try {
-            var json = jsonDecode(await http
-                .read("https://api.coinbase.com/v2/prices/USD-" + otherCurrency + "/spot"));
+            final json = jsonDecode(await http.read(
+                "https://api.coinbase.com/v2/prices/USD-" +
+                    otherCurrency +
+                    "/spot"));
 
             rate = double.parse(json['data']['amount']);
           } catch (e) {}
@@ -118,9 +141,8 @@ class Price {
 
         if (rate > 0) {
           // xch price = usd/eur price * xch/usd price
-          double xchprice = (rate) * rates[currencies.entries.first.key];
-
-          rates.putIfAbsent(otherCurrency, () => xchprice);
+          double xchprice = (rate) * rates[currencies.entries.first.key].rate;
+          rates.putIfAbsent(otherCurrency, () => Rate(xchprice, 0, 0));
         }
       } catch (e) {}
     }
@@ -132,7 +154,37 @@ class Price {
   }
 
   Price.fromJson(dynamic json) {
-    if (json['rates'] != null) rates = Map<String, double>.from(json['rates']);
+    for (var rate in Map<String, dynamic>.from(json['rates']).entries) {
+      rates.putIfAbsent(
+          rate.key,
+          () => Rate(
+              rate.value['rate'], rate.value['change'], rate.value['volume']));
+    }
     if (json['timestamp'] != null) _timestamp = json['timestamp'];
   }
+}
+
+class Rate {
+  double _rate = 0;
+  double get rate => _rate;
+
+  //24 hr change in percentage
+  double _change = 0;
+  double get change => _change;
+
+  String get _sign => (_change >= 0) ? '+' : '-';
+  //returns change in usd, eur, etc.
+  String get changeAbsolute =>
+      "${_sign}${(_rate * _change).abs().toStringAsFixed(1)}";
+  //returns change in %
+  String get changeRelative =>
+      "${_sign}${(_change * 100).abs().toStringAsFixed(1)}";
+
+  //24h volume in xch
+  double _volume = 0;
+  double get volume => _volume;
+
+  Map toJson() => {'rate': rate, 'change': change, 'volume': volume};
+
+  Rate(this._rate, this._change, this._volume);
 }

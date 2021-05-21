@@ -319,9 +319,9 @@ class Config {
     else
       print("to link this client to your discord user");
 
-    print("You can interact with ChiaBot in its discord server.");
+    print("You can interact with ChiaBot in Swar's Chia Community");
     print(
-        "Open the following link to join the server: https://discord.gg/pxgh8tBzGU ");
+        "Open the following link to join the server: https://discord.gg/fPjnWYYFmp ");
     print(line);
     print("");
   }
