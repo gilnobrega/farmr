@@ -99,15 +99,15 @@ class Config {
     var encoder = new JsonEncoder.withIndent("    ");
     String contents = encoder.convert([
       {
-        "name": name,
-        "currency": currency,
-        "showBalance": showBalance,
-        "showWalletBalance": showWalletBalance,
-        "sendBalanceNotifications": sendBalanceNotifications,
-        "sendPlotNotifications": sendPlotNotifications,
-        "sendOfflineNotifications": sendOfflineNotifications,
-        "sendStatusNotifications": sendStatusNotifications,
-        "parseLogs": parseLogs,
+        "Name": name,
+        "Currency": currency,
+        "Show Farmed XCH": showBalance,
+        "Show Wallet Balance": showWalletBalance,
+        "Block Notifications": sendBalanceNotifications,
+        "Plot Notifications": sendPlotNotifications,
+        "Offline Notifications": sendOfflineNotifications,
+        "Farm Status Notifications": sendStatusNotifications,
+        "Parse Logs": parseLogs,
         "chiaPath": chiaPath
       }
     ]);
@@ -224,10 +224,14 @@ class Config {
     if (contents[0]['id'] != null) cache.id = contents[0]['id'];
 
     //loads custom client name
-    if (contents[0]['name'] != null) _name = contents[0]['name'];
+    if (contents[0]['name'] != null) _name = contents[0]['name']; //old
+    if (contents[0]['Name'] != null) _name = contents[0]['Name']; //new
 
     //loads custom currency
-    if (contents[0]['currency'] != null) _currency = contents[0]['currency'];
+    if (contents[0]['currency'] != null)
+      _currency = contents[0]['currency']; //old
+    if (contents[0]['Currency'] != null)
+      _currency = contents[0]['Currency']; //new
 
     _chiaPath = contents[0]['chiaPath'];
 
@@ -236,23 +240,39 @@ class Config {
     if (contents[0]['binPath'] != null) cache.binPath = contents[0]['binPath'];
 
     if (contents[0]['showBalance'] != null)
-      _showBalance = contents[0]['showBalance'];
+      _showBalance = contents[0]['showBalance']; //old
+    if (contents[0]['Show Farmed XCH'] != null)
+      _showBalance = contents[0]['Show Farmed XCH']; //new
+
     if (contents[0]['showWalletBalance'] != null)
-      _showWalletBalance = contents[0]['showWalletBalance'];
+      _showWalletBalance = contents[0]['showWalletBalance']; //old
+    if (contents[0]['Show Wallet Balance'] != null)
+      _showWalletBalance = contents[0]['Show Wallet Balance']; //new
 
     if (contents[0]['sendPlotNotifications'] != null)
-      _sendPlotNotifications = contents[0]['sendPlotNotifications'];
+      _sendPlotNotifications = contents[0]['sendPlotNotifications']; //old
+    if (contents[0]['Plot Notifications'] != null)
+      _sendPlotNotifications = contents[0]['Plot Notifications']; //new
 
     if (contents[0]['sendBalanceNotifications'] != null)
-      _sendBalanceNotifications = contents[0]['sendBalanceNotifications'];
+      _sendBalanceNotifications = contents[0]['sendBalanceNotifications']; //old
+    if (contents[0]['Block Notifications'] != null)
+      _sendBalanceNotifications = contents[0]['Block Notifications']; //new
 
     if (contents[0]['sendOfflineNotifications'] != null)
-      _sendOfflineNotifications = contents[0]['sendOfflineNotifications'];
+      _sendOfflineNotifications = contents[0]['sendOfflineNotifications']; //old
+    if (contents[0]['Offline Notifications'] != null)
+      _sendOfflineNotifications = contents[0]['Offline Notifications']; //new
 
     if (contents[0]['sendStatusNotifications'] != null)
-      _sendStatusNotifications = contents[0]['sendStatusNotifications'];
+      _sendStatusNotifications = contents[0]['sendStatusNotifications']; //old
+    if (contents[0]['Farm Status Notifications'] != null)
+      _sendStatusNotifications = contents[0]['Farm Status Notifications']; //new
 
-    if (contents[0]['parseLogs'] != null) _parseLogs = contents[0]['parseLogs'];
+    if (contents[0]['parseLogs'] != null)
+      _parseLogs = contents[0]['parseLogs']; //old
+    if (contents[0]['Parse Logs'] != null)
+      _parseLogs = contents[0]['Parse Logs']; //new
 
     await saveConfig();
   }
