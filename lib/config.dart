@@ -68,7 +68,14 @@ class Config {
       print("Failed to port old config files!");
     }
 
-    _type = (!isHarvester) ? ClientType.Farmer : ClientType.Harvester;
+    //sets default name according to client type
+    if (isHarvester) {
+      _type = ClientType.Harvester;
+      _name = "Harvester";
+    } else {
+      _type = ClientType.Farmer;
+      _name = "Farmer";
+    }
   }
 
   Future<void> init() async {
@@ -81,7 +88,8 @@ class Config {
 
     //and asks for bin path if path is not defined/not found and is Farmer
     if (type == ClientType.Farmer &&
-        (cache.binPath == null || !io.File(cache.binPath).existsSync())) await _askForBinPath();
+        (cache.binPath == null || !io.File(cache.binPath).existsSync()))
+      await _askForBinPath();
 
     _info(); //shows first screen info with qr code, id, !chia, etc.
   }
@@ -124,7 +132,9 @@ class Config {
       log.info("Could not automatically locate chia binary.");
 
     while (!validDirectory) {
-      log.warning("Specify your chia-blockchain directory below: (e.g.: " + exampleDir + ")");
+      log.warning("Specify your chia-blockchain directory below: (e.g.: " +
+          exampleDir +
+          ")");
 
       _chiaPath = io.stdin.readLineSync();
       log.info("Input chia path: '${_chiaPath}'");
@@ -141,7 +151,8 @@ class Config {
             " not found)\nPlease try again." +
             "\nMake sure this folder has the same structure as Chia's GitHub repo.");
       else
-        log.warning("Uh oh, that directory could not be found! Please try again.");
+        log.warning(
+            "Uh oh, that directory could not be found! Please try again.");
     }
 
     await saveConfig(); //saves path input by user to config
@@ -157,8 +168,8 @@ class Config {
 
     if (io.Platform.isWindows) {
       //Checks if binary exist in C:\User\AppData\Local\chia-blockchain\resources\app.asar.unpacked\daemon\chia.exe
-      chiaRootDir =
-          io.Directory(io.Platform.environment['UserProfile'] + "/AppData/Local/chia-blockchain");
+      chiaRootDir = io.Directory(io.Platform.environment['UserProfile'] +
+          "/AppData/Local/chia-blockchain");
 
       file = "/resources/app.asar.unpacked/daemon/chia.exe";
 
@@ -224,8 +235,10 @@ class Config {
     //do not remove this
     if (contents[0]['binPath'] != null) cache.binPath = contents[0]['binPath'];
 
-    if (contents[0]['showBalance'] != null) _showBalance = contents[0]['showBalance'];
-    if (contents[0]['showWalletBalance'] != null) _showWalletBalance = contents[0]['showWalletBalance'];
+    if (contents[0]['showBalance'] != null)
+      _showBalance = contents[0]['showBalance'];
+    if (contents[0]['showWalletBalance'] != null)
+      _showWalletBalance = contents[0]['showWalletBalance'];
 
     if (contents[0]['sendPlotNotifications'] != null)
       _sendPlotNotifications = contents[0]['sendPlotNotifications'];
@@ -250,7 +263,8 @@ class Config {
 
     try {
       //If terminal is long enough to show a qr code
-      if (console.windowHeight > 2 * 29 && console.windowWidth > 2 * 29) _showQR(console);
+      if (console.windowHeight > 2 * 29 && console.windowWidth > 2 * 29)
+        _showQR(console);
     } catch (e) {}
 
     String line = "";
@@ -266,7 +280,8 @@ class Config {
     print("");
     print("to link this client to your discord user");
     print("You can interact with ChiaBot in its discord server.");
-    print("Open the following link to join the server: https://discord.gg/pxgh8tBzGU ");
+    print(
+        "Open the following link to join the server: https://discord.gg/pxgh8tBzGU ");
     print(line);
     print("");
   }
