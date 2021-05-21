@@ -50,6 +50,10 @@ class Config {
   bool _parseLogs = false;
   bool get parseLogs => _parseLogs;
 
+  //number of users that can link this machine
+  int _userNumber = 1;
+  int get userNumber => _userNumber;
+
   final io.File _config = io.File("config.json");
 
   Config(Cache _cache, String chiaConfigPath, [isHarvester = false]) {
@@ -108,6 +112,7 @@ class Config {
         "Offline Notifications": sendOfflineNotifications,
         "Farm Status Notifications": sendStatusNotifications,
         "Parse Logs": parseLogs,
+        "Number of Discord Users": userNumber,
         "chiaPath": chiaPath
       }
     ]);
@@ -221,7 +226,7 @@ class Config {
 
     //leave this here for compatibility with old versions,
     //old versions stored id in config file
-    if (contents[0]['id'] != null) cache.id = contents[0]['id'];
+    if (contents[0]['id'] != null) cache.ids.add(contents[0]['id']);
 
     //loads custom client name
     if (contents[0]['name'] != null) _name = contents[0]['name']; //old
@@ -274,6 +279,9 @@ class Config {
     if (contents[0]['Parse Logs'] != null)
       _parseLogs = contents[0]['Parse Logs']; //new
 
+    if (contents[0]['Number of Discord Users'] != null)
+      _userNumber = contents[0]['Number of Discord Users'];
+
     await saveConfig();
   }
 
@@ -294,11 +302,23 @@ class Config {
     } catch (e) {}
 
     print(line);
-    log.warning("Your id is " + cache.id + ", run");
+
+    if (cache.ids.length > 1)
+      log.warning("Your ids are " + cache.ids.toString() + ", run");
+    else
+      log.warning("Your id is " + cache.ids[0] + ", run");
+
     print("");
-    print("!chia link " + cache.id);
+
+    for (String id in cache.ids) print("!chia link " + id);
+
     print("");
-    print("to link this client to your discord user");
+
+    if (cache.ids.length > 1)
+      print("To link this client to each discord user (one id per user)");
+    else
+      print("to link this client to your discord user");
+
     print("You can interact with ChiaBot in its discord server.");
     print(
         "Open the following link to join the server: https://discord.gg/pxgh8tBzGU ");
@@ -308,7 +328,7 @@ class Config {
 
   void _showQR(Console console) {
     final qrCode = new QrCode(3, QrErrorCorrectLevel.L);
-    qrCode.addData(cache.id);
+    qrCode.addData(cache.ids[0]);
     qrCode.make();
 
     for (int x = 0; x < qrCode.moduleCount; x++) {

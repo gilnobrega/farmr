@@ -4,6 +4,7 @@ import 'dart:core';
 
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
+import 'package:intl/intl.dart';
 
 import 'package:chiabot/farmer.dart';
 import 'package:chiabot/harvester.dart';
@@ -80,7 +81,7 @@ main(List<String> args) async {
 
       log.info("Generating new report #${counter}");
 
-      cache.init(config.parseLogs);
+      cache.init(config.parseLogs, config.userNumber);
       Log chiaLog = new Log(chiaDebugPath, cache, config.parseLogs);
 
       var client = (config.type == ClientType.Farmer)
@@ -144,7 +145,6 @@ main(List<String> args) async {
         Map<String, String> post = {
           "data": sendJson,
           "notifyOffline": notifyOffline,
-          "id": config.cache.id
         };
 
         String url = "https://chiabot.znc.sh/send4.php";
@@ -163,16 +163,21 @@ main(List<String> args) async {
 
         type = (config.type == ClientType.Farmer) ? "farmer" : "harvester";
 
-        http.post(url, body: post).catchError((error) {
-          log.warning("Server timeout.");
-          log.info(error.toString());
-        }).whenComplete(() {
-          log.warning("\nSent " +
-              type +
-              " report to server.\nRetrying in " +
-              delay.inMinutes.toString() +
-              " minutes");
-        });
+        for (String id in cache.ids) {
+          post.putIfAbsent("id", () => id);
+
+          http.post(url, body: post).catchError((error) {
+            log.warning("Server timeout.");
+            log.info(error.toString());
+          }).whenComplete(() {
+            String idText = (cache.ids.length == 1) ? '' : "for id " + id;
+            String timestamp = DateFormat.Hms().format(DateTime.now());
+            log.warning(
+                "\n${timestamp} - Sent ${type} report to server ${idText}\nRetrying in " +
+                    delay.inMinutes.toString() +
+                    " minutes");
+          });
+        }
 
         log.info("url:${url}");
         log.info("data sent:\n${sendJson}");

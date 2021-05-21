@@ -12,7 +12,7 @@ import 'package:chiabot/log/signagepoint.dart';
 final log = Logger('Cache');
 
 class Cache {
-  String id;
+  List<String> ids = [];
 
   String binPath;
 
@@ -32,30 +32,42 @@ class Cache {
   Cache(String chiaConfigPath) {
     try {
       io.File _oldCache = io.File(chiaConfigPath + "chiabot_cache.json");
-      if (!_cache.existsSync() && _oldCache.existsSync()) _oldCache.copySync(_cache.absolute.path);
+      if (!_cache.existsSync() && _oldCache.existsSync())
+        _oldCache.copySync(_cache.absolute.path);
     } catch (Exception) {
       print("Failed to port old cache file");
     }
-
-    id = Uuid().v4();
   }
 
-  void init([bool parseLogs = false]) {
+  void init([bool parseLogs = false, int userNumber = 1]) {
+    //populates id[] with random ids based on number of users provided by config
+    ids = [];
+    for (int i = 0; i < userNumber; i++) ids.add(Uuid().v4());
+
     //Tells log parser when it should stop parsing
-    parseUntil = DateTime.now().subtract(Duration(days: 1)).millisecondsSinceEpoch;
+    parseUntil =
+        DateTime.now().subtract(Duration(days: 1)).millisecondsSinceEpoch;
 
     //Loads cache file
     if (!_cache.existsSync())
       save(); //creates cache file if doesnt exist
     else
       load(parseLogs); //chiabot_cache.json
+
+    //generates new ids
+    if (userNumber > ids.length) {
+      int newIds = userNumber - ids.length;
+      for (int i = 0; i < newIds; i++) ids.add(Uuid().v4());
+    }
+
+    save();
   }
 
   //saves cache file
   void save() {
     String contents = jsonEncode([
       {
-        "id": id,
+        "ids": ids,
         "binPath": binPath,
         "plots": plots,
         "filters": filters,
@@ -72,8 +84,16 @@ class Cache {
 
     var contents = jsonDecode(_cache.readAsStringSync());
 
-    //loads id from cache file
-    if (contents[0]['id'] != null) id = contents[0]['id'];
+    //loads id from cache file //OLD
+    if (contents[0]['id'] != null) {
+      ids = [];
+      ids.add(contents[0]['id']);
+    }
+    //loads ids from cache file //new
+    if (contents[0]['ids'] != null) {
+      ids = [];
+      for (String id in contents[0]['ids']) ids.add(id);
+    }
 
     //loads chia binary path from cache
     if (contents[0]['binPath'] != null) binPath = contents[0]['binPath'];
@@ -93,7 +113,8 @@ class Cache {
 
           for (var filterJson in filtersJson) {
             Filter filter = Filter.fromJson(filterJson, plots.length);
-            if (filter.timestamp != null && filter.timestamp > parseUntil) _filters.add(filter);
+            if (filter.timestamp != null && filter.timestamp > parseUntil)
+              _filters.add(filter);
           }
         }
 
@@ -103,7 +124,8 @@ class Cache {
 
           for (var signagePointJson in signagePointsJson) {
             SignagePoint signagePoint = SignagePoint.fromJson(signagePointJson);
-            if (signagePoint.timestamp != null && signagePoint.timestamp > parseUntil)
+            if (signagePoint.timestamp != null &&
+                signagePoint.timestamp > parseUntil)
               _signagePoints.add(signagePoint);
           }
         }
