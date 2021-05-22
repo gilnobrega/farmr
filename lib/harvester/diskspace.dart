@@ -40,7 +40,7 @@ class HarvesterDiskSpace {
             //if drive does not get listed then attempts to get disk space manually with cmd's dir command
             if (io.Platform.isWindows) {
               final String dirOutput = io.Process.runSync(
-                      "dir", ["/s", "'${plotDests[i]}'"],
+                      "dir", ["/s", "${plotDests[i]}"],
                       runInShell: true)
                   .stdout;
               RegExp regex = RegExp("([0-9\\.]+) bytes", multiLine: true);
@@ -57,7 +57,7 @@ class HarvesterDiskSpace {
             }
           } catch (e) {
             log.warning(
-                "Can't get disk information about drive ${plotDests[i]}.");
+                "Failed to get information about drive ${plotDests[i]}");
             log.info("Disks:\n{diskspace}");
           }
         }

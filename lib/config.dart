@@ -54,6 +54,9 @@ class Config {
   int _userNumber = 1;
   int get userNumber => _userNumber;
 
+  String _swarPath = "";
+  String get swarPath => _swarPath;
+
   final io.File _config = io.File("config.json");
 
   Config(Cache _cache, String chiaConfigPath, [isHarvester = false]) {
@@ -113,6 +116,7 @@ class Config {
         "Farm Status Notifications": sendStatusNotifications,
         "Parse Logs": parseLogs,
         "Number of Discord Users": userNumber,
+        "Swar's Chia Plot Manager Path": _swarPath,
         "chiaPath": chiaPath
       }
     ]);
@@ -281,6 +285,9 @@ class Config {
 
     if (contents[0]['Number of Discord Users'] != null)
       _userNumber = contents[0]['Number of Discord Users'];
+
+    if (contents[0]["Swar's Chia Plot Manager Path"] != null)
+      _swarPath = contents[0]["Swar's Chia Plot Manager Path"];
 
     await saveConfig();
   }

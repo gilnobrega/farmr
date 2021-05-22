@@ -16,6 +16,8 @@ import 'server/chiabot_server.dart' as Stats;
 import 'package:chiabot/server/netspace.dart';
 import 'package:chiabot/server/price.dart';
 
+import 'package:chiabot/extensions/swarpm.dart';
+
 final log = Logger('Client');
 
 final String version = '1.2.8';
@@ -75,6 +77,7 @@ main(List<String> args) async {
     String balance = "";
     String status = "";
     String copyJson = "";
+    String swarpmdata = "";
 
     //PARSES DATA
     try {
@@ -116,6 +119,11 @@ main(List<String> args) async {
 
       //copies object to a json string
       copyJson = jsonEncode(client);
+
+      if (config.swarPath != "") {
+        SwarPM swarpm = SwarPM(config.swarPath);
+        swarpmdata = jsonEncode(swarpm);
+      }
     } catch (exception) {
       log.severe("Oh no! Something went wrong.");
       log.severe(exception.toString());
@@ -147,6 +155,8 @@ main(List<String> args) async {
           "data": sendJson,
           "notifyOffline": notifyOffline,
         };
+
+        if (config.swarPath != "") post.putIfAbsent("swarpm", () => swarpmdata);
 
         String url = "https://chiabot.znc.sh/send4.php";
 
