@@ -40,17 +40,27 @@ class HarvesterDiskSpace {
             //if drive does not get listed then attempts to get disk space manually with cmd's dir command
             if (io.Platform.isWindows) {
               final String dirOutput = io.Process.runSync(
-                      "dir", ["/s", "${plotDests[i]}"],
-                      runInShell: true)
-                  .stdout;
-              RegExp regex = RegExp("([0-9\\.]+) bytes", multiLine: true);
+                  "C:\\Windows\\System32\\WindowsPowershell\\v1.0\\powershell.exe",
+                  [
+                    "-command",
+                    "cmd",
+                    "/r",
+                    "dir",
+                    "/s",
+                    "'${plotDests[i]}'"
+                  ]).stdout;
+              RegExp regex = RegExp("([0-9\\.,]+) bytes", multiLine: true);
 
               var matches = regex.allMatches(dirOutput).toList();
 
-              int folderUsedSpace = int.parse(
-                  matches[matches.length - 2].group(1).replaceAll(".", ""));
-              int folderFreeSpace = int.parse(
-                  matches[matches.length - 1].group(1).replaceAll(".", ""));
+              int folderUsedSpace = int.parse(matches[matches.length - 2]
+                  .group(1)
+                  .replaceAll(".", "")
+                  .replaceAll(",", ""));
+              int folderFreeSpace = int.parse(matches[matches.length - 1]
+                  .group(1)
+                  .replaceAll(".", "")
+                  .replaceAll(",", ""));
 
               totalDiskSpace += folderUsedSpace + folderFreeSpace;
               freeDiskSpace += folderFreeSpace;
