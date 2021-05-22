@@ -499,7 +499,7 @@ class Stats {
     String output = '';
 
     if (client.swarPM != null && client.swarPM.jobs.length > 0) {
-      output += "\n\n**Swar's Chia Plot Manager**";
+      output += "\n**Swar's Chia Plot Manager**";
 
       for (Job job in client.swarPM.jobs) {
         output +=

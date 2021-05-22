@@ -124,7 +124,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     if (object['lastUpdatedString'] != null)
       _lastUpdatedString = object['lastUpdatedString'];
 
-    if (object['swarPM'] != null) _swarPM = object['swarPM'];
+    if (object['swarPM'] != null) _swarPM = SwarPM.fromJson(object['swarPM']);
 
     _type = ClientType.values[object['type']];
   }
