@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'dart:io' as io;
 
 import 'package:universal_disk_space/universal_disk_space.dart' as uds;
 import 'package:logging/logging.dart';
@@ -25,13 +26,40 @@ class HarvesterDiskSpace {
       List<uds.Disk> disks = [];
 
       for (int i = 0; i < plotDests.length; i++) {
-        uds.Disk currentdisk = diskspace.getDisk(plotDests[i]);
+        try {
+          uds.Disk currentdisk = diskspace.getDisk(plotDests[i]);
 
-        //only adds disk sizes/space if it has not been added before
-        if (!disks.contains(currentdisk)) {
-          disks.add(currentdisk);
-          totalDiskSpace += currentdisk.totalSize;
-          freeDiskSpace += currentdisk.availableSpace;
+          //only adds disk sizes/space if it has not been added before
+          if (!disks.contains(currentdisk)) {
+            disks.add(currentdisk);
+            totalDiskSpace += currentdisk.totalSize;
+            freeDiskSpace += currentdisk.availableSpace;
+          }
+        } catch (e) {
+          try {
+            //if drive does not get listed then attempts to get disk space manually with cmd's dir command
+            if (io.Platform.isWindows) {
+              final String dirOutput = io.Process.runSync(
+                      "dir", ["/s", "'${plotDests[i]}'"],
+                      runInShell: true)
+                  .stdout;
+              RegExp regex = RegExp("([0-9\\.]+) bytes", multiLine: true);
+
+              var matches = regex.allMatches(dirOutput).toList();
+
+              int folderUsedSpace = int.parse(
+                  matches[matches.length - 2].group(1).replaceAll(".", ""));
+              int folderFreeSpace = int.parse(
+                  matches[matches.length - 1].group(1).replaceAll(".", ""));
+
+              totalDiskSpace += folderUsedSpace + folderFreeSpace;
+              freeDiskSpace += folderFreeSpace;
+            }
+          } catch (e) {
+            log.warning(
+                "Can't get disk information about drive ${plotDests[i]}.");
+            log.info("Disks:\n{diskspace}");
+          }
         }
       }
 
