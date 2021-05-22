@@ -57,6 +57,10 @@ class Config {
   String _swarPath = "";
   String get swarPath => _swarPath;
 
+  //if this is set to true then client's data will be available on public api
+  bool _publicAPI = false;
+  bool get publicAPI => _publicAPI;
+
   final io.File _config = io.File("config.json");
 
   Config(Cache _cache, String chiaConfigPath, [isHarvester = false]) {
@@ -117,6 +121,7 @@ class Config {
         "Parse Logs": parseLogs,
         "Number of Discord Users": userNumber,
         "Swar's Chia Plot Manager Path": _swarPath,
+        "Public API": publicAPI,
         "chiaPath": chiaPath
       }
     ]);
@@ -288,6 +293,9 @@ class Config {
 
     if (contents[0]["Swar's Chia Plot Manager Path"] != null)
       _swarPath = contents[0]["Swar's Chia Plot Manager Path"];
+
+    if (contents[0]["Public API"] != null)
+      _publicAPI = contents[0]["Public API"];
 
     await saveConfig();
   }

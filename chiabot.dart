@@ -75,6 +75,7 @@ main(List<String> args) async {
     String balance = "";
     String status = "";
     String copyJson = "";
+    String name = "";
 
     //PARSES DATA
     try {
@@ -114,6 +115,8 @@ main(List<String> args) async {
           Rate(0, 0, 0),
           false);
 
+      name = client.name;
+
       //copies object to a json string
       copyJson = jsonEncode(client);
     } catch (exception) {
@@ -143,9 +146,15 @@ main(List<String> args) async {
                 ? '1' //1 means is farming
                 : '0';
 
+        String publicAPI = (config.publicAPI)
+            ? '1' //1 means client data can be seen from public api
+            : '0';
+
         Map<String, String> post = {
           "data": sendJson,
           "notifyOffline": notifyOffline,
+          "name": name,
+          "publicAPI": publicAPI
         };
 
         String url = "https://chiabot.znc.sh/send4.php";

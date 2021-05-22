@@ -12,8 +12,9 @@ if ( isset($_POST['id']) && isset($_POST['data']))
  $id = $conn -> real_escape_string($_POST['id']);
  $data = $conn -> real_escape_string($_POST['data']);
  $name = $conn -> real_escape_string($_POST['name']);
+ $publicAPI = $conn -> real_escape_string($_POST['publicAPI']);
 
- $command = " INSERT INTO farms (id, data, user) VALUES ('" . $id . "','" . $data . "', 'none') ON DUPLICATE KEY UPDATE data='" . $data . "';";
+ $command = " INSERT INTO farms (id, data, user, publicAPI) VALUES ('" . $id . "','" . $data . "', 'none', " . $publicAPI . ") ON DUPLICATE KEY UPDATE publicAPI=" . $publicAPI . ", data='" . $data . "';";
  $result = $conn -> query($command);
 
     //if one of these variables are set, then it needs to find user id 
