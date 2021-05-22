@@ -107,24 +107,25 @@ class Config {
 
   //Creates config file
   Future<void> saveConfig() async {
+    Map<String, dynamic> configMap = {
+      "Name": name,
+      "Currency": currency,
+      "Show Farmed XCH": showBalance,
+      "Show Wallet Balance": showWalletBalance,
+      "Block Notifications": sendBalanceNotifications,
+      "Plot Notifications": sendPlotNotifications,
+      "Offline Notifications": sendOfflineNotifications,
+      "Farm Status Notifications": sendStatusNotifications,
+      "Parse Logs": parseLogs,
+      "Number of Discord Users": userNumber,
+      "Public API": publicAPI,
+      "Swar's Chia Plot Manager Path": _swarPath
+    };
+
+    if (chiaPath != null) configMap.putIfAbsent("chiaPath", () => chiaPath);
+
     var encoder = new JsonEncoder.withIndent("    ");
-    String contents = encoder.convert([
-      {
-        "Name": name,
-        "Currency": currency,
-        "Show Farmed XCH": showBalance,
-        "Show Wallet Balance": showWalletBalance,
-        "Block Notifications": sendBalanceNotifications,
-        "Plot Notifications": sendPlotNotifications,
-        "Offline Notifications": sendOfflineNotifications,
-        "Farm Status Notifications": sendStatusNotifications,
-        "Parse Logs": parseLogs,
-        "Number of Discord Users": userNumber,
-        "Swar's Chia Plot Manager Path": _swarPath,
-        "Public API": publicAPI,
-        "chiaPath": chiaPath
-      }
-    ]);
+    String contents = encoder.convert([configMap]);
 
     _config.writeAsStringSync(contents);
   }
