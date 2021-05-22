@@ -14,6 +14,7 @@ import 'package:chiabot/debug.dart';
 
 import 'server/chiabot_server.dart' as Stats;
 import 'package:chiabot/server/netspace.dart';
+import 'package:chiabot/server/price.dart';
 
 final log = Logger('Client');
 
@@ -110,7 +111,7 @@ main(List<String> args) async {
           (client is Farmer) ? client.netSpace : NetSpace(),
           false,
           true,
-          0.0,
+          Rate(0, 0, 0),
           false);
 
       //copies object to a json string

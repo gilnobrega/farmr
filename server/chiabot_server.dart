@@ -31,7 +31,7 @@ Future<void> main(List<String> args) async {
 
     for (String currency in cryptos)
       print(
-          "XCH/${currency}: **${price.rates[currency].rate.toStringAsPrecision(3)}** (${price.rates[currency].changeAbsolute} ${currency}, ${price.rates[currency].changeRelative}%)");
+          "XCH/${currency}: **${price.rates[currency].rate.toStringAsPrecision(3)}** (${price.rates[currency].changeRelative}%)");
 
     Duration difference = DateTime.now()
         .difference(DateTime.fromMillisecondsSinceEpoch(price.timestamp));
@@ -143,7 +143,7 @@ Future<void> main(List<String> args) async {
               netspace,
               args.contains("full"),
               args.contains("workers"),
-              price.rates[harvester.currency].rate);
+              price.rates[harvester.currency]);
 
           if (harvester != harvesters.last) print(';;');
         }
@@ -168,7 +168,7 @@ Future<void> main(List<String> args) async {
             netspace,
             args.contains("full"),
             args.contains("workers"),
-            price.rates[farm.currency].rate);
+            price.rates[farm.currency]);
       }
     } catch (Exception) {
       if (farmersCount == 0) print("Error: Farmer not found.");
@@ -278,7 +278,7 @@ Future<Price> _getPrice() async {
 }
 
 showHarvester(Harvester harvester, int harvestersCount, int farmersCount,
-    NetSpace netSpace, bool isFull, bool isWorkers, double price,
+    NetSpace netSpace, bool isFull, bool isWorkers, Rate rate,
     [bool discord = true]) {
   String output;
 
@@ -294,9 +294,9 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount,
         : '';
 
     String main = name +
-        Stats.showBalance(harvester, price) +
+        Stats.showBalance(harvester, rate) +
         Stats.showPlotsInfo(harvester) +
-        Stats.showETWEDV(harvester, netSpace, price, !isWorkers) +
+        Stats.showETWEDV(harvester, netSpace, rate, !isWorkers) +
         Stats.showNetworkSize(harvester, netSpace) +
         Stats.showFarmedTime(harvester);
 
