@@ -319,10 +319,11 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount,
             Stats.showSubSlots(harvester)
         : '';
 
-    String swarPM =
-        (harvester.swarPM != null && harvester.swarPM.jobs.length > 0)
-            ? ";;" + Stats.showSwarPMJobs(harvester) + lastUpdated
-            : '';
+    String swarPM = ((isFull || isWorkers) &&
+            harvester.swarPM != null &&
+            harvester.swarPM.jobs.length > 0)
+        ? ";;" + Stats.showSwarPMJobs(harvester) + lastUpdated
+        : '';
 
     output = main + full + lastUpdated + swarPM;
 
