@@ -170,7 +170,8 @@ class Stats {
 
   static String showNetworkSize(Harvester client, NetSpace netSpace) {
     String output = '';
-    if (client is Farmer) {
+
+    if (client is Farmer && netSpace.size > 0) {
       String growth =
           (netSpace.pastSizes.length > 1) ? "(${netSpace.dayDifference})" : "";
       output +=
