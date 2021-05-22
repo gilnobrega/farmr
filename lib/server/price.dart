@@ -44,10 +44,10 @@ class Price {
 
   Price() {}
 
-  //genCache=true forces generation of price.json file 
+  //genCache=true forces generation of price.json file
   Future<void> init([bool genCache = false]) async {
-    if (_cacheFile.existsSync() && !genCache)
-      await _load();
+    if (_cacheFile.existsSync())
+      await _load(genCache);
     else {
       await _getPriceFromApi();
       await _getOtherCurrencies();
@@ -56,13 +56,13 @@ class Price {
     }
   }
 
-  _load() async {
+  _load([bool genCache = false]) async {
     var json = jsonDecode(_cacheFile.readAsStringSync());
     Price previousPrice = Price.fromJson(json);
 
     //if last time price was parsed from api was longer than 1 minute ago
     //then parses new price from api
-    if (previousPrice.timestamp < _untilTimeStamp) {
+    if (previousPrice.timestamp < _untilTimeStamp || genCache) {
       await _getPriceFromApi();
       await _getOtherCurrencies();
 
