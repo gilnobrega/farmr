@@ -44,8 +44,9 @@ class Price {
 
   Price() {}
 
-  Future<void> init() async {
-    if (_cacheFile.existsSync())
+  //genCache=true forces generation of price.json file 
+  Future<void> init([bool genCache = false]) async {
+    if (_cacheFile.existsSync() && !genCache)
       await _load();
     else {
       await _getPriceFromApi();

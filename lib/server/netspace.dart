@@ -1,4 +1,3 @@
-import 'dart:ffi';
 import 'dart:io' as io;
 import 'dart:math' as Math;
 import 'dart:convert';
@@ -36,8 +35,9 @@ class NetSpace {
     }
   }
 
-  init() async {
-    if (_cacheFile.existsSync())
+  //genCache=true forces generation of netspace.json file 
+  init([bool genCache = false ]) async {
+    if (_cacheFile.existsSync() && !genCache)
       await _load();
     else {
       await _getNetSpace();
@@ -65,7 +65,7 @@ class NetSpace {
         String contents = await http.read("https://chiacalculator.com");
         RegExp regex = new RegExp(">([0-9\\.]+)<!-- --> <!-- -->([A-Z])iB");
         var matches = regex.allMatches(contents);
-        
+
         for (var match in matches) 
           if (_size == 0) _size = sizeStringToInt('${match.group(1)} ${match.group(2)}iB');
 

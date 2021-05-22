@@ -17,7 +17,20 @@ Future<void> main(List<String> args) async {
   //prints chiabot status
   if (args[0] == "status") {
     await _getUsers();
-  } else if (args[0] == "price") {
+  } 
+  //generates cache files
+  else if (args[0] == "cron")
+  {
+    Price price = Price();
+    //forces generation of price.json
+    await price.init(true);
+
+    NetSpace netSpace = NetSpace();
+    //forces generation of netspace.json
+    await netSpace.init(true);
+
+  }
+  else if (args[0] == "price") {
     Price price = await _getPrice();
 
     final List<String> currencies = ['USD', 'EUR', 'GBP', 'CAD', 'AUD'];
