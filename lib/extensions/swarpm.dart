@@ -89,6 +89,7 @@ class Job {
     if (json['id'] != null) id = json['id'];
     if (json['started'] != null) started = json['started'];
     if (json['elapsed'] != null) elapsed = json['elapsed'];
+    if (json['percentage'] != null) percentage = json['percentage'];
     if (json['phase'] != null) phase = json['phase'];
     if (json['phaseTimes'] != null) phaseTimes = json['phaseTimes'];
     if (json['space'] != null) space = json['space'];
