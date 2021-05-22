@@ -16,12 +16,13 @@ while ($row = $result1 -> fetch_row())
     $id = $row[0];
     $user = $row[1];
 
-    $command3 = " SELECT notify from offline WHERE id='" . $id . "'";
+    $command3 = " SELECT notify,name from offline WHERE id='" . $id . "'";
     $result3 = $conn -> query($command3);
 
     while ($row3 = $result3 -> fetch_row())
     {
       $notifyOffline = (int) $row3[0];
+      $name = $row3[1];
 
       //sends notification if it is linked 
       if ($notifyOffline === 1 && $user !== "none" && gettype($user) == gettype("none"))
@@ -29,7 +30,7 @@ while ($row = $result1 -> fetch_row())
         //send
         $arg = "offline";
         //send notification
-        $commandNotif = " INSERT INTO notifications(user,type) VALUES ('" . $user . "', '" . $arg . "');";
+        $commandNotif = " INSERT INTO notifications(user,type,name) VALUES ('" . $user . "', '" . $arg . "', '" . $name . "');";
         $conn -> query($commandNotif);
       }
     }

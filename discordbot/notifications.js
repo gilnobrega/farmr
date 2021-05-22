@@ -21,14 +21,14 @@ process.on('unhandledRejection', error => {
     throw error;
 });
 
-async function sendmsg(id, command) {
+async function sendmsg(id, command, name) {
 
     if (id !== "none") {
 
-        if (command == "block") message = ":money_mouth: Your farm just found a block!";
-        else if (command == "plot") message = ":tada: Your farm just completed another plot.";
-        else if (command == "offline") message = ":skull_crossbones: Lost connection to farmer/harvester!";
-        else if (command == "stopped") message = ":scream: Your farmer stopped farming!";
+        if (command == "block") message = ":money_mouth: " + name + " just found a block!";
+        else if (command == "plot") message = ":tada: " + name + " just completed another plot.";
+        else if (command == "offline") message = ":skull_crossbones: Lost connection to " + name + "!";
+        else if (command == "stopped") message = ":scream: " + name + " stopped farming!";
 
         const user = await client.users.fetch(id).catch(() => null);
 
@@ -59,17 +59,18 @@ async function checkNotifs() {
 
         const connection = await mysql.createConnection(db_config); // Recreate the connection, since
 
-        [results, fields] = await connection.execute('SELECT notificationID,user,type from notifications');
+        [results, fields] = await connection.execute('SELECT notificationID,user,type,name from notifications');
 
         for (var i = 0; i < results.length; i++) {
             var result = results[i];
             var notificationID = result['notificationID'];
             var userID = result['user'];
             var type = result['type'];
+            var name = result['name'];
 
             await connection.execute('DELETE from notifications where notificationID=' + notificationID);
 
-            console.log(type + " " + userID);
+            console.log(type + " " + userID + " " + name);
 
             //sends notification
             await sendmsg(userID, type);
