@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io' as io;
 import 'dart:math' as Math;
 import 'dart:convert';
@@ -6,8 +7,8 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 
 class NetSpace {
-  int _size = 0;
-  int get size => _size;
+  double _size = 0;
+  double get size => _size;
 
   String get humanReadableSize => generateHumanReadableSize(size);
   String get dayDifference => _getDayDifference();
@@ -22,7 +23,7 @@ class NetSpace {
   String get source => _source;
 
   //timestamp, size
-  Map<String, int> pastSizes = {};
+  Map<String, double> pastSizes = {};
 
   Map toJson() => {"timestamp": timestamp, "size": size, "pastSizes": pastSizes, "source": source};
 
@@ -64,7 +65,8 @@ class NetSpace {
         String contents = await http.read("https://chiacalculator.com");
         RegExp regex = new RegExp(">([0-9\\.]+)<!-- --> <!-- -->([A-Z])iB");
         var matches = regex.allMatches(contents);
-        for (var match in matches)
+        
+        for (var match in matches) 
           if (_size == 0) _size = sizeStringToInt('${match.group(1)} ${match.group(2)}iB');
 
         _source = "chiacalculator.com";
@@ -82,7 +84,7 @@ class NetSpace {
         //parses timestamp and accounts for ChiaNetSpace's timezone
         int timestamp = DateFormat('y-M-d').parseUTC(pastSize['date']).millisecondsSinceEpoch -
             Duration(hours: 3).inMilliseconds;
-        int size = sizeStringToInt("${pastSize['netspace']} PiB");
+        double size = sizeStringToInt("${pastSize['netspace']} PiB");
         pastSizes.putIfAbsent(timestamp.toString(), () => size);
       }
     } catch (e) {}
@@ -126,7 +128,7 @@ class NetSpace {
 
     String absoluteSize = '';
 
-    if (showAbsoluteSize) absoluteSize = "${sign}${generateHumanReadableSize(avgSizeDiff)}, ";
+    if (showAbsoluteSize) absoluteSize = "${sign}${generateHumanReadableSize(avgSizeDiff/1.0)}, ";
 
     growth = "${absoluteSize}${sign}${ratio.abs().toStringAsFixed(1)}%";
 
@@ -167,7 +169,7 @@ class NetSpace {
   static final Map<String, int> bases = {'B': 1000, 'iB': 1024};
 
   //generates a human readable string in xiB from an int size in bytes
-  static String generateHumanReadableSize(int size) {
+  static String generateHumanReadableSize(double size) {
     try {
       var unit;
       for (var entry in units.entries) {
@@ -182,15 +184,15 @@ class NetSpace {
     }
   }
 
-  static int sizeStringToInt(String netspace) {
-    int size = 0;
+  static double sizeStringToInt(String netspace) {
+    double size = 0;
 
     //converts xiB or xB to bytes
     for (var base in bases.entries) {
       for (var unit in units.entries) {
         if (netspace.contains("${unit.key}${base.key}")) {
           double value = double.parse(netspace.replaceAll("${unit.key}${base.key}", "").trim());
-          size = (value * (Math.pow(base.value, unit.value))).round();
+          size = (value * (Math.pow(base.value, unit.value)));
 
           return size;
         }
@@ -204,7 +206,7 @@ class NetSpace {
     if (json['timestamp'] != null) _timestamp = json['timestamp'];
     if (json['size'] != null) _size = json['size'];
 
-    if (json['pastSizes'] != null) pastSizes = Map<String, int>.from(json['pastSizes']);
+    if (json['pastSizes'] != null) pastSizes = Map<String, double>.from(json['pastSizes']);
 
     if (json['source'] != null) _source = json['source'];
   }
