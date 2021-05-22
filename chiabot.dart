@@ -157,7 +157,7 @@ main(List<String> args) async {
           "publicAPI": publicAPI
         };
 
-        String url = "https://chiabot.znc.sh/send4.php";
+        String url = "https://chiabot.znc.sh/send5.php";
 
         if (config.type == ClientType.Farmer && config.sendStatusNotifications)
           post.putIfAbsent("isFarming", () => isFarming);
