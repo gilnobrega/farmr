@@ -77,6 +77,7 @@ class Farmer extends Harvester {
         'stdDeviation': stdDeviation,
         'filterCategories': filterCategories,
         'fullNodesConnected': fullNodesConnected,
+        "swarPM": swarPM,
         'version': version
       };
 
@@ -176,7 +177,8 @@ class Farmer extends Harvester {
     this.disableDetailedTimeStats();
 
     //adds swar pm jobs
-    swarPM.jobs.addAll(harvester.swarPM.jobs);
+    if (swarPM != null && harvester.swarPM != null)
+      swarPM.jobs.addAll(harvester.swarPM.jobs);
   }
 
   void calculateSubSlots(Debug.Log log) {
