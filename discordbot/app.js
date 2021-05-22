@@ -148,9 +148,6 @@ client.on('message', (msg) => {
     else if (command === "chia" && args.length == 1 && args[0] == "netspace") {
       runCommand("../server/chiabot_server.exe netspace", msg, true);
     }
-    else if (command === "chia" && args.length == 1 && args[0] == "swarpm") {
-      runCommand("../server/chiabot_server.exe swarpm", msg, true);
-    }
     else if (command === 'chia' && args.length == 1 && args[0] == 'help') {
 
       const embed = new MessageEmbed()

@@ -498,7 +498,7 @@ class Stats {
   static String showSwarPMJobs(Harvester client) {
     String output = '';
 
-    if (client.swarPM.jobs.length > 0) {
+    if (client.swarPM.jobs != null && client.swarPM.jobs.length > 0) {
       output += "\n";
 
       for (Job job in client.swarPM.jobs) {
