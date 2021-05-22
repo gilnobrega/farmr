@@ -18,10 +18,13 @@ class NetSpace {
   final int _untilTimeStamp = DateTime.now().subtract(Duration(minutes: 5)).millisecondsSinceEpoch;
   final io.File _cacheFile = io.File("netspace.json");
 
+  String _source = "chianetspace.com";
+  String get source => _source;
+
   //timestamp, size
   Map<String, int> pastSizes = {};
 
-  Map toJson() => {"timestamp": timestamp, "size": size, "pastSizes": pastSizes};
+  Map toJson() => {"timestamp": timestamp, "size": size, "pastSizes": pastSizes, "source": source};
 
   NetSpace([String humanReadableSize = null]) {
     if (humanReadableSize != null) {
@@ -52,6 +55,20 @@ class NetSpace {
       var units = content['netSpace']['largestWholeNumberBinarySymbol'];
 
       _size = sizeStringToInt('${sizeString} ${units}');
+    } catch (e) {}
+
+    try {
+      //if chianetspaceapi.com fails then gets netspace from chiacalculator.com
+      if (_size == 0) {
+        //<dd class="chakra-stat__number css-mu2u4q">8.032<!-- --> <!-- -->EiB</dd>
+        String contents = await http.read("https://chiacalculator.com");
+        RegExp regex = new RegExp(">([0-9\\.]+)<!-- --> <!-- -->([A-Z])iB");
+        var matches = regex.allMatches(contents);
+        for (var match in matches)
+          if (_size == 0) _size = sizeStringToInt('${match.group(1)} ${match.group(2)}iB');
+
+        _source = "chiacalculator.com";
+      }
     } catch (e) {}
   }
 
@@ -142,6 +159,7 @@ class NetSpace {
     } else {
       _timestamp = previousNetSpace.timestamp;
       _size = previousNetSpace.size;
+      _source = previousNetSpace.source;
     }
   }
 
@@ -187,5 +205,7 @@ class NetSpace {
     if (json['size'] != null) _size = json['size'];
 
     if (json['pastSizes'] != null) pastSizes = Map<String, int>.from(json['pastSizes']);
+
+    if (json['source'] != null) _source = json['source'];
   }
 }

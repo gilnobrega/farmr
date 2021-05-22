@@ -33,8 +33,8 @@ Future<void> main(List<String> args) async {
       print(
           "XCH/${currency}: **${price.rates[currency].rate.toStringAsPrecision(3)}** (${price.rates[currency].changeRelative}%)");
 
-    Duration difference = DateTime.now()
-        .difference(DateTime.fromMillisecondsSinceEpoch(price.timestamp));
+    Duration difference =
+        DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(price.timestamp));
 
     String source = ' - coingecko.com';
 
@@ -47,8 +47,7 @@ Future<void> main(List<String> args) async {
     await netspace.init();
 
     var entries = netspace.pastSizes.entries.toList();
-    entries.sort((entry1, entry2) =>
-        int.parse(entry2.key).compareTo(int.parse(entry1.key)));
+    entries.sort((entry1, entry2) => int.parse(entry2.key).compareTo(int.parse(entry1.key)));
 
     print("Current Netspace: **${netspace.humanReadableSize}**");
     print("Last 24 hours: ${netspace.dayDifference}\n");
@@ -57,8 +56,7 @@ Future<void> main(List<String> args) async {
     for (int i = 0; (i <= until && i < entries.length - 1); i++) {
       var pastSize = entries[i];
 
-      DateTime pastSizeDate =
-          DateTime.fromMillisecondsSinceEpoch(int.parse(pastSize.key));
+      DateTime pastSizeDate = DateTime.fromMillisecondsSinceEpoch(int.parse(pastSize.key));
 
       String date = DateFormat('MMM dd').format(pastSizeDate);
       String size = NetSpace.generateHumanReadableSize(pastSize.value);
@@ -72,15 +70,13 @@ Future<void> main(List<String> args) async {
 
     print("Values recorded at 9pm UTC");
 
-    Duration difference = DateTime.now()
-        .difference(DateTime.fromMillisecondsSinceEpoch(netspace.timestamp));
+    Duration difference =
+        DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(netspace.timestamp));
 
     if (difference.inMinutes > 0)
-      print(
-          "-- last updated ${difference.inMinutes} minutes ago - chianetspace.com");
+      print("-- last updated ${difference.inMinutes} minutes ago - ${netspace.source}");
     else
-      print(
-          "-- last updated ${difference.inSeconds} seconds ago - chianetspace.com");
+      print("-- last updated ${difference.inSeconds} seconds ago - ${netspace.source}");
   } else {
     //Discord User ID
     String userID = args[0];
@@ -111,46 +107,34 @@ Future<void> main(List<String> args) async {
       if (harvesters.length == 0) throw new Exception("No Harvesters found.");
 
       //Sorts harvesters by newest
-      harvesters.sort((client2, client1) => (client1
-          .lastUpdated.millisecondsSinceEpoch
+      harvesters.sort((client2, client1) => (client1.lastUpdated.millisecondsSinceEpoch
           .compareTo(client2.lastUpdated.millisecondsSinceEpoch)));
 
-      harvestersCount =
-          harvesters.where((client) => !(client is Farmer)).length;
+      harvestersCount = harvesters.where((client) => !(client is Farmer)).length;
       farmersCount = harvesters.length - harvestersCount;
 
-      Farmer farm = harvesters
-          .where((client) => client is Farmer)
-          .first; //Selects newest farm as main farm
+      Farmer farm =
+          harvesters.where((client) => client is Farmer).first; //Selects newest farm as main farm
 
       if (args.contains("workers")) {
         //Sorts workers by alphabetical order
-        harvesters.sort((harvester1, harvester2) =>
-            harvester1.name.compareTo(harvester2.name));
+        harvesters.sort((harvester1, harvester2) => harvester1.name.compareTo(harvester2.name));
 
         //Sorts workers by farmer/harvester type
-        harvesters.sort((client1, client2) =>
-            client1.type.index.compareTo(client2.type.index));
+        harvesters.sort((client1, client2) => client1.type.index.compareTo(client2.type.index));
 
         for (Harvester harvester in harvesters) {
           harvester.filterDuplicates(false);
           harvester.sortPlots();
 
-          showHarvester(
-              harvester,
-              harvestersCount,
-              farmersCount,
-              netspace,
-              args.contains("full"),
-              args.contains("workers"),
-              price.rates[harvester.currency]);
+          showHarvester(harvester, harvestersCount, farmersCount, netspace, args.contains("full"),
+              args.contains("workers"), price.rates[harvester.currency]);
 
           if (harvester != harvesters.last) print(';;');
         }
       } else {
         //Sorts harvesters by farmer/harvester type
-        harvesters.sort((client1, client2) =>
-            client1.type.index.compareTo(client2.type.index));
+        harvesters.sort((client1, client2) => client1.type.index.compareTo(client2.type.index));
 
         harvesters.remove(farm);
 
@@ -161,20 +145,13 @@ Future<void> main(List<String> args) async {
         farm.filterDuplicates(false);
         farm.sortPlots();
 
-        showHarvester(
-            farm,
-            harvestersCount,
-            farmersCount,
-            netspace,
-            args.contains("full"),
-            args.contains("workers"),
-            price.rates[farm.currency]);
+        showHarvester(farm, harvestersCount, farmersCount, netspace, args.contains("full"),
+            args.contains("workers"), price.rates[farm.currency]);
       }
     } catch (Exception) {
       if (farmersCount == 0) print("Error: Farmer not found.");
       if (harvesters.length != null && harvesters.length > 0)
-        print(
-            "Error: ${farmersCount} farmers and ${harvestersCount} harvesters found.");
+        print("Error: ${farmersCount} farmers and ${harvestersCount} harvesters found.");
       else
         print(
             "No clients found! Find out how you can install ChiaBot in your farmer/harvester in <#838789194696097843>");
@@ -197,8 +174,7 @@ Future<List<Harvester>> _getUserData(String userID) async {
         db: 'chiabot');
     var conn = await mysql.MySqlConnection.connect(settings);
 
-    var results =
-        await conn.query("SELECT data FROM farms WHERE user='${userID}'");
+    var results = await conn.query("SELECT data FROM farms WHERE user='${userID}'");
 
     for (var result in results) {
       if (result[0].toString().contains('"type"')) {
@@ -206,8 +182,7 @@ Future<List<Harvester>> _getUserData(String userID) async {
 
         if (data.contains('"type":0'))
           harvesters.add(Farmer.fromJson(data));
-        else if (data.contains('"type":1'))
-          harvesters.add(Harvester.fromJson(data));
+        else if (data.contains('"type":1')) harvesters.add(Harvester.fromJson(data));
       }
     }
 
@@ -215,11 +190,9 @@ Future<List<Harvester>> _getUserData(String userID) async {
   }
   //reads from public api in case connection to mysql database fails
   catch (e) {
-    String contents =
-        await http.read("http://chiabot.znc.sh/read.php?user=" + userID);
+    String contents = await http.read("http://chiabot.znc.sh/read.php?user=" + userID);
 
-    contents = contents
-        .trim(); //filters last , of send page, can be fixed on server side later
+    contents = contents.trim(); //filters last , of send page, can be fixed on server side later
 
     var clientsSerial = contents
         .replaceAll("[;;]", "")
@@ -260,9 +233,7 @@ void _getUsers() async {
           "SELECT user FROM farms WHERE data<>'' AND data<>';' AND user<>'none' group by user"))
       .length;
 
-  int devices =
-      (await conn.query("SELECT id FROM farms WHERE data<>'' AND data<>';'"))
-          .length;
+  int devices = (await conn.query("SELECT id FROM farms WHERE data<>'' AND data<>';'")).length;
 
   conn.close();
 
@@ -277,8 +248,8 @@ Future<Price> _getPrice() async {
   return price;
 }
 
-showHarvester(Harvester harvester, int harvestersCount, int farmersCount,
-    NetSpace netSpace, bool isFull, bool isWorkers, Rate rate,
+showHarvester(Harvester harvester, int harvestersCount, int farmersCount, NetSpace netSpace,
+    bool isFull, bool isWorkers, Rate rate,
     [bool discord = true]) {
   String output;
 
