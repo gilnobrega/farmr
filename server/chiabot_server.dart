@@ -316,11 +316,15 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount,
             Stats.showLastNDaysPlots(harvester, 8, netSpace) +
             Stats.showIncompletePlotsWarning(harvester) +
             Stats.showFilters(harvester) +
-            Stats.showSubSlots(harvester) +
-            Stats.showSwarPMJobs(harvester)
+            Stats.showSubSlots(harvester)
         : '';
 
-    output = main + full + lastUpdated;
+    String swarPM =
+        (harvester.swarPM != null && harvester.swarPM.jobs.length > 0)
+            ? ";;" + Stats.showSwarPMJobs(harvester) + lastUpdated
+            : '';
+
+    output = main + full + lastUpdated + swarPM;
 
     //removes discord emojis
     if (!discord) {
