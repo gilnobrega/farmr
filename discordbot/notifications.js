@@ -73,7 +73,7 @@ async function checkNotifs() {
             console.log(type + " " + userID + " " + name);
 
             //sends notification
-            await sendmsg(userID, type);
+            await sendmsg(userID, type, name);
 
         }
 
