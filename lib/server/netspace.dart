@@ -43,8 +43,8 @@ class NetSpace {
 
   //genCache=true forces generation of netspace.json file
   init([bool genCache = false]) async {
-    if (_cacheFile.existsSync() && !genCache)
-      await _load();
+    if (_cacheFile.existsSync())
+      await _load(genCache);
     else {
       await _getNetSpace();
       await _getPastSizes();
@@ -160,7 +160,7 @@ class NetSpace {
     _cacheFile.writeAsStringSync(serial);
   }
 
-  _load() async {
+  _load([bool genCache = false]) async {
     var json = jsonDecode(_cacheFile.readAsStringSync());
     NetSpace previousNetSpace = NetSpace.fromJson(json);
 
@@ -169,7 +169,7 @@ class NetSpace {
 
     //if last time price was parsed from api was longer than 1 minute ago
     //then parses new price from api
-    if (previousNetSpace.timestamp < _untilTimeStamp) {
+    if (previousNetSpace.timestamp < _untilTimeStamp || genCache) {
       await _getNetSpace();
 
       //adds new past sizes while keeping old ones
