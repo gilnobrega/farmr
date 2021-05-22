@@ -43,8 +43,7 @@ function runCommand(command, msg) {
         lastUpdated = array[1];
       }
 
-      if (text !== null && text !== '' && text.length > 0)
-      {
+      if (text !== null && text !== '' && text.length > 0) {
         const embed = new MessageEmbed()
           .setColor(0x40ab5c)
           .setDescription(text)
@@ -56,7 +55,7 @@ function runCommand(command, msg) {
             setTimeout(() => msg.delete().catch(), minsTimeout * 60 * 1000);
             setTimeout(() => sentmsg.delete().catch(), minsTimeout * 60 * 1000);
           }
-        }).catch(); 
+        }).catch();
       }
 
     });
@@ -66,38 +65,37 @@ function runCommand(command, msg) {
   });
 }
 
-function linkUser (id, user, msg)
-{
+function linkUser(id, user, msg) {
   var mysql = require('mysql');
-    var connection = mysql.createConnection({
-        host: 'localhost',
-        user: process.env.MYSQL_USER,
-        password: process.env.MYSQL_PASSWORD,
-        database: 'chiabot'
+  var connection = mysql.createConnection({
+    host: 'localhost',
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASSWORD,
+    database: 'chiabot'
+  });
+
+  var idEscaped = mysql.escape(id);
+  var userEscaped = mysql.escape(user);
+  console.log(idEscaped);
+
+  connection.connect();
+
+  connection.query(" INSERT INTO farms (id, data, user) VALUES (" + idEscaped + ", ';;', " + userEscaped + ") ON DUPLICATE KEY UPDATE user=IF(user='none'," + userEscaped + ", user);", function (error, results, fields) {
+
+    const embed = new MessageEmbed()
+      .setColor(0x40ab5c)
+      .setTitle("Linked ID to your Discord account successfully")
+      .setDescription("");
+    msg.channel.send(embed).then(sentmsg => {
+
+      if (msg.channel.type != "dm") {
+        setTimeout(() => msg.delete().catch(), 1);
+        setTimeout(() => sentmsg.delete().catch(), minsTimeout * 60 * 1000);
+      }
     });
+  });
 
-    var idEscaped = mysql.escape(id);
-    var userEscaped = mysql.escape(user);
-    console.log(idEscaped);
-
-    connection.connect();
-
-    connection.query(" INSERT INTO farms (id, data, user) VALUES ("  + idEscaped +  ", ';;', " + userEscaped +  ") ON DUPLICATE KEY UPDATE user=IF(user='none'," + userEscaped +  ", user);", function (error, results, fields) {
-
-      const embed = new MessageEmbed()
-        .setColor(0x40ab5c)
-        .setTitle("Linked ID to your Discord account successfully")
-        .setDescription("");
-      msg.channel.send(embed).then(sentmsg => {
-
-        if (msg.channel.type != "dm") {
-          setTimeout(() => msg.delete().catch(), 1);
-          setTimeout(() => sentmsg.delete().catch(), minsTimeout * 60 * 1000);
-        }
-      });
-    });
-
-    connection.end();
+  connection.end();
 }
 
 //shows disclaimer when user runs command in #general
@@ -149,6 +147,9 @@ client.on('message', (msg) => {
     }
     else if (command === "chia" && args.length == 1 && args[0] == "netspace") {
       runCommand("../server/chiabot_server.exe netspace", msg, true);
+    }
+    else if (command === "chia" && args.length == 1 && args[0] == "swarpm") {
+      runCommand("../server/chiabot_server.exe swarpm", msg, true);
     }
     else if (command === 'chia' && args.length == 1 && args[0] == 'help') {
 
