@@ -12,6 +12,8 @@ import 'package:chiabot/debug.dart' as Debug;
 import 'package:chiabot/harvester/filters.dart';
 import 'package:chiabot/farmer.dart';
 
+import 'package:chiabot/extensions/swarpm.dart';
+
 final log = Logger('Harvester');
 
 class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
@@ -42,6 +44,9 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
   ClientType _type = ClientType.Harvester;
   ClientType get type => _type;
 
+  SwarPM _swarPM;
+  SwarPM get swarPM => _swarPM;
+
   Map toJson() => {
         'name': _name,
         'currency': currency,
@@ -62,6 +67,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
         'medianTime': medianTime,
         'stdDeviation': stdDeviation,
         'filterCategories': filterCategories,
+        "swarPM": swarPM,
         'version': version
       };
 
@@ -77,6 +83,9 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     _lastUpdatedString = dateToString(_lastUpdated);
 
     loadFilters(log);
+
+    //loads swar plot manager config if defined by user
+    if (config.swarPath != "") _swarPM = SwarPM(config.swarPath);
   }
 
   Harvester.fromJson(String json) {
@@ -112,7 +121,10 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
 
     _lastUpdated = DateTime.fromMillisecondsSinceEpoch(object['lastUpdated']);
 
-    if (object['lastUpdatedString'] != null) _lastUpdatedString = object['lastUpdatedString'];
+    if (object['lastUpdatedString'] != null)
+      _lastUpdatedString = object['lastUpdatedString'];
+
+    if (object['swarPM'] != null) _swarPM = object['swarPM'];
 
     _type = ClientType.values[object['type']];
   }

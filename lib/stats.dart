@@ -4,7 +4,7 @@ import 'package:chiabot/plot.dart';
 import 'package:chiabot/server/price.dart';
 import 'package:chiabot/server/netspace.dart';
 
-import 'dart:math' as Math;
+import 'package:chiabot/extensions/swarpm.dart';
 
 class Stats {
   static String showName(Harvester harvester, [int count = null]) {
@@ -492,6 +492,21 @@ class Stats {
           " seconds ago" +
           version;
     }
+    return output;
+  }
+
+  static String showSwarPMJobs(Harvester client) {
+    String output = '';
+
+    if (client.swarPM.jobs.length > 0) {
+      output += "\n";
+
+      for (Job job in client.swarPM.jobs) {
+        output +=
+            "\n${job.number} ${job.name} ${job.elapsed} ${job.phase} ${job.phaseTimes} ${job.percentage} ${job.space}";
+      }
+    }
+
     return output;
   }
 
