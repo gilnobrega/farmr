@@ -31,8 +31,7 @@ String chiaConfigPath = (io.File(".github/workflows/config.yaml").existsSync())
     : (io.Platform.isLinux || io.Platform.isMacOS)
         ? io.Platform.environment['HOME'] + "/.chia/mainnet/config/"
         : (io.Platform.isWindows)
-            ? io.Platform.environment['UserProfile'] +
-                "\\.chia\\mainnet\\config\\"
+            ? io.Platform.environment['UserProfile'] + "\\.chia\\mainnet\\config\\"
             : "";
 
 //Sets config file path according to platform
@@ -55,18 +54,14 @@ main(List<String> args) async {
   //launches client in onetime mode, where it runs one time and doesnt loop
   bool onetime = args.contains("onetime");
   //launches client in standalone mode where it doesnt send info to server
-  bool standalone =
-      onetime || args.contains("standalone") || args.contains("offline");
+  bool standalone = onetime || args.contains("standalone") || args.contains("offline");
 
   Cache cache = new Cache(chiaConfigPath);
   cache.init();
 
   //Initializes config, either creates a new one or loads a config file
-  Config config = new Config(
-      cache,
-      chiaConfigPath,
-      (args.contains("harvester") ||
-          args.contains('-h'))); //checks if is harvester
+  Config config = new Config(cache, chiaConfigPath,
+      (args.contains("harvester") || args.contains('-h'))); //checks if is harvester
 
   await config.init();
 
@@ -107,15 +102,8 @@ main(List<String> args) async {
       }
 
       //shows stats in client
-      Stats.showHarvester(
-          client,
-          0,
-          0,
-          (client is Farmer) ? client.netSpace : NetSpace(),
-          false,
-          true,
-          Rate(0, 0, 0),
-          false);
+      Stats.showHarvester(client, 0, 0, (client is Farmer) ? client.netSpace : NetSpace(), false,
+          true, Rate(0, 0, 0), false);
 
       //copies object to a json string
       copyJson = jsonEncode(client);
@@ -145,11 +133,10 @@ main(List<String> args) async {
         String notifyOffline = (config.sendOfflineNotifications)
             ? '1'
             : '0'; //whether user wants to be notified when rig goes offline
-        String isFarming =
-            ((config.type == ClientType.Farmer && status == "Farming") ||
-                    config.type == ClientType.Harvester)
-                ? '1' //1 means is farming
-                : '0';
+        String isFarming = ((config.type == ClientType.Farmer && status == "Farming") ||
+                config.type == ClientType.Harvester)
+            ? '1' //1 means is farming
+            : '0';
 
         Map<String, String> post = {
           "data": sendJson,
@@ -164,8 +151,7 @@ main(List<String> args) async {
           post.putIfAbsent("isFarming", () => isFarming);
 
         //Adds the following if sendPlotNotifications is enabled then it will send plotID
-        if (config.sendPlotNotifications)
-          post.putIfAbsent("lastPlot", () => lastPlotID);
+        if (config.sendPlotNotifications) post.putIfAbsent("lastPlot", () => lastPlotID);
 
         //If the client is a farmer and it is farming and sendBalanceNotifications is enabled then it will send balance
         if (config.type == ClientType.Farmer &&
@@ -183,10 +169,9 @@ main(List<String> args) async {
           }).whenComplete(() {
             String idText = (cache.ids.length == 1) ? '' : "for id " + id;
             String timestamp = DateFormat.Hms().format(DateTime.now());
-            log.warning(
-                "\n${timestamp} - Sent ${type} report to server ${idText}\nRetrying in " +
-                    delay.inMinutes.toString() +
-                    " minutes");
+            log.warning("\n${timestamp} - Sent ${type} report to server ${idText}\nRetrying in " +
+                delay.inMinutes.toString() +
+                " minutes");
           });
         }
 
@@ -244,8 +229,7 @@ void initLogger() {
       try {
         io.File logFile = io.File("log.txt");
 
-        logFile.writeAsStringSync(
-            '\n${record.time} ${record.loggerName}: ' + output,
+        logFile.writeAsStringSync('\n${record.time} ${record.loggerName}: ' + output,
             mode: io.FileMode.writeOnlyAppend);
       } catch (e) {}
     }

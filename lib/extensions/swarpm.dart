@@ -9,22 +9,29 @@ class SwarPM {
   SwarPM(String managerPath) {
     String jsonOutput = '';
 
-    if (io.Platform.isWindows) {
-      jsonOutput =
-          io.Process.runSync("python", ["manager.py", "json"], runInShell: true)
-              .stdout;
-    } else {
-      jsonOutput =
-          io.Process.runSync("/usr/bin/env", ["python3", "manager.py", "json"])
-              .stdout;
+    final oldDir = io.Directory.current;
+
+    try {
+      //changes working directory to swar's pm 
+      io.Directory.current = managerPath;
+      if (io.Platform.isWindows) {
+        jsonOutput = io.Process.runSync("python", ["manager.py", "json"], runInShell: true).stdout;
+      } else {
+        jsonOutput = io.Process.runSync("/usr/bin/env", ["python3", "manager.py", "json"]).stdout;
+      }
+
+      dynamic jsonObject = jsonDecode(jsonOutput);
+
+      for (var jobObject in jsonObject["jobs"]) {
+        Job job = Job(jobObject);
+        jobs.add(job);
+      }
+    } catch (e) {
+      print("Failed to get info about Swar's Chia Plot Manager");
     }
 
-    dynamic jsonObject = jsonEncode(jsonOutput);
-
-    for (var jobObject in jsonObject["jobs"]) {
-      Job job = Job(jobObject);
-      jobs.add(job);
-    }
+    //restores old working directory
+    io.Directory.current = oldDir;
   }
 
   SwarPM.fromJson(dynamic json) {
@@ -54,7 +61,7 @@ class Job {
         "phase": phase,
         "phaseTimes": phaseTimes,
         "percentage": percentage,
-        "space": size
+        "space": space
       };
 
   Job(dynamic json) {
