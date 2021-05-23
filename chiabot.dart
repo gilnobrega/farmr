@@ -175,6 +175,7 @@ main(List<String> args) async {
 
         for (String id in cache.ids) {
           post.putIfAbsent("id", () => id);
+          post.update("id", (value) => id);
 
           http.post(url, body: post).catchError((error) {
             log.warning("Server timeout.");
