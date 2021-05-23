@@ -318,7 +318,11 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount,
             Stats.showFilters(harvester)
         : '';
 
-    String fullNodeStats = ((isFull || isWorkers) && harvester is Farmer)
+    String fullNodeStats = ((isFull || isWorkers) &&
+            harvester is Farmer &&
+            (harvester.completeSubSlots > 0 ||
+                harvester.fullNodesConnected > 0 ||
+                harvester.shortSyncs.length > 0))
         ? ";;" + Stats.showFullNodeStats(harvester) + lastUpdated
         : '';
 
