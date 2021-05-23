@@ -44,10 +44,6 @@ class Cache {
   }
 
   void init([bool parseLogs = false, int userNumber = 1]) {
-    //populates id[] with random ids based on number of users provided by config
-    ids = [];
-    for (int i = 0; i < userNumber; i++) ids.add(Uuid().v4());
-
     //Tells log parser when it should stop parsing
     parseUntil =
         DateTime.now().subtract(Duration(days: 1)).millisecondsSinceEpoch;
@@ -57,12 +53,6 @@ class Cache {
       save(); //creates cache file if doesnt exist
     else
       load(parseLogs); //chiabot_cache.json
-
-    //generates new ids
-    if (userNumber > ids.length) {
-      int newIds = userNumber - ids.length;
-      for (int i = 0; i < newIds; i++) ids.add(Uuid().v4());
-    }
 
     save();
   }
