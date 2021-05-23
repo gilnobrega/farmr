@@ -241,7 +241,9 @@ class Config {
 
     //loads custom client name
     if (contents[0]['name'] != null) _name = contents[0]['name']; //old
-    if (contents[0]['Name'] != null) _name = contents[0]['Name']; //new
+    if (contents[0]['Name'] != null &&
+        contents[0]['Name'] != "Farmer" &&
+        contents[0]['Name'] != "Harvester") _name = contents[0]['Name']; //new
 
     //loads custom currency
     if (contents[0]['currency'] != null)
