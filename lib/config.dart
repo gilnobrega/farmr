@@ -114,6 +114,7 @@ class Config {
         // Less Id's (fresh list)
         for (int i = 0; i < userNumber; i++) cache.ids.add(Uuid().v4());
       }
+      cache.save();
     }
 
     _info(); //shows first screen info with qr code, id, !chia, etc.
