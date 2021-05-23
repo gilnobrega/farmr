@@ -56,7 +56,7 @@ module.exports = (client) => {
 	
 	//Links a new user
 	client.linkUser = (id, user, msg) => {
-	    var mysql = require('mysql');
+	    var mysql = require('mysql2');
 	    var connection = mysql.createConnection({
 	        host: 'localhost',
 	        user: process.env.MYSQL_USER,
