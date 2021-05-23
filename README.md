@@ -105,48 +105,59 @@ These are the default settings:
 ```json
 [
     {
-        "name": null,
-        "currency": "USD",
-        "showBalance": true,
-        "showWalletBalance": false,
-        "sendBalanceNotifications": true,
-        "sendPlotNotifications": false,
-        "sendOfflineNotifications": false,
-        "sendStatusNotifications": false,
-        "parseLogs": false,
-        "chiaPath": null
+        "Name": "Harvester",
+        "Currency": "USD",
+        "Show Farmed XCH": true,
+        "Show Wallet Balance": false,
+        "Block Notifications": true,
+        "Plot Notifications": false,
+        "Offline Notifications": false,
+        "Farm Status Notifications": true,
+        "Parse Logs": false,
+        "Number of Discord Users": 1,
+        "Public API": false,
+        "Swar's Chia Plot Manager Path": ""
     }
 ]
 ```
 
 #### Name your client
-You can name your client by changing `` "name": null,`` to ``"name": "YourFarmer",`` (notice **quote marks**). This will identify the client as ``YourFarmer`` in `` !chia workers ``.
+You can name your client by changing `` "Name": "Harvester",`` to ``"name": "YourFarmer",`` (notice **quote marks**). This will identify the client as ``YourFarmer`` in `` !chia workers ``.
 
 #### Choose your preferred currency
 Replace ``"USD"`` with any of the following 3-digit symbols: ‘USD’, 'EUR', 'CAD', 'GBP', 'AUD', 'SGD', 'JPY', 'INR', 'RMB', 'CNY', 'CHF', 'HKD', 'BRL', 'DKK', 'NZD', 'TRY', 'ETH', 'BTC', 'ETC'.
 
 #### Sharing farmed XCH Balance
-Set ``showBalance`` to ``false`` if you do not want your farmed balance to be reported to the server. Setting this to false will disable Block notifications.
+Set ``Show Farmed XCH`` to ``false`` if you do not want your farmed balance to be reported to the server. Setting this to false will disable Block notifications.
 
 #### Sharing Wallet Balance
-Set ``showWalletBalance`` to ``true`` if you want your wallet balance to be displayed.
-
-#### Plot Notifications
-Set ``sendPlotNotifications`` to ``true`` if you wish to be notified when your farmer/harvester completes a plot.
+Set ``Show Wallet Balance`` to ``true`` if you want your wallet balance to be displayed.
 
 #### Block Notifications
-Set ``sendBalanceNotifications`` to ``false`` if you do not wish to be notified when your farmer finds a block.
+Set ``Block Notifications`` to ``false`` if you do not wish to be notified when your farmer finds a block.
+
+#### Plot Notifications
+Set ``Plot Notifications`` to ``true`` if you wish to be notified when your farmer/harvester completes a plot.
 
 #### Offline Notifications
-Set ``sendOfflineNotifications`` to ``true`` if you wish to be notified when your farmer/harvester loses connection.
+Set ``Offline Notifications`` to ``true`` if you wish to be notified when your farmer/harvester loses connection.
 
 #### Status Notifications
-Set ``sendStatusNotifications`` to ``true`` if you wish to be notified when your farmer loses sync and stops farming.
+Set ``Farm Status Notifications`` to ``false`` if you don't want to be notified when your farmer loses sync and stops farming.
 
 #### Chia Log Parsing
-If your chia debug level is set to ``INFO`` ([find how to do that here](https://thechiafarmer.com/2021/04/20/how-to-enable-chia-logs-on-windows/)), setting ``parseLogs`` to ``true`` will enable extra stats, such as number of challenges in the last 24 hours, max, min and average challenge response times and incomplete SubSlots.
+If your chia debug level is set to ``INFO`` ([find how to do that here](https://thechiafarmer.com/2021/04/20/how-to-enable-chia-logs-on-windows/)), setting ``Parse Logs`` to ``true`` will enable extra stats, such as number of challenges in the last 24 hours, max, min and average challenge response times, incomplete SubSlots, and number of short losses of sync events.
 
-You may delete ``config.json`` and ``.chiabot_cache.json`` to reset settings and generate a new id once the client is started again.
+#### Multiple Discord Users
+Change ``Number of Discord Users`` if you would like to link your farmer/harvester to more than one discord user. It will generate one unique ID per user.
+You may delete ``config.json`` and ``.chiabot_cache.json`` to reset settings and generate new ids once the client is started again.
+
+#### Public API
+Set ``Public API`` to true if you want your data to be accessed from chiabot's api page (``!chia api`` will show you your link)
+
+#### Swar's Chia Plot Manager Integration (experimental)
+If you are running Swar's Plot Manager >v0.1.0 then you can set ``"Swar's Chia Plot Manager Path"`` to the path where it's installed.
+Notice that if you run it in a python venv then you must launch chiabot in this venv. Current jobs will be displayed at the bottom of ``!chia full`` and ``!chia workers``
 
 ### Upgrading
 To upgrade, repeat [Installation](#installation) instructions again with the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest).

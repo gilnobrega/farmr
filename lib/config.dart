@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:logging/logging.dart';
 import 'package:dart_console/dart_console.dart';
 import 'package:qr/qr.dart';
+import 'package:uuid/uuid.dart';
 
 import 'package:chiabot/cache.dart';
 
@@ -44,11 +45,23 @@ class Config {
   bool _sendOfflineNotifications = false; //status notifications
   bool get sendOfflineNotifications => _sendOfflineNotifications;
 
-  bool _sendStatusNotifications = false; //status notifications
+  bool _sendStatusNotifications = true; //status notifications
   bool get sendStatusNotifications => _sendStatusNotifications;
 
   bool _parseLogs = false;
   bool get parseLogs => _parseLogs;
+
+  //number of users that can link this machine
+  int _userNumber = 1;
+  //Sets maximum of 10 users
+  int get userNumber => (_userNumber <= 10) ? _userNumber : 10;
+
+  String _swarPath = "";
+  String get swarPath => _swarPath;
+
+  //if this is set to true then client's data will be available on public api
+  bool _publicAPI = false;
+  bool get publicAPI => _publicAPI;
 
   final io.File _config = io.File("config.json");
 
@@ -68,7 +81,14 @@ class Config {
       print("Failed to port old config files!");
     }
 
-    _type = (!isHarvester) ? ClientType.Farmer : ClientType.Harvester;
+    //sets default name according to client type
+    if (isHarvester) {
+      _type = ClientType.Harvester;
+      _name = "Harvester";
+    } else {
+      _type = ClientType.Farmer;
+      _name = "Farmer";
+    }
   }
 
   Future<void> init() async {
@@ -81,28 +101,47 @@ class Config {
 
     //and asks for bin path if path is not defined/not found and is Farmer
     if (type == ClientType.Farmer &&
-        (cache.binPath == null || !io.File(cache.binPath).existsSync())) await _askForBinPath();
+        (cache.binPath == null || !io.File(cache.binPath).existsSync()))
+      await _askForBinPath();
+
+    /** Generate Discord Id's */
+    if (cache.ids.length != userNumber) {
+      if (userNumber > cache.ids.length) {
+        // More Id's (add)
+        int newIds = userNumber - cache.ids.length;
+        for (int i = 0; i < newIds; i++) cache.ids.add(Uuid().v4());
+      } else if (userNumber < cache.ids.length) {
+        // Less Id's (fresh list)
+        for (int i = 0; i < userNumber; i++) cache.ids.add(Uuid().v4());
+      }
+      cache.save();
+    }
 
     _info(); //shows first screen info with qr code, id, !chia, etc.
   }
 
   //Creates config file
   Future<void> saveConfig() async {
+    Map<String, dynamic> configMap = {
+      "Name": name,
+      "Currency": currency,
+      "Show Farmed XCH": showBalance,
+      "Show Wallet Balance": showWalletBalance,
+      "Block Notifications": sendBalanceNotifications,
+      "Plot Notifications": sendPlotNotifications,
+      "Offline Notifications": sendOfflineNotifications,
+      "Farm Status Notifications": sendStatusNotifications,
+      "Parse Logs": parseLogs,
+      "Number of Discord Users": userNumber,
+      "Public API": publicAPI,
+      "Swar's Chia Plot Manager Path": swarPath
+    };
+
+    //hides chiaPath from config.json if not defined (null)
+    if (chiaPath != null) configMap.putIfAbsent("chiaPath", () => chiaPath);
+
     var encoder = new JsonEncoder.withIndent("    ");
-    String contents = encoder.convert([
-      {
-        "name": name,
-        "currency": currency,
-        "showBalance": showBalance,
-        "showWalletBalance": showWalletBalance,
-        "sendBalanceNotifications": sendBalanceNotifications,
-        "sendPlotNotifications": sendPlotNotifications,
-        "sendOfflineNotifications": sendOfflineNotifications,
-        "sendStatusNotifications": sendStatusNotifications,
-        "parseLogs": parseLogs,
-        "chiaPath": chiaPath
-      }
-    ]);
+    String contents = encoder.convert([configMap]);
 
     _config.writeAsStringSync(contents);
   }
@@ -124,7 +163,9 @@ class Config {
       log.info("Could not automatically locate chia binary.");
 
     while (!validDirectory) {
-      log.warning("Specify your chia-blockchain directory below: (e.g.: " + exampleDir + ")");
+      log.warning("Specify your chia-blockchain directory below: (e.g.: " +
+          exampleDir +
+          ")");
 
       _chiaPath = io.stdin.readLineSync();
       log.info("Input chia path: '${_chiaPath}'");
@@ -141,7 +182,8 @@ class Config {
             " not found)\nPlease try again." +
             "\nMake sure this folder has the same structure as Chia's GitHub repo.");
       else
-        log.warning("Uh oh, that directory could not be found! Please try again.");
+        log.warning(
+            "Uh oh, that directory could not be found! Please try again.");
     }
 
     await saveConfig(); //saves path input by user to config
@@ -157,8 +199,8 @@ class Config {
 
     if (io.Platform.isWindows) {
       //Checks if binary exist in C:\User\AppData\Local\chia-blockchain\resources\app.asar.unpacked\daemon\chia.exe
-      chiaRootDir =
-          io.Directory(io.Platform.environment['UserProfile'] + "/AppData/Local/chia-blockchain");
+      chiaRootDir = io.Directory(io.Platform.environment['UserProfile'] +
+          "/AppData/Local/chia-blockchain");
 
       file = "/resources/app.asar.unpacked/daemon/chia.exe";
 
@@ -206,17 +248,31 @@ class Config {
   }
 
   Future<void> _loadConfig() async {
-    var contents = jsonDecode(_config.readAsStringSync());
+    var contents;
+
+    try {
+      contents = jsonDecode(_config.readAsStringSync());
+    } catch (e) {
+      //in json you need to use \\ for windows paths and this will ensure every \ is replaced with \\
+      contents =
+          jsonDecode(_config.readAsStringSync().replaceAll("\\", "\\\\"));
+    }
 
     //leave this here for compatibility with old versions,
     //old versions stored id in config file
-    if (contents[0]['id'] != null) cache.id = contents[0]['id'];
+    if (contents[0]['id'] != null) cache.ids.add(contents[0]['id']);
 
     //loads custom client name
-    if (contents[0]['name'] != null) _name = contents[0]['name'];
+    if (contents[0]['name'] != null) _name = contents[0]['name']; //old
+    if (contents[0]['Name'] != null &&
+        contents[0]['Name'] != "Farmer" &&
+        contents[0]['Name'] != "Harvester") _name = contents[0]['Name']; //new
 
     //loads custom currency
-    if (contents[0]['currency'] != null) _currency = contents[0]['currency'];
+    if (contents[0]['currency'] != null)
+      _currency = contents[0]['currency']; //old
+    if (contents[0]['Currency'] != null)
+      _currency = contents[0]['Currency']; //new
 
     _chiaPath = contents[0]['chiaPath'];
 
@@ -224,22 +280,49 @@ class Config {
     //do not remove this
     if (contents[0]['binPath'] != null) cache.binPath = contents[0]['binPath'];
 
-    if (contents[0]['showBalance'] != null) _showBalance = contents[0]['showBalance'];
-    if (contents[0]['showWalletBalance'] != null) _showWalletBalance = contents[0]['showWalletBalance'];
+    if (contents[0]['showBalance'] != null)
+      _showBalance = contents[0]['showBalance']; //old
+    if (contents[0]['Show Farmed XCH'] != null)
+      _showBalance = contents[0]['Show Farmed XCH']; //new
+
+    if (contents[0]['showWalletBalance'] != null)
+      _showWalletBalance = contents[0]['showWalletBalance']; //old
+    if (contents[0]['Show Wallet Balance'] != null)
+      _showWalletBalance = contents[0]['Show Wallet Balance']; //new
 
     if (contents[0]['sendPlotNotifications'] != null)
-      _sendPlotNotifications = contents[0]['sendPlotNotifications'];
+      _sendPlotNotifications = contents[0]['sendPlotNotifications']; //old
+    if (contents[0]['Plot Notifications'] != null)
+      _sendPlotNotifications = contents[0]['Plot Notifications']; //new
 
     if (contents[0]['sendBalanceNotifications'] != null)
-      _sendBalanceNotifications = contents[0]['sendBalanceNotifications'];
+      _sendBalanceNotifications = contents[0]['sendBalanceNotifications']; //old
+    if (contents[0]['Block Notifications'] != null)
+      _sendBalanceNotifications = contents[0]['Block Notifications']; //new
 
     if (contents[0]['sendOfflineNotifications'] != null)
-      _sendOfflineNotifications = contents[0]['sendOfflineNotifications'];
+      _sendOfflineNotifications = contents[0]['sendOfflineNotifications']; //old
+    if (contents[0]['Offline Notifications'] != null)
+      _sendOfflineNotifications = contents[0]['Offline Notifications']; //new
 
     if (contents[0]['sendStatusNotifications'] != null)
-      _sendStatusNotifications = contents[0]['sendStatusNotifications'];
+      _sendStatusNotifications = contents[0]['sendStatusNotifications']; //old
+    if (contents[0]['Farm Status Notifications'] != null)
+      _sendStatusNotifications = contents[0]['Farm Status Notifications']; //new
 
-    if (contents[0]['parseLogs'] != null) _parseLogs = contents[0]['parseLogs'];
+    if (contents[0]['parseLogs'] != null)
+      _parseLogs = contents[0]['parseLogs']; //old
+    if (contents[0]['Parse Logs'] != null)
+      _parseLogs = contents[0]['Parse Logs']; //new
+
+    if (contents[0]['Number of Discord Users'] != null)
+      _userNumber = contents[0]['Number of Discord Users'];
+
+    if (contents[0]["Swar's Chia Plot Manager Path"] != null)
+      _swarPath = contents[0]["Swar's Chia Plot Manager Path"];
+
+    if (contents[0]["Public API"] != null)
+      _publicAPI = contents[0]["Public API"];
 
     await saveConfig();
   }
@@ -250,7 +333,8 @@ class Config {
 
     try {
       //If terminal is long enough to show a qr code
-      if (console.windowHeight > 2 * 29 && console.windowWidth > 2 * 29) _showQR(console);
+      if (console.windowHeight > 2 * 29 && console.windowWidth > 2 * 29)
+        _showQR(console);
     } catch (e) {}
 
     String line = "";
@@ -260,20 +344,33 @@ class Config {
     } catch (e) {}
 
     print(line);
-    log.warning("Your id is " + cache.id + ", run");
+
+    if (cache.ids.length > 1)
+      log.warning("Your ids are " + cache.ids.toString() + ", run");
+    else
+      log.warning("Your id is " + cache.ids[0] + ", run");
+
     print("");
-    print("!chia link " + cache.id);
+
+    for (String id in cache.ids) print("!chia link " + id);
+
     print("");
-    print("to link this client to your discord user");
-    print("You can interact with ChiaBot in its discord server.");
-    print("Open the following link to join the server: https://discord.gg/pxgh8tBzGU ");
+
+    if (cache.ids.length > 1)
+      print("To link this client to each discord user (one id per user)");
+    else
+      print("to link this client to your discord user");
+
+    print("You can interact with ChiaBot in Swar's Chia Community");
+    print(
+        "Open the following link to join the server: https://discord.gg/fPjnWYYFmp ");
     print(line);
     print("");
   }
 
   void _showQR(Console console) {
     final qrCode = new QrCode(3, QrErrorCorrectLevel.L);
-    qrCode.addData(cache.id);
+    qrCode.addData(cache.ids[0]);
     qrCode.make();
 
     for (int x = 0; x < qrCode.moduleCount; x++) {

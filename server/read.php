@@ -11,7 +11,7 @@ if ( isset($_GET['user']))
 {
  $user = $conn -> real_escape_string($_GET['user']);
 
- $command = " SELECT data FROM farms WHERE user='" . $user . "' AND `lastUpdated` BETWEEN DATE_SUB(NOW(), INTERVAL 15 MINUTE) AND NOW() ORDER BY lastUpdated DESC;";
+ $command = " SELECT data FROM farms WHERE user='" . $user . "' AND publicAPI=1 AND `lastUpdated` BETWEEN DATE_SUB(NOW(), INTERVAL 15 MINUTE) AND NOW() ORDER BY lastUpdated DESC;";
  $result = $conn -> query($command);
 
  while ($row = $result -> fetch_row()) {

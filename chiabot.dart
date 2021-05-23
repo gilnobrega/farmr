@@ -4,6 +4,7 @@ import 'dart:core';
 
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
+import 'package:intl/intl.dart';
 
 import 'package:chiabot/farmer.dart';
 import 'package:chiabot/harvester.dart';
@@ -13,10 +14,11 @@ import 'package:chiabot/debug.dart';
 
 import 'server/chiabot_server.dart' as Stats;
 import 'package:chiabot/server/netspace.dart';
+import 'package:chiabot/server/price.dart';
 
 final log = Logger('Client');
 
-final String version = '1.2.7';
+final String version = '1.3.0';
 
 final Duration delay = Duration(minutes: 10); //10 minutes delay between updates
 
@@ -27,7 +29,8 @@ String chiaConfigPath = (io.File(".github/workflows/config.yaml").existsSync())
     : (io.Platform.isLinux || io.Platform.isMacOS)
         ? io.Platform.environment['HOME'] + "/.chia/mainnet/config/"
         : (io.Platform.isWindows)
-            ? io.Platform.environment['UserProfile'] + "\\.chia\\mainnet\\config\\"
+            ? io.Platform.environment['UserProfile'] +
+                "\\.chia\\mainnet\\config\\"
             : "";
 
 //Sets config file path according to platform
@@ -50,14 +53,18 @@ main(List<String> args) async {
   //launches client in onetime mode, where it runs one time and doesnt loop
   bool onetime = args.contains("onetime");
   //launches client in standalone mode where it doesnt send info to server
-  bool standalone = onetime || args.contains("standalone") || args.contains("offline");
+  bool standalone =
+      onetime || args.contains("standalone") || args.contains("offline");
 
   Cache cache = new Cache(chiaConfigPath);
   cache.init();
 
   //Initializes config, either creates a new one or loads a config file
-  Config config = new Config(cache, chiaConfigPath,
-      (args.contains("harvester") || args.contains('-h'))); //checks if is harvester
+  Config config = new Config(
+      cache,
+      chiaConfigPath,
+      (args.contains("harvester") ||
+          args.contains('-h'))); //checks if is harvester
 
   await config.init();
 
@@ -68,6 +75,7 @@ main(List<String> args) async {
     String balance = "";
     String status = "";
     String copyJson = "";
+    String name = "";
 
     //PARSES DATA
     try {
@@ -98,7 +106,16 @@ main(List<String> args) async {
 
       //shows stats in client
       Stats.showHarvester(
-          client, 0, 0, (client is Farmer) ? client.netSpace : NetSpace(), false, true, 0.0, false);
+          client,
+          0,
+          0,
+          (client is Farmer) ? client.netSpace : NetSpace(),
+          false,
+          true,
+          Rate(0, 0, 0),
+          false);
+
+      name = client.name;
 
       //copies object to a json string
       copyJson = jsonEncode(client);
@@ -123,24 +140,31 @@ main(List<String> args) async {
         String notifyOffline = (config.sendOfflineNotifications)
             ? '1'
             : '0'; //whether user wants to be notified when rig goes offline
-        String isFarming = ((config.type == ClientType.Farmer && status == "Farming") ||
-                config.type == ClientType.Harvester)
-            ? '1' //1 means is farming
+        String isFarming =
+            ((config.type == ClientType.Farmer && status == "Farming") ||
+                    config.type == ClientType.Harvester)
+                ? '1' //1 means is farming
+                : '0';
+
+        String publicAPI = (config.publicAPI)
+            ? '1' //1 means client data can be seen from public api
             : '0';
 
         Map<String, String> post = {
           "data": sendJson,
           "notifyOffline": notifyOffline,
-          "id": config.cache.id
+          "name": name,
+          "publicAPI": publicAPI
         };
 
-        String url = "https://chiabot.znc.sh/send4.php";
+        String url = "https://chiabot.znc.sh/send5.php";
 
         if (config.type == ClientType.Farmer && config.sendStatusNotifications)
           post.putIfAbsent("isFarming", () => isFarming);
 
         //Adds the following if sendPlotNotifications is enabled then it will send plotID
-        if (config.sendPlotNotifications) post.putIfAbsent("lastPlot", () => lastPlotID);
+        if (config.sendPlotNotifications)
+          post.putIfAbsent("lastPlot", () => lastPlotID);
 
         //If the client is a farmer and it is farming and sendBalanceNotifications is enabled then it will send balance
         if (config.type == ClientType.Farmer &&
@@ -149,16 +173,22 @@ main(List<String> args) async {
 
         type = (config.type == ClientType.Farmer) ? "farmer" : "harvester";
 
-        http.post(url, body: post).catchError((error) {
-          log.warning("Server timeout.");
-          log.info(error.toString());
-        }).whenComplete(() {
-          log.warning("\nSent " +
-              type +
-              " report to server.\nRetrying in " +
-              delay.inMinutes.toString() +
-              " minutes");
-        });
+        for (String id in cache.ids) {
+          post.putIfAbsent("id", () => id);
+          post.update("id", (value) => id);
+
+          http.post(url, body: post).catchError((error) {
+            log.warning("Server timeout.");
+            log.info(error.toString());
+          }).whenComplete(() {
+            String idText = (cache.ids.length == 1) ? '' : "for id " + id;
+            String timestamp = DateFormat.Hms().format(DateTime.now());
+            log.warning(
+                "\n${timestamp} - Sent ${type} report to server ${idText}\nRetrying in " +
+                    delay.inMinutes.toString() +
+                    " minutes");
+          });
+        }
 
         log.info("url:${url}");
         log.info("data sent:\n${sendJson}");
@@ -214,7 +244,8 @@ void initLogger() {
       try {
         io.File logFile = io.File("log.txt");
 
-        logFile.writeAsStringSync('\n${record.time} ${record.loggerName}: ' + output,
+        logFile.writeAsStringSync(
+            '\n${record.time} ${record.loggerName}: ' + output,
             mode: io.FileMode.writeOnlyAppend);
       } catch (e) {}
     }

@@ -6,8 +6,8 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 
 class NetSpace {
-  int _size = 0;
-  int get size => _size;
+  double _size = 0;
+  double get size => _size;
 
   String get humanReadableSize => generateHumanReadableSize(size);
   String get dayDifference => _getDayDifference();
@@ -15,13 +15,22 @@ class NetSpace {
   int _timestamp = 0;
   int get timestamp => _timestamp;
 
-  final int _untilTimeStamp = DateTime.now().subtract(Duration(minutes: 5)).millisecondsSinceEpoch;
+  final int _untilTimeStamp =
+      DateTime.now().subtract(Duration(minutes: 5)).millisecondsSinceEpoch;
   final io.File _cacheFile = io.File("netspace.json");
 
-  //timestamp, size
-  Map<String, int> pastSizes = {};
+  String _source = "chianetspace.com";
+  String get source => _source;
 
-  Map toJson() => {"timestamp": timestamp, "size": size, "pastSizes": pastSizes};
+  //timestamp, size
+  Map<String, double> pastSizes = {};
+
+  Map toJson() => {
+        "timestamp": timestamp,
+        "size": size,
+        "pastSizes": pastSizes,
+        "source": source
+      };
 
   NetSpace([String humanReadableSize = null]) {
     if (humanReadableSize != null) {
@@ -32,9 +41,10 @@ class NetSpace {
     }
   }
 
-  init() async {
+  //genCache=true forces generation of netspace.json file
+  init([bool genCache = false]) async {
     if (_cacheFile.existsSync())
-      await _load();
+      await _load(genCache);
     else {
       await _getNetSpace();
       await _getPastSizes();
@@ -44,28 +54,50 @@ class NetSpace {
 
   _getNetSpace() async {
     try {
-      String contents = await http.read("https://chianetspace.azurewebsites.net/data/summary");
+      String contents = await http
+          .read("https://chianetspace.azurewebsites.net/data/summary");
 
       var content = jsonDecode(contents);
 
       var sizeString = content['netSpace']['largestWholeNumberBinaryValue'];
       var units = content['netSpace']['largestWholeNumberBinarySymbol'];
+      //temporary override while chianetspace.com doesn't fix their website
+      units = "EiB";
 
       _size = sizeStringToInt('${sizeString} ${units}');
+    } catch (e) {}
+
+    try {
+      //if chianetspaceapi.com fails then gets netspace from chiacalculator.com
+      if (_size == 0) {
+        //<dd class="chakra-stat__number css-mu2u4q">8.032<!-- --> <!-- -->EiB</dd>
+        String contents = await http.read("https://chiacalculator.com");
+        RegExp regex = new RegExp(">([0-9\\.]+)<!-- --> <!-- -->([A-Z])iB");
+        var matches = regex.allMatches(contents);
+
+        for (var match in matches)
+          if (_size == 0)
+            _size = sizeStringToInt('${match.group(1)} ${match.group(2)}iB');
+
+        _source = "chiacalculator.com";
+      }
     } catch (e) {}
   }
 
   _getPastSizes() async {
     try {
-      String contents = await http.read("http://alpha2.chianetspace.com/data.php");
+      String contents =
+          await http.read("http://alpha2.chianetspace.com/data.php");
 
       var array = jsonDecode(contents);
 
       for (var pastSize in array) {
         //parses timestamp and accounts for ChiaNetSpace's timezone
-        int timestamp = DateFormat('y-M-d').parseUTC(pastSize['date']).millisecondsSinceEpoch -
+        int timestamp = DateFormat('y-M-d')
+                .parseUTC(pastSize['date'])
+                .millisecondsSinceEpoch -
             Duration(hours: 3).inMilliseconds;
-        int size = sizeStringToInt("${pastSize['netspace']} PiB");
+        double size = sizeStringToInt("${pastSize['netspace']} PiB");
         pastSizes.putIfAbsent(timestamp.toString(), () => size);
       }
     } catch (e) {}
@@ -73,12 +105,16 @@ class NetSpace {
 
   String _getDayDifference() {
     var entries = pastSizes.entries.toList();
-    entries.sort((entry1, entry2) => int.parse(entry2.key).compareTo(int.parse(entry1.key)));
+    entries.sort((entry1, entry2) =>
+        int.parse(entry2.key).compareTo(int.parse(entry1.key)));
 
     String percentage = '';
     if (entries.length > 1)
       percentage = percentageDiff(
-          {"${this.timestamp}": this.size}.entries.first, entries[0], true, entries[1]);
+          {"${this.timestamp}": this.size}.entries.first,
+          entries[0],
+          true,
+          entries[1]);
 
     return percentage;
   }
@@ -109,7 +145,8 @@ class NetSpace {
 
     String absoluteSize = '';
 
-    if (showAbsoluteSize) absoluteSize = "${sign}${generateHumanReadableSize(avgSizeDiff)}, ";
+    if (showAbsoluteSize)
+      absoluteSize = "${sign}${generateHumanReadableSize(avgSizeDiff / 1.0)}, ";
 
     growth = "${absoluteSize}${sign}${ratio.abs().toStringAsFixed(1)}%";
 
@@ -123,7 +160,7 @@ class NetSpace {
     _cacheFile.writeAsStringSync(serial);
   }
 
-  _load() async {
+  _load([bool genCache = false]) async {
     var json = jsonDecode(_cacheFile.readAsStringSync());
     NetSpace previousNetSpace = NetSpace.fromJson(json);
 
@@ -132,7 +169,7 @@ class NetSpace {
 
     //if last time price was parsed from api was longer than 1 minute ago
     //then parses new price from api
-    if (previousNetSpace.timestamp < _untilTimeStamp) {
+    if (previousNetSpace.timestamp < _untilTimeStamp || genCache) {
       await _getNetSpace();
 
       //adds new past sizes while keeping old ones
@@ -142,14 +179,22 @@ class NetSpace {
     } else {
       _timestamp = previousNetSpace.timestamp;
       _size = previousNetSpace.size;
+      _source = previousNetSpace.source;
     }
   }
 
-  static final Map<String, int> units = {"K": 1, "M": 2, "G": 3, 'T': 4, 'P': 5, 'E': 6};
+  static final Map<String, int> units = {
+    "K": 1,
+    "M": 2,
+    "G": 3,
+    'T': 4,
+    'P': 5,
+    'E': 6
+  };
   static final Map<String, int> bases = {'B': 1000, 'iB': 1024};
 
   //generates a human readable string in xiB from an int size in bytes
-  static String generateHumanReadableSize(int size) {
+  static String generateHumanReadableSize(double size) {
     try {
       var unit;
       for (var entry in units.entries) {
@@ -164,15 +209,16 @@ class NetSpace {
     }
   }
 
-  static int sizeStringToInt(String netspace) {
-    int size = 0;
+  static double sizeStringToInt(String netspace) {
+    double size = 0;
 
     //converts xiB or xB to bytes
     for (var base in bases.entries) {
       for (var unit in units.entries) {
         if (netspace.contains("${unit.key}${base.key}")) {
-          double value = double.parse(netspace.replaceAll("${unit.key}${base.key}", "").trim());
-          size = (value * (Math.pow(base.value, unit.value))).round();
+          double value = double.parse(
+              netspace.replaceAll("${unit.key}${base.key}", "").trim());
+          size = (value * (Math.pow(base.value, unit.value)));
 
           return size;
         }
@@ -186,6 +232,9 @@ class NetSpace {
     if (json['timestamp'] != null) _timestamp = json['timestamp'];
     if (json['size'] != null) _size = json['size'];
 
-    if (json['pastSizes'] != null) pastSizes = Map<String, int>.from(json['pastSizes']);
+    if (json['pastSizes'] != null)
+      pastSizes = Map<String, double>.from(json['pastSizes']);
+
+    if (json['source'] != null) _source = json['source'];
   }
 }

@@ -9,6 +9,7 @@ import 'package:chiabot/log/filter.dart';
 import 'package:chiabot/log/subslot.dart';
 import 'package:chiabot/log/logitem.dart';
 import 'package:chiabot/log/signagepoint.dart';
+import 'package:chiabot/log/shortsync.dart';
 
 final log = Logger('LOG');
 
@@ -27,61 +28,28 @@ class Log {
   //Generate list of complete/incomplete subslots from _signagePoints
   List<SubSlot> subSlots = [];
 
+  List<ShortSync> shortSyncs = [];
+
   Log(String chiaDebugPath, Cache cache, bool parseLogs) {
     _cache = cache;
     _parseUntil = _cache.parseUntil;
     _filters = _cache.filters; //loads cached filters
     _signagePoints = _cache.signagePoints; //loads cached subslots
+    shortSyncs = _cache.shortSyncs;
 
     debugPath = chiaDebugPath + "debug.log";
 
     if (parseLogs) {
-      loadFilters();
-      cache.saveFilters(filters);
+      loadLogItems();
+      _cache.saveFilters(filters);
+      _cache.saveSignagePoints(_signagePoints); //saves signagePoints to cache
+      _cache.saveShortSyncs(shortSyncs);
     }
   }
 
-  loadFilters() {
+  loadLogItems() {
     //parses debug.log, debug.log.1, debug.log.2, ...
-    //
-    bool keepParsing = true;
-
     for (int i = 0; i < 10; i++) {
-      if (keepParsing) {
-        String ext = (i == 0) ? '' : ('.' + i.toString());
-
-        try {
-          _debugFile = io.File(debugPath + ext);
-
-          //stops parsing once it reaches parseUntil date limit
-          if (_debugFile.existsSync()) {
-            String content;
-
-            try {
-              content = _debugFile.readAsStringSync();
-            } catch (e) {
-              var bytes = _debugFile.readAsBytesSync();
-
-              //reads files this way because of UTF 16 decoding??
-              content = utf8.decode(bytes, allowMalformed: true);
-            }
-
-            keepParsing = parseFilters(content, _parseUntil);
-          }
-        } catch (Exception) {
-          log.warning(
-              "Warning: could not parse filters in debug.log${ext}, make sure chia log level is set to INFO");
-        }
-      }
-    }
-
-    filterDuplicateFilters();
-
-    filters.shuffle();
-  }
-
-  loadSignagePoints() {
-    for (int i = 9; i >= 0; i--) {
       String ext = (i == 0) ? '' : ('.' + i.toString());
 
       try {
@@ -100,16 +68,40 @@ class Log {
             content = utf8.decode(bytes, allowMalformed: true);
           }
 
-          parseSignagePoints(content, _parseUntil);
+          //parses filters
+          try {
+            parseFilters(content, _parseUntil);
+          } catch (e) {
+            log.warning(
+                "Warning: could not parse filters in debug.log${ext}, make sure chia log level is set to INFO");
+          }
+
+          //parses signage points
+          try {
+            parseSignagePoints(content, _parseUntil);
+          } catch (e) {
+            log.info(
+                "Warning: could not parse SubSlots in debug.log${ext}, make sure chia log level is set to INFO");
+          }
+
+          //parses signage points
+          try {
+            parseShortSyncs(content, _parseUntil);
+          } catch (e) {
+            log.info(
+                "Warning: could not parse Short Sync events in debug.log${ext}, make sure chia log level is set to INFO");
+          }
         }
       } catch (Exception) {
-        log.info(
-            "Warning: could not parse SubSlots in debug.log${ext}, make sure chia log level is set to INFO");
+        log.warning(
+            "Warning: could not parse debug.log${ext}, make sure chia log level is set to INFO");
       }
     }
 
+    filterDuplicateFilters();
+    filters.shuffle();
+
     filterDuplicateSignagePoints();
-    _cache.saveSignagePoints(_signagePoints); //saves signagePoints to cache
     _genSubSlots();
   }
 
@@ -133,13 +125,15 @@ class Log {
             RegExpMatch match = matches[i];
 
             //Parses date from debug.log
-            timestamp = parseTimestamp(match.group(1), match.group(2), match.group(3));
+            timestamp =
+                parseTimestamp(match.group(1), match.group(2), match.group(3));
 
             //if filter's timestamp is outside parsing date rang
             keepParsing = timestamp > parseUntil;
 
             //if filter is in cache
-            inCache = filters.any((cachedFilter) => cachedFilter.timestamp == timestamp);
+            inCache = filters
+                .any((cachedFilter) => cachedFilter.timestamp == timestamp);
 
             if (!inCache && keepParsing) {
               //print(timestamp);
@@ -148,7 +142,8 @@ class Log {
               int proofs = int.parse(match.group(5));
               double time = double.parse(match.group(6));
               int totalPlots = int.parse(match.group(7));
-              Filter filter = Filter(timestamp, eligiblePlots, proofs, time, totalPlots);
+              Filter filter =
+                  Filter(timestamp, eligiblePlots, proofs, time, totalPlots);
 
               _filters.add(filter);
             }
@@ -158,7 +153,8 @@ class Log {
         }
       }
     } catch (e) {
-      log.warning("Warning: could not parse filters, make sure chia log level is set to INFO");
+      log.warning(
+          "Warning: could not parse filters, make sure chia log level is set to INFO");
     }
 
     return keepParsing && !inCache;
@@ -177,9 +173,11 @@ class Log {
         var match = matches[i];
 
         //Parses date from debug.log
-        timestamp = parseTimestamp(match.group(1), match.group(2), match.group(3));
+        timestamp =
+            parseTimestamp(match.group(1), match.group(2), match.group(3));
 
-        bool inCache = _signagePoints.any((signagePoint) => signagePoint.timestamp == timestamp);
+        bool inCache = _signagePoints
+            .any((signagePoint) => signagePoint.timestamp == timestamp);
 
         //only adds subslot if its not already in cache
         if (timestamp > parseUntil && !inCache) {
@@ -203,7 +201,8 @@ class Log {
       if (signagePoint.index != 1) {
         try {
           subSlot = subSlots
-              .where((point) => point.lastStep == signagePoint.index - 1 && !point.complete)
+              .where((point) =>
+                  point.lastStep == signagePoint.index - 1 && !point.complete)
               .last;
         } catch (Exception) {
           //print(currentStep);
@@ -222,6 +221,39 @@ class Log {
     } catch (e) {}
   }
 
+  parseShortSyncs(String contents, int parseUntil) {
+    try {
+      RegExp shortSyncsRegex = RegExp(
+          "([0-9-]+)T([0-9:]+)\\.([0-9]+) full_node chia\\.full\\_node\\.full\\_node:\\s+INFO\\W+Starting batch short sync from ([0-9]+) to height ([0-9]+)",
+          multiLine: true);
+
+      var matches = shortSyncsRegex.allMatches(contents).toList();
+      int timestamp = 0;
+
+      for (int i = 0; i < matches.length; i++) {
+        var match = matches[i];
+
+        //Parses date from debug.log
+        timestamp =
+            parseTimestamp(match.group(1), match.group(2), match.group(3));
+
+        bool inCache =
+            shortSyncs.any((shortSync) => shortSync.timestamp == timestamp);
+
+        //only adds subslot if its not already in cache
+        if (timestamp > parseUntil && !inCache) {
+          int start = int.parse(match.group(4));
+          int end = int.parse(match.group(5));
+
+          ShortSync shortSync = ShortSync(timestamp, start, end);
+          shortSyncs.add(shortSync);
+        }
+      }
+    } catch (Exception) {
+      log.info("Error parsing short sync events.");
+    }
+  }
+
   void filterDuplicateFilters() {
 //Removes filters with same timestamps!
     final ids = _filters.map((filter) => filter.timestamp).toSet();
@@ -230,7 +262,9 @@ class Log {
 
   void filterDuplicateSignagePoints() {
 //Removes subslots with same timestamps!
-    final ids = _signagePoints.map((signagePoint) => signagePoint.timestamp).toSet();
-    _signagePoints.retainWhere((signagePoint) => ids.remove(signagePoint.timestamp));
+    final ids =
+        _signagePoints.map((signagePoint) => signagePoint.timestamp).toSet();
+    _signagePoints
+        .retainWhere((signagePoint) => ids.remove(signagePoint.timestamp));
   }
 }

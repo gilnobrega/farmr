@@ -25,15 +25,12 @@ class Filter extends LogItem {
         'proofs': proofs
       };
 
-  Filter(int timestamp, int eligiblePlots, int proofs, double time, int totalPlots)
-      : super(timestamp, LogItemType.Harvester) {
-    _eligiblePlots = eligiblePlots;
-    _proofs = proofs;
-    _time = time;
-    _totalPlots = totalPlots;
-  }
+  Filter(int timestamp, this._eligiblePlots, this._proofs, this._time,
+      this._totalPlots)
+      : super(timestamp, LogItemType.Harvester);
 
-  Filter.fromJson(dynamic json, int plotCount) : super.fromJson(json, LogItemType.Harvester) {
+  Filter.fromJson(dynamic json, int plotCount)
+      : super.fromJson(json, LogItemType.Harvester) {
     if (json['eligible'] != null) _eligiblePlots = json['eligible'];
     if (json['proofs'] != null) _proofs = json['proofs'];
     if (json['time'] != null) _time = json['time'];

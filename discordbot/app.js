@@ -61,6 +61,7 @@ async function init() {
 	});
 	
 	client.login(client.config.BOT_TOKEN2); //loads discord token from environment variables file
+
 }
 
 //Let's go to work

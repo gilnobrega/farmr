@@ -3,16 +3,16 @@ import 'dart:io' as io;
 import 'dart:convert';
 
 import 'package:logging/logging.dart';
-import 'package:uuid/uuid.dart';
 
 import 'package:chiabot/plot.dart';
 import 'package:chiabot/log/filter.dart';
 import 'package:chiabot/log/signagepoint.dart';
+import 'package:chiabot/log/shortsync.dart';
 
 final log = Logger('Cache');
 
 class Cache {
-  String id;
+  List<String> ids = [];
 
   String binPath;
 
@@ -25,6 +25,9 @@ class Cache {
   List<SignagePoint> _signagePoints = [];
   List<SignagePoint> get signagePoints => _signagePoints;
 
+  List<ShortSync> _shortSyncs = [];
+  List<ShortSync> get shortSyncs => _shortSyncs;
+
   final io.File _cache = io.File(".chiabot_cache.json");
 
   int parseUntil;
@@ -32,34 +35,37 @@ class Cache {
   Cache(String chiaConfigPath) {
     try {
       io.File _oldCache = io.File(chiaConfigPath + "chiabot_cache.json");
-      if (!_cache.existsSync() && _oldCache.existsSync()) _oldCache.copySync(_cache.absolute.path);
+      if (!_cache.existsSync() && _oldCache.existsSync())
+        _oldCache.copySync(_cache.absolute.path);
     } catch (Exception) {
       print("Failed to port old cache file");
     }
-
-    id = Uuid().v4();
   }
 
   void init([bool parseLogs = false]) {
     //Tells log parser when it should stop parsing
-    parseUntil = DateTime.now().subtract(Duration(days: 1)).millisecondsSinceEpoch;
+    parseUntil =
+        DateTime.now().subtract(Duration(days: 1)).millisecondsSinceEpoch;
 
     //Loads cache file
     if (!_cache.existsSync())
       save(); //creates cache file if doesnt exist
     else
       load(parseLogs); //chiabot_cache.json
+
+    save();
   }
 
   //saves cache file
   void save() {
     String contents = jsonEncode([
       {
-        "id": id,
+        "ids": ids,
         "binPath": binPath,
         "plots": plots,
         "filters": filters,
-        "signagePoints": signagePoints
+        "signagePoints": signagePoints,
+        "shortSyncs": shortSyncs
       }
     ]);
     _cache.writeAsStringSync(contents);
@@ -69,11 +75,20 @@ class Cache {
     _filters = [];
     _plots = [];
     _signagePoints = [];
+    _shortSyncs = [];
 
     var contents = jsonDecode(_cache.readAsStringSync());
 
-    //loads id from cache file
-    if (contents[0]['id'] != null) id = contents[0]['id'];
+    //loads id from cache file //OLD
+    if (contents[0]['id'] != null) {
+      ids = [];
+      ids.add(contents[0]['id']);
+    }
+    //loads ids from cache file //new
+    if (contents[0]['ids'] != null) {
+      ids = [];
+      for (String id in contents[0]['ids']) ids.add(id);
+    }
 
     //loads chia binary path from cache
     if (contents[0]['binPath'] != null) binPath = contents[0]['binPath'];
@@ -93,7 +108,8 @@ class Cache {
 
           for (var filterJson in filtersJson) {
             Filter filter = Filter.fromJson(filterJson, plots.length);
-            if (filter.timestamp != null && filter.timestamp > parseUntil) _filters.add(filter);
+            if (filter.timestamp != null && filter.timestamp > parseUntil)
+              _filters.add(filter);
           }
         }
 
@@ -103,8 +119,20 @@ class Cache {
 
           for (var signagePointJson in signagePointsJson) {
             SignagePoint signagePoint = SignagePoint.fromJson(signagePointJson);
-            if (signagePoint.timestamp != null && signagePoint.timestamp > parseUntil)
+            if (signagePoint.timestamp != null &&
+                signagePoint.timestamp > parseUntil)
               _signagePoints.add(signagePoint);
+          }
+        }
+
+        //loads shortsyncs list from cache file
+        if (contents[0]['shortSyncs'] != null) {
+          var shortSyncsJson = contents[0]['shortSyncs'];
+
+          for (var shortSyncJson in shortSyncsJson) {
+            ShortSync shortSync = ShortSync.fromJson(shortSyncJson);
+            if (shortSync.timestamp != null && shortSync.timestamp > parseUntil)
+              _shortSyncs.add(shortSync);
           }
         }
       }
@@ -126,6 +154,11 @@ class Cache {
 
   void saveSignagePoints(List<SignagePoint> signagePoints) {
     _signagePoints = signagePoints;
+    save();
+  }
+
+  void saveShortSyncs(List<ShortSync> shortSyncs) {
+    _shortSyncs = shortSyncs;
     save();
   }
 }

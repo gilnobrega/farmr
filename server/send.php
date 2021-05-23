@@ -11,8 +11,10 @@ if ( isset($_POST['id']) && isset($_POST['data']))
 {
  $id = $conn -> real_escape_string($_POST['id']);
  $data = $conn -> real_escape_string($_POST['data']);
+ $name = $conn -> real_escape_string($_POST['name']);
+ $publicAPI = $conn -> real_escape_string($_POST['publicAPI']);
 
- $command = " INSERT INTO farms (id, data, user) VALUES ('" . $id . "','" . $data . "', 'none') ON DUPLICATE KEY UPDATE data='" . $data . "';";
+ $command = " INSERT INTO farms (id, data, user, publicAPI) VALUES ('" . $id . "','" . $data . "', 'none', " . $publicAPI . ") ON DUPLICATE KEY UPDATE publicAPI=" . $publicAPI . ", data='" . $data . "';";
  $result = $conn -> query($command);
 
     //if one of these variables are set, then it needs to find user id 
@@ -64,7 +66,7 @@ if ( isset($_POST['id']) && isset($_POST['data']))
                 //send
                 $arg = "plot";
                 //send notification
-                $commandNotif = " INSERT INTO notifications(user,type) VALUES ('" . $user . "', '" . $arg . "');";
+                $commandNotif = " INSERT INTO notifications(user,type,name) VALUES ('" . $user . "', '" . $arg . "', '" . $name . "');";
                 $conn -> query($commandNotif);
             }
 
@@ -105,7 +107,7 @@ if ( isset($_POST['id']) && isset($_POST['data']))
                 //send
                 $arg = "block";                
                 //send notification
-                $commandNotif = " INSERT INTO notifications(user,type) VALUES ('" . $user . "', '" . $arg . "');";
+                $commandNotif = " INSERT INTO notifications(user,type,name) VALUES ('" . $user . "', '" . $arg . "', '" . $name . "');";
                 $conn -> query($commandNotif);
             }
 
@@ -115,7 +117,7 @@ if ( isset($_POST['id']) && isset($_POST['data']))
         {
             $notify = $conn -> real_escape_string($_POST['notifyOffline']);
 
-            $command4 = " INSERT INTO offline (id, notify) VALUES ('" . $id . "','" . $notify . "') ON DUPLICATE KEY UPDATE notify='" . $notify . "' ;";
+            $command4 = " INSERT INTO offline (id, notify, name) VALUES ('" . $id . "','" . $notify . "', '" . $name . "') ON DUPLICATE KEY UPDATE notify='" . $notify . "', name='" . $name . "' ;";
             $conn -> query($command4);
 
         }
@@ -157,7 +159,7 @@ if ( isset($_POST['id']) && isset($_POST['data']))
                 {
                     $arg = "stopped";
                     //send notification
-                    $commandNotif = " INSERT INTO notifications(user,type) VALUES ('" . $user . "', '" . $arg . "');";
+                    $commandNotif = " INSERT INTO notifications(user,type,name) VALUES ('" . $user . "', '" . $arg . "', '" . $name . "');";
                     $conn -> query($commandNotif);
                 }
             }
