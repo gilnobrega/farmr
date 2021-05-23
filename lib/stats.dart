@@ -457,10 +457,6 @@ class Stats {
       output += "\n${percentage}% orphan Signage Points";
     }
 
-    if (harvester is Farmer && harvester.fullNodesConnected > 0) {
-      output += "\nConnected to ${harvester.fullNodesConnected} peers";
-    }
-
     if (harvester is Farmer && harvester.shortSyncs.length > 0) {
       int events = harvester.shortSyncs.length;
 
@@ -470,11 +466,15 @@ class Stats {
           .reduce((length1, length2) => length1 + length2);
 
       output +=
-          "\nLost sync ${events} times, skipped a total ${totalBlocksSkipped} blocks";
+          "\n:warning: **Lost sync ${events} times**, skipped a total of ${totalBlocksSkipped} blocks";
 
       for (ShortSync shortSync in harvester.shortSyncs)
         output +=
             "\n${shortSync.localTime} from block ${shortSync.start} to ${shortSync.end}";
+    }
+
+    if (harvester is Farmer && harvester.fullNodesConnected > 0) {
+      output += "\nConnected to ${harvester.fullNodesConnected} peers";
     }
 
     return output;

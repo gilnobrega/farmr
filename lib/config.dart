@@ -44,7 +44,7 @@ class Config {
   bool _sendOfflineNotifications = false; //status notifications
   bool get sendOfflineNotifications => _sendOfflineNotifications;
 
-  bool _sendStatusNotifications = false; //status notifications
+  bool _sendStatusNotifications = true; //status notifications
   bool get sendStatusNotifications => _sendStatusNotifications;
 
   bool _parseLogs = false;
@@ -52,7 +52,8 @@ class Config {
 
   //number of users that can link this machine
   int _userNumber = 1;
-  int get userNumber => _userNumber;
+  //Sets maximum of 10 users
+  int get userNumber => (_userNumber <= 10) ? _userNumber : 10;
 
   String _swarPath = "";
   String get swarPath => _swarPath;
@@ -119,7 +120,7 @@ class Config {
       "Parse Logs": parseLogs,
       "Number of Discord Users": userNumber,
       "Public API": publicAPI,
-      "Swar's Chia Plot Manager Path": _swarPath
+      "Swar's Chia Plot Manager Path": swarPath
     };
 
     //hides chiaPath from config.json if not defined (null)
