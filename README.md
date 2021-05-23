@@ -157,7 +157,7 @@ Set ``Public API`` to true if you want your data to be accessed from chiabot's a
 
 #### Swar's Chia Plot Manager Integration (experimental)
 If you are running Swar's Plot Manager >v0.1.0 then you can set ``"Swar's Chia Plot Manager Path"`` to the path where it's installed.
-Notice that if you run it in a python venv then you must launch chiabot in this venv. Current jobs will be dislpayed at the bottom of ``!chia full`` and ``!chia workers``
+Notice that if you run it in a python venv then you must launch chiabot in this venv. Current jobs will be displayed at the bottom of ``!chia full`` and ``!chia workers``
 
 ### Upgrading
 To upgrade, repeat [Installation](#installation) instructions again with the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest).
