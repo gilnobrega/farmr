@@ -1,6 +1,6 @@
 const Discord = require("discord.js");
 exports.run = (client, message, args) => {
-client.execute("chiabot_server.exe netspace", message, true);
+client.execute("../server/chiabot_server.exe netspace", message, true);
 };
 
 exports.conf = {

@@ -67,7 +67,7 @@ module.exports = async(client, message) => {
                 if (timeSince < cmd.conf.cooldown) {
                     var until = (cmd.conf.cooldown - timeSince);
                     var untilParsed = Math.ceil(until);
-                    return message.channel.send(`${member}, This command is on cooldown! Try again in ${untilParsed} second(s).`);
+                    return message.reply(`This command is on cooldown! Try again in ${untilParsed} second(s).`);
                 } else {
                     client.cooldown[cmd.help.name.toLowerCase()][member] = (new Date().getTime())
                 }

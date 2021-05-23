@@ -9,7 +9,7 @@ exports.conf = {
     aliases: ['allenn', 'allen'],
     permLevel: 0,
     deleteCommand: false,
-    cooldown: 10,
+    cooldown: 60,
     filtered_channels: []
 };
 
