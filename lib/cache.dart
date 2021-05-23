@@ -3,7 +3,6 @@ import 'dart:io' as io;
 import 'dart:convert';
 
 import 'package:logging/logging.dart';
-import 'package:uuid/uuid.dart';
 
 import 'package:chiabot/plot.dart';
 import 'package:chiabot/log/filter.dart';
