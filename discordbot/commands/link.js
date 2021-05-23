@@ -1,6 +1,6 @@
 const Discord = require("discord.js");
 exports.run = (client, message, args) => {
-    var id = args[1];
+    var id = args[0];
     var user = message.author.id;
 
     client.linkUser(id, user, message);
