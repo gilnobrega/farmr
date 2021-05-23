@@ -64,7 +64,7 @@ exports.run = (client, message, args) => {
 exports.conf = {
 	enabled: true,
 	guildOnly: false,
-	aliases: ["halp"],
+	aliases: ["help", 'chia help'],
 	permLevel: 0,
 	deleteCommand: false,
 	cooldown: 0,

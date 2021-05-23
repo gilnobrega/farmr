@@ -6,7 +6,7 @@ client.execute("chiabot_server.exe netspace", message, true);
 exports.conf = {
 	enabled: true,
 	guildOnly: false,
-	aliases: ['chia netspace'],
+	aliases: ['chia netspace', 'netspace'],
 	permLevel: 0,
 	deleteCommand: false,
 	cooldown: 10,

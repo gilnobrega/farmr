@@ -6,7 +6,7 @@ client.execute(`chiabot_server.exe price`, message, true);
 exports.conf = {
 	enabled: true,
 	guildOnly: false,
-	aliases: ['chia price'],
+	aliases: ['chia price', 'price'],
 	permLevel: 0,
 	deleteCommand: false,
 	cooldown: 10,

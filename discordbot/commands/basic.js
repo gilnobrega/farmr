@@ -16,8 +16,8 @@ exports.conf = {
 exports.cooldown = {};
 
 exports.help = {
-	name: "basic",
+	name: "chia",
 	category: "Chia Commands",
 	description: "Displays your basic farming stats",
-	usage: "basic"
+	usage: "chia"
 };

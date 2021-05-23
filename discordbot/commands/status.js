@@ -6,7 +6,7 @@ client.execute(`chiabot_server.exe status`, message, true);
 exports.conf = {
 	enabled: true,
 	guildOnly: false,
-	aliases: ['chia status'],
+	aliases: ['chia status', 'status'],
 	permLevel: 0,
 	deleteCommand: false,
 	cooldown: 10,
