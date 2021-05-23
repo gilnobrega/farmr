@@ -315,8 +315,11 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount,
             Stats.showLastPlotInfo(harvester) +
             Stats.showLastNDaysPlots(harvester, 8, netSpace) +
             Stats.showIncompletePlotsWarning(harvester) +
-            Stats.showFilters(harvester) +
-            Stats.showFullNodeStats(harvester)
+            Stats.showFilters(harvester)
+        : '';
+
+    String fullNodeStats = ((isFull || isWorkers) && harvester is Farmer)
+        ? ";;" + Stats.showFullNodeStats(harvester) + lastUpdated
         : '';
 
     String swarPM = ((isFull || isWorkers) &&
@@ -325,7 +328,7 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount,
         ? ";;" + Stats.showSwarPMJobs(harvester) + lastUpdated
         : '';
 
-    output = main + full + lastUpdated + swarPM;
+    output = main + full + lastUpdated + fullNodeStats + swarPM;
 
     //removes discord emojis
     if (!discord) {
@@ -337,7 +340,9 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount,
         matches.addAll(externalEmojiRegex.allMatches(output).toList());
 
         for (var match in matches)
-          output = output.replaceAll(match.group(1), "").replaceAll("**", "");
+          output = output.replaceAll(match.group(1), "");
+
+        output = output.replaceAll("**", "").replaceAll(";;", "\n");
       } catch (e) {}
     }
   } catch (e) {

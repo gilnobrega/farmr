@@ -1,4 +1,5 @@
 import 'logitem.dart';
+import 'package:intl/intl.dart';
 
 class ShortSync extends LogItem {
   //start block of short sync
@@ -12,14 +13,26 @@ class ShortSync extends LogItem {
   //length of short sync
   int get length => _end - _start;
 
-  Map toJson() => {"timestamp": timestamp, "start": start, "end": end};
+  String _localTime = "";
+  String get localTime => _localTime;
+
+  Map toJson() => {
+        "timestamp": timestamp,
+        "localTime": localTime,
+        "start": start,
+        "end": end
+      };
 
   ShortSync(int timestamp, this._start, this._end)
-      : super(timestamp, LogItemType.FullNode);
+      : super(timestamp, LogItemType.FullNode) {
+    _localTime =
+        DateFormat.Hms().format(DateTime.fromMillisecondsSinceEpoch(timestamp));
+  }
 
   ShortSync.fromJson(dynamic json)
       : super.fromJson(json, LogItemType.FullNode) {
     if (json['start'] != null) _start = json['start'];
     if (json['end'] != null) _end = json['end'];
+    if (json['localTime'] != null) _localTime = json['localTime'];
   }
 }

@@ -3,6 +3,7 @@ import 'package:chiabot/farmer.dart';
 import 'package:chiabot/plot.dart';
 import 'package:chiabot/server/price.dart';
 import 'package:chiabot/server/netspace.dart';
+import 'package:chiabot/log/shortsync.dart';
 
 import 'package:chiabot/extensions/swarpm.dart';
 
@@ -442,6 +443,8 @@ class Stats {
 
   static String showFullNodeStats(Harvester harvester) {
     String output = '';
+    output += "\n*Full Node Stats*";
+
     if (harvester is Farmer && harvester.completeSubSlots > 0) {
       int totalSignagePoints =
           (64 * harvester.completeSubSlots) + harvester.looseSignagePoints;
@@ -450,7 +453,6 @@ class Stats {
 
       String percentage = (ratio * 100).toStringAsFixed(2);
 
-      output += "\n\n*Full Node Stats*";
       output += "\n${harvester.completeSubSlots} complete Sub Slots";
       output += "\n${percentage}% orphan Signage Points";
     }
@@ -468,7 +470,11 @@ class Stats {
           .reduce((length1, length2) => length1 + length2);
 
       output +=
-          "Lost sync ${events} times for a total ${totalBlocksSkipped} blocks";
+          "\nLost sync ${events} times, skipped a total ${totalBlocksSkipped} blocks";
+
+      for (ShortSync shortSync in harvester.shortSyncs)
+        output +=
+            "\n${shortSync.localTime}: from block ${shortSync.start} to ${shortSync.end}";
     }
 
     return output;
