@@ -195,6 +195,7 @@ Future<void> main(List<String> args) async {
 }
 
 //gets harvesters linked to user from mysql db
+//if userID is null then it gets all harvesters from database
 Future<List<Harvester>> _getUserData(String userID) async {
   List<Harvester> harvesters = [];
 
@@ -207,9 +208,12 @@ Future<List<Harvester>> _getUserData(String userID) async {
         db: 'chiabot');
     var conn = await mysql.MySqlConnection.connect(settings);
 
-    var results =
-        await conn.query("SELECT data FROM farms WHERE user='${userID}'");
+    String mysqlQuery = "SELECT data FROM farms WHERE user='${userID}'";
 
+    if (userID == "all")
+      mysqlQuery = "SELECT data FROM farms WHERE data<>'' and data<>';;'";
+
+    var results = await conn.query(mysqlQuery);
     for (var result in results) {
       if (result[0].toString().contains('"type"')) {
         String data = "[" + result[0].toString() + "]";
