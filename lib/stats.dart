@@ -466,7 +466,7 @@ class Stats {
           .reduce((length1, length2) => length1 + length2);
 
       output +=
-          "\n:warning: **Lost sync ${events} times**, skipped a total of ${totalBlocksSkipped} blocks";
+          "\n:warning: **Lost sync ${events} times**, skipped ${totalBlocksSkipped} blocks";
 
       for (ShortSync shortSync in harvester.shortSyncs)
         output +=
