@@ -75,7 +75,7 @@ class Stats {
     double walletBalanceChange = walletBalanceFiat * price.change;
     String sign = (price.change >= 0) ? '+' : '-';
 
-    String walletPriceText = (price.rate >= 0)
+    String walletPriceText = (price.rate > 0)
         ? "(${walletBalanceFiat.toStringAsFixed(2)} ${client.currency}, ${sign}${walletBalanceChange.abs().toStringAsFixed(2)}${Price.currencies[client.currency]})"
         : '';
 
