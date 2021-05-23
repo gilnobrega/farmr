@@ -128,7 +128,7 @@ class Farmer extends Harvester {
       calculateSubSlots(log);
     }
 
-    shortSyncs = log.shortSyncs;
+    shortSyncs = log.shortSyncs; //loads short sync events
   }
 
   //Server side function to read farm from json file
@@ -157,6 +157,11 @@ class Farmer extends Harvester {
     if (object['fullNodesConnected'] != null)
       _fullNodesConnected = object['fullNodesConnected'];
 
+    if (object['shortSyncs'] != null) {
+      for (var shortSync in object['shortSyncs'])
+        shortSyncs.add(ShortSync.fromJson(shortSync));
+    }
+
     calculateFilterRatio(this);
   }
 
@@ -169,6 +174,8 @@ class Farmer extends Harvester {
     if (harvester is Farmer) {
       _completeSubSlots += harvester.completeSubSlots;
       _looseSignagePoints += harvester._looseSignagePoints;
+
+      shortSyncs.addAll(harvester.shortSyncs);
     }
 
     if (harvester.totalDiskSpace == 0 || harvester.freeDiskSpace == 0)

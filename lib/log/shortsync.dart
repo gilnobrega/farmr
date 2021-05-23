@@ -10,16 +10,16 @@ class ShortSync extends LogItem {
   int get end => _end;
 
   //length of short sync
-  int get length => _start - _end;
+  int get length => _end - _start;
 
   Map toJson() => {"timestamp": timestamp, "start": start, "end": end};
 
-  ShortSync(int timestamp, this._end, this._start)
+  ShortSync(int timestamp, this._start, this._end)
       : super(timestamp, LogItemType.FullNode);
 
   ShortSync.fromJson(dynamic json)
       : super.fromJson(json, LogItemType.FullNode) {
     if (json['start'] != null) _start = json['start'];
-    if (json['end'] != null) _start = json['end'];
+    if (json['end'] != null) _end = json['end'];
   }
 }

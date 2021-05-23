@@ -316,7 +316,7 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount,
             Stats.showLastNDaysPlots(harvester, 8, netSpace) +
             Stats.showIncompletePlotsWarning(harvester) +
             Stats.showFilters(harvester) +
-            Stats.showSubSlots(harvester)
+            Stats.showFullNodeStats(harvester)
         : '';
 
     String swarPM = ((isFull || isWorkers) &&

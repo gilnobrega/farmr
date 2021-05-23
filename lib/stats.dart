@@ -440,7 +440,7 @@ class Stats {
     return output;
   }
 
-  static String showSubSlots(Harvester harvester) {
+  static String showFullNodeStats(Harvester harvester) {
     String output = '';
     if (harvester is Farmer && harvester.completeSubSlots > 0) {
       int totalSignagePoints =
@@ -457,6 +457,18 @@ class Stats {
 
     if (harvester is Farmer && harvester.fullNodesConnected > 0) {
       output += "\nConnected to ${harvester.fullNodesConnected} peers";
+    }
+
+    if (harvester is Farmer && harvester.shortSyncs.length > 0) {
+      int events = harvester.shortSyncs.length;
+
+      //sums al lengths of short sync events
+      int totalBlocksSkipped = harvester.shortSyncs
+          .map((shortSync) => shortSync.length)
+          .reduce((length1, length2) => length1 + length2);
+
+      output +=
+          "Lost sync ${events} times for a total ${totalBlocksSkipped} blocks";
     }
 
     return output;
