@@ -234,7 +234,15 @@ class Config {
   }
 
   Future<void> _loadConfig() async {
-    var contents = jsonDecode(_config.readAsStringSync());
+    var contents;
+
+    try {
+      contents = jsonDecode(_config.readAsStringSync());
+    } catch (e) {
+      //in json you need to use \\ for windows paths and this will ensure every \ is replaced with \\
+      contents =
+          jsonDecode(_config.readAsStringSync().replaceAll("\\", "\\\\"));
+    }
 
     //leave this here for compatibility with old versions,
     //old versions stored id in config file
