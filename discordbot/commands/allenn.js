@@ -1,6 +1,6 @@
 const Discord = require("discord.js");
 exports.run = (client, message, args) => {
-    msg.channel.send("<@96884333524041728> <:monkaStab:833539425405370408>");
+    message.channel.send("<@96884333524041728> <:monkaStab:833539425405370408>");
 };
 
 exports.conf = {
