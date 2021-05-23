@@ -9,8 +9,9 @@ import 'package:chiabot/harvester.dart';
 import 'package:chiabot/debug.dart' as Debug;
 import 'package:chiabot/farmer/wallet.dart';
 import 'package:chiabot/farmer/connections.dart';
+import 'package:chiabot/log/shortsync.dart';
 
-import 'packagE:chiabot/server/netspace.dart';
+import 'package:chiabot/server/netspace.dart';
 
 final log = Logger('Farmer');
 
@@ -46,6 +47,8 @@ class Farmer extends Harvester {
   int _looseSignagePoints = 0;
   int get looseSignagePoints => _looseSignagePoints;
 
+  List<ShortSync> shortSyncs = [];
+
   @override
   Map toJson() => {
         'name': name,
@@ -77,6 +80,7 @@ class Farmer extends Harvester {
         'stdDeviation': stdDeviation,
         'filterCategories': filterCategories,
         'fullNodesConnected': fullNodesConnected,
+        "shortSyncs": shortSyncs,
         "swarPM": swarPM,
         'version': version
       };
@@ -121,9 +125,10 @@ class Farmer extends Harvester {
 
     //Parses logs for sub slots info
     if (config.parseLogs) {
-      log.loadSignagePoints();
       calculateSubSlots(log);
     }
+
+    shortSyncs = log.shortSyncs;
   }
 
   //Server side function to read farm from json file

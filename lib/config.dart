@@ -122,6 +122,7 @@ class Config {
       "Swar's Chia Plot Manager Path": _swarPath
     };
 
+    //hides chiaPath from config.json if not defined (null)
     if (chiaPath != null) configMap.putIfAbsent("chiaPath", () => chiaPath);
 
     var encoder = new JsonEncoder.withIndent("    ");

@@ -15,9 +15,8 @@ class SwarPM {
       //changes working directory to swar's pm
       io.Directory.current = managerPath;
       if (io.Platform.isWindows) {
-        jsonOutput = io.Process.runSync("python", ["manager.py", "json"],
-                runInShell: true)
-            .stdout;
+        jsonOutput =
+            io.Process.runSync("python", ["manager.py", "json"]).stdout;
       } else {
         jsonOutput = io.Process.runSync(
             "/usr/bin/env", ["python3", "manager.py", "json"]).stdout;
@@ -30,7 +29,8 @@ class SwarPM {
         jobs.add(job);
       }
     } catch (e) {
-      print("Failed to get info about Swar's Chia Plot Manager");
+      print(
+          "Failed to get info about Swar's Chia Plot Manager.\nMake sure you're running version >0.1.0");
     }
 
     //restores old working directory
