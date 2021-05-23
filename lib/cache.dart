@@ -42,7 +42,7 @@ class Cache {
     }
   }
 
-  void init([bool parseLogs = false, int userNumber = 1]) {
+  void init([bool parseLogs = false]) {
     //Tells log parser when it should stop parsing
     parseUntil =
         DateTime.now().subtract(Duration(days: 1)).millisecondsSinceEpoch;
