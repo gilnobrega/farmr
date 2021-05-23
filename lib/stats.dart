@@ -474,7 +474,7 @@ class Stats {
 
       for (ShortSync shortSync in harvester.shortSyncs)
         output +=
-            "\n${shortSync.localTime}: from block ${shortSync.start} to ${shortSync.end}";
+            "\n${shortSync.localTime} from block ${shortSync.start} to ${shortSync.end}";
     }
 
     return output;

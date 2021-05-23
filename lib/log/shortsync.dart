@@ -25,8 +25,8 @@ class ShortSync extends LogItem {
 
   ShortSync(int timestamp, this._start, this._end)
       : super(timestamp, LogItemType.FullNode) {
-    _localTime =
-        DateFormat.Hms().format(DateTime.fromMillisecondsSinceEpoch(timestamp));
+    _localTime = DateFormat("HH:mm")
+        .format(DateTime.fromMillisecondsSinceEpoch(timestamp));
   }
 
   ShortSync.fromJson(dynamic json)

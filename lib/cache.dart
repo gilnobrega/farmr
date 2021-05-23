@@ -86,6 +86,7 @@ class Cache {
     _filters = [];
     _plots = [];
     _signagePoints = [];
+    _shortSyncs = [];
 
     var contents = jsonDecode(_cache.readAsStringSync());
 
