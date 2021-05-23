@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:logging/logging.dart';
 import 'package:dart_console/dart_console.dart';
 import 'package:qr/qr.dart';
+import 'package:uuid/uuid.dart';
 
 import 'package:chiabot/cache.dart';
 
@@ -102,6 +103,18 @@ class Config {
     if (type == ClientType.Farmer &&
         (cache.binPath == null || !io.File(cache.binPath).existsSync()))
       await _askForBinPath();
+
+    /** Generate Discord Id's */
+    if (cache.ids.length != userNumber) {
+      if (userNumber > cache.ids.length) {
+        // More Id's (add)
+        int newIds = userNumber - cache.ids.length;
+        for (int i = 0; i < newIds; i++) cache.ids.add(Uuid().v4());
+      } else if (userNumber < cache.ids.length) {
+        // Less Id's (fresh list)
+        for (int i = 0; i < userNumber; i++) cache.ids.add(Uuid().v4());
+      }
+    }
 
     _info(); //shows first screen info with qr code, id, !chia, etc.
   }
