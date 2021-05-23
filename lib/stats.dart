@@ -461,9 +461,7 @@ class Stats {
       int events = harvester.shortSyncs.length;
 
       //sums al lengths of short sync events
-      int totalBlocksSkipped = harvester.shortSyncs
-          .map((shortSync) => shortSync.length)
-          .reduce((length1, length2) => length1 + length2);
+      int totalBlocksSkipped = ShortSync.skippedBlocks(harvester.shortSyncs);
 
       output +=
           "\n:warning: **Lost sync ${events} times**, skipped ${totalBlocksSkipped} blocks";

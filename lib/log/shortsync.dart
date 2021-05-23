@@ -35,4 +35,16 @@ class ShortSync extends LogItem {
     if (json['end'] != null) _end = json['end'];
     if (json['localTime'] != null) _localTime = json['localTime'];
   }
+
+  static int skippedBlocks(List<ShortSync> shortSyncs) {
+    List<int> blocks = [];
+
+    //adds each skipped block to list of blocks
+    for (ShortSync shortSync in shortSyncs)
+      blocks.addAll(Iterable<int>.generate(shortSync.length)
+          .map((b) => shortSync.start + b));
+
+    //set function filters duplicate blocks
+    return blocks.toSet().length;
+  }
 }
