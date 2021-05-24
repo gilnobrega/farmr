@@ -82,7 +82,7 @@ module.exports = (client) => {
 	                setTimeout(() => msg.delete().catch(), 1);
 	                setTimeout(() => sentmsg.delete().catch(), client.minsTimeout * 60 * 1000);
 	            }
-	        });
+	        }).catch();
 	    });
 
 	    connection.end();
