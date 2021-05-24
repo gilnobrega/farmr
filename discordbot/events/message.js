@@ -1,4 +1,4 @@
-module.exports = async(client, message) => {
+module.exports = async (client, message) => {
     //Ignore other bots (and self)
     if (message.author.bot)
         return;
@@ -7,8 +7,8 @@ module.exports = async(client, message) => {
     if (message.content.length === 1) {
         return;
     }
-	
-	let config = client.config;
+
+    let config = client.config;
 
     if (message.content.toLowerCase().indexOf(config.PREFIX) === 0) {
 
@@ -18,14 +18,14 @@ module.exports = async(client, message) => {
         //Grab our arguments & command name
         const args = message.content.slice(config.PREFIX.length).trim().split(/ +/g);
         let command = args.shift().toLowerCase();
-		
-		//Hacky fix for recognizing old command structure
-		if (command == "chia" && args[0]) {
-			command = `chia ${args[0]}`;
-			
-			//Shift
-			args.shift();
-		}
+
+        //Hacky fix for recognizing old command structure
+        if (command == "chia" && args[0]) {
+            command = `chia ${args[0]}`;
+
+            //Shift
+            args.shift();
+        }
 
         //If the member on a guild is invisible or not cached, fetch them.
         if (message.guild && !message.member)
@@ -50,7 +50,8 @@ module.exports = async(client, message) => {
         }
 
         //Does this command have a cooldown period?
-        if (cmd.conf.cooldown > 0) {
+        //TEMPORARILY DISABLED FOR DMS
+        if (message.channel.type != "dm" && cmd.conf.cooldown > 0) {
             let member = message.member;
 
             let coolObj = {
@@ -75,21 +76,21 @@ module.exports = async(client, message) => {
                 client.cooldown[cmd.help.name.toLowerCase()][member] = (new Date().getTime())
             }
         }
-		
-		//Should the command/syntax be auto-deleted?
-		if (cmd.conf.deleteCommand) {
-		    message.delete({
-		        timeout: 1000,
-		        reason: 'It had to be done.'
-		    });
-		}
-		
-		//Filtered channel?
-		if (cmd.conf.filtered_channels.includes(message.channel.id))
-			return message.reply("Oh no! This command is too powerful for this channel!\nPlease run it in <#838813418793336832> so we can keep this channel free of SPAM.");
+
+        //Should the command/syntax be auto-deleted?
+        if (cmd.conf.deleteCommand) {
+            message.delete({
+                timeout: 1000,
+                reason: 'It had to be done.'
+            });
+        }
+
+        //Filtered channel?
+        if (cmd.conf.filtered_channels.includes(message.channel.id))
+            return message.reply("Oh no! This command is too powerful for this channel!\nPlease run it in <#838813418793336832> so we can keep this channel free of SPAM.");
 
         //We made it, Run it!
-        await cmd.run(client, message, args);	
+        await cmd.run(client, message, args);
 
     }
 };
