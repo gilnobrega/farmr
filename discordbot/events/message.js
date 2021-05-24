@@ -82,7 +82,7 @@ module.exports = async (client, message) => {
             message.delete({
                 timeout: 1000,
                 reason: 'It had to be done.'
-            });
+            }).catch();
         }
 
         //Filtered channel?

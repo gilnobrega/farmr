@@ -18,15 +18,18 @@ class HarvesterPlots {
   List<Plot> get plots => allPlots.where((plot) => plot.complete).toList();
 
   //Returns list of incomplete plots
-  List<Plot> get incompletePlots => allPlots.where((plot) => !plot.complete).toList();
+  List<Plot> get incompletePlots =>
+      allPlots.where((plot) => !plot.complete).toList();
 
   //Parses chia's config.yaml and finds plot destionation paths
   List<String> listPlotDest(String chiaConfigPath) {
     String configPath = chiaConfigPath + "config.yaml";
 
-    var configYaml = loadYaml(io.File(configPath).readAsStringSync().replaceAll("!!set", ""));
+    var configYaml = loadYaml(
+        io.File(configPath).readAsStringSync().replaceAll("!!set", ""));
 
-    List<String> pathsUnfiltered = ylistToStringlist(configYaml['harvester']['plot_directories']);
+    List<String> pathsUnfiltered =
+        ylistToStringlist(configYaml['harvester']['plot_directories']);
 
     //Filters duplicate paths
     List<String> pathsFiltered = [];
@@ -35,7 +38,7 @@ class HarvesterPlots {
       io.Directory dir = io.Directory(pathsUnfiltered[i]);
 
       if (dir.existsSync()) {
-        //It used to not add empty directories before, 
+        //It used to not add empty directories before,
         //but that would mean it would not get the disk space of those directories
         //bool isEmpty =
         //  dir.listSync().where((file) => extension(file.path) == ".plot").toList().length == 0;
@@ -62,7 +65,8 @@ class HarvesterPlots {
 
       await dir.list(recursive: false).forEach((file) {
         //Checks if file extension is .plot
-        if (extension(file.path) == ".plot") {
+        //also checks that it is a File and not a directory
+        if (extension(file.path) == ".plot" && file is io.File) {
           String id;
 
           try {
@@ -71,13 +75,17 @@ class HarvesterPlots {
             log.info("Failed to parse id of plot in ${file.path}");
           }
 
-          bool inCache = (id != null) ? allPlots.any((cachedPlot) => cachedPlot.id == id) : false;
-          bool duplicate = (id != null) ? newplots.any((plot) => plot.id == id) : false;
+          bool inCache = (id != null)
+              ? allPlots.any((cachedPlot) => cachedPlot.id == id)
+              : false;
+          bool duplicate =
+              (id != null) ? newplots.any((plot) => plot.id == id) : false;
 
           //If plot id it is in cache then adds old plot information (timestamps, etc.)
           //but updates plot size
           if (inCache && !duplicate) {
-            Plot plot = allPlots.firstWhere((cachedPlot) => cachedPlot.id == id);
+            Plot plot =
+                allPlots.firstWhere((cachedPlot) => cachedPlot.id == id);
 
             //updates file size in case plot was being moved while cached
             if (!plot.complete) {
@@ -111,7 +119,8 @@ class HarvesterPlots {
     allPlots.retainWhere((x) => idsSet.remove(x.id));
 
     //Counts how many plots were filtered
-    if (client && difference > 0) log.warning("Warning: filtering ${difference} duplicated plots!");
+    if (client && difference > 0)
+      log.warning("Warning: filtering ${difference} duplicated plots!");
   }
 
   //makes an id based on end and start timestamps for the last plot, necessary to call notifications webhook
@@ -126,8 +135,8 @@ class HarvesterPlots {
   }
 
   void sortPlots() {
-    allPlots.sort(
-        (plot1, plot2) => (plot1.begin.compareTo(plot2.begin))); //Sorts plots from oldest to newest
+    allPlots.sort((plot1, plot2) => (plot1.begin
+        .compareTo(plot2.begin))); //Sorts plots from oldest to newest
   }
 }
 
