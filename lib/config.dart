@@ -168,7 +168,7 @@ class Config {
           ")");
 
       _chiaPath = io.stdin.readLineSync();
-      log.info("Input chia path: '${_chiaPath}'");
+      log.info("Input chia path: '$_chiaPath'");
 
       cache.binPath = (io.Platform.isLinux || io.Platform.isMacOS)
           ? _chiaPath + "/venv/bin/chia"
@@ -177,10 +177,10 @@ class Config {
       if (io.File(cache.binPath).existsSync())
         validDirectory = true;
       else if (io.Directory(chiaPath).existsSync())
-        log.warning("Could not locate chia binary in your directory.\n(" +
-            cache.binPath +
-            " not found)\nPlease try again." +
-            "\nMake sure this folder has the same structure as Chia's GitHub repo.");
+        log.warning("""Could not locate chia binary in your directory.
+        (${cache.binPath} not found)
+        Please try again.
+        Make sure this folder has the same structure as Chia's GitHub repo.""");
       else
         log.warning(
             "Uh oh, that directory could not be found! Please try again.");
@@ -361,9 +361,9 @@ class Config {
     else
       print("to link this client to your discord user");
 
-    print("You can interact with ChiaBot in Swar's Chia Community");
-    print(
-        "Open the following link to join the server: https://discord.gg/fPjnWYYFmp ");
+    print("""You can interact with ChiaBot in Swar's Chia Community
+    Open the following link to join the server: https://discord.gg/fPjnWYYFmp""");
+
     print(line);
     print("");
   }

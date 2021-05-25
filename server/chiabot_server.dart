@@ -16,7 +16,7 @@ Future<void> main(List<String> args) async {
 
   //prints chiabot status
   if (args[0] == "status") {
-    await _getUsers();
+    _getUsers();
   }
   //generates cache files
   else if (args[0] == "cron") {
@@ -35,13 +35,13 @@ Future<void> main(List<String> args) async {
 
     for (String currency in currencies)
       print(
-          "XCH/${currency}: **${price.rates[currency].rate.toStringAsFixed(2)}** (${price.rates[currency].changeAbsolute} ${currency}, ${price.rates[currency].changeRelative}%)");
+          "XCH/$currency: **${price.rates[currency].rate.toStringAsFixed(2)}** (${price.rates[currency].changeAbsolute} $currency, ${price.rates[currency].changeRelative}%)");
 
     print("");
 
     for (String currency in cryptos)
       print(
-          "XCH/${currency}: **${price.rates[currency].rate.toStringAsPrecision(3)}** (${price.rates[currency].changeRelative}%)");
+          "XCH/$currency: **${price.rates[currency].rate.toStringAsPrecision(3)}** (${price.rates[currency].changeRelative}%)");
 
     Duration difference = DateTime.now()
         .difference(DateTime.fromMillisecondsSinceEpoch(price.timestamp));
@@ -77,7 +77,7 @@ Future<void> main(List<String> args) async {
           ? '(' + NetSpace.percentageDiff(pastSize, entries[i + 1], true) + ')'
           : '';
 
-      print("${date}: ${size} ${growth}");
+      print("$date: $size $growth");
     }
 
     print("Values recorded at 9pm UTC");
@@ -184,7 +184,7 @@ Future<void> main(List<String> args) async {
       if (farmersCount == 0) print("Error: Farmer not found.");
       if (harvesters.length != null && harvesters.length > 0)
         print(
-            "Error: ${farmersCount} farmers and ${harvestersCount} harvesters found.");
+            "Error: $farmersCount farmers and $harvestersCount harvesters found.");
       else
         print(
             "No clients found! Find out how you can install ChiaBot in your farmer/harvester in <#838789194696097843>");
@@ -208,7 +208,7 @@ Future<List<Harvester>> _getUserData(String userID) async {
         db: 'chiabot');
     var conn = await mysql.MySqlConnection.connect(settings);
 
-    String mysqlQuery = "SELECT data FROM farms WHERE user='${userID}'";
+    String mysqlQuery = "SELECT data FROM farms WHERE user='$userID'";
 
     if (userID == "all")
       mysqlQuery = "SELECT data FROM farms WHERE data<>'' and data<>';;'";
@@ -229,8 +229,8 @@ Future<List<Harvester>> _getUserData(String userID) async {
   }
   //reads from public api in case connection to mysql database fails
   catch (e) {
-    String contents =
-        await http.read("http://chiabot.znc.sh/read.php?user=" + userID);
+    String contents = await http
+        .read(Uri.parse("http://chiabot.znc.sh/read.php?user=$userID"));
 
     contents = contents
         .trim(); //filters last , of send page, can be fixed on server side later
@@ -280,7 +280,7 @@ void _getUsers() async {
 
   conn.close();
 
-  print("${users} active users and ${devices} active devices");
+  print("$users active users and $devices active devices");
 }
 
 //get price in an isolate

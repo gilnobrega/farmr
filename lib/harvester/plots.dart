@@ -120,7 +120,7 @@ class HarvesterPlots {
 
     //Counts how many plots were filtered
     if (client && difference > 0)
-      log.warning("Warning: filtering ${difference} duplicated plots!");
+      log.warning("Warning: filtering $difference duplicated plots!");
   }
 
   //makes an id based on end and start timestamps for the last plot, necessary to call notifications webhook

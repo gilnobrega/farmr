@@ -8,10 +8,10 @@ import 'package:chiabot/log/shortsync.dart';
 import 'package:chiabot/extensions/swarpm.dart';
 
 class Stats {
-  static String showName(Harvester harvester, [int count = null]) {
+  static String showName(Harvester harvester, [int count]) {
     String name = harvester.name + ((count == null) ? '' : count.toString());
 
-    return ":farmer: **${name}**";
+    return ":farmer: **$name**";
   }
 
   static String showPlotsInfo(Harvester client) {
@@ -64,7 +64,7 @@ class Stats {
         : '';
 
     balanceText += (balance >= 0.0)
-        ? "\n\<:chia:833767070201151528> **${balance}** **XCH**" + priceText
+        ? "\n\<:chia:833767070201151528> **$balance** **XCH**" + priceText
         : ''; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
 
     output += balanceText;
@@ -76,13 +76,13 @@ class Stats {
     String sign = (price.change >= 0) ? '+' : '-';
 
     String walletPriceText = (price.rate > 0)
-        ? "(${walletBalanceFiat.toStringAsFixed(2)} ${client.currency}, ${sign}${walletBalanceChange.abs().toStringAsFixed(2)}${Price.currencies[client.currency]})"
+        ? "(${walletBalanceFiat.toStringAsFixed(2)} ${client.currency}, $sign${walletBalanceChange.abs().toStringAsFixed(2)}${Price.currencies[client.currency]})"
         : '';
 
     String walletBalanceText = (client is Farmer &&
             walletBalance >= 0.0 &&
             client.wallet.balance != client.balance)
-        ? "\n:credit_card: ${client.wallet.balance} XCH ${walletPriceText}"
+        ? "\n:credit_card: ${client.wallet.balance} XCH $walletPriceText"
         : '';
 
     output += walletBalanceText;
@@ -99,10 +99,10 @@ class Stats {
       String etwString = "\n:moneybag: ETW: ${etw.toStringAsFixed(1)} days";
       if (price.rate > 0) {
         final double blockSize = 2.0;
-        double XCHPerDay = blockSize / etw;
+        double xchPerDay = blockSize / etw;
         double epd = estimateEDV(etw, price.rate);
         etwString +=
-            " EDV: ${XCHPerDay.toStringAsPrecision(3)} XCH (${epd.toStringAsFixed(2)}${Price.currencies[client.currency]})";
+            " EDV: ${xchPerDay.toStringAsPrecision(3)} XCH (${epd.toStringAsFixed(2)}${Price.currencies[client.currency]})";
       }
 
       output += etwString;
@@ -119,11 +119,10 @@ class Stats {
 
       if (effort > 0.0) {
         //doesnt show last block days ago if user has not found a block at all
-        String lastBlock = (farmedTimeDays > daysAgo)
-            ? "(last block ~${daysAgo} days ago)"
-            : '';
+        String lastBlock =
+            (farmedTimeDays > daysAgo) ? "(last block ~$daysAgo days ago)" : '';
         output +=
-            "\n:person_lifting_weights: Effort: ${effort.toStringAsFixed(1)}% ${lastBlock}";
+            "\n:person_lifting_weights: Effort: ${effort.toStringAsFixed(1)}% $lastBlock";
       }
     }
 
@@ -175,8 +174,7 @@ class Stats {
     if (client is Farmer && netSpace.size > 0) {
       String growth =
           (netSpace.pastSizes.length > 1) ? "(${netSpace.dayDifference})" : "";
-      output +=
-          "\n:satellite: Netspace: ${netSpace.humanReadableSize} ${growth}";
+      output += "\n:satellite: Netspace: ${netSpace.humanReadableSize} $growth";
     }
 
     return output;
@@ -280,7 +278,7 @@ class Stats {
       if (ratio > 0) {
         int plotsPerDay = (ratio * client.plots.length / 7).ceil();
         text +=
-            "\nNeed ${plotsPerDay} plots per day to keep up with Netspace growth";
+            "\nNeed $plotsPerDay plots per day to keep up with Netspace growth";
       }
     }
 
@@ -307,7 +305,7 @@ class Stats {
         if (client.freeDiskSpace > 0 && client.freeDiskSpace < 1.1e9)
           output += "\n:warning: **OUT OF SPACE** :warning:";
         if (client.freeDiskSpace > 0 && weekSize > 0)
-          output += "\nOut of space in ${outOfSpace}";
+          output += "\nOut of space in $outOfSpace";
         //If time until out of space is shorter than 4 hours then it will assume it's out of space
         else if (outOfSpaceHours <= 4 && weekSize > 0)
           output += "\n**OUT OF SPACE IN $outOfSpace**";
@@ -351,7 +349,7 @@ class Stats {
     if (harvester.numberFilters > 0) {
       int totalEligiblePlots = harvester.eligiblePlots;
       output +=
-          "\n\nLast 24 hours: ${totalEligiblePlots} plots passed ${harvester.numberFilters} filters";
+          "\n\nLast 24 hours: $totalEligiblePlots plots passed ${harvester.numberFilters} filters";
 
       //displays number of proofs found if > 0
       if (harvester.proofsFound > 0)
@@ -368,8 +366,8 @@ class Stats {
       String ratioString = ratio.toStringAsFixed(2);
       String luck = ((ratio) * 100).toStringAsFixed(0) + "%";
 
-      output += "\nEach plot passed ${ratioString} times per 512 filters";
-      output += "\n24h Efficiency: **${luck}**";
+      output += "\nEach plot passed $ratioString times per 512 filters";
+      output += "\n24h Efficiency: **$luck**";
 
       output += "\n\nLongest response: **${harvester.maxTime}** seconds";
       output += "\nShortest response: ${harvester.minTime} seconds";
@@ -407,7 +405,7 @@ class Stats {
           String percentageString = percentage.toStringAsPrecision(3);
           String newline = (list.last.key != entry.key) ? '\n' : '';
           lines.add(
-              "${entry.key}s: ${entry.value} filters (${percentageString}%)" +
+              "${entry.key}s: ${entry.value} filters ($percentageString%)" +
                   newline);
         }
 
@@ -421,7 +419,7 @@ class Stats {
 
           String newline = (list.last.key != list.first.key) ? '\n' : '';
           lines.first =
-              "${list.first.key}s: ${firstCategory} filters (${percentageString}%)" +
+              "${list.first.key}s: $firstCategory filters ($percentageString%)" +
                   newline;
         }
 
@@ -431,7 +429,7 @@ class Stats {
           String missedPercentageText = missedPercentage.toStringAsPrecision(3);
 
           lines.add(
-              "\n>30s: ${harvester.missedChallenges} filters (${missedPercentageText}%)");
+              "\n>30s: ${harvester.missedChallenges} filters ($missedPercentageText%)");
         }
 
         for (String line in lines) output += line;
@@ -454,7 +452,7 @@ class Stats {
       String percentage = (ratio * 100).toStringAsFixed(2);
 
       output += "\n${harvester.completeSubSlots} complete Sub Slots";
-      output += "\n${percentage}% orphan Signage Points";
+      output += "\n$percentage% orphan Signage Points";
     }
 
     if (harvester is Farmer && harvester.shortSyncs.length > 0) {
@@ -464,7 +462,7 @@ class Stats {
       int totalBlocksSkipped = ShortSync.skippedBlocks(harvester.shortSyncs);
 
       output +=
-          "\n:warning: **Lost sync ${events} times**, skipped ${totalBlocksSkipped} blocks";
+          "\n:warning: **Lost sync $events times**, skipped $totalBlocksSkipped blocks";
 
       for (ShortSync shortSync in harvester.shortSyncs)
         output +=
@@ -485,9 +483,7 @@ class Stats {
     String count =
         "--"; // '--' is 'last updated' split character to be used in discord bot
     count += (harvestersCount > 0 || farmersCount > 0)
-        ? "${farmersCount} farmers, " +
-            harvestersCount.toString() +
-            " harvesters - "
+        ? "$farmersCount farmers, $harvestersCount harvesters - "
         : "";
 
     //client version

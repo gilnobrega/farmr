@@ -42,7 +42,7 @@ class Price {
         "timestamp": timestamp,
       };
 
-  Price() {}
+  Price();
 
   //genCache=true forces generation of price.json file
   Future<void> init([bool genCache = false]) async {
@@ -82,8 +82,8 @@ class Price {
             currency.key.toLowerCase() + Uri.encodeQueryComponent(",");
 
 //gets xch/usd exchange rate from coinbase
-      final json = jsonDecode(await http.read(
-          "https://api.coingecko.com/api/v3/simple/price?ids=chia&vs_currencies=${currenciesParameter}&include_24hr_vol=true&include_24hr_change=true&include_last_updated_at=true"));
+      final json = jsonDecode(await http.read(Uri.parse(
+          "https://api.coingecko.com/api/v3/simple/price?ids=chia&vs_currencies=$currenciesParameter&include_24hr_vol=true&include_24hr_change=true&include_last_updated_at=true")));
 
       for (var currency in currencies.entries) {
         var lowerCase = currency.key.toLowerCase();
@@ -112,8 +112,8 @@ class Price {
     //attempts to get main currencies rate in overall USD rates page,
     //if that fails then it gets them from individual pages
 
-    final mainjson = jsonDecode(
-        await http.read("https://api.coinbase.com/v2/prices/USD/spot"));
+    final mainjson = jsonDecode(await http
+        .read(Uri.parse("https://api.coinbase.com/v2/prices/USD/spot")));
 
     for (String otherCurrency in currencies.entries
         .where((entry) => entry != currencies.entries.first)
@@ -131,10 +131,8 @@ class Price {
 
         if (rate == 0.0) {
           try {
-            final json = jsonDecode(await http.read(
-                "https://api.coinbase.com/v2/prices/USD-" +
-                    otherCurrency +
-                    "/spot"));
+            final json = jsonDecode(await http.read(Uri.parse(
+                "https://api.coinbase.com/v2/prices/USD-$otherCurrency/spot")));
 
             rate = double.parse(json['data']['amount']);
           } catch (e) {}
@@ -176,10 +174,10 @@ class Rate {
   String get _sign => (_change >= 0) ? '+' : '-';
   //returns change in usd, eur, etc.
   String get changeAbsolute =>
-      "${_sign}${(_rate * _change).abs().toStringAsFixed(1)}";
+      "$_sign${(_rate * _change).abs().toStringAsFixed(1)}";
   //returns change in %
   String get changeRelative =>
-      "${_sign}${(_change * 100).abs().toStringAsFixed(1)}";
+      "$_sign${(_change * 100).abs().toStringAsFixed(1)}";
 
   //24h volume in xch
   double _volume = 0;

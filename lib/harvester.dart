@@ -133,7 +133,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     //LOADS CHIA CONFIG FILE AND PARSES PLOT DIRECTORIES
     _plotDests = listPlotDest(chiaConfigPath);
 
-    await listPlots(_plotDests, _config);
+    listPlots(_plotDests, _config);
 
     filterDuplicates(); //removes plots with duplicate ids
 

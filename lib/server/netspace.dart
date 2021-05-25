@@ -32,7 +32,7 @@ class NetSpace {
         "source": source
       };
 
-  NetSpace([String humanReadableSize = null]) {
+  NetSpace([String humanReadableSize]) {
     if (humanReadableSize != null) {
       try {
         _timestamp = DateTime.now().millisecondsSinceEpoch;
@@ -54,8 +54,8 @@ class NetSpace {
 
   _getNetSpace() async {
     try {
-      String contents = await http
-          .read("https://chianetspace.azurewebsites.net/data/summary");
+      String contents = await http.read(
+          Uri.parse("https://chianetspace.azurewebsites.net/data/summary"));
 
       var content = jsonDecode(contents);
 
@@ -64,14 +64,15 @@ class NetSpace {
       //temporary override while chianetspace.com doesn't fix their website
       units = "EiB";
 
-      _size = sizeStringToInt('${sizeString} ${units}');
+      _size = sizeStringToInt('$sizeString $units');
     } catch (e) {}
 
     try {
       //if chianetspaceapi.com fails then gets netspace from chiacalculator.com
       if (_size == 0) {
         //<dd class="chakra-stat__number css-mu2u4q">8.032<!-- --> <!-- -->EiB</dd>
-        String contents = await http.read("https://chiacalculator.com");
+        String contents =
+            await http.read(Uri.parse("https://chiacalculator.com"));
         RegExp regex = new RegExp(">([0-9\\.]+)<!-- --> <!-- -->([A-Z])iB");
         var matches = regex.allMatches(contents);
 
@@ -87,7 +88,7 @@ class NetSpace {
   _getPastSizes() async {
     try {
       String contents =
-          await http.read("http://alpha2.chianetspace.com/data.php");
+          await http.read(Uri.parse("http://alpha2.chianetspace.com/data.php"));
 
       var array = jsonDecode(contents);
 
@@ -146,9 +147,9 @@ class NetSpace {
     String absoluteSize = '';
 
     if (showAbsoluteSize)
-      absoluteSize = "${sign}${generateHumanReadableSize(avgSizeDiff / 1.0)}, ";
+      absoluteSize = "$sign${generateHumanReadableSize(avgSizeDiff / 1.0)}, ";
 
-    growth = "${absoluteSize}${sign}${ratio.abs().toStringAsFixed(1)}%";
+    growth = "$absoluteSize$sign${ratio.abs().toStringAsFixed(1)}%";
 
     return growth;
   }

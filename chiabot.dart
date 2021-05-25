@@ -81,7 +81,7 @@ main(List<String> args) async {
     try {
       clearLog(); //clears log
 
-      log.info("Generating new report #${counter}");
+      log.info("Generating new report #$counter");
 
       cache.init(config.parseLogs);
       Log chiaLog = new Log(chiaDebugPath, cache, config.parseLogs);
@@ -122,8 +122,8 @@ main(List<String> args) async {
     } catch (exception) {
       log.severe("Oh no! Something went wrong.");
       log.severe(exception.toString());
-      log.info("Config:\n${config}\n");
-      log.info("Cache:\n${cache}");
+      log.info("Config:\n$config\n");
+      log.info("Cache:\n$cache");
       if (onetime) io.exit(1);
     }
 
@@ -177,21 +177,19 @@ main(List<String> args) async {
           post.putIfAbsent("id", () => id);
           post.update("id", (value) => id);
 
-          http.post(url, body: post).catchError((error) {
+          http.post(Uri.parse(url), body: post).catchError((error) {
             log.warning("Server timeout.");
             log.info(error.toString());
           }).whenComplete(() {
             String idText = (cache.ids.length == 1) ? '' : "for id " + id;
             String timestamp = DateFormat.Hms().format(DateTime.now());
             log.warning(
-                "\n${timestamp} - Sent ${type} report to server ${idText}\nRetrying in " +
-                    delay.inMinutes.toString() +
-                    " minutes");
+                "\n$timestamp - Sent $type report to server $idText\nRetrying in ${delay.inMinutes.toString} minutes");
           });
         }
 
-        log.info("url:${url}");
-        log.info("data sent:\n${sendJson}");
+        log.info("url:$url");
+        log.info("data sent:\n$sendJson");
 
         if (io.Platform.isWindows) print("Do NOT close this window.");
       } catch (exception) {
@@ -220,8 +218,8 @@ void clearLog() {
       }
       //creates log.txt
       logFile.createSync();
-    } catch (e) {
-      log.info("Failed to delete/create log.txt.\n${e}");
+    } catch (err) {
+      log.info("Failed to delete/create log.txt.\n$err");
     }
   }
 }

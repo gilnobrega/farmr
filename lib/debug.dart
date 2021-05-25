@@ -73,7 +73,7 @@ class Log {
             parseFilters(content, _parseUntil);
           } catch (e) {
             log.warning(
-                "Warning: could not parse filters in debug.log${ext}, make sure chia log level is set to INFO");
+                "Warning: could not parse filters in debug.log$ext, make sure chia log level is set to INFO");
           }
 
           //parses signage points
@@ -81,7 +81,7 @@ class Log {
             parseSignagePoints(content, _parseUntil);
           } catch (e) {
             log.info(
-                "Warning: could not parse SubSlots in debug.log${ext}, make sure chia log level is set to INFO");
+                "Warning: could not parse SubSlots in debug.log$ext, make sure chia log level is set to INFO");
           }
 
           //parses signage points
@@ -89,12 +89,12 @@ class Log {
             parseShortSyncs(content, _parseUntil);
           } catch (e) {
             log.info(
-                "Warning: could not parse Short Sync events in debug.log${ext}, make sure chia log level is set to INFO");
+                "Warning: could not parse Short Sync events in debug.log$ext, make sure chia log level is set to INFO");
           }
         }
       } catch (Exception) {
         log.warning(
-            "Warning: could not parse debug.log${ext}, make sure chia log level is set to INFO");
+            "Warning: could not parse debug.log$ext, make sure chia log level is set to INFO");
       }
     }
 

@@ -7,7 +7,7 @@ dependencies:
   path: ^1.8.0
   uuid: ^3.0.4
   yaml: ^3.1.0
-  http: ^0.12.2
+  http: ^0.13.3
   filesize: ^1.0.4
   dart_console: ^1.0.0
   qr: ^2.0.0

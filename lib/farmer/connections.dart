@@ -29,11 +29,13 @@ class Connections {
   List<Connection> connections = [];
 
   Connections(String binPath) {
-    var connectionsOutput = io.Process.runSync(binPath, ["show", "-c"]).stdout.toString();
+    var connectionsOutput =
+        io.Process.runSync(binPath, ["show", "-c"]).stdout.toString();
 
     try {
-      RegExp connectionsRegex =
-          RegExp("([\\S_]+) ([\\S\\.]+)[\\s]+([0-9]+)/([0-9]+)", multiLine: true);
+      RegExp connectionsRegex = RegExp(
+          "([\\S_]+) ([\\S\\.]+)[\\s]+([0-9]+)/([0-9]+)",
+          multiLine: true);
 
       var matches = connectionsRegex.allMatches(connectionsOutput);
 
@@ -45,10 +47,10 @@ class Connections {
           if (typeString == "FULL_NODE")
             type = ConnectionType.FullNode;
           else if (typeString == "INTRODUCER")
-            type == ConnectionType.Introducer;
+            type = ConnectionType.Introducer;
           else if (typeString == "WALLET")
-            type == ConnectionType.Wallet;
-          else if (typeString == "FARMER") type == ConnectionType.Farmer;
+            type = ConnectionType.Wallet;
+          else if (typeString == "FARMER") type = ConnectionType.Farmer;
 
           String ip = match.group(2);
           int port1 = int.parse(match.group(3));
