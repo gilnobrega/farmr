@@ -58,7 +58,7 @@ class HarvesterPlots {
   }
 
 //makes a list of available plots in all plot destination paths
-  void listPlots(List<String> paths, Config config) async {
+  Future<void> listPlots(List<String> paths, Config config) async {
     List<Plot> newplots = [];
 
     for (int i = 0; i < paths.length; i++) {

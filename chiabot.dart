@@ -184,7 +184,7 @@ main(List<String> args) async {
             String idText = (cache.ids.length == 1) ? '' : "for id " + id;
             String timestamp = DateFormat.Hms().format(DateTime.now());
             log.warning(
-                "\n$timestamp - Sent $type report to server $idText\nRetrying in ${delay.inMinutes.toString} minutes");
+                "\n$timestamp - Sent $type report to server $idText\nRetrying in ${delay.inMinutes} minutes");
           });
         }
 
