@@ -1,0 +1,3 @@
+[submodule "chiabot-discord"]
+	path = chiabot-discord
+	url = https://github.com/joaquimguimaraes/chiabot-discord
