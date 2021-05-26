@@ -146,7 +146,7 @@ class Config {
 
     //hides ignoreDiskSpace from config.json if false (default)
     if (ignoreDiskSpace)
-      configMap.putIfAbsent("ignoreDiskSpace", () => ignoreDiskSpace);
+      configMap.putIfAbsent("Ignore Disk Space", () => ignoreDiskSpace);
 
     var encoder = new JsonEncoder.withIndent("    ");
     String contents = encoder.convert([configMap]);
