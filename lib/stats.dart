@@ -1,4 +1,5 @@
 import 'package:chiabot/harvester.dart';
+import 'package:chiabot/harvester/plots.dart';
 import 'package:chiabot/farmer.dart';
 import 'package:chiabot/plot.dart';
 import 'package:chiabot/server/price.dart';
@@ -8,6 +9,10 @@ import 'package:chiabot/log/shortsync.dart';
 import 'package:chiabot/extensions/swarpm.dart';
 
 class Stats {
+  static String fileSize(int size, [int decimals = 1]) {
+    return NetSpace.generateHumanReadableSize(size.toDouble(), decimals);
+  }
+
   static String showName(Harvester harvester, [int count]) {
     String name = harvester.name + ((count == null) ? '' : count.toString());
 
@@ -96,7 +101,13 @@ class Stats {
     double etw = estimateETW(client, netSpace);
 
     if (etw > 0) {
-      String etwString = "\n:moneybag: ETW: ${etw.toStringAsFixed(1)} days";
+      String etwValue = "${etw.toStringAsFixed(1)} days";
+
+      //if shorter than a  day then display value in hours
+      if (etw < 1) etwValue = "${(etw * 24).toStringAsFixed(1)} hours";
+
+      String etwString = "\n:moneybag: ETW: $etwValue";
+
       if (price.rate > 0) {
         final double blockSize = 2.0;
         double xchPerDay = blockSize / etw;
@@ -212,20 +223,10 @@ class Stats {
     if (plots.length > 0) {
       output += '\n\n:abacus: Types: ';
 
-      //creates a map with the following structure { 'k32' : 3, 'k33' : 2 } etc.
-      Map<String, int> typeCount = {};
-
-      for (Plot plot in plots) {
-        String type = plot.plotSize;
-        if (type.startsWith("k")) {
-          typeCount.putIfAbsent(type, () => 0);
-          typeCount.update(type, (value) => value + 1);
-        }
-      }
-
-      for (var type in typeCount.entries) {
+      for (var type in client.typeCount.entries) {
         //adds comma if not the last key
-        String comma = (typeCount.entries.last.key != type.key) ? ', ' : '';
+        String comma =
+            (client.typeCount.entries.last.key != type.key) ? ', ' : '';
         output += "${type.value} ${type.key} plots" + comma;
       }
     }
@@ -249,21 +250,33 @@ class Stats {
 
       //displays plot count for today even if it's 0
       if (k == 0 || count > 0) {
-        if (k == 0) {
-          text += "\n\nToday: completed " + count.toString() + " plots";
-        } else {
-          text += "\n" +
-              humanReadableDate(nDaysAgoString(client, k)) +
-              ": completed " +
-              count.toString() +
-              " plots";
+        String day = "Today";
+
+        Map<String, int> typeCount = HarvesterPlots.genPlotTypes(plots);
+        String types = '';
+
+        if (typeCount.entries.length > 1) {
+          types = '(';
+
+          for (var type in typeCount.entries) {
+            //adds comma if not the last key
+            String comma =
+                (client.typeCount.entries.last.key != type.key) ? ', ' : ')';
+            types += "${type.value}x${type.key}" + comma;
+          }
+        } else if (typeCount.entries.length == 1)
+          types += "(all ${typeCount.entries.first.key})";
+
+        if (k > 0) {
+          day = "${humanReadableDate(nDaysAgoString(client, k))}";
           weekCount += count;
           weekSize += sumSize;
           daysWithPlots += 1;
         }
 
-        text += " (" + fileSize(sumSize, 1);
-        text += ")";
+        text += "\n$day: completed $count plots $types";
+
+        text += " (${fileSize(sumSize, 1)})";
       }
     }
 

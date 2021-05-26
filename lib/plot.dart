@@ -5,7 +5,6 @@ import 'dart:math' as Math;
 import 'package:logging/logging.dart';
 
 import 'package:path/path.dart';
-import 'package:filesize/filesize.dart';
 
 final log = Logger('Plot');
 
@@ -32,7 +31,10 @@ class Plot {
   DateTime _end;
   //if plot were created after completion (timestamp bug)
   //then assumes end time stamp is beginning time stamp
-  DateTime get end => (_end.millisecondsSinceEpoch > _begin.millisecondsSinceEpoch) ? _end : _begin;
+  DateTime get end =>
+      (_end.millisecondsSinceEpoch > _begin.millisecondsSinceEpoch)
+          ? _end
+          : _begin;
 
   Duration _duration;
   Duration get duration => _duration;
@@ -82,7 +84,8 @@ class Plot {
 
     _size = stat.size;
 
-    if (!complete) log.warning("Warning: plot " + file.path + " is incomplete!");
+    if (!complete)
+      log.warning("Warning: plot " + file.path + " is incomplete!");
   }
 
   //Generate plot from json string
@@ -135,14 +138,17 @@ String dateToString(DateTime date) {
 
 DateTime stringToDate(String input) {
   var array = input.split('-');
-  return new DateTime(int.parse(array[0]), int.parse(array[1]), int.parse(array[2]));
+  return new DateTime(
+      int.parse(array[0]), int.parse(array[1]), int.parse(array[2]));
 }
 
 //finds the last plot in a list of plots
 Plot lastPlot(List<Plot> plots) {
   if (plots.length > 0)
     return plots.reduce((plot1, plot2) =>
-        (plot1.end.millisecondsSinceEpoch > plot2.end.millisecondsSinceEpoch) ? plot1 : plot2);
+        (plot1.end.millisecondsSinceEpoch > plot2.end.millisecondsSinceEpoch)
+            ? plot1
+            : plot2);
   else
     return null;
 }
@@ -150,15 +156,10 @@ Plot lastPlot(List<Plot> plots) {
 //finds the first plot in a list of plots
 Plot firstPlot(List<Plot> plots) {
   if (plots.length > 0)
-    return plots.reduce((plot1, plot2) =>
-        (plot1.begin.millisecondsSinceEpoch < plot2.begin.millisecondsSinceEpoch) ? plot1 : plot2);
+    return plots.reduce((plot1, plot2) => (plot1.begin.millisecondsSinceEpoch <
+            plot2.begin.millisecondsSinceEpoch)
+        ? plot1
+        : plot2);
   else
     return null;
-}
-
-String fileSize(int input, [int decimals = 2]) {
-  return filesize(input, decimals)
-      .replaceAll("TB", "TiB")
-      .replaceAll("GB", "GiB")
-      .replaceAll("PB", "PiB");
 }

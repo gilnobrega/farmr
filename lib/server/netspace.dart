@@ -195,7 +195,7 @@ class NetSpace {
   static final Map<String, int> bases = {'B': 1000, 'iB': 1024};
 
   //generates a human readable string in xiB from an int size in bytes
-  static String generateHumanReadableSize(double size) {
+  static String generateHumanReadableSize(double size, [int decimals = 3]) {
     try {
       var unit;
       for (var entry in units.entries) {
@@ -204,9 +204,9 @@ class NetSpace {
 
       double value = size / (Math.pow(bases['iB'], unit.value) * 1.0);
 
-      return "${value.toStringAsFixed(3)} ${unit.key}iB";
+      return "${value.toStringAsFixed(decimals)} ${unit.key}iB";
     } catch (e) {
-      return "0 B"; //when api fails
+      return "$size B"; //when value in bytes
     }
   }
 

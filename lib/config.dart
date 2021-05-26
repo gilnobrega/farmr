@@ -178,9 +178,9 @@ class Config {
         validDirectory = true;
       else if (io.Directory(chiaPath).existsSync())
         log.warning("""Could not locate chia binary in your directory.
-        (${cache.binPath} not found)
-        Please try again.
-        Make sure this folder has the same structure as Chia's GitHub repo.""");
+(${cache.binPath} not found)
+Please try again.
+Make sure this folder has the same structure as Chia's GitHub repo.""");
       else
         log.warning(
             "Uh oh, that directory could not be found! Please try again.");
@@ -362,7 +362,7 @@ class Config {
       print("to link this client to your discord user");
 
     print("""You can interact with ChiaBot in Swar's Chia Community
-    Open the following link to join the server: https://discord.gg/fPjnWYYFmp""");
+Open the following link to join the server: https://discord.gg/fPjnWYYFmp""");
 
     print(line);
     print("");

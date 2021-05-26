@@ -21,6 +21,9 @@ class HarvesterPlots {
   List<Plot> get incompletePlots =>
       allPlots.where((plot) => !plot.complete).toList();
 
+  //creates a map with the following structure { 'k32' : 3, 'k33' : 2 } etc.
+  Map<String, int> get typeCount => genPlotTypes(plots);
+
   //Parses chia's config.yaml and finds plot destionation paths
   List<String> listPlotDest(String chiaConfigPath) {
     String configPath = chiaConfigPath + "config.yaml";
@@ -137,6 +140,21 @@ class HarvesterPlots {
   void sortPlots() {
     allPlots.sort((plot1, plot2) => (plot1.begin
         .compareTo(plot2.begin))); //Sorts plots from oldest to newest
+  }
+
+  //sorts plots into typeCount map
+  static Map<String, int> genPlotTypes(List<Plot> plots) {
+    Map<String, int> typeCount = {};
+
+    for (Plot plot in plots) {
+      String type = plot.plotSize;
+      if (type.startsWith("k")) {
+        typeCount.putIfAbsent(type, () => 0);
+        typeCount.update(type, (value) => value + 1);
+      }
+    }
+
+    return typeCount;
   }
 }
 
