@@ -139,7 +139,12 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
 
     _lastUpdated = DateTime.now();
 
-    await getDiskSpace(_plotDests);
+    if (!_config.ignoreDiskSpace)
+      await getDiskSpace(_plotDests);
+    else {
+      totalDiskSpace = 1;
+      freeDiskSpace = 1;
+    }
   }
 
   //clears plots ids before sending info to server

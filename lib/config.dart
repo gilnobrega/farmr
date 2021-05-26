@@ -63,6 +63,10 @@ class Config {
   bool _publicAPI = false;
   bool get publicAPI => _publicAPI;
 
+  //Nahvan requested for a disk space override for computers in shared networks
+  bool _ignoreDiskSpace = false;
+  bool get ignoreDiskSpace => _ignoreDiskSpace;
+
   final io.File _config = io.File("config.json");
 
   Config(Cache _cache, String chiaConfigPath, [isHarvester = false]) {
@@ -139,6 +143,10 @@ class Config {
 
     //hides chiaPath from config.json if not defined (null)
     if (chiaPath != null) configMap.putIfAbsent("chiaPath", () => chiaPath);
+
+    //hides ignoreDiskSpace from config.json if false (default)
+    if (ignoreDiskSpace)
+      configMap.putIfAbsent("ignoreDiskSpace", () => ignoreDiskSpace);
 
     var encoder = new JsonEncoder.withIndent("    ");
     String contents = encoder.convert([configMap]);
@@ -323,6 +331,9 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
 
     if (contents[0]["Public API"] != null)
       _publicAPI = contents[0]["Public API"];
+
+    if (contents[0]["Ignore Disk Space"] != null)
+      _ignoreDiskSpace = contents[0]["Ignore Disk Space"];
 
     await saveConfig();
   }

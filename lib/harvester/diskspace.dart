@@ -19,6 +19,7 @@ class HarvesterDiskSpace {
   //Gets info about total and available disk space, there's a library for each platform
   Future<void> getDiskSpace(List<String> plotDests) async {
     uds.DiskSpace diskspace;
+
     try {
       // uses own universal_disk_space library
       diskspace = new uds.DiskSpace();
