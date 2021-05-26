@@ -223,10 +223,12 @@ class Stats {
     if (plots.length > 0) {
       output += '\n\n:abacus: Types: ';
 
-      for (var type in client.typeCount.entries) {
+      var entries = client.typeCount.entries.toList();
+      entries.sort((entry1, entry2) => entry1.key.compareTo(entry2.key));
+
+      for (var type in entries) {
         //adds comma if not the last key
-        String comma =
-            (client.typeCount.entries.last.key != type.key) ? ', ' : '';
+        String comma = (entries.last.key != type.key) ? ', ' : '';
         output += "${type.value} ${type.key} plots" + comma;
       }
     }
@@ -255,13 +257,16 @@ class Stats {
         Map<String, int> typeCount = HarvesterPlots.genPlotTypes(plots);
         String types = '';
 
-        if (typeCount.entries.length > 1) {
+        var entries = typeCount.entries.toList();
+
+        entries.sort((entry1, entry2) => entry1.key.compareTo(entry2.key));
+
+        if (entries.length > 1) {
           types = '(';
 
-          for (var type in typeCount.entries) {
+          for (var type in entries) {
             //adds comma if not the last key
-            String comma =
-                (client.typeCount.entries.last.key != type.key) ? ', ' : ')';
+            String comma = (entries.last.key != type.key) ? ', ' : ')';
             types += "${type.value}x${type.key}" + comma;
           }
         } else if (typeCount.entries.length == 1)
