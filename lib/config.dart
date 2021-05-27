@@ -116,6 +116,7 @@ class Config {
         for (int i = 0; i < newIds; i++) cache.ids.add(Uuid().v4());
       } else if (userNumber < cache.ids.length) {
         // Less Id's (fresh list)
+        cache.ids = [];
         for (int i = 0; i < userNumber; i++) cache.ids.add(Uuid().v4());
       }
       cache.save();
