@@ -131,7 +131,7 @@ class NetSpace {
 
     //if timestamps between size1 and size2 netspaces are shorter than a day
     //then it will use a third timestamp called size3
-    if (timeRatio > 1 && size3 != null && size3.value < size2.value) {
+    if (timeRatio > 1 && size3 != null) {
       timeDiff = int.parse(size1.key) - int.parse(size3.key);
       timeRatio = millisecondsInDay / timeDiff;
       size2 = size3; //this looks so bad i need to fix this
