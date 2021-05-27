@@ -71,14 +71,13 @@ Future<void> main(List<String> args) async {
           DateTime.fromMillisecondsSinceEpoch(int.parse(pastSize.key));
 
       String date = DateFormat('MMM dd').format(pastSizeDate);
-      String sign = (pastSize.value >= 0) ? '+' : '-';
       String size = NetSpace.generateHumanReadableSize(pastSize.value.abs());
 
       String growth = (i != until && i != entries.length - 1)
           ? '(' + NetSpace.percentageDiff(pastSize, entries[i + 1], true) + ')'
           : '';
 
-      print("$date: $sign$size $growth");
+      print("$date: $size $growth");
     }
 
     print("Values recorded at 9pm UTC");
