@@ -10,7 +10,7 @@ import 'package:chiabot/extensions/swarpm.dart';
 
 class Stats {
   static String fileSize(int size, [int decimals = 1]) {
-    return NetSpace.generateHumanReadableSize(size.toDouble(), decimals);
+    return NetSpace.generateHumanReadableSize(size.abs().toDouble(), decimals);
   }
 
   static String showName(Harvester harvester, [int count]) {

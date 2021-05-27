@@ -131,7 +131,7 @@ class NetSpace {
 
     //if timestamps between size1 and size2 netspaces are shorter than a day
     //then it will use a third timestamp called size3
-    if (timeRatio > 1 && size3 != null) {
+    if (timeRatio > 1 && size3 != null && size3.value < size2.value) {
       timeDiff = int.parse(size1.key) - int.parse(size3.key);
       timeRatio = millisecondsInDay / timeDiff;
       size2 = size3; //this looks so bad i need to fix this
@@ -140,14 +140,16 @@ class NetSpace {
     double sizeRatio = 100 * ((size1.value / size2.value) - 1);
 
     double ratio = timeRatio * sizeRatio;
-    int avgSizeDiff = (timeRatio * (size1.value - size2.value)).round();
+    double avgSizeDiff =
+        (timeRatio * (size1.value - size2.value)).roundToDouble();
 
     var sign = (ratio > 0) ? "+" : "-";
 
     String absoluteSize = '';
 
     if (showAbsoluteSize)
-      absoluteSize = "$sign${generateHumanReadableSize(avgSizeDiff / 1.0)}, ";
+      absoluteSize =
+          "$sign${generateHumanReadableSize(avgSizeDiff.abs() / 1.0)}, ";
 
     growth = "$absoluteSize$sign${ratio.abs().toStringAsFixed(1)}%";
 
