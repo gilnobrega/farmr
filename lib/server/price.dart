@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 class Price {
   final int _untilTimeStamp =
       DateTime.now().subtract(Duration(minutes: 5)).millisecondsSinceEpoch;
-  final io.File _cacheFile = io.File("price.json");
+  var _cacheFile;
 
   //list of currencies to get from api and their symbols
   static final Map<String, String> currencies = {
@@ -45,14 +45,20 @@ class Price {
   Price();
 
   //genCache=true forces generation of price.json file
-  Future<void> init([bool genCache = false]) async {
-    if (_cacheFile.existsSync())
-      await _load(genCache);
-    else {
+  Future<void> init([bool genCache = false, bool skipCache = false]) async {
+    if (skipCache) {
       await _getPriceFromApi();
       await _getOtherCurrencies();
+    } else {
+      _cacheFile = io.File("price.json");
+      if (_cacheFile.existsSync())
+        await _load(genCache);
+      else {
+        await _getPriceFromApi();
+        await _getOtherCurrencies();
 
-      _save();
+        _save();
+      }
     }
   }
 

@@ -3,8 +3,9 @@ import 'package:universal_io/io.dart' as io;
 import 'dart:math' as Math;
 
 import 'package:logging/logging.dart';
-
 import 'package:path/path.dart';
+
+import 'package:chiabot/server/netspace.dart';
 
 final log = Logger('Plot');
 
@@ -38,9 +39,17 @@ class Plot {
 
   Duration _duration;
   Duration get duration => _duration;
+  String get humanReadableDuration => durationToTime(_duration);
+  Duration get finishedAgo => DateTime.now().difference(end);
+  String get humanReadableFinishedAgo =>
+      (finishedAgo.inMilliseconds > Duration(days: 1).inMilliseconds)
+          ? end.toString()
+          : durationToTime(finishedAgo) + " ago";
 
   int _size;
   int get size => _size;
+  String get humanReadableSize => fileSize(_size);
+
   //expected size of at least 1e11 bytes (100gb), rough approximation
   int get _expectedSize => (Math.pow(2, (plotSizeInt - 32)) * 1e11).toInt();
   //assumes plot is complete (and not incomplete) if the size is over (minimum) expected size
@@ -162,4 +171,28 @@ Plot firstPlot(List<Plot> plots) {
         : plot2);
   else
     return null;
+}
+
+//Converts a dart duration to something human-readable
+String durationToTime(Duration duration) {
+  String day = (duration.inDays == 0) ? "" : duration.inDays.toString();
+  String hour = (duration.inHours == 0)
+      ? ""
+      : (duration.inHours - 24 * duration.inDays).toString();
+  String minute = (duration.inMinutes - duration.inHours * 60).toString();
+
+  day = twoDigits(day) + ((day == "") ? "" : "d ");
+  hour = twoDigits(hour) + ((hour == "") ? "" : "h ");
+  minute = (minute == "0") ? '' : twoDigits(minute) + "m ";
+
+  return day + hour + minute;
+}
+
+//Used by durationToTime to always show 2 digits example 09m
+String twoDigits(String input) {
+  return (input.length == 1) ? "0" + input : input;
+}
+
+String fileSize(int size, [int decimals = 1]) {
+  return NetSpace.generateHumanReadableSize(size.abs().toDouble(), decimals);
 }

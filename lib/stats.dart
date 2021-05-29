@@ -9,9 +9,58 @@ import 'package:chiabot/log/shortsync.dart';
 import 'package:chiabot/extensions/swarpm.dart';
 
 class Stats {
-  static String fileSize(int size, [int decimals = 1]) {
-    return NetSpace.generateHumanReadableSize(size.abs().toDouble(), decimals);
-  }
+  Farmer _client;
+  Rate _price;
+  NetSpace _netSpace;
+
+  //name of client
+  String get name => _client.name;
+  String get status => (_client is Farmer) ? _client.status : 'Harvesting';
+  Map<String, int> get typeCount => _client.typeCount;
+
+  // FARMED BALANCE
+  String get currency => _client.currency;
+  double get balance => (_client is Farmer) ? _client.balance : 0.0;
+  double get balanceFiat => (_client is Farmer) ? balance * _price.rate : 0.0;
+
+  // WALLET BALANCE
+  double get walletBalance =>
+      (_client is Farmer) ? _client.wallet.balance : 0.0;
+  double get walletBalanceFiat =>
+      (_client is Farmer) ? walletBalance * _price.rate : 0.0;
+  double get walletBalanceFiatChange =>
+      (_client is Farmer) ? walletBalanceFiat * _price.change : 0.0;
+
+  //PLOTS
+  //total number of plots (complete plots)
+  int get numberOfPlots => _client.plots.length;
+
+  //DRIVES
+  bool get supportDiskSpace => (_client.supportDiskSpace);
+  //sums size occupied by plots
+  int get plotsSize => plotSumSize(_client.plots);
+  String get plottedSpace => fileSize(plotsSize);
+  //total space available
+  int get totalSize => _client.freeDiskSpace + plotsSize;
+  String get totalSpace => fileSize(totalSize);
+
+  //ETW AND EDV
+  double get etw => estimateETW(_client, _netSpace);
+  final double blockSize = 2.0;
+  double get edv => blockSize / etw;
+  double get edvFiat => estimateEDV(etw, _price.rate);
+
+  //EFFORT
+  double get farmedDays => (farmedTime(_client.plots).inHours / 24.0);
+  double get effort => _client.wallet.getCurrentEffort(etw, farmedDays);
+  double get daysSinceLastBlock =>
+      _client.wallet.daysSinceLastBlock.roundToDouble();
+
+  String get netSpace => _netSpace.humanReadableSize;
+
+  int get fullNodesConnected => _client.fullNodesConnected;
+
+  Stats(this._client, this._price, this._netSpace);
 
   static String showName(Harvester harvester, [int count]) {
     String name = harvester.name + ((count == null) ? '' : count.toString());
@@ -19,121 +68,96 @@ class Stats {
     return ":farmer: **$name**";
   }
 
-  static String showPlotsInfo(Harvester client) {
-    //sums size occupied by plots
-    int plotsSize = plotSumSize(client.plots);
-    //total space available
-    String totalSizeString = fileSize(client.freeDiskSpace + plotsSize);
-    String totalSizeUnits = totalSizeString.split(' ')[1];
+  static String showPlotsInfo(Stats stats) {
+    String totalSizeUnits = stats.totalSpace.split(' ')[1];
     //total space used by plots
-    String plotsSizeString = fileSize(plotsSize);
-    String plotsSizeUnits = plotsSizeString.split(' ')[1];
+    String plotsSizeUnits = stats.plottedSpace.split(' ')[1];
 
     //displays 15/16TiB when both units match
     String plotInfo =
-        (client.supportDiskSpace && totalSizeUnits == plotsSizeUnits)
-            ? plotsSizeString.split(' ')[0]
-            : plotsSizeString;
+        (stats.supportDiskSpace && totalSizeUnits == plotsSizeUnits)
+            ? stats.plottedSpace.split(' ')[0]
+            : stats.plottedSpace;
 
-    if (client.supportDiskSpace) {
-      double percentage =
-          (plotsSize / (client.freeDiskSpace + plotsSize)) * 100;
+    if (stats.supportDiskSpace) {
+      double percentage = (stats.plotsSize / (stats.totalSize)) * 100;
       String percentageString = "(" + percentage.toStringAsFixed(0) + "%)";
       plotInfo += "/" +
-          totalSizeString +
+          stats.totalSpace +
           " " +
           percentageString; //if farm supports disk space then
     }
 
     return "\n:tractor: **" +
-        client.plots.length.toString() +
+        stats.numberOfPlots.toString() +
         " plots** - " +
         plotInfo +
         "";
   }
 
-  static String showBalance(Harvester client, Rate price) {
+  static String showBalance(Stats stats) {
     String output = '';
 
-    if (client is Farmer && client.status != "Farming")
-      output += "\n:warning: **${client.status}** :warning:";
-
-    //Farmed balance
-    double balance = (client is Farmer) ? client.balance : -1.0;
-    double balanceUSD = balance * price.rate;
+    if (stats.status != "Farming")
+      output += "\n:warning: **${stats.status}** :warning:";
 
     String balanceText = '';
 
-    String priceText = (price.rate > 0)
-        ? " (${balanceUSD.toStringAsFixed(2)} ${client.currency})"
+    String priceText = (stats.balanceFiat > 0)
+        ? " (${stats.balanceFiat.toStringAsFixed(2)} ${stats.currency})"
         : '';
 
-    balanceText += (balance >= 0.0)
-        ? "\n\<:chia:833767070201151528> **$balance** **XCH**" + priceText
+    balanceText += (stats.balance >= 0.0)
+        ? "\n\<:chia:833767070201151528> **${stats.balance}** **XCH**" +
+            priceText
         : ''; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
 
     output += balanceText;
 
-    //Wallet balance
-    double walletBalance = (client is Farmer) ? client.wallet.balance : -1.0;
-    double walletBalanceFiat = walletBalance * price.rate;
-    double walletBalanceChange = walletBalanceFiat * price.change;
-    String sign = (price.change >= 0) ? '+' : '-';
+    String sign = (stats.walletBalanceFiatChange >= 0) ? '+' : '-';
 
-    String walletPriceText = (price.rate > 0)
-        ? "(${walletBalanceFiat.toStringAsFixed(2)} ${client.currency}, $sign${walletBalanceChange.abs().toStringAsFixed(2)}${Price.currencies[client.currency]})"
+    String walletPriceText = (stats.walletBalanceFiat > 0)
+        ? "(${stats.walletBalanceFiat.toStringAsFixed(2)} ${stats.currency}, $sign${stats.walletBalanceFiatChange.abs().toStringAsFixed(2)}${Price.currencies[stats.currency]})"
         : '';
 
-    String walletBalanceText = (client is Farmer &&
-            walletBalance >= 0.0 &&
-            client.wallet.balance != client.balance)
-        ? "\n:credit_card: ${client.wallet.balance} XCH $walletPriceText"
-        : '';
+    String walletBalanceText =
+        (stats.walletBalance >= 0.0 && stats.walletBalance != stats.balance)
+            ? "\n:credit_card: ${stats.walletBalance} XCH $walletPriceText"
+            : '';
 
     output += walletBalanceText;
 
     return output;
   }
 
-  static String showETWEDV(
-      Harvester client, NetSpace netSpace, Rate price, bool full) {
+  static String showETWEDV(Stats stats, bool full) {
     String output = '';
-    double etw = estimateETW(client, netSpace);
 
-    if (etw > 0) {
-      String etwValue = "${etw.toStringAsFixed(1)} days";
+    if (stats.etw > 0) {
+      String etwValue = "${stats.etw.toStringAsFixed(1)} days";
 
       //if shorter than a  day then display value in hours
-      if (etw < 1) etwValue = "${(etw * 24).toStringAsFixed(1)} hours";
+      if (stats.etw < 1)
+        etwValue = "${(stats.etw * 24).toStringAsFixed(1)} hours";
 
       String etwString = "\n:moneybag: ETW: $etwValue";
 
-      if (price.rate > 0) {
-        final double blockSize = 2.0;
-        double xchPerDay = blockSize / etw;
-        double epd = estimateEDV(etw, price.rate);
+      if (stats.balanceFiat > 0) {
         etwString +=
-            " EDV: ${xchPerDay.toStringAsPrecision(3)} XCH (${epd.toStringAsFixed(2)}${Price.currencies[client.currency]})";
+            " EDV: ${stats.edv.toStringAsPrecision(3)} XCH (${stats.edvFiat.toStringAsFixed(2)}${Price.currencies[stats.currency]})";
       }
 
       output += etwString;
     }
 
-    if (client.plots.length > 0 && full) {
-      double farmedTimeDays = (farmedTime(client.plots).inHours / 24.0);
-
-      double effort = (client is Farmer)
-          ? client.wallet.getCurrentEffort(etw, farmedTimeDays)
-          : 0.0;
-      int daysAgo =
-          (client is Farmer) ? client.wallet.daysSinceLastBlock.round() : 0;
-
-      if (effort > 0.0) {
+    if (stats.numberOfPlots > 0 && full) {
+      if (stats.effort > 0.0) {
         //doesnt show last block days ago if user has not found a block at all
-        String lastBlock =
-            (farmedTimeDays > daysAgo) ? "(last block ~$daysAgo days ago)" : '';
+        String lastBlock = (stats.farmedDays > stats.daysSinceLastBlock)
+            ? "(last block ~${stats.daysSinceLastBlock} days ago)"
+            : '';
         output +=
-            "\n:person_lifting_weights: Effort: ${effort.toStringAsFixed(1)}% $lastBlock";
+            "\n:person_lifting_weights: Effort: ${stats.effort.toStringAsFixed(1)}% $lastBlock";
       }
     }
 
@@ -583,26 +607,6 @@ class Stats {
   static double estimateEDV(double etw, double price) {
     final double blockSize = 2.0;
     return blockSize * price / etw;
-  }
-
-//Converts a dart duration to something human-readable
-  static String durationToTime(Duration duration) {
-    String day = (duration.inDays == 0) ? "" : duration.inDays.toString();
-    String hour = (duration.inHours == 0)
-        ? ""
-        : (duration.inHours - 24 * duration.inDays).toString();
-    String minute = (duration.inMinutes - duration.inHours * 60).toString();
-
-    day = twoDigits(day) + ((day == "") ? "" : "d ");
-    hour = twoDigits(hour) + ((hour == "") ? "" : "h ");
-    minute = (minute == "0") ? '' : twoDigits(minute) + "m ";
-
-    return day + hour + minute;
-  }
-
-//Used by durationToTime to always show 2 digits example 09m
-  static String twoDigits(String input) {
-    return (input.length == 1) ? "0" + input : input;
   }
 
   static Duration averagePlotDuration(List<Plot> lastNPlots) {

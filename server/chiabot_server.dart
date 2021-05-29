@@ -302,15 +302,17 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount,
       farmersCount = 0;
     }
 
+    Stats stats = Stats(harvester, rate, netSpace);
+
     String name = (isWorkers) ? Stats.showName(harvester) : '';
     String lastUpdated = ((isFull || isWorkers) && discord)
         ? Stats.showLastUpdated(harvester, farmersCount, harvestersCount)
         : '';
 
     String main = name +
-        Stats.showBalance(harvester, rate) +
-        Stats.showPlotsInfo(harvester) +
-        Stats.showETWEDV(harvester, netSpace, rate, !isWorkers) +
+        Stats.showBalance(stats) +
+        Stats.showPlotsInfo(stats) +
+        Stats.showETWEDV(stats, !isWorkers) +
         Stats.showNetworkSize(harvester, netSpace) +
         Stats.showFarmedTime(harvester);
 

@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 
 class NetSpace {
+  var _cacheFile;
+
   double _size = 0;
   double get size => _size;
 
@@ -17,7 +19,6 @@ class NetSpace {
 
   final int _untilTimeStamp =
       DateTime.now().subtract(Duration(minutes: 5)).millisecondsSinceEpoch;
-  final io.File _cacheFile = io.File("netspace.json");
 
   String _source = "chianetspace.com";
   String get source => _source;
@@ -32,7 +33,11 @@ class NetSpace {
         "source": source
       };
 
-  NetSpace([String humanReadableSize]) {
+  NetSpace([String humanReadableSize, double size]) {
+    if (size != null) {
+      _timestamp = DateTime.now().millisecondsSinceEpoch;
+      _size = sizeStringToInt(humanReadableSize);
+    }
     if (humanReadableSize != null) {
       try {
         _timestamp = DateTime.now().millisecondsSinceEpoch;
@@ -42,20 +47,33 @@ class NetSpace {
   }
 
   //genCache=true forces generation of netspace.json file
-  init([bool genCache = false]) async {
-    if (_cacheFile.existsSync())
-      await _load(genCache);
-    else {
+  init([bool genCache = false, bool skipCache = false]) async {
+    if (skipCache) {
       await _getNetSpace();
-      await _getPastSizes();
-      _save();
+    } else {
+      _cacheFile = io.File("netspace.json");
+
+      if (_cacheFile.existsSync())
+        await _load(genCache);
+      else {
+        await _getNetSpace();
+        await _getPastSizes();
+        _save();
+      }
     }
   }
 
   _getNetSpace() async {
     try {
-      String contents = await http.read(
-          Uri.parse("https://chianetspace.azurewebsites.net/data/summary"));
+      String contents;
+      try {
+        contents = await http.read(
+            Uri.parse("https://chianetspace.azurewebsites.net/data/summary"));
+      } catch (e) {
+        //TEMPORARY PLEASE FIX THIS
+        contents = await http.read(Uri.parse(
+            "https://cors-anywhere.herokuapp.com/https://chianetspace.azurewebsites.net/data/summary"));
+      }
 
       var content = jsonDecode(contents);
 
