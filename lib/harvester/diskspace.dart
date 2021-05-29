@@ -1,5 +1,5 @@
 import 'dart:core';
-import 'dart:io' as io;
+import 'package:universal_io/io.dart' as io;
 
 import 'package:universal_disk_space/universal_disk_space.dart' as uds;
 import 'package:logging/logging.dart';

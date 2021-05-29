@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io' as io;
+import 'package:universal_io/io.dart' as io;
 import 'dart:core';
 
 import 'package:http/http.dart' as http;

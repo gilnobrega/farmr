@@ -1,5 +1,5 @@
 <?php
-
+header("Access-Control-Allow-Origin: *");
 include('db.php'); //initializes $conn = new mysqli();
 
 if ($conn -> connect_errno)

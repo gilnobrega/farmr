@@ -8,7 +8,7 @@ dependencies:
   uuid: ^3.0.4
   yaml: ^3.1.0
   http: ^0.13.3
-  dart_console: ^1.0.0
+#  dart_console: ^1.0.0  REMOVING thiS IT IS INCOMPATIBLE WITH JS
   qr: ^2.0.0
   universal_disk_space: ^0.1.18
   stats: ^2.0.0
@@ -16,3 +16,4 @@ dependencies:
   logging: ^1.0.1
   dotenv: ^2.0.0
   mysql1: ^0.19.2
+  universal_io: ^2.0.4

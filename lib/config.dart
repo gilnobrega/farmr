@@ -1,10 +1,8 @@
 import 'dart:core';
-import 'dart:io' as io;
+import 'package:universal_io/io.dart' as io;
 import 'dart:convert';
 
 import 'package:logging/logging.dart';
-import 'package:dart_console/dart_console.dart';
-import 'package:qr/qr.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:chiabot/cache.dart';
@@ -340,20 +338,17 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
   }
 
   void _info() {
-    final console = Console();
-    console.clearScreen();
-
-    try {
+    /*try {
       //If terminal is long enough to show a qr code
       if (console.windowHeight > 2 * 29 && console.windowWidth > 2 * 29)
         _showQR(console);
-    } catch (e) {}
+    } catch (e) {}*/
 
     String line = "";
 
-    try {
+    /*try {
       for (int i = 0; i < console.windowWidth; i++) line += "=";
-    } catch (e) {}
+    } catch (e) {}*/
 
     print(line);
 
@@ -380,7 +375,7 @@ Open the following link to join the server: https://discord.gg/fPjnWYYFmp""");
     print("");
   }
 
-  void _showQR(Console console) {
+  /*void _showQR(Console console) {
     final qrCode = new QrCode(3, QrErrorCorrectLevel.L);
     qrCode.addData(cache.ids[0]);
     qrCode.make();
@@ -400,7 +395,7 @@ Open the following link to join the server: https://discord.gg/fPjnWYYFmp""");
       console.resetColorAttributes();
       console.write("\n");
     }
-  }
+  }*/
 }
 
 //Tells if client is harvester or not
