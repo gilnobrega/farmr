@@ -313,8 +313,8 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount,
         Stats.showBalance(stats) +
         Stats.showPlotsInfo(stats) +
         Stats.showETWEDV(stats, !isWorkers) +
-        Stats.showNetworkSize(harvester, netSpace) +
-        Stats.showFarmedTime(harvester);
+        Stats.showNetworkSize(stats) +
+        Stats.showFarmedTime(stats);
 
     String full = (isFull || isWorkers)
         ? Stats.showPlotTypes(harvester) +

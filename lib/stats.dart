@@ -51,12 +51,14 @@ class Stats {
   double get edvFiat => estimateEDV(etw, _price.rate);
 
   //EFFORT
-  double get farmedDays => (farmedTime(_client.plots).inHours / 24.0);
+  Duration get farmedDuration => (farmedTime(_client.plots));
+  double get farmedDays => (farmedDuration.inHours / 24.0);
   double get effort => _client.wallet.getCurrentEffort(etw, farmedDays);
   double get daysSinceLastBlock =>
       _client.wallet.daysSinceLastBlock.roundToDouble();
 
   String get netSpace => _netSpace.humanReadableSize;
+  String get netSpaceGrowth => _netSpace.dayDifference;
 
   int get fullNodesConnected => _client.fullNodesConnected;
 
@@ -203,36 +205,29 @@ class Stats {
     return output;
   }
 
-  static String showNetworkSize(Harvester client, NetSpace netSpace) {
+  static String showNetworkSize(Stats stats) {
     String output = '';
 
-    if (client is Farmer && netSpace.size > 0) {
-      String growth =
-          (netSpace.pastSizes.length > 1) ? "(${netSpace.dayDifference})" : "";
-      output += "\n:satellite: Netspace: ${netSpace.humanReadableSize} $growth";
-    }
+    String growth = "(${stats.netSpaceGrowth})";
+    output += "\n:satellite: Netspace: ${stats.netSpace} $growth";
 
     return output;
   }
 
-  static String showFarmedTime(Harvester client) {
+  static String showFarmedTime(Stats stats) {
     String output = '';
-    if (client.plots.length > 0) {
-      Duration farmedTime = farmingTime(client.plots);
-      double chiaPerDay = (client is Farmer)
-          ? (client.balance / farmingTime(client.plots).inMinutes) * (60 * 24)
-          : 0;
+    if (stats.numberOfPlots > 0) {
+      double chiaPerDay = (stats.balance / stats.farmedDays);
 
       //hides balance if client is harvester or if it's farmer and showBalance is false
-      String chiaPerDayString = (!(client is Farmer) ||
-              ((client is Farmer) && client.balance < 0.0))
+      String chiaPerDayString = (stats.balance < 0.0)
           ? "" //for some reason needs a new line here
           : "(" +
               chiaPerDay.toStringAsFixed(2) +
               " XCH per day)"; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
 
       output += "\n:clock10: Farmed for " +
-          durationToTime(farmedTime) +
+          durationToTime(stats.farmedDuration) +
           " " +
           chiaPerDayString;
     }
@@ -624,14 +619,9 @@ class Stats {
     return averageDuration;
   }
 
-  //Duration between first plot started being plotted and last plot is completed
-  static Duration farmedTime(List<Plot> plots) {
-    return lastPlot(plots).end.difference(firstPlot(plots).begin);
-  }
-
 //Duration between first plot is completed and current time
 // NEED TO CHANGE THIS FUNCTION'S NAME BUT I DONT KNOW A BETTER NAME
-  static Duration farmingTime(List<Plot> plots) {
+  static Duration farmedTime(List<Plot> plots) {
     Duration duration1 = DateTime.now().difference(firstPlot(plots).begin);
     Duration duration2 = DateTime.now().difference(firstPlot(plots).end);
 
