@@ -16,13 +16,13 @@ import 'package:chiabot/server/netspace.dart';
 final log = Logger('Farmer');
 
 class Farmer extends Harvester {
-  String _status;
+  String _status = "N/A";
   String get status => _status;
 
   Wallet _wallet = Wallet(-1.0, 0);
   Wallet get wallet => _wallet;
 
-  Connections _connections;
+  Connections? _connections;
 
   //number of full nodes connected to farmer
   int _fullNodesConnected = 0;
@@ -36,7 +36,7 @@ class Farmer extends Harvester {
   @override
   ClientType get type => _type;
 
-  NetSpace _netSpace;
+  NetSpace _netSpace = NetSpace("1 B");
   NetSpace get netSpace => _netSpace;
 
   //SubSlots with 64 signage points
@@ -105,7 +105,8 @@ class Farmer extends Harvester {
         else if (line.startsWith("Farming status: "))
           _status = line.split("Farming status: ")[1];
         else if (line.startsWith("Last height farmed: "))
-          lastBlockFarmed = int.tryParse(line.split("Last height farmed: ")[1]);
+          lastBlockFarmed =
+              int.tryParse(line.split("Last height farmed: ")[1]) ?? 0;
         else if (line.startsWith("Estimated network space: "))
           _netSpace = NetSpace(line.split("Estimated network space: ")[1]);
       }
@@ -119,9 +120,11 @@ class Farmer extends Harvester {
 
     //initializes connections and counts peers
     _connections = Connections(config.cache.binPath);
-    _fullNodesConnected = _connections.connections
-        .where((connection) => connection.type == ConnectionType.FullNode)
-        .length;
+
+    _fullNodesConnected = _connections?.connections
+            .where((connection) => connection.type == ConnectionType.FullNode)
+            .length ??
+        0; //whats wrong with this vs code formatting lmao
 
     //Parses logs for sub slots info
     if (config.parseLogs) {
@@ -189,8 +192,7 @@ class Farmer extends Harvester {
     this.disableDetailedTimeStats();
 
     //adds swar pm jobs
-    if (swarPM != null && harvester.swarPM != null)
-      swarPM.jobs.addAll(harvester.swarPM.jobs);
+    swarPM?.jobs.addAll(harvester.swarPM?.jobs ?? []);
   }
 
   void calculateSubSlots(Debug.Log log) {

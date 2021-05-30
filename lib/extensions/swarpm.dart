@@ -45,16 +45,16 @@ class SwarPM {
 }
 
 class Job {
-  String number;
-  String name;
-  String size;
-  String id;
-  String started;
-  String elapsed;
-  int phase;
-  String phaseTimes;
-  String percentage;
-  String space;
+  late String number;
+  late String name;
+  late String size;
+  late String id;
+  late String started;
+  late String elapsed;
+  late int phase;
+  late String phaseTimes;
+  late String percentage;
+  late String space;
 
   Map toJson() => {
         "number": number,

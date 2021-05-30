@@ -55,13 +55,15 @@ class HarvesterDiskSpace {
               var matches = regex.allMatches(dirOutput).toList();
 
               int folderUsedSpace = int.parse(matches[matches.length - 2]
-                  .group(1)
-                  .replaceAll(".", "")
-                  .replaceAll(",", ""));
+                      .group(1)
+                      ?.replaceAll(".", "")
+                      .replaceAll(",", "") ??
+                  '-1');
               int folderFreeSpace = int.parse(matches[matches.length - 1]
-                  .group(1)
-                  .replaceAll(".", "")
-                  .replaceAll(",", ""));
+                      .group(1)
+                      ?.replaceAll(".", "")
+                      .replaceAll(",", "") ??
+                  '-1');
 
               totalDiskSpace += folderUsedSpace + folderFreeSpace;
               freeDiskSpace += folderFreeSpace;

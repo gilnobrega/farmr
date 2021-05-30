@@ -17,9 +17,9 @@ import 'package:chiabot/extensions/swarpm.dart';
 final log = Logger('Harvester');
 
 class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
-  Config _config;
+  late Config _config;
 
-  String _name;
+  String _name = "Harvester";
   String get name => _getName();
 
   String _currency = 'USD';
@@ -34,7 +34,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
   final String id = Uuid().v4();
 
   //Timestamp to when the farm was last parsed
-  DateTime _lastUpdated;
+  DateTime _lastUpdated = DateTime.now();
   DateTime get lastUpdated => _lastUpdated;
 
   String _lastUpdatedString = "1971-01-01";
@@ -44,8 +44,8 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
   ClientType _type = ClientType.Harvester;
   ClientType get type => _type;
 
-  SwarPM _swarPM;
-  SwarPM get swarPM => _swarPM;
+  SwarPM? _swarPM;
+  SwarPM? get swarPM => _swarPM;
 
   Map toJson() => {
         'name': _name,
@@ -71,13 +71,12 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
         'version': version
       };
 
-  Harvester(Config config, Debug.Log log, [String version = '']) {
+  Harvester(this._config, Debug.Log log, [String version = '']) {
     _version = version;
-    _config = config;
-    _name = config.name; //loads name from config
-    _currency = config.currency; // loads currency from config
+    _name = _config.name; //loads name from config
+    _currency = _config.currency; // loads currency from config
 
-    allPlots = config.cache.plots; //loads plots from cache
+    allPlots = _config.cache.plots; //loads plots from cache
 
     _lastUpdated = DateTime.now();
     _lastUpdatedString = dateToString(_lastUpdated);
@@ -85,7 +84,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     loadFilters(log);
 
     //loads swar plot manager config if defined by user
-    if (config.swarPath != "") _swarPM = SwarPM(config.swarPath);
+    if (_config.swarPath != "") _swarPM = SwarPM(_config.swarPath);
   }
 
   Harvester.fromJson(String json) {

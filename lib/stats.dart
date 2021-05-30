@@ -1,3 +1,4 @@
+import 'package:chiabot/config.dart';
 import 'package:chiabot/harvester.dart';
 import 'package:chiabot/harvester/plots.dart';
 import 'package:chiabot/farmer.dart';
@@ -9,8 +10,8 @@ import 'package:chiabot/log/shortsync.dart';
 import 'package:chiabot/extensions/swarpm.dart';
 
 class Stats {
-  Farmer _client;
-  Rate _price;
+  var _client; //Either a Farmer or Harvester
+  Rate? _price;
   NetSpace _netSpace;
 
   //name of client
@@ -20,16 +21,21 @@ class Stats {
 
   // FARMED BALANCE
   String get currency => _client.currency;
-  double get balance => (_client is Farmer) ? _client.balance : 0.0;
-  double get balanceFiat => (_client is Farmer) ? balance * _price.rate : 0.0;
+  double get balance =>
+      (_client.type == ClientType.Farmer) ? _client.balance : 0.0;
+  double get balanceFiat => (_client.type == ClientType.Farmer)
+      ? balance * (_price?.rate ?? 0.0)
+      : 0.0;
 
   // WALLET BALANCE
   double get walletBalance =>
-      (_client is Farmer) ? _client.wallet.balance : 0.0;
-  double get walletBalanceFiat =>
-      (_client is Farmer) ? walletBalance * _price.rate : 0.0;
-  double get walletBalanceFiatChange =>
-      (_client is Farmer) ? walletBalanceFiat * _price.change : 0.0;
+      (_client.type == ClientType.Farmer) ? _client.wallet.balance : 0.0;
+  double get walletBalanceFiat => (_client.type == ClientType.Farmer)
+      ? walletBalance * (_price?.rate ?? 0.0)
+      : 0.0;
+  double get walletBalanceFiatChange => (_client.type == ClientType.Farmer)
+      ? walletBalanceFiat * (_price?.rate ?? 0.0)
+      : 0.0;
 
   //PLOTS
   //total number of plots (complete plots)
@@ -51,18 +57,21 @@ class Stats {
   int get plotsLastWeek => countPlotsLastWeek(_client);
   int get plotsSizeLastWeek => countPlotsSizeLastWeek(_client);
   int get daysWithPlotsLastWeek => countDaysWithPlotsLastWeek(_client);
-  Duration get outOfSpace => Duration(
-      hours: ((_client.freeDiskSpace / plotsSizeLastWeek) *
-              daysWithPlotsLastWeek *
-              24)
-          .round());
-  String get outOfSpaceString => durationToTime(outOfSpace);
+  Duration get outOfSpace => (plotsLastWeek > 0)
+      ? Duration(
+          hours: ((_client.freeDiskSpace / plotsSizeLastWeek) *
+                  daysWithPlotsLastWeek *
+                  24)
+              .round())
+      : Duration(hours: 0);
+  String get outOfSpaceString =>
+      (plotsLastWeek > 0) ? durationToTime(outOfSpace) : '';
 
   //ETW AND EDV
   double get etw => estimateETW(_client, _netSpace);
   final double blockSize = 2.0;
   double get edv => blockSize / etw;
-  double get edvFiat => estimateEDV(etw, _price.rate);
+  double get edvFiat => estimateEDV(etw, (_price?.rate ?? 0.0));
 
   //EFFORT
   Duration get farmedDuration => (farmedTime(_client.plots));
@@ -74,12 +83,13 @@ class Stats {
   String get netSpace => _netSpace.humanReadableSize;
   String get netSpaceGrowth => _netSpace.dayDifference;
 
-  int get fullNodesConnected => _client.fullNodesConnected;
+  int get fullNodesConnected =>
+      (_client.type == ClientType.Farmer) ? _client.fullNodesConnected : 0;
 
   Stats(this._client, this._price, this._netSpace);
 
-  static String showName(Harvester harvester, [int count]) {
-    String name = harvester.name + ((count == null) ? '' : count.toString());
+  static String showName(Harvester harvester, [int count = 0]) {
+    String name = harvester.name + ((count == 0) ? '' : count.toString());
 
     return ":farmer: **$name**";
   }
@@ -553,10 +563,10 @@ class Stats {
   static String showSwarPMJobs(Harvester client) {
     String output = '';
 
-    if (client.swarPM != null && client.swarPM.jobs.length > 0) {
+    if (client.swarPM != null && (client.swarPM?.jobs.length ?? 0) > 0) {
       output += "\n**Swar's Chia Plot Manager**";
 
-      for (Job job in client.swarPM.jobs) {
+      for (Job job in client.swarPM?.jobs ?? []) {
         output +=
             "\n${job.number} ${job.name} ${job.elapsed} ${job.phase} ${job.phaseTimes} ${job.percentage} ${job.space}";
       }

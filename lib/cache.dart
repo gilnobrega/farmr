@@ -14,7 +14,7 @@ final log = Logger('Cache');
 class Cache {
   List<String> ids = [];
 
-  String binPath;
+  String binPath = '';
 
   List<Plot> _plots = []; //cached plots
   List<Plot> get plots => _plots;
@@ -30,7 +30,8 @@ class Cache {
 
   final io.File _cache = io.File(".chiabot_cache.json");
 
-  int parseUntil;
+  int parseUntil =
+      DateTime.now().subtract(Duration(days: 1)).millisecondsSinceEpoch;
 
   Cache(String chiaConfigPath) {
     try {
@@ -119,8 +120,7 @@ class Cache {
 
           for (var signagePointJson in signagePointsJson) {
             SignagePoint signagePoint = SignagePoint.fromJson(signagePointJson);
-            if (signagePoint.timestamp != null &&
-                signagePoint.timestamp > parseUntil)
+            if (signagePoint.timestamp > parseUntil)
               _signagePoints.add(signagePoint);
           }
         }
@@ -131,8 +131,7 @@ class Cache {
 
           for (var shortSyncJson in shortSyncsJson) {
             ShortSync shortSync = ShortSync.fromJson(shortSyncJson);
-            if (shortSync.timestamp != null && shortSync.timestamp > parseUntil)
-              _shortSyncs.add(shortSync);
+            if (shortSync.timestamp > parseUntil) _shortSyncs.add(shortSync);
           }
         }
       }

@@ -16,9 +16,9 @@ final log = Logger('LOG');
 class Log {
   Cache _cache;
 
-  String debugPath;
-  io.File _debugFile;
-  int _parseUntil;
+  late String debugPath;
+  late io.File _debugFile;
+  late int _parseUntil;
 
   List<Filter> _filters = [];
   List<Filter> get filters => _filters;
@@ -30,14 +30,14 @@ class Log {
 
   List<ShortSync> shortSyncs = [];
 
-  Log(String chiaDebugPath, Cache cache, bool parseLogs) {
-    _cache = cache;
+  Log(String chiaDebugPath, this._cache, bool parseLogs) {
     _parseUntil = _cache.parseUntil;
     _filters = _cache.filters; //loads cached filters
     _signagePoints = _cache.signagePoints; //loads cached subslots
     shortSyncs = _cache.shortSyncs;
 
     debugPath = chiaDebugPath + "debug.log";
+    _debugFile = io.File(debugPath);
 
     if (parseLogs) {
       loadLogItems();
@@ -125,8 +125,8 @@ class Log {
             RegExpMatch match = matches[i];
 
             //Parses date from debug.log
-            timestamp =
-                parseTimestamp(match.group(1), match.group(2), match.group(3));
+            timestamp = parseTimestamp(match.group(1) ?? '1971-01-01',
+                match.group(2) ?? '00:00:00', match.group(3) ?? '0000');
 
             //if filter's timestamp is outside parsing date rang
             keepParsing = timestamp > parseUntil;
@@ -138,10 +138,10 @@ class Log {
             if (!inCache && keepParsing) {
               //print(timestamp);
 
-              int eligiblePlots = int.parse(match.group(4));
-              int proofs = int.parse(match.group(5));
-              double time = double.parse(match.group(6));
-              int totalPlots = int.parse(match.group(7));
+              int eligiblePlots = int.parse(match.group(4) ?? '0');
+              int proofs = int.parse(match.group(5) ?? '0');
+              double time = double.parse(match.group(6) ?? '0.0');
+              int totalPlots = int.parse(match.group(7) ?? '0');
               Filter filter =
                   Filter(timestamp, eligiblePlots, proofs, time, totalPlots);
 
@@ -173,15 +173,15 @@ class Log {
         var match = matches[i];
 
         //Parses date from debug.log
-        timestamp =
-            parseTimestamp(match.group(1), match.group(2), match.group(3));
+        timestamp = parseTimestamp(match.group(1) ?? '1971-01-01',
+            match.group(2) ?? '00:00:00', match.group(3) ?? '0000');
 
         bool inCache = _signagePoints
             .any((signagePoint) => signagePoint.timestamp == timestamp);
 
         //only adds subslot if its not already in cache
         if (timestamp > parseUntil && !inCache) {
-          int index = int.parse(match.group(4));
+          int index = int.parse(match.group(4) ?? '0');
 
           SignagePoint signagePoint = SignagePoint(timestamp, index);
           _signagePoints.add(signagePoint);
@@ -196,7 +196,7 @@ class Log {
     subSlots = [];
 
     for (SignagePoint signagePoint in _signagePoints) {
-      SubSlot subSlot;
+      SubSlot? subSlot;
 
       if (signagePoint.index != 1) {
         try {
@@ -234,16 +234,16 @@ class Log {
         var match = matches[i];
 
         //Parses date from debug.log
-        timestamp =
-            parseTimestamp(match.group(1), match.group(2), match.group(3));
+        timestamp = parseTimestamp(match.group(1) ?? '1971-01-01',
+            match.group(2) ?? '00:00:00', match.group(3) ?? '0000');
 
         bool inCache =
             shortSyncs.any((shortSync) => shortSync.timestamp == timestamp);
 
         //only adds subslot if its not already in cache
         if (timestamp > parseUntil && !inCache) {
-          int start = int.parse(match.group(4));
-          int end = int.parse(match.group(5));
+          int start = int.parse(match.group(4) ?? '1');
+          int end = int.parse(match.group(5) ?? '2');
 
           ShortSync shortSync = ShortSync(timestamp, start, end);
           shortSyncs.add(shortSync);

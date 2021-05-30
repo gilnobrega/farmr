@@ -33,17 +33,11 @@ class NetSpace {
         "source": source
       };
 
-  NetSpace([String humanReadableSize, double size]) {
-    if (size != null) {
+  NetSpace([String humanReadableSize = "0 B"]) {
+    try {
       _timestamp = DateTime.now().millisecondsSinceEpoch;
       _size = sizeStringToInt(humanReadableSize);
-    }
-    if (humanReadableSize != null) {
-      try {
-        _timestamp = DateTime.now().millisecondsSinceEpoch;
-        _size = sizeStringToInt(humanReadableSize);
-      } catch (e) {}
-    }
+    } catch (e) {}
   }
 
   //genCache=true forces generation of netspace.json file
@@ -140,7 +134,7 @@ class NetSpace {
 
   //Always shows 24 hour average increase
   static String percentageDiff(MapEntry size1, MapEntry size2,
-      [bool showAbsoluteSize = false, MapEntry size3]) {
+      [bool showAbsoluteSize = false, MapEntry? size3]) {
     String growth = '';
     int millisecondsInDay = Duration(days: 1).inMilliseconds;
 
@@ -155,7 +149,7 @@ class NetSpace {
       size2 = size3; //this looks so bad i need to fix this
     }
 
-    double sizeRatio = 100 * ((size1.value / size2.value) - 1);
+    double sizeRatio = (100 * ((size1.value / size2.value) - 1)).toDouble();
 
     double ratio = timeRatio * sizeRatio;
     double avgSizeDiff =
@@ -219,10 +213,10 @@ class NetSpace {
     try {
       var unit;
       for (var entry in units.entries) {
-        if (size >= Math.pow(bases['iB'], entry.value)) unit = entry;
+        if (size >= Math.pow(bases['iB'] ?? 1024, entry.value)) unit = entry;
       }
 
-      double value = size / (Math.pow(bases['iB'], unit.value) * 1.0);
+      double value = size / (Math.pow(bases['iB'] ?? 1024, unit.value) * 1.0);
 
       return "${value.toStringAsFixed(decimals)} ${unit.key}iB";
     } catch (e) {

@@ -21,7 +21,7 @@ class Connection {
 }
 
 //Maybe there are more???
-enum ConnectionType { FullNode, Farmer, Wallet, Introducer }
+enum ConnectionType { FullNode, Farmer, Wallet, Introducer, ERROR }
 
 final log = Logger('FarmerWallet');
 
@@ -42,7 +42,7 @@ class Connections {
       for (var match in matches) {
         try {
           var typeString = match.group(1);
-          ConnectionType type;
+          final ConnectionType type;
 
           if (typeString == "FULL_NODE")
             type = ConnectionType.FullNode;
@@ -50,11 +50,14 @@ class Connections {
             type = ConnectionType.Introducer;
           else if (typeString == "WALLET")
             type = ConnectionType.Wallet;
-          else if (typeString == "FARMER") type = ConnectionType.Farmer;
+          else if (typeString == "FARMER")
+            type = ConnectionType.Farmer;
+          else
+            type = ConnectionType.ERROR;
 
-          String ip = match.group(2);
-          int port1 = int.parse(match.group(3));
-          int port2 = int.parse(match.group(4));
+          String ip = match.group(2) ?? 'N/A';
+          int port1 = int.parse(match.group(3) ?? '-1');
+          int port2 = int.parse(match.group(4) ?? '-1');
 
           Connection connection = new Connection(type, ip, [port1, port2]);
 

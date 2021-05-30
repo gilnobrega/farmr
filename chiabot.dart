@@ -27,17 +27,17 @@ String chiaConfigPath = (io.File(".github/workflows/config.yaml").existsSync())
     ? ".github/workflows/"
 //Sets config file path according to platform
     : (io.Platform.isLinux || io.Platform.isMacOS)
-        ? io.Platform.environment['HOME'] + "/.chia/mainnet/config/"
+        ? io.Platform.environment['HOME']! + "/.chia/mainnet/config/"
         : (io.Platform.isWindows)
-            ? io.Platform.environment['UserProfile'] +
+            ? io.Platform.environment['UserProfile']! +
                 "\\.chia\\mainnet\\config\\"
             : "";
 
 //Sets config file path according to platform
 String chiaDebugPath = (io.Platform.isLinux || io.Platform.isMacOS)
-    ? io.Platform.environment['HOME'] + "/.chia/mainnet/log/"
+    ? io.Platform.environment['HOME']! + "/.chia/mainnet/log/"
     : (io.Platform.isWindows)
-        ? io.Platform.environment['UserProfile'] + "\\.chia\\mainnet\\log\\"
+        ? io.Platform.environment['UserProfile']! + "\\.chia\\mainnet\\log\\"
         : "";
 
 main(List<String> args) async {

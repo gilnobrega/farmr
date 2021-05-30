@@ -10,26 +10,20 @@ import 'package:chiabot/server/netspace.dart';
 final log = Logger('Plot');
 
 class Plot {
-  String _id;
+  String _id = "N/A";
   String get id => _id;
 
   String _plotSize = "k32"; //defaults to plot size k32
   String get plotSize => _plotSize;
   int get plotSizeInt => int.parse(_plotSize.substring(1));
 
-  int _year;
-  int _month;
-  int _day;
-  int _hour;
-  int _minute;
-
   String _date = "1971-01-01"; //plots finished date
   String get date => _date; //plots finished date
 
-  DateTime _begin;
+  DateTime _begin = DateTime.now();
   DateTime get begin => _begin;
 
-  DateTime _end;
+  DateTime _end = DateTime.now();
   //if plot were created after completion (timestamp bug)
   //then assumes end time stamp is beginning time stamp
   DateTime get end =>
@@ -37,7 +31,7 @@ class Plot {
           ? _end
           : _begin;
 
-  Duration _duration;
+  Duration _duration = Duration(hours: 0);
   Duration get duration => _duration;
   String get humanReadableDuration => durationToTime(_duration);
   Duration get finishedAgo => DateTime.now().difference(end);
@@ -46,7 +40,7 @@ class Plot {
           ? end.toString()
           : durationToTime(finishedAgo) + " ago";
 
-  int _size;
+  int _size = 0;
   int get size => _size;
   String get humanReadableSize => fileSize(_size);
 
@@ -59,6 +53,12 @@ class Plot {
     log.info("Added plot: " + file.path);
 
     try {
+      int _year;
+      int _month;
+      int _day;
+      int _hour;
+      int _minute;
+
       List<String> list = basenameWithoutExtension(file.path).split('-');
 
       _plotSize = list[1];
@@ -153,24 +153,18 @@ DateTime stringToDate(String input) {
 
 //finds the last plot in a list of plots
 Plot lastPlot(List<Plot> plots) {
-  if (plots.length > 0)
-    return plots.reduce((plot1, plot2) =>
-        (plot1.end.millisecondsSinceEpoch > plot2.end.millisecondsSinceEpoch)
-            ? plot1
-            : plot2);
-  else
-    return null;
+  return plots.reduce((plot1, plot2) =>
+      (plot1.end.millisecondsSinceEpoch > plot2.end.millisecondsSinceEpoch)
+          ? plot1
+          : plot2);
 }
 
 //finds the first plot in a list of plots
 Plot firstPlot(List<Plot> plots) {
-  if (plots.length > 0)
-    return plots.reduce((plot1, plot2) => (plot1.begin.millisecondsSinceEpoch <
-            plot2.begin.millisecondsSinceEpoch)
-        ? plot1
-        : plot2);
-  else
-    return null;
+  return plots.reduce((plot1, plot2) =>
+      (plot1.begin.millisecondsSinceEpoch < plot2.begin.millisecondsSinceEpoch)
+          ? plot1
+          : plot2);
 }
 
 //Converts a dart duration to something human-readable

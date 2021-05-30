@@ -35,13 +35,13 @@ Future<void> main(List<String> args) async {
 
     for (String currency in currencies)
       print(
-          "XCH/$currency: **${price.rates[currency].rate.toStringAsFixed(2)}** (${price.rates[currency].changeAbsolute} $currency, ${price.rates[currency].changeRelative}%)");
+          "XCH/$currency: **${price.rates[currency]?.rate.toStringAsFixed(2)}** (${price.rates[currency]?.changeAbsolute} $currency, ${price.rates[currency]?.changeRelative}%)");
 
     print("");
 
     for (String currency in cryptos)
       print(
-          "XCH/$currency: **${price.rates[currency].rate.toStringAsPrecision(3)}** (${price.rates[currency].changeRelative}%)");
+          "XCH/$currency: **${price.rates[currency]?.rate.toStringAsPrecision(3)}** (${price.rates[currency]?.changeRelative}%)");
 
     Duration difference = DateTime.now()
         .difference(DateTime.fromMillisecondsSinceEpoch(price.timestamp));
@@ -95,7 +95,7 @@ Future<void> main(List<String> args) async {
     //Discord User ID
     String userID = args[0];
 
-    Price price;
+    Price price = Price();
 
     List<Harvester> harvesters = [];
 
@@ -129,9 +129,8 @@ Future<void> main(List<String> args) async {
           harvesters.where((client) => !(client is Farmer)).length;
       farmersCount = harvesters.length - harvestersCount;
 
-      Farmer farm = harvesters
-          .where((client) => client is Farmer)
-          .first; //Selects newest farm as main farm
+      Farmer farm = harvesters.where((client) => client is Farmer).first
+          as Farmer; //Selects newest farm as main farm
 
       if (args.contains("workers")) {
         //Sorts workers by alphabetical order
@@ -292,7 +291,7 @@ Future<Price> _getPrice() async {
 }
 
 showHarvester(Harvester harvester, int harvestersCount, int farmersCount,
-    NetSpace netSpace, bool isFull, bool isWorkers, Rate rate,
+    NetSpace netSpace, bool isFull, bool isWorkers, Rate? rate,
     [bool discord = true]) {
   String output;
 
@@ -335,7 +334,7 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount,
 
     String swarPM = ((isFull || isWorkers) &&
             harvester.swarPM != null &&
-            harvester.swarPM.jobs.length > 0)
+            (harvester.swarPM?.jobs.length ?? 0) > 0)
         ? ";;" + Stats.showSwarPMJobs(harvester) + lastUpdated
         : '';
 
@@ -351,7 +350,7 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount,
         matches.addAll(externalEmojiRegex.allMatches(output).toList());
 
         for (var match in matches)
-          output = output.replaceAll(match.group(1), "");
+          output = output.replaceAll(match.group(1) ?? 'none', "");
 
         output = output.replaceAll("**", "").replaceAll(";;", "\n");
       } catch (e) {}

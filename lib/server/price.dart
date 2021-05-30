@@ -146,7 +146,8 @@ class Price {
 
         if (rate > 0) {
           // xch price = usd/eur price * xch/usd price
-          double xchprice = (rate) * rates[currencies.entries.first.key].rate;
+          double xchprice =
+              ((rate) * (rates[currencies.entries.first.key]?.rate ?? 0.0));
           rates.putIfAbsent(otherCurrency, () => Rate(xchprice, 0, 0));
         }
       } catch (e) {}

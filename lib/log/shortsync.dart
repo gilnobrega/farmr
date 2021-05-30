@@ -3,17 +3,17 @@ import 'package:intl/intl.dart';
 
 class ShortSync extends LogItem {
   //start block of short sync
-  int _start;
+  late int _start;
   int get start => _start;
 
   //end block of short sync
-  int _end;
+  late int _end;
   int get end => _end;
 
   //length of short sync
   int get length => _end - _start;
 
-  String _localTime = "";
+  late String _localTime = "";
   String get localTime => _localTime;
 
   Map toJson() => {

@@ -16,7 +16,8 @@ class HarvesterFilters {
 
   //plots which passed filter
   int _eligiblePlots = 0;
-  int get eligiblePlots => (_eligiblePlots == 0) ? _getEligiblePlots() : _eligiblePlots;
+  int get eligiblePlots =>
+      (_eligiblePlots == 0) ? _getEligiblePlots() : _eligiblePlots;
 
   //number of challenges which response time is above 30s
   int _missedChallenges = 0;
@@ -49,7 +50,7 @@ class HarvesterFilters {
 
   double filterRatio = 0;
 
-  loadFilters([Log log]) {
+  loadFilters([Log? log]) {
     if (log != null) filters = log.filters;
 
     List<double> _times = filters.map((filter) => filter.time).toList();
@@ -58,11 +59,11 @@ class HarvesterFilters {
 
     if (_times.length > 0) {
       Stats timeStats = Stats.fromData(_times);
-      _maxTime = timeStats.max;
-      _minTime = timeStats.min;
-      _avgTime = timeStats.average;
-      _medianTime = timeStats.median;
-      _stdDeviation = timeStats.standardDeviation;
+      _maxTime = timeStats.max.toDouble();
+      _minTime = timeStats.min.toDouble();
+      _avgTime = timeStats.average.toDouble();
+      _medianTime = timeStats.median.toDouble();
+      _stdDeviation = timeStats.standardDeviation.toDouble();
     }
 
     _numberFilters = filters.length;
@@ -83,7 +84,8 @@ class HarvesterFilters {
       if (json['numberFilters'] != null) _numberFilters = json['numberFilters'];
       if (json['eligiblePlots'] != null) _eligiblePlots = json['eligiblePlots'];
       if (json['proofsFound'] != null) _proofsFound = json['proofsFound'];
-      if (json['missedChallenges'] != null) _missedChallenges = json['missedChallenges'];
+      if (json['missedChallenges'] != null)
+        _missedChallenges = json['missedChallenges'];
       if (json['totalPlots'] != null)
         _totalPlots = json['totalPlots'];
       else
@@ -178,10 +180,11 @@ class HarvesterFilters {
       if (harvester.filterCategories.isNotEmpty) {
         for (var entry in harvester.filterCategories.entries) {
           this._filterCategories.putIfAbsent(entry.key, () => 0);
-          this._filterCategories.update(entry.key, (value) => value + entry.value);
+          this
+              ._filterCategories
+              .update(entry.key, (value) => value + entry.value);
         }
       }
-
     }
 
     //Can't load standard deviation, average time or median time without a list of filters

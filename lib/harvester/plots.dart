@@ -12,7 +12,7 @@ final Logger log = Logger('Harvester.Plots');
 
 class HarvesterPlots {
   //Private list with complete and incomplete plots
-  List<Plot> allPlots;
+  List<Plot> allPlots = [];
 
   //Returns list of complete plots
   List<Plot> get plots => allPlots.where((plot) => plot.complete).toList();
@@ -70,7 +70,7 @@ class HarvesterPlots {
         //Checks if file extension is .plot
         //also checks that it is a File and not a directory
         if (extension(file.path) == ".plot" && file is io.File) {
-          String id;
+          String? id;
 
           try {
             id = basenameWithoutExtension(file.path).split('-').last;

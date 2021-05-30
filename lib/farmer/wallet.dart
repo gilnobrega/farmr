@@ -36,7 +36,8 @@ class Wallet {
             multiLine: false);
         //converts mojo to xch
         _balance =
-            int.parse(walletRegex.firstMatch(walletOutput).group(2)) / 1e12;
+            int.parse(walletRegex.firstMatch(walletOutput)?.group(2) ?? '-1') /
+                1e12;
       } catch (e) {
         log.warning("Error: could not parse wallet balance.");
       }
@@ -46,8 +47,8 @@ class Wallet {
     try {
       RegExp walletHeightRegex =
           RegExp("Wallet height: ([0-9]+)", multiLine: false);
-      _syncedBlockHeight =
-          int.parse(walletHeightRegex.firstMatch(walletOutput).group(1));
+      _syncedBlockHeight = int.parse(
+          walletHeightRegex.firstMatch(walletOutput)?.group(1) ?? '-1');
     } catch (e) {
       log.warning("Error: could not parse wallet height");
     }

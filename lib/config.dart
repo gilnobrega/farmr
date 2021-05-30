@@ -12,18 +12,18 @@ final log = Logger('Config');
 class Config {
   Cache cache;
 
-  ClientType _type;
+  ClientType _type = ClientType.Harvester;
   ClientType get type => _type;
 
   //Optional, custom, user defined name
-  String _name;
+  late String _name;
   String get name => _name;
 
   //Optional, custom 3 letter currency
   String _currency = 'USD';
   String get currency => _currency.toUpperCase();
 
-  String _chiaPath;
+  String _chiaPath = '';
   String get chiaPath => _chiaPath;
 
   //farmed balance
@@ -67,9 +67,7 @@ class Config {
 
   final io.File _config = io.File("config.json");
 
-  Config(Cache _cache, String chiaConfigPath, [isHarvester = false]) {
-    cache = _cache;
-
+  Config(this.cache, String chiaConfigPath, [isHarvester = false]) {
     //Move old config/cache files to new locations
     io.File _oldConfig = io.File(chiaConfigPath + "chiabot.json");
 
@@ -103,7 +101,7 @@ class Config {
 
     //and asks for bin path if path is not defined/not found and is Farmer
     if (type == ClientType.Farmer &&
-        (cache.binPath == null || !io.File(cache.binPath).existsSync()))
+        (cache.binPath == '' || !io.File(cache.binPath).existsSync()))
       await _askForBinPath();
 
     /** Generate Discord Id's */
@@ -141,7 +139,7 @@ class Config {
     };
 
     //hides chiaPath from config.json if not defined (null)
-    if (chiaPath != null) configMap.putIfAbsent("chiaPath", () => chiaPath);
+    if (chiaPath != '') configMap.putIfAbsent("chiaPath", () => chiaPath);
 
     //hides ignoreDiskSpace from config.json if false (default)
     if (ignoreDiskSpace)
@@ -174,7 +172,7 @@ class Config {
           exampleDir +
           ")");
 
-      _chiaPath = io.stdin.readLineSync();
+      _chiaPath = io.stdin.readLineSync() ?? '';
       log.info("Input chia path: '$_chiaPath'");
 
       cache.binPath = (io.Platform.isLinux || io.Platform.isMacOS)
@@ -201,12 +199,12 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
   Future<bool> _tryDirectories() async {
     bool valid = false;
 
-    io.Directory chiaRootDir;
-    String file;
+    late io.Directory chiaRootDir;
+    late String file;
 
     if (io.Platform.isWindows) {
       //Checks if binary exist in C:\User\AppData\Local\chia-blockchain\resources\app.asar.unpacked\daemon\chia.exe
-      chiaRootDir = io.Directory(io.Platform.environment['UserProfile'] +
+      chiaRootDir = io.Directory(io.Platform.environment['UserProfile']! +
           "/AppData/Local/chia-blockchain");
 
       file = "/resources/app.asar.unpacked/daemon/chia.exe";
@@ -238,7 +236,7 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
         // Checks if binary exists in /usr/package:chiabot/chia-blockchain/resources/app.asar.unpacked/daemon/chia
         "/usr" + chiaRootDir.path + file,
         //checks if binary exists in /home/user/.local/bin/chia
-        io.Platform.environment['HOME'] + "/.local/bin/chia"
+        io.Platform.environment['HOME']! + "/.local/bin/chia"
       ];
 
       for (int i = 0; i < possiblePaths.length; i++) {
