@@ -34,15 +34,29 @@ class Stats {
   //PLOTS
   //total number of plots (complete plots)
   int get numberOfPlots => _client.plots.length;
+  Duration get averagePlotLength => averagePlotDuration(_client.plots);
 
   //DRIVES
   bool get supportDiskSpace => (_client.supportDiskSpace);
   //sums size occupied by plots
   int get plotsSize => plotSumSize(_client.plots);
   String get plottedSpace => fileSize(plotsSize);
-  //total space available
-  int get totalSize => _client.freeDiskSpace + plotsSize;
+  //free space
+  int get freeSize => _client.freeDiskSpace;
+  //total space (used + available)
+  int get totalSize => freeSize + plotsSize;
   String get totalSpace => fileSize(totalSize);
+
+  //OUT OF SPACE STATS (based on 7 days average)
+  int get plotsLastWeek => countPlotsLastWeek(_client);
+  int get plotsSizeLastWeek => countPlotsSizeLastWeek(_client);
+  int get daysWithPlotsLastWeek => countDaysWithPlotsLastWeek(_client);
+  Duration get outOfSpace => Duration(
+      hours: ((_client.freeDiskSpace / plotsSizeLastWeek) *
+              daysWithPlotsLastWeek *
+              24)
+          .round());
+  String get outOfSpaceString => durationToTime(outOfSpace);
 
   //ETW AND EDV
   double get etw => estimateETW(_client, _netSpace);
@@ -319,52 +333,44 @@ class Stats {
       }
     }
 
-    text += showWeekPlots(client, weekCount, weekSize, daysWithPlots);
-
     return text;
   }
 
-  static String showWeekPlots(
-      Harvester client, int weekCount, int weekSize, int daysWithPlots) {
+  static String showWeekPlots(Stats stats) {
     String output = '';
 
-    if (weekCount > 0) {
+    if (stats.plotsLastWeek > 0) {
       //Calculates when it will run out of space based on last week's statistics
-      int outOfSpaceHours = (weekSize > 0)
-          ? ((client.freeDiskSpace / weekSize) * daysWithPlots * 24).round()
-          : 0;
-      String outOfSpace = durationToTime(Duration(hours: outOfSpaceHours));
+      String outOfSpace = stats.outOfSpaceString;
 
-      output += "\n\nLast week: completed ${weekCount.toString()} plots";
+      output += "\n\nLast week: completed ${stats.plotsLastWeek} plots";
 
-      if (client.supportDiskSpace) {
+      if (stats.supportDiskSpace) {
         //If free space is less than a k32 plot size
-        if (client.freeDiskSpace > 0 && client.freeDiskSpace < 1.1e9)
+        if (stats.freeSize > 0 && stats.freeSize < 1.1e9)
           output += "\n:warning: **OUT OF SPACE** :warning:";
-        if (client.freeDiskSpace > 0 && weekSize > 0)
+        if (stats.freeSize > 0 && stats.plotsLastWeek > 0)
           output += "\nOut of space in $outOfSpace";
         //If time until out of space is shorter than 4 hours then it will assume it's out of space
-        else if (outOfSpaceHours <= 4 && weekSize > 0)
+        else if (stats.outOfSpace.inHours <= 4 && stats.plotsLastWeek > 0)
           output += "\n**OUT OF SPACE IN $outOfSpace**";
       }
-
-      Duration farmed = farmedTime(client.plots);
 
       double ppd = 0.0; //plots per day
 
       //does overall plot per day if overPeriod average period is not defined,
       //if this period is defined then it calculates plotsPerDay using its dedicated function
-      ppd = (client.plots.length / farmed.inMinutes) * 60.0 * 24.0;
+      ppd =
+          (stats.numberOfPlots / stats.farmedDuration.inMinutes) * 60.0 * 24.0;
       output += "\nAll time:  " + ppd.toStringAsFixed(2) + " plots per day";
 
-      double weekAverage = weekCount / daysWithPlots;
+      double weekAverage = stats.plotsLastWeek / stats.daysWithPlotsLastWeek;
       output += "\nLast 7 days: " +
           (weekAverage).toStringAsFixed(2) +
           " plots per day";
 
-      Duration avg = averagePlotDuration(client.plots);
-
-      output += "\nAll time average plot length: " + durationToTime(avg);
+      output += "\nAll time average plot length: " +
+          durationToTime(stats.averagePlotLength);
     }
 
     return output;
@@ -582,6 +588,46 @@ class Stats {
     DateTime nDaysAgo = clientToday.subtract(Duration(days: n));
 
     return dateToString(nDaysAgo);
+  }
+
+  //returns number of plots done last week
+  //used to calculate out of space estimate
+  static int countPlotsLastWeek(Harvester client) {
+    int weekCount = 0;
+    for (int k = 1; k < 8; k++) {
+      List<Plot> plots = plotsNDaysAgo(client, k);
+
+      int count = plots.length;
+
+      weekCount += count;
+    }
+
+    return weekCount;
+  }
+
+  //returns total sum of plots done last week
+  //used to calculate out of space estimate
+  static int countPlotsSizeLastWeek(Harvester client) {
+    int weekSize = 0;
+    for (int k = 1; k < 8; k++) {
+      List<Plot> plots = plotsNDaysAgo(client, k);
+
+      int sumSize = plotSumSize(plots);
+
+      weekSize += sumSize;
+    }
+
+    return weekSize;
+  }
+
+  //returns number of days last week that had plots
+  //used to calculate better out of space estimate
+  static int countDaysWithPlotsLastWeek(Harvester client) {
+    int daysWithPlots = 0;
+    for (int k = 1; k < 8; k++)
+      if (plotsNDaysAgo(client, k).length > 0) daysWithPlots += 1;
+
+    return daysWithPlots;
   }
 
 //Estimates ETW in days

@@ -320,6 +320,7 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount,
         ? Stats.showPlotTypes(harvester) +
             Stats.showLastPlotInfo(harvester) +
             Stats.showLastNDaysPlots(harvester, 8, netSpace) +
+            Stats.showWeekPlots(stats) +
             Stats.showIncompletePlotsWarning(harvester) +
             Stats.showFilters(harvester)
         : '';
