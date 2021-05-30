@@ -10,10 +10,10 @@ dependencies:
   http: ^0.13.3
 #  dart_console: ^1.0.0  REMOVING thiS IT IS INCOMPATIBLE WITH JS
   qr: ^2.0.0
-  universal_disk_space: ^0.1.18
+  universal_disk_space: ^0.1.19
   stats: ^2.0.0
   intl: ^0.17.0
   logging: ^1.0.1
-  dotenv: ^2.0.0
+  dotenv: ^3.0.0
   mysql1: ^0.19.2
   universal_io: ^2.0.4

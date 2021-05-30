@@ -10,32 +10,29 @@ import 'package:chiabot/log/shortsync.dart';
 import 'package:chiabot/extensions/swarpm.dart';
 
 class Stats {
-  var _client; //Either a Farmer or Harvester
+  Harvester _client; //Either a Farmer or Harvester
   Rate? _price;
   NetSpace _netSpace;
 
   //name of client
   String get name => _client.name;
-  String get status => (_client is Farmer) ? _client.status : 'Harvesting';
+  String get status =>
+      (_client is Farmer) ? (_client as Farmer).status : 'Harvesting';
+
   Map<String, int> get typeCount => _client.typeCount;
 
   // FARMED BALANCE
   String get currency => _client.currency;
   double get balance =>
-      (_client.type == ClientType.Farmer) ? _client.balance : 0.0;
-  double get balanceFiat => (_client.type == ClientType.Farmer)
-      ? balance * (_price?.rate ?? 0.0)
-      : 0.0;
+      (_client is Farmer) ? (_client as Farmer).balance : -1.0;
+  double get balanceFiat => balance * (_price?.rate ?? 0.0);
 
   // WALLET BALANCE
   double get walletBalance =>
-      (_client.type == ClientType.Farmer) ? _client.wallet.balance : 0.0;
-  double get walletBalanceFiat => (_client.type == ClientType.Farmer)
-      ? walletBalance * (_price?.rate ?? 0.0)
-      : 0.0;
-  double get walletBalanceFiatChange => (_client.type == ClientType.Farmer)
-      ? walletBalanceFiat * (_price?.rate ?? 0.0)
-      : 0.0;
+      (_client is Farmer) ? (_client as Farmer).wallet.balance : -1.0;
+  double get walletBalanceFiat => walletBalance * (_price?.rate ?? 0.0);
+  double get walletBalanceFiatChange =>
+      walletBalanceFiat * (_price?.rate ?? 0.0);
 
   //PLOTS
   //total number of plots (complete plots)
@@ -76,15 +73,18 @@ class Stats {
   //EFFORT
   Duration get farmedDuration => (farmedTime(_client.plots));
   double get farmedDays => (farmedDuration.inHours / 24.0);
-  double get effort => _client.wallet.getCurrentEffort(etw, farmedDays);
-  double get daysSinceLastBlock =>
-      _client.wallet.daysSinceLastBlock.roundToDouble();
+  double get effort => (_client is Farmer)
+      ? (_client as Farmer).wallet.getCurrentEffort(etw, farmedDays)
+      : 0.0;
+  double get daysSinceLastBlock => (_client is Farmer)
+      ? (_client as Farmer).wallet.daysSinceLastBlock.roundToDouble()
+      : 0;
 
   String get netSpace => _netSpace.humanReadableSize;
   String get netSpaceGrowth => _netSpace.dayDifference;
 
   int get fullNodesConnected =>
-      (_client.type == ClientType.Farmer) ? _client.fullNodesConnected : 0;
+      (_client is Farmer) ? (_client as Farmer).fullNodesConnected : 0;
 
   Stats(this._client, this._price, this._netSpace);
 
