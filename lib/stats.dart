@@ -1,4 +1,3 @@
-import 'package:chiabot/config.dart';
 import 'package:chiabot/harvester.dart';
 import 'package:chiabot/harvester/plots.dart';
 import 'package:chiabot/farmer.dart';

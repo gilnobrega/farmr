@@ -10,7 +10,6 @@ import 'package:chiabot/harvester/plots.dart';
 import 'package:chiabot/harvester/diskspace.dart';
 import 'package:chiabot/debug.dart' as Debug;
 import 'package:chiabot/harvester/filters.dart';
-import 'package:chiabot/farmer.dart';
 
 import 'package:chiabot/extensions/swarpm.dart';
 
@@ -20,7 +19,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
   late Config _config;
 
   String _name = "Harvester";
-  String get name => _getName();
+  String get name => _name;
 
   String _currency = 'USD';
   String get currency => _currency.toUpperCase();
@@ -151,16 +150,4 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     for (int i = 0; i < allPlots.length; i++) allPlots[i].clearID();
   }*/
 
-  String _getName() {
-    String name = '';
-
-    if (_name != null)
-      name = _name;
-    else if (this is Farmer)
-      name = "Farmer";
-    else
-      name = "Harvester";
-
-    return name;
-  }
 }
