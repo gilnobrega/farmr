@@ -59,15 +59,8 @@ class NetSpace {
 
   _getNetSpace() async {
     try {
-      String contents;
-      try {
-        contents = await http.read(
-            Uri.parse("https://chianetspace.azurewebsites.net/data/summary"));
-      } catch (e) {
-        //TEMPORARY PLEASE FIX THIS
-        contents = await http.read(Uri.parse(
-            "https://cors-anywhere.herokuapp.com/https://chianetspace.azurewebsites.net/data/summary"));
-      }
+      String contents = await http.read(
+          Uri.parse("https://chianetspace.azurewebsites.net/data/summary"));
 
       var content = jsonDecode(contents);
 
