@@ -82,6 +82,8 @@ class Stats {
   String get netSpace => _netSpace.humanReadableSize;
   String get netSpaceGrowth => _netSpace.dayDifference;
 
+  DateTime get currentDay => stringToDate(_client.lastUpdatedString);
+
   int get fullNodesConnected =>
       (_client is Farmer) ? (_client as Farmer).fullNodesConnected : 0;
 

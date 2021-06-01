@@ -87,7 +87,7 @@ class HarvesterFilters {
       if (json['missedChallenges'] != null)
         _missedChallenges = json['missedChallenges'];
       if (json['totalPlots'] != null)
-        _totalPlots = json['totalPlots'];
+        _totalPlots = double.parse(json['totalPlots'].toString());
       else
         _totalPlots = (numPlots / 1.0);
 
@@ -131,6 +131,7 @@ class HarvesterFilters {
       if (i != _timeCategories.length - 1) {
         double nextStep = _timeCategories[i + 1];
         boundaries.add([step, nextStep]);
+        filterCategories.putIfAbsent('$step-$nextStep', () => 0);
       }
     }
 

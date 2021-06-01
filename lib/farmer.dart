@@ -139,14 +139,14 @@ class Farmer extends Harvester {
     var object = jsonDecode(json)[0];
 
     _status = object['status'];
-    _balance = object['balance'];
+    _balance = double.parse(object['balance'].toString());
 
     double walletBalance = -1.0;
     double daysSinceLastBlock = 0;
 
     //initializes wallet with given balance and number of days since last block
     if (object['walletBalance'] != null)
-      walletBalance = object['walletBalance'];
+      walletBalance = double.parse(object['walletBalance'].toString());
     if (object['daysSinceLastBlock'] != null)
       daysSinceLastBlock = object['daysSinceLastBlock'];
 
