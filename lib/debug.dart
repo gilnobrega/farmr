@@ -48,53 +48,71 @@ class Log {
   }
 
   loadLogItems() {
+    bool keepParsing = true;
+    bool keepParsingFilters = true;
+    bool keepParsingSignagePoints = true;
+    bool keepParsingShortSyncs = true;
     //parses debug.log, debug.log.1, debug.log.2, ...
     for (int i = 0; i < 10; i++) {
-      String ext = (i == 0) ? '' : ('.' + i.toString());
+      if (keepParsing) {
+        String ext = (i == 0) ? '' : ('.' + i.toString());
 
-      try {
-        _debugFile = io.File(debugPath + ext);
+        try {
+          _debugFile = io.File(debugPath + ext);
 
-        //stops parsing once it reaches parseUntil date limit
-        if (_debugFile.existsSync()) {
-          String content;
+          //stops parsing once it reaches parseUntil date limit
+          if (_debugFile.existsSync()) {
+            String content;
 
-          try {
-            content = _debugFile.readAsStringSync();
-          } catch (e) {
-            var bytes = _debugFile.readAsBytesSync();
+            try {
+              content = _debugFile.readAsStringSync();
+            } catch (e) {
+              var bytes = _debugFile.readAsBytesSync();
 
-            //reads files this way because of UTF 16 decoding??
-            content = utf8.decode(bytes, allowMalformed: true);
+              //reads files this way because of UTF 16 decoding??
+              content = utf8.decode(bytes, allowMalformed: true);
+            }
+
+            //parses filters
+            if (keepParsingFilters) {
+              try {
+                keepParsingFilters = parseFilters(content, _parseUntil);
+              } catch (e) {
+                log.warning(
+                    "Warning: could not parse filters in debug.log$ext, make sure chia log level is set to INFO");
+              }
+            }
+
+            //parses signage points
+            if (keepParsingSignagePoints) {
+              try {
+                keepParsingSignagePoints =
+                    parseSignagePoints(content, _parseUntil);
+              } catch (e) {
+                log.info(
+                    "Warning: could not parse SubSlots in debug.log$ext, make sure chia log level is set to INFO");
+              }
+            }
+
+            //parses signage points
+            if (keepParsingShortSyncs) {
+              try {
+                keepParsingShortSyncs = parseShortSyncs(content, _parseUntil);
+              } catch (e) {
+                log.info(
+                    "Warning: could not parse Short Sync events in debug.log$ext, make sure chia log level is set to INFO");
+              }
+            }
           }
-
-          //parses filters
-          try {
-            parseFilters(content, _parseUntil);
-          } catch (e) {
-            log.warning(
-                "Warning: could not parse filters in debug.log$ext, make sure chia log level is set to INFO");
-          }
-
-          //parses signage points
-          try {
-            parseSignagePoints(content, _parseUntil);
-          } catch (e) {
-            log.info(
-                "Warning: could not parse SubSlots in debug.log$ext, make sure chia log level is set to INFO");
-          }
-
-          //parses signage points
-          try {
-            parseShortSyncs(content, _parseUntil);
-          } catch (e) {
-            log.info(
-                "Warning: could not parse Short Sync events in debug.log$ext, make sure chia log level is set to INFO");
-          }
+        } catch (Exception) {
+          log.warning(
+              "Warning: could not parse debug.log$ext, make sure chia log level is set to INFO");
         }
-      } catch (Exception) {
-        log.warning(
-            "Warning: could not parse debug.log$ext, make sure chia log level is set to INFO");
+
+        //stops loading more files when all of the logging items stop parsing
+        keepParsing = keepParsingFilters ||
+            keepParsingSignagePoints ||
+            keepParsingShortSyncs;
       }
     }
 
@@ -161,6 +179,9 @@ class Log {
   }
 
   parseSignagePoints(String contents, int parseUntil) {
+    bool keepParsing = true;
+    bool inCache = false;
+
     try {
       RegExp signagePointsRegex = RegExp(
           "([0-9-]+)T([0-9:]+)\\.([0-9]+) full_node chia\\.full\\_node\\.full\\_node:\\s+INFO\\W+Finished[\\S ]+ ([0-9]+)\\/64",
@@ -176,11 +197,14 @@ class Log {
         timestamp = parseTimestamp(match.group(1) ?? '1971-01-01',
             match.group(2) ?? '00:00:00', match.group(3) ?? '0000');
 
-        bool inCache = _signagePoints
+        //if filter's timestamp is outside parsing date rang
+        keepParsing = timestamp > parseUntil;
+
+        inCache = _signagePoints
             .any((signagePoint) => signagePoint.timestamp == timestamp);
 
         //only adds subslot if its not already in cache
-        if (timestamp > parseUntil && !inCache) {
+        if (keepParsing && !inCache) {
           int index = int.parse(match.group(4) ?? '0');
 
           SignagePoint signagePoint = SignagePoint(timestamp, index);
@@ -190,6 +214,8 @@ class Log {
     } catch (Exception) {
       log.info("Error parsing signage points.");
     }
+
+    return keepParsing && !inCache;
   }
 
   _genSubSlots() {
@@ -222,6 +248,9 @@ class Log {
   }
 
   parseShortSyncs(String contents, int parseUntil) {
+    bool keepParsing = true;
+    bool inCache = false;
+
     try {
       RegExp shortSyncsRegex = RegExp(
           "([0-9-]+)T([0-9:]+)\\.([0-9]+) full_node chia\\.full\\_node\\.full\\_node:\\s+INFO\\W+Starting batch short sync from ([0-9]+) to height ([0-9]+)",
@@ -237,11 +266,13 @@ class Log {
         timestamp = parseTimestamp(match.group(1) ?? '1971-01-01',
             match.group(2) ?? '00:00:00', match.group(3) ?? '0000');
 
-        bool inCache =
+        keepParsing = timestamp > parseUntil;
+
+        inCache =
             shortSyncs.any((shortSync) => shortSync.timestamp == timestamp);
 
         //only adds subslot if its not already in cache
-        if (timestamp > parseUntil && !inCache) {
+        if (keepParsing && !inCache) {
           int start = int.parse(match.group(4) ?? '1');
           int end = int.parse(match.group(5) ?? '2');
 
@@ -252,6 +283,7 @@ class Log {
     } catch (Exception) {
       log.info("Error parsing short sync events.");
     }
+    return keepParsing && !inCache;
   }
 
   void filterDuplicateFilters() {
