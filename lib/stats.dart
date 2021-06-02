@@ -474,9 +474,10 @@ class Stats {
 
           String percentageString = percentage.toStringAsPrecision(3);
           String newline = (list.last.key != entry.key) ? '\n' : '';
-          lines.add(
-              "${entry.key}s: ${entry.value} filters ($percentageString%)" +
-                  newline);
+          if (entry.value > 0)
+            lines.add(
+                "${entry.key}s: ${entry.value} filters ($percentageString%)" +
+                    newline);
         }
 
         //if total percentage doesnt add up to 100% then it assumes its missing filters with 0s
