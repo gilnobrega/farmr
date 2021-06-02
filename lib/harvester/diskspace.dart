@@ -20,9 +20,9 @@ class HarvesterDiskSpace {
   int _drivesCount = 0;
   //counts drives in _drives if it had not done so
   int get drivesCount => (_drivesCount == 0) ? _drives.length : _drivesCount;
-  set drivesCount(int value) => (value) {
-        this._drivesCount = value;
-      }; //setter is used in case it's from a serialized harvester
+  set drivesCount(int value) {
+    _drivesCount = value;
+  } //setter is used in case it's from a serialized harvester
 
   //Gets info about total and available disk space, there's a library for each platform
   Future<void> getDiskSpace(List<String> plotDests) async {
