@@ -155,37 +155,41 @@ class Log {
 
       int timestamp = DateTime.now().millisecondsSinceEpoch;
 
-      for (int i = matches.length - 1; i >= 0; i--) {
-        try {
-          if (keepParsing && !inCache) {
-            RegExpMatch match = matches[i];
+      if (matches.length == 0)
+        keepParsing = false;
+      else {
+        for (int i = matches.length - 1; i >= 0; i--) {
+          try {
+            if (keepParsing && !inCache) {
+              RegExpMatch match = matches[i];
 
-            //Parses date from debug.log
-            timestamp = parseTimestamp(match.group(1) ?? '1971-01-01',
-                match.group(2) ?? '00:00:00', match.group(3) ?? '0000');
+              //Parses date from debug.log
+              timestamp = parseTimestamp(match.group(1) ?? '1971-01-01',
+                  match.group(2) ?? '00:00:00', match.group(3) ?? '0000');
 
-            //if filter's timestamp is outside parsing date rang
-            keepParsing = timestamp > parseUntil;
+              //if filter's timestamp is outside parsing date rang
+              keepParsing = timestamp > parseUntil;
 
-            //if filter is in cache
-            inCache = filters
-                .any((cachedFilter) => cachedFilter.timestamp == timestamp);
+              //if filter is in cache
+              inCache = filters
+                  .any((cachedFilter) => cachedFilter.timestamp == timestamp);
 
-            if (!inCache && keepParsing) {
-              //print(timestamp);
+              if (!inCache && keepParsing) {
+                //print(timestamp);
 
-              int eligiblePlots = int.parse(match.group(4) ?? '0');
-              int proofs = int.parse(match.group(5) ?? '0');
-              double time = double.parse(match.group(6) ?? '0.0');
-              int totalPlots = int.parse(match.group(7) ?? '0');
-              Filter filter =
-                  Filter(timestamp, eligiblePlots, proofs, time, totalPlots);
+                int eligiblePlots = int.parse(match.group(4) ?? '0');
+                int proofs = int.parse(match.group(5) ?? '0');
+                double time = double.parse(match.group(6) ?? '0.0');
+                int totalPlots = int.parse(match.group(7) ?? '0');
+                Filter filter =
+                    Filter(timestamp, eligiblePlots, proofs, time, totalPlots);
 
-              _filters.add(filter);
+                _filters.add(filter);
+              }
             }
+          } catch (Exception) {
+            log.warning("Error parsing filters!");
           }
-        } catch (Exception) {
-          log.warning("Error parsing filters!");
         }
       }
     } catch (e) {
@@ -208,25 +212,31 @@ class Log {
       var matches = signagePointsRegex.allMatches(contents).toList();
       int timestamp = 0;
 
-      for (int i = 0; i < matches.length; i++) {
-        var match = matches[i];
+      if (matches.length == 0)
+        keepParsing = false;
+      else {
+        for (int i = 0; i < matches.length; i++) {
+          if (keepParsing && !inCache) {
+            var match = matches[i];
 
-        //Parses date from debug.log
-        timestamp = parseTimestamp(match.group(1) ?? '1971-01-01',
-            match.group(2) ?? '00:00:00', match.group(3) ?? '0000');
+            //Parses date from debug.log
+            timestamp = parseTimestamp(match.group(1) ?? '1971-01-01',
+                match.group(2) ?? '00:00:00', match.group(3) ?? '0000');
 
-        //if filter's timestamp is outside parsing date rang
-        keepParsing = timestamp > parseUntil;
+            //if filter's timestamp is outside parsing date rang
+            keepParsing = timestamp > parseUntil;
 
-        inCache = _signagePoints
-            .any((signagePoint) => signagePoint.timestamp == timestamp);
+            inCache = _signagePoints
+                .any((signagePoint) => signagePoint.timestamp == timestamp);
 
-        //only adds subslot if its not already in cache
-        if (keepParsing && !inCache) {
-          int index = int.parse(match.group(4) ?? '0');
+            //only adds subslot if its not already in cache
+            if (keepParsing && !inCache) {
+              int index = int.parse(match.group(4) ?? '0');
 
-          SignagePoint signagePoint = SignagePoint(timestamp, index);
-          _signagePoints.add(signagePoint);
+              SignagePoint signagePoint = SignagePoint(timestamp, index);
+              _signagePoints.add(signagePoint);
+            }
+          }
         }
       }
     } catch (Exception) {
@@ -277,25 +287,31 @@ class Log {
       var matches = shortSyncsRegex.allMatches(contents).toList();
       int timestamp = 0;
 
-      for (int i = 0; i < matches.length; i++) {
-        var match = matches[i];
+      if (matches.length == 0)
+        keepParsing = false;
+      else {
+        for (int i = 0; i < matches.length; i++) {
+          if (keepParsing && !inCache) {
+            var match = matches[i];
 
-        //Parses date from debug.log
-        timestamp = parseTimestamp(match.group(1) ?? '1971-01-01',
-            match.group(2) ?? '00:00:00', match.group(3) ?? '0000');
+            //Parses date from debug.log
+            timestamp = parseTimestamp(match.group(1) ?? '1971-01-01',
+                match.group(2) ?? '00:00:00', match.group(3) ?? '0000');
 
-        keepParsing = timestamp > parseUntil;
+            keepParsing = timestamp > parseUntil;
 
-        inCache =
-            shortSyncs.any((shortSync) => shortSync.timestamp == timestamp);
+            inCache =
+                shortSyncs.any((shortSync) => shortSync.timestamp == timestamp);
 
-        //only adds subslot if its not already in cache
-        if (keepParsing && !inCache) {
-          int start = int.parse(match.group(4) ?? '1');
-          int end = int.parse(match.group(5) ?? '2');
+            //only adds subslot if its not already in cache
+            if (keepParsing && !inCache) {
+              int start = int.parse(match.group(4) ?? '1');
+              int end = int.parse(match.group(5) ?? '2');
 
-          ShortSync shortSync = ShortSync(timestamp, start, end);
-          shortSyncs.add(shortSync);
+              ShortSync shortSync = ShortSync(timestamp, start, end);
+              shortSyncs.add(shortSync);
+            }
+          }
         }
       }
     } catch (Exception) {
