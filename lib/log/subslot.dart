@@ -28,7 +28,7 @@ class SubSlot {
   }
 
   addSignagePoint(SignagePoint signagepoint) {
-    log.info("Adding Signage Point $signagepoint/64 to SubSlot");
+    //log.info("Adding Signage Point $signagepoint/64 to SubSlot");
     signagePoints.add(signagepoint);
   }
 }
