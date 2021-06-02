@@ -200,7 +200,7 @@ class Log {
     return keepParsing && !inCache;
   }
 
-  parseSignagePoints(String contents, int parseUntil) {
+  bool parseSignagePoints(String contents, int parseUntil) {
     bool keepParsing = true;
     bool inCache = false;
 
@@ -275,7 +275,7 @@ class Log {
     } catch (e) {}
   }
 
-  parseShortSyncs(String contents, int parseUntil) {
+  bool parseShortSyncs(String contents, int parseUntil) {
     bool keepParsing = true;
     bool inCache = false;
 
