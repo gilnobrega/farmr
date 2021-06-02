@@ -35,9 +35,8 @@ class Farmer extends Harvester {
   double _balance = 0;
   double get balance => _balance; //hides balance if string
 
-  ClientType _type = ClientType.Farmer;
   @override
-  ClientType get type => _type;
+  final ClientType type = ClientType.Farmer;
 
   NetSpace _netSpace = NetSpace("1 B");
   NetSpace get netSpace => _netSpace;

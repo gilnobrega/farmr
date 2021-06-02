@@ -43,8 +43,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
   String get lastUpdatedString => _lastUpdatedString;
 
   //Farmer or Harvester
-  ClientType _type = ClientType.Harvester;
-  ClientType get type => _type;
+  final type = ClientType.Harvester;
 
   SwarPM? _swarPM = SwarPM(); //initializes empty SwarPM class (jobs = [])
   SwarPM? get swarPM => _swarPM;
@@ -136,8 +135,6 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
       _lastUpdatedString = object['lastUpdatedString'];
 
     if (object['swarPM'] != null) _swarPM = SwarPM.fromJson(object['swarPM']);
-
-    _type = ClientType.values[object['type']];
   }
 
   Future<void> init(String chiaConfigPath) async {

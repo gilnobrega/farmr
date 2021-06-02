@@ -70,7 +70,8 @@ class Config {
 
   final io.File _config = io.File("config.json");
 
-  Config(this.cache, String chiaConfigPath, [isHarvester = false]) {
+  Config(this.cache, String chiaConfigPath,
+      [isHarvester = false, isHPool = false]) {
     //Move old config/cache files to new locations
     io.File _oldConfig = io.File(chiaConfigPath + "chiabot.json");
 
@@ -88,6 +89,9 @@ class Config {
     if (isHarvester) {
       _type = ClientType.Harvester;
       _name = "Harvester";
+    } else if (isHPool) {
+      _type = ClientType.HPool;
+      _name = "HPool";
     } else {
       _type = ClientType.Farmer;
       _name = "Farmer";
@@ -404,4 +408,4 @@ Open the following link to join the server: https://discord.gg/fPjnWYYFmp""");
 }
 
 //Tells if client is harvester or not
-enum ClientType { Farmer, Harvester }
+enum ClientType { Farmer, Harvester, HPool }

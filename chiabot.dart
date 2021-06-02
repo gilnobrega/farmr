@@ -11,6 +11,7 @@ import 'package:chiabot/harvester.dart';
 import 'package:chiabot/config.dart';
 import 'package:chiabot/cache.dart';
 import 'package:chiabot/debug.dart';
+import 'package:chiabot/hpool.dart';
 
 import 'server/chiabot_server.dart' as Stats;
 import 'package:chiabot/server/netspace.dart';
@@ -60,11 +61,8 @@ main(List<String> args) async {
   cache.init();
 
   //Initializes config, either creates a new one or loads a config file
-  Config config = new Config(
-      cache,
-      chiaConfigPath,
-      (args.contains("harvester") ||
-          args.contains('-h'))); //checks if is harvester
+  Config config = new Config(cache, chiaConfigPath, args.contains("harvester"),
+      args.contains("hpool")); //checks if is harvester (or hpool mode)
 
   await config.init();
 
@@ -88,8 +86,10 @@ main(List<String> args) async {
       Log chiaLog = new Log(chiaDebugPath, cache, config.parseLogs);
 
       var client = (config.type == ClientType.Farmer)
-          ? new Farmer(config, chiaLog, version)
-          : new Harvester(config, chiaLog, version);
+          ? Farmer(config, chiaLog, version)
+          : (config.type == ClientType.HPool)
+              ? HPool(config, chiaLog, version)
+              : Harvester(config, chiaLog, version);
       await client.init(chiaConfigPath);
 
       //Throws exception in case no plots were found
