@@ -137,7 +137,6 @@ class Price {
           if (object['base'] == otherCurrency &&
               object['base'] != "JPY" &&
               object['base'] != "INR") {
-            print(object['base']);
             rate = 1 / double.parse(object['amount']);
           }
         }

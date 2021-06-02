@@ -42,13 +42,15 @@ jobs:
              mv .github/workflows/config.test .github/workflows/config.yaml
              mv .github/workflows/farmer.sh ./farmer.sh
              mv .github/workflows/harvester.sh ./harvester.sh
+             mv .github/workflows/hpool.sh ./hpool.sh
              chmod +x ./farmer.sh
              chmod +x ./harvester.sh
+             chmod +x ./hpool.sh
              ./dart-sdk/bin/dart compile exe chiabot.dart
              chmod +x chiabot.exe
              mv chiabot.exe chiabot
              mv config.json.default config.json
-             tar -czvf ./chiabot-linux-arm64.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh
+             tar -czvf ./chiabot-linux-arm64.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh ./hpool.sh
         
       - name: Release
         uses: softprops/action-gh-release@v1
@@ -98,11 +100,13 @@ jobs:
              mv .github/workflows/harvester.sh ./harvester.sh
              chmod +x ./farmer.sh
              chmod +x ./harvester.sh
+             mv .github/workflows/hpool.sh ./hpool.sh
+             chmod +x ./hpool.sh
              dart compile exe chiabot.dart
              chmod +x chiabot.exe
              ./chiabot.exe harvester onetime
              mv chiabot.exe chiabot
-             tar -czvf ./chiabot-linux-amd64.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh
+             tar -czvf ./chiabot-linux-amd64.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh ./hpool.sh
         
       - name: Building macOS release
         if: matrix.os == 'macos-latest' && matrix.architecture == 'x64'
@@ -112,11 +116,13 @@ jobs:
              mv .github/workflows/harvester.sh ./harvester.sh
              chmod +x ./farmer.sh
              chmod +x ./harvester.sh
+             mv .github/workflows/hpool.sh ./hpool.sh
+             chmod +x ./hpool.sh
              dart compile exe chiabot.dart
              chmod +x chiabot.exe
              ./chiabot.exe harvester onetime
              mv chiabot.exe chiabot
-             tar -czvf ./chiabot-macOS-amd64.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh
+             tar -czvf ./chiabot-macOS-amd64.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh ./hpool.sh
              
       - name: Building Windows release
         if: matrix.os == 'windows-latest' && matrix.architecture == 'x64'
@@ -124,8 +130,10 @@ jobs:
              mv .github/workflows/config.test .github/workflows/config.yaml
              dart compile exe chiabot.dart
              dart compile exe chiabot_harvester.dart
+             dart compile exe chiabot_hpool.dart
              ./chiabot.exe harvester onetime
              move ./chiabot.exe ./farmer.exe
+             move ./chiabot_hpool.exe ./hpool.exe
              move ./chiabot_harvester.exe ./harvester.exe
              
       - name: Build
