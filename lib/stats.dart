@@ -122,11 +122,17 @@ class Stats {
         "";
   }
 
-  static String showBalance(Stats stats) {
+  static String showStatus(Stats stats) {
     String output = '';
 
     if (stats.status != "Farming" && stats.status != "Harvesting")
       output += "\n:warning: **${stats.status}** :warning:";
+
+    return output;
+  }
+
+  static String showBalance(Stats stats) {
+    String output = '';
 
     String balanceText = '';
 
@@ -233,7 +239,8 @@ class Stats {
   static String showNetworkSize(Stats stats) {
     String output = '';
 
-    String growth = "(${stats.netSpaceGrowth})";
+    String growth =
+        (stats.netSpaceGrowth != "") ? "(${stats.netSpaceGrowth})" : "";
     output += "\n:satellite: Netspace: ${stats.netSpace} $growth";
 
     return output;

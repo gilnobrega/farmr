@@ -309,6 +309,7 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount,
         : '';
 
     String main = name +
+        Stats.showStatus(stats) +
         Stats.showBalance(stats) +
         Stats.showPlotsInfo(stats) +
         Stats.showETWEDV(stats, !isWorkers) +
