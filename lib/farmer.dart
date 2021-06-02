@@ -51,8 +51,10 @@ class Farmer extends Harvester {
 
   @override
   Map toJson() {
+    //loads harvester's map (since farmer is an extension of it)
     Map harvesterMap = (super.toJson());
 
+    //adds extra farmer's entries
     harvesterMap.addEntries({
       'status': status,
       'balance': balance, //farmed balance
@@ -68,6 +70,7 @@ class Farmer extends Harvester {
       "shortSyncs": shortSyncs,
     }.entries);
 
+    //returns complete map with both farmer's + harvester's entries
     return harvesterMap;
   }
 

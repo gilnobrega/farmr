@@ -76,6 +76,7 @@ main(List<String> args) async {
     String status = "";
     String copyJson = "";
     String name = "";
+    String drives = "";
 
     //PARSES DATA
     try {
@@ -98,6 +99,10 @@ main(List<String> args) async {
 
       //if plot notifications are off then it will default to 0
       lastPlotID = (config.sendPlotNotifications) ? client.lastPlotID() : "0";
+
+      //if hard drive notifications are disabled then it will default to 0
+      drives =
+          (config.sendDriveNotifications) ? client.drivesCount.toString() : "0";
 
       if (client is Farmer) {
         balance = client.balance.toString();
@@ -157,7 +162,7 @@ main(List<String> args) async {
           "publicAPI": publicAPI
         };
 
-        String url = "https://chiabot.znc.sh/send5.php";
+        String url = "https://chiabot.znc.sh/send6.php";
 
         if (config.type == ClientType.Farmer && config.sendStatusNotifications)
           post.putIfAbsent("isFarming", () => isFarming);
@@ -165,6 +170,10 @@ main(List<String> args) async {
         //Adds the following if sendPlotNotifications is enabled then it will send plotID
         if (config.sendPlotNotifications)
           post.putIfAbsent("lastPlot", () => lastPlotID);
+
+        //Adds the following if hard drive notifications are enabled then it will send the number of drives connected to pc
+        if (config.sendDriveNotifications)
+          post.putIfAbsent("drives", () => drives);
 
         //If the client is a farmer and it is farming and sendBalanceNotifications is enabled then it will send balance
         if (config.type == ClientType.Farmer &&

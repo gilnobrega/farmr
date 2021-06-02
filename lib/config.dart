@@ -37,6 +37,9 @@ class Config {
   bool _sendPlotNotifications = false; //plot notifications
   bool get sendPlotNotifications => _sendPlotNotifications;
 
+  bool _sendDriveNotifications = true; //drive notifications
+  bool get sendDriveNotifications => _sendDriveNotifications;
+
   bool _sendBalanceNotifications = true; //balance notifications
   bool get sendBalanceNotifications => _sendBalanceNotifications;
 
@@ -130,6 +133,7 @@ class Config {
       "Show Wallet Balance": showWalletBalance,
       "Block Notifications": sendBalanceNotifications,
       "Plot Notifications": sendPlotNotifications,
+      "Hard Drive Notifications": sendDriveNotifications,
       "Offline Notifications": sendOfflineNotifications,
       "Farm Status Notifications": sendStatusNotifications,
       "Parse Logs": parseLogs,
@@ -331,6 +335,9 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
 
     if (contents[0]["Ignore Disk Space"] != null)
       _ignoreDiskSpace = contents[0]["Ignore Disk Space"];
+
+    if (contents[0]['Hard Drive Notifications'] != null)
+      _sendDriveNotifications = contents[0]['Hard Drive Notifications']; //new
 
     await saveConfig();
   }

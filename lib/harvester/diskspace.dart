@@ -16,6 +16,14 @@ class HarvesterDiskSpace {
   //sets this to false if the farmer or one of the harvesters didnt report disk space
   bool supportDiskSpace = true;
 
+  List<uds.Disk> _drives = [];
+  int _drivesCount = 0;
+  //counts drives in _drives if it had not done so
+  int get drivesCount => (_drivesCount == 0) ? _drives.length : _drivesCount;
+  set drivesCount(int value) => (value) {
+        this._drivesCount = value;
+      }; //setter is used in case it's from a serialized harvester
+
   //Gets info about total and available disk space, there's a library for each platform
   Future<void> getDiskSpace(List<String> plotDests) async {
     uds.DiskSpace diskspace;
@@ -24,17 +32,15 @@ class HarvesterDiskSpace {
       // uses own universal_disk_space library
       diskspace = new uds.DiskSpace();
 
-      List<uds.Disk> disks = [];
-
       for (int i = 0; i < plotDests.length; i++) {
         try {
-          uds.Disk currentdisk = diskspace.getDisk(plotDests[i]);
+          uds.Disk currentdrive = diskspace.getDisk(plotDests[i]);
 
           //only adds disk sizes/space if it has not been added before
-          if (!disks.contains(currentdisk)) {
-            disks.add(currentdisk);
-            totalDiskSpace += currentdisk.totalSize;
-            freeDiskSpace += currentdisk.availableSpace;
+          if (!_drives.contains(currentdrive)) {
+            _drives.add(currentdrive);
+            totalDiskSpace += currentdrive.totalSize;
+            freeDiskSpace += currentdrive.availableSpace;
           }
         } catch (e) {
           try {

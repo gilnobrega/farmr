@@ -113,6 +113,47 @@ if ( isset($_POST['id']) && isset($_POST['data']))
 
         }
 
+        if (isset($_POST['drives']))
+        {
+            $drives = floatval($conn -> real_escape_string($_POST['drives']));
+
+            //checks stored drives, or if there is an entry in the database
+            $checkDrives = "SELECT drives from drives WHERE id='" . $id . "';";
+            $result4 = $conn -> query($checkDrives);
+
+            $existsDrives = false;
+            $previousDrives = floatval('9999.0'); //defaults to a very high number
+
+            while ($row = $result4 -> fetch_row())
+            {
+                $existsDrives = true;
+                $previousDrives = floatval($row[0]);
+            }
+
+            $command3 = "";
+
+            //If there doesnt exist an entry with last drive count
+            if (!$existsDrives)
+            {
+                $command3 = " INSERT INTO drives (id, drives) VALUES ('" . $id . "','" . $drives . "');";
+                $conn -> query($command3);
+
+            } 
+            //If there is an entry with last drive count and its a lower value than previous registered drive countthen update it and notify user that a hard drive disconnected
+            else if ($drives < $previousDrives)
+            {
+                $command3 = " UPDATE drives set drives='" . $drives . "' WHERE id='" . $id . "';";
+                $conn -> query($command3);
+
+                //send
+                $arg = "drive";                
+                //send notification
+                $commandNotif = " INSERT INTO notifications(user,type,name) VALUES ('" . $user . "', '" . $arg . "', '" . $name . "');";
+                $conn -> query($commandNotif);
+            }
+
+        }
+
         if (isset($_POST['notifyOffline']))
         {
             $notify = $conn -> real_escape_string($_POST['notifyOffline']);
