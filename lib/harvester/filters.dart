@@ -69,6 +69,17 @@ class HarvesterFilters {
     _numberFilters = filters.length;
   }
 
+  String? harvestingStatus(bool parseLogs) {
+    final int harvestingLimit =
+        DateTime.now().subtract(Duration(minutes: 10)).millisecondsSinceEpoch;
+    int last10mins =
+        filters.where((filter) => filter.timestamp > harvestingLimit).length;
+
+    //detects if for some reason filters stopped being logged -> assumes its not harvesting
+    if (parseLogs && filters.length > 0 && last10mins == 0)
+      return "Not Harvesting";
+  }
+
   loadFiltersStatsJson(dynamic json, int numPlots) {
     //Old clients
     if (json['filters'] != null) {

@@ -145,11 +145,9 @@ main(List<String> args) async {
         String notifyOffline = (config.sendOfflineNotifications)
             ? '1'
             : '0'; //whether user wants to be notified when rig goes offline
-        String isFarming =
-            ((config.type == ClientType.Farmer && status == "Farming") ||
-                    config.type == ClientType.Harvester)
-                ? '1' //1 means is farming
-                : '0';
+        String isFarming = (status == "Farming" || status == "Harvesting")
+            ? '1' //1 means is farming/harvesting
+            : '0';
 
         String publicAPI = (config.publicAPI)
             ? '1' //1 means client data can be seen from public api

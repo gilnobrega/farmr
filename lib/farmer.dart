@@ -17,7 +17,9 @@ final log = Logger('Farmer');
 
 class Farmer extends Harvester {
   String _status = "N/A";
-  String get status => _status;
+  //shows not harvesting status if harvester class is not harvesting
+  @override
+  String get status => (super.status == "Harvesting") ? _status : super.status;
 
   Wallet _wallet = Wallet(-1.0, 0);
   Wallet get wallet => _wallet;
@@ -56,7 +58,6 @@ class Farmer extends Harvester {
 
     //adds extra farmer's entries
     harvesterMap.addEntries({
-      'status': status,
       'balance': balance, //farmed balance
       'walletBalance': _wallet.balance, //wallet balance
       //rounds days since last blocks so its harder to track wallets

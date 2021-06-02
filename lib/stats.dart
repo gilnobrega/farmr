@@ -15,8 +15,7 @@ class Stats {
 
   //name of client
   String get name => _client.name;
-  String get status =>
-      (_client is Farmer) ? (_client as Farmer).status : 'Harvesting';
+  String get status => _client.status;
 
   Map<String, int> get typeCount => _client.typeCount;
 
@@ -126,7 +125,7 @@ class Stats {
   static String showBalance(Stats stats) {
     String output = '';
 
-    if (stats.status != "Farming")
+    if (stats.status != "Farming" && stats.status != "Harvesting")
       output += "\n:warning: **${stats.status}** :warning:";
 
     String balanceText = '';

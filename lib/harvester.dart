@@ -21,6 +21,9 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
   String _name = "Harvester";
   String get name => _name;
 
+  String _status = "Harvesting";
+  String get status => _status;
+
   String _currency = 'USD';
   String get currency => _currency.toUpperCase();
 
@@ -48,6 +51,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
 
   Map toJson() => {
         'name': _name,
+        'status': status,
         'currency': currency,
         'drivesCount': drivesCount,
         'plots': allPlots, //important
@@ -83,6 +87,8 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
 
     loadFilters(log);
 
+    _status = harvestingStatus(_config.parseLogs) ?? _status;
+
     //loads swar plot manager config if defined by user
     if (_config.swarPath != "") _swarPM = SwarPM(_config.swarPath);
   }
@@ -91,6 +97,9 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     allPlots = [];
 
     var object = jsonDecode(json)[0];
+
+    //loads harvester status
+    if (object['status'] != null) _status = object['status'];
 
     //loads name from json file
     if (object['name'] != null) _name = object['name'];
