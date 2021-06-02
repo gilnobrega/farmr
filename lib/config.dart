@@ -283,7 +283,7 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     if (contents[0]['Currency'] != null)
       _currency = contents[0]['Currency']; //new
 
-    _chiaPath = contents[0]['chiaPath'];
+    _chiaPath = contents[0]['chiaPath'] ?? "";
 
     //this used to be in the config file in earlier versions
     //do not remove this

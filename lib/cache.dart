@@ -43,7 +43,16 @@ class Cache {
     }
   }
 
-  void init([bool parseLogs = false]) {
+  Map toJson() => {
+        "ids": ids,
+        "binPath": binPath,
+        "plots": plots,
+        "filters": filters,
+        "signagePoints": signagePoints,
+        "shortSyncs": shortSyncs
+      };
+
+  void init() {
     //Tells log parser when it should stop parsing
     parseUntil =
         DateTime.now().subtract(Duration(days: 1)).millisecondsSinceEpoch;
@@ -51,34 +60,23 @@ class Cache {
     //Loads cache file
     if (!_cache.existsSync())
       save(); //creates cache file if doesnt exist
-    else
-      load(parseLogs); //chiabot_cache.json
+    else {
+      load(); //chiabot_cache.json
 
-    save();
+      save();
+    }
   }
 
   //saves cache file
   void save() {
-    String contents = jsonEncode([
-      {
-        "ids": ids,
-        "binPath": binPath,
-        "plots": plots,
-        "filters": filters,
-        "signagePoints": signagePoints,
-        "shortSyncs": shortSyncs
-      }
-    ]);
+    String contents = jsonEncode([toJson()]);
+
     _cache.writeAsStringSync(contents);
   }
 
-  void load(bool parseLogs) {
-    _filters = [];
-    _plots = [];
-    _signagePoints = [];
-    _shortSyncs = [];
-
+  void load() {
     var contents = jsonDecode(_cache.readAsStringSync());
+    //print(contents);
 
     //loads id from cache file //OLD
     if (contents[0]['id'] != null) {
@@ -91,48 +89,46 @@ class Cache {
       for (String id in contents[0]['ids']) ids.add(id);
     }
 
+    //loads plot list from cache file
+    if (contents[0]['plots'] != null) {
+      _plots = [];
+      var plotsJson = contents[0]['plots'];
+
+      for (var plotJson in plotsJson) _plots.add(Plot.fromJson(plotJson));
+    }
+
     //loads chia binary path from cache
     if (contents[0]['binPath'] != null) binPath = contents[0]['binPath'];
 
     try {
-      if (parseLogs) {
-        //loads plot list from cache file
-        if (contents[0]['plots'] != null) {
-          var plotsJson = contents[0]['plots'];
+      //loads filters list from cache file
+      if (contents[0]['filters'] != null) {
+        var filtersJson = contents[0]['filters'];
 
-          for (var plotJson in plotsJson) _plots.add(Plot.fromJson(plotJson));
+        for (var filterJson in filtersJson) {
+          Filter filter = Filter.fromJson(filterJson, plots.length);
+          if (filter.timestamp > parseUntil) _filters.add(filter);
         }
+      }
 
-        //loads filters list from cache file
-        if (contents[0]['filters'] != null) {
-          var filtersJson = contents[0]['filters'];
+      //loads subslots list from cache file
+      if (contents[0]['signagePoints'] != null) {
+        var signagePointsJson = contents[0]['signagePoints'];
 
-          for (var filterJson in filtersJson) {
-            Filter filter = Filter.fromJson(filterJson, plots.length);
-            if (filter.timestamp != null && filter.timestamp > parseUntil)
-              _filters.add(filter);
-          }
+        for (var signagePointJson in signagePointsJson) {
+          SignagePoint signagePoint = SignagePoint.fromJson(signagePointJson);
+          if (signagePoint.timestamp > parseUntil)
+            _signagePoints.add(signagePoint);
         }
+      }
 
-        //loads subslots list from cache file
-        if (contents[0]['signagePoints'] != null) {
-          var signagePointsJson = contents[0]['signagePoints'];
+      //loads shortsyncs list from cache file
+      if (contents[0]['shortSyncs'] != null) {
+        var shortSyncsJson = contents[0]['shortSyncs'];
 
-          for (var signagePointJson in signagePointsJson) {
-            SignagePoint signagePoint = SignagePoint.fromJson(signagePointJson);
-            if (signagePoint.timestamp > parseUntil)
-              _signagePoints.add(signagePoint);
-          }
-        }
-
-        //loads shortsyncs list from cache file
-        if (contents[0]['shortSyncs'] != null) {
-          var shortSyncsJson = contents[0]['shortSyncs'];
-
-          for (var shortSyncJson in shortSyncsJson) {
-            ShortSync shortSync = ShortSync.fromJson(shortSyncJson);
-            if (shortSync.timestamp > parseUntil) _shortSyncs.add(shortSync);
-          }
+        for (var shortSyncJson in shortSyncsJson) {
+          ShortSync shortSync = ShortSync.fromJson(shortSyncJson);
+          if (shortSync.timestamp > parseUntil) _shortSyncs.add(shortSync);
         }
       }
     } catch (Exception) {

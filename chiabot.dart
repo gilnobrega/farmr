@@ -84,7 +84,7 @@ main(List<String> args) async {
 
       log.info("Generating new report #$counter");
 
-      cache.init(config.parseLogs);
+      cache.init();
       Log chiaLog = new Log(chiaDebugPath, cache, config.parseLogs);
 
       var client = (config.type == ClientType.Farmer)

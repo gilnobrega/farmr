@@ -23,7 +23,7 @@ class Log {
   List<Filter> _filters = [];
   List<Filter> get filters => _filters;
 
-  List<SignagePoint> _signagePoints = [];
+  List<SignagePoint> signagePoints = [];
 
   //Generate list of complete/incomplete subslots from _signagePoints
   List<SubSlot> subSlots = [];
@@ -33,7 +33,7 @@ class Log {
   Log(String chiaDebugPath, this._cache, bool parseLogs) {
     _parseUntil = _cache.parseUntil;
     _filters = _cache.filters; //loads cached filters
-    _signagePoints = _cache.signagePoints; //loads cached subslots
+    signagePoints = _cache.signagePoints; //loads cached subslots
     shortSyncs = _cache.shortSyncs;
 
     debugPath = chiaDebugPath + "debug.log";
@@ -42,7 +42,7 @@ class Log {
     if (parseLogs) {
       loadLogItems();
       _cache.saveFilters(filters);
-      _cache.saveSignagePoints(_signagePoints); //saves signagePoints to cache
+      _cache.saveSignagePoints(signagePoints); //saves signagePoints to cache
       _cache.saveShortSyncs(shortSyncs);
     }
   }
@@ -55,7 +55,7 @@ class Log {
 
     log.info("Started parsing logs");
     //parses debug.log, debug.log.1, debug.log.2, ...
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i <= 10; i++) {
       if (keepParsing) {
         String ext = (i == 0) ? '' : ('.' + i.toString());
         log.info("Started parsing debug.log$ext");
@@ -80,7 +80,7 @@ class Log {
             if (keepParsingFilters) {
               log.info("Started parsing filters in debug.log$ext");
               try {
-                keepParsingFilters = parseFilters(content, _parseUntil);
+                keepParsingFilters = _parseFilters(content, _parseUntil);
               } catch (e) {
                 log.warning(
                     "Warning: could not parse filters in debug.log$ext, make sure chia log level is set to INFO");
@@ -95,7 +95,7 @@ class Log {
 
               try {
                 keepParsingSignagePoints =
-                    parseSignagePoints(content, _parseUntil);
+                    _parseSignagePoints(content, _parseUntil);
               } catch (e) {
                 log.info(
                     "Warning: could not parse SubSlots in debug.log$ext, make sure chia log level is set to INFO");
@@ -110,7 +110,7 @@ class Log {
               log.info("Started parsing Short Sync events in debug.log$ext");
 
               try {
-                keepParsingShortSyncs = parseShortSyncs(content, _parseUntil);
+                keepParsingShortSyncs = _parseShortSyncs(content, _parseUntil);
               } catch (e) {
                 log.info(
                     "Warning: could not parse Short Sync events in debug.log$ext, make sure chia log level is set to INFO");
@@ -142,7 +142,7 @@ class Log {
   }
 
   //Parses debug file and looks for filters
-  bool parseFilters(String contents, int parseUntil) {
+  bool _parseFilters(String contents, int parseUntil) {
     bool keepParsing = true;
     bool inCache = false;
 
@@ -193,10 +193,10 @@ class Log {
           "Warning: could not parse filters, make sure chia log level is set to INFO");
     }
 
-    return keepParsing && !inCache;
+    return keepParsing & !inCache;
   }
 
-  bool parseSignagePoints(String contents, int parseUntil) {
+  bool _parseSignagePoints(String contents, int parseUntil) {
     bool keepParsing = true;
     bool inCache = false;
 
@@ -208,7 +208,7 @@ class Log {
       var matches = signagePointsRegex.allMatches(contents).toList();
       int timestamp = 0;
 
-      for (int i = 0; i < matches.length; i++) {
+      for (int i = matches.length - 1; i >= 0; i--) {
         if (keepParsing && !inCache) {
           var match = matches[i];
 
@@ -219,7 +219,7 @@ class Log {
           //if filter's timestamp is outside parsing date rang
           keepParsing = timestamp > parseUntil;
 
-          inCache = _signagePoints
+          inCache = signagePoints
               .any((signagePoint) => signagePoint.timestamp == timestamp);
 
           //only adds subslot if its not already in cache
@@ -227,7 +227,7 @@ class Log {
             int index = int.parse(match.group(4) ?? '0');
 
             SignagePoint signagePoint = SignagePoint(timestamp, index);
-            _signagePoints.add(signagePoint);
+            signagePoints.add(signagePoint);
           }
         }
       }
@@ -240,8 +240,10 @@ class Log {
 
   _genSubSlots() {
     subSlots = [];
+    //orders signage points by timestamps
+    signagePoints.sort((s1, s2) => s1.timestamp.compareTo(s2.timestamp));
 
-    for (SignagePoint signagePoint in _signagePoints) {
+    for (SignagePoint signagePoint in signagePoints) {
       SubSlot? subSlot;
 
       if (signagePoint.index != 1) {
@@ -267,7 +269,7 @@ class Log {
     } catch (e) {}
   }
 
-  bool parseShortSyncs(String contents, int parseUntil) {
+  bool _parseShortSyncs(String contents, int parseUntil) {
     bool keepParsing = true;
     bool inCache = false;
 
@@ -279,7 +281,7 @@ class Log {
       var matches = shortSyncsRegex.allMatches(contents).toList();
       int timestamp = 0;
 
-      for (int i = 0; i < matches.length; i++) {
+      for (int i = matches.length - 1; i >= 0; i--) {
         if (keepParsing && !inCache) {
           var match = matches[i];
 
@@ -317,8 +319,8 @@ class Log {
   void filterDuplicateSignagePoints() {
 //Removes subslots with same timestamps!
     final ids =
-        _signagePoints.map((signagePoint) => signagePoint.timestamp).toSet();
-    _signagePoints
+        signagePoints.map((signagePoint) => signagePoint.timestamp).toSet();
+    signagePoints
         .retainWhere((signagePoint) => ids.remove(signagePoint.timestamp));
   }
 }

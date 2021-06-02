@@ -19,7 +19,8 @@ class Farmer extends Harvester {
   String _status = "N/A";
   //shows not harvesting status if harvester class is not harvesting
   @override
-  String get status => (super.status == "Harvesting") ? _status : super.status;
+  String get status =>
+      (super.status == "Harvesting") ? _status : "$_status, ${super.status}";
 
   Wallet _wallet = Wallet(-1.0, 0);
   Wallet get wallet => _wallet;
