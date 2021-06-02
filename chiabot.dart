@@ -25,13 +25,13 @@ final Duration delay = Duration(minutes: 10); //10 minutes delay between updates
 
 //test mode for github releases
 String chiaConfigPath = (io.File(".github/workflows/config.yaml").existsSync())
-    ? ".github/workflows/"
+    ? ".github/workflows"
 //Sets config file path according to platform
     : (io.Platform.isLinux || io.Platform.isMacOS)
-        ? io.Platform.environment['HOME']! + "/.chia/mainnet/config/"
+        ? io.Platform.environment['HOME']! + "/.chia/mainnet/config"
         : (io.Platform.isWindows)
             ? io.Platform.environment['UserProfile']! +
-                "\\.chia\\mainnet\\config\\"
+                "\\.chia\\mainnet\\config"
             : "";
 
 //Sets config file path according to platform
@@ -90,7 +90,10 @@ main(List<String> args) async {
           : (config.type == ClientType.HPool)
               ? HPool(config: config, log: chiaLog, version: version)
               : Harvester(config, chiaLog, version);
-      await client.init(chiaConfigPath);
+      //hpool has a special config.yaml directory, as defined in chiabot's config.json
+      await client.init((config.type == ClientType.HPool)
+          ? config.hpoolConfigPath
+          : chiaConfigPath);
 
       //Throws exception in case no plots were found
       if (client.plots.length == 0)

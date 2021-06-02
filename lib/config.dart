@@ -68,6 +68,9 @@ class Config {
   bool _ignoreDiskSpace = false;
   bool get ignoreDiskSpace => _ignoreDiskSpace;
 
+  String _hpoolConfigPath = "";
+  String get hpoolConfigPath => _hpoolConfigPath;
+
   final io.File _config = io.File("config.json");
 
   Config(this.cache, String chiaConfigPath,
@@ -152,6 +155,10 @@ class Config {
     //hides ignoreDiskSpace from config.json if false (default)
     if (ignoreDiskSpace)
       configMap.putIfAbsent("Ignore Disk Space", () => ignoreDiskSpace);
+
+    //hpool's config.yaml
+    if (type == ClientType.HPool)
+      configMap.putIfAbsent("HPool Directory", () => hpoolConfigPath);
 
     var encoder = new JsonEncoder.withIndent("    ");
     String contents = encoder.convert([configMap]);
@@ -342,6 +349,9 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
 
     if (contents[0]['Hard Drive Notifications'] != null)
       _sendDriveNotifications = contents[0]['Hard Drive Notifications']; //new
+
+    if (contents[0]['HPool Directory'] != null)
+      _hpoolConfigPath = contents[0]['HPool Directory']; //new
 
     await saveConfig();
   }

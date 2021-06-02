@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'package:chiabot/hpool.dart';
 import 'package:universal_io/io.dart' as io;
 
 import 'package:yaml/yaml.dart';
@@ -7,6 +8,7 @@ import 'package:logging/logging.dart';
 
 import 'package:chiabot/plot.dart';
 import 'package:chiabot/config.dart';
+import 'package:chiabot/hpool.dart';
 
 final Logger log = Logger('Harvester.Plots');
 
@@ -26,13 +28,16 @@ class HarvesterPlots {
 
   //Parses chia's config.yaml and finds plot destionation paths
   List<String> listPlotDest(String chiaConfigPath) {
-    String configPath = chiaConfigPath + "config.yaml";
+    String configPath = (chiaConfigPath != "")
+        ? chiaConfigPath + io.Platform.pathSeparator + "config.yaml"
+        : "config.yaml";
 
     var configYaml = loadYaml(
         io.File(configPath).readAsStringSync().replaceAll("!!set", ""));
 
-    List<String> pathsUnfiltered =
-        ylistToStringlist(configYaml['harvester']['plot_directories']);
+    List<String> pathsUnfiltered = (this is HPool)
+        ? ylistToStringlist(configYaml['path'])
+        : ylistToStringlist(configYaml['harvester']['plot_directories']);
 
     //Filters duplicate paths
     List<String> pathsFiltered = [];

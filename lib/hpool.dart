@@ -13,7 +13,7 @@ class HPool extends Farmer {
   HPool({required Config config, required Debug.Log log, String version = ''})
       : super(config: config, log: log, version: version, hpool: false);
 
-  HPool.fromJson(dynamic json) : super.fromJson(json) {}
+  HPool.fromJson(dynamic json) : super.fromJson(json);
 
   //Adds harvester's plots into farm's plots
   @override
