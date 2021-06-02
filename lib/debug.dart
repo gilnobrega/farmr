@@ -52,10 +52,13 @@ class Log {
     bool keepParsingFilters = true;
     bool keepParsingSignagePoints = true;
     bool keepParsingShortSyncs = true;
+
+    log.info("Started parsing logs");
     //parses debug.log, debug.log.1, debug.log.2, ...
     for (int i = 0; i < 10; i++) {
       if (keepParsing) {
         String ext = (i == 0) ? '' : ('.' + i.toString());
+        log.info("Started parsing debug.log$ext");
 
         try {
           _debugFile = io.File(debugPath + ext);
@@ -75,16 +78,21 @@ class Log {
 
             //parses filters
             if (keepParsingFilters) {
+              log.info("Started parsing filters in debug.log$ext");
               try {
                 keepParsingFilters = parseFilters(content, _parseUntil);
               } catch (e) {
                 log.warning(
                     "Warning: could not parse filters in debug.log$ext, make sure chia log level is set to INFO");
               }
+              log.info(
+                  "Finished parsing filters in debug.log$ext - keepParsingFilters: $keepParsingFilters");
             }
 
             //parses signage points
             if (keepParsingSignagePoints) {
+              log.info("Started parsing Signage Points in debug.log$ext");
+
               try {
                 keepParsingSignagePoints =
                     parseSignagePoints(content, _parseUntil);
@@ -92,16 +100,24 @@ class Log {
                 log.info(
                     "Warning: could not parse SubSlots in debug.log$ext, make sure chia log level is set to INFO");
               }
+
+              log.info(
+                  "Finished parsing SignagePoints in debug.log$ext - keepParsingSignagePoints: $keepParsingSignagePoints");
             }
 
             //parses signage points
             if (keepParsingShortSyncs) {
+              log.info("Started parsing Short Sync events in debug.log$ext");
+
               try {
                 keepParsingShortSyncs = parseShortSyncs(content, _parseUntil);
               } catch (e) {
                 log.info(
                     "Warning: could not parse Short Sync events in debug.log$ext, make sure chia log level is set to INFO");
               }
+
+              log.info(
+                  "Finished Short Sync events in debug.log$ext - keepParsingShortSyncs: $keepParsingShortSyncs");
             }
           }
         } catch (Exception) {
@@ -113,6 +129,8 @@ class Log {
         keepParsing = keepParsingFilters ||
             keepParsingSignagePoints ||
             keepParsingShortSyncs;
+
+        log.info("Finished parsing debug.log$ext - keepParsing: $keepParsing");
       }
     }
 

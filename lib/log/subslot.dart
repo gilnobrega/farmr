@@ -15,7 +15,7 @@ class SubSlot {
   Map toJson() => {'signagePoints': signagePoints};
 
   SubSlot(this.signagePoints, [bool first = false]) {
-    log.info("New SubSlot with signage point ${signagePoints[0]}/64");
+    //log.info("New SubSlot with signage point ${signagePoints[0].index}/64");
 
     _first = first;
   }
