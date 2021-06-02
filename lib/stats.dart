@@ -39,6 +39,7 @@ class Stats {
   Duration get averagePlotLength => averagePlotDuration(_client.plots);
 
   //DRIVES
+  int get drivesCount => (_client.drivesCount);
   bool get supportDiskSpace => (_client.supportDiskSpace);
   //sums size occupied by plots
   int get plotsSize => plotSumSize(_client.plots);
@@ -259,13 +260,22 @@ class Stats {
     return output;
   }
 
+  static String showDrives(Stats stats) {
+    String output = '';
+
+    if (stats.drivesCount > 0)
+      output += '\n\n${stats.drivesCount} drives connected';
+
+    return output;
+  }
+
   //Counts types of plots, k32, k33, etc.
   static String showPlotTypes(Harvester client) {
     String output = '';
     List<Plot> plots = client.plots;
 
     if (plots.length > 0) {
-      output += '\n\n:abacus: Types: ';
+      output += ':abacus: ';
 
       var entries = client.typeCount.entries.toList();
       entries.sort((entry1, entry2) => entry1.key.compareTo(entry2.key));

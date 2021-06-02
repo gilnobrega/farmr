@@ -316,7 +316,8 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount,
         Stats.showFarmedTime(stats);
 
     String full = (isFull || isWorkers)
-        ? Stats.showPlotTypes(harvester) +
+        ? Stats.showDrives(stats) +
+            Stats.showPlotTypes(harvester) +
             Stats.showLastPlotInfo(harvester) +
             Stats.showLastNDaysPlots(harvester, 8, netSpace) +
             Stats.showWeekPlots(stats) +

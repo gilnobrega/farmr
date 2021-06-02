@@ -176,6 +176,7 @@ class Farmer extends Harvester {
     //Adds harvester total and free disk space when merging
     totalDiskSpace += harvester.totalDiskSpace;
     freeDiskSpace += harvester.freeDiskSpace;
+    drivesCount += harvester.drivesCount;
 
     //Disables avg, median, etc. in !chia full
     this.disableDetailedTimeStats();
