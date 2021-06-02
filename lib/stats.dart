@@ -261,10 +261,10 @@ class Stats {
   }
 
   static String showDrives(Stats stats) {
-    String output = '';
+    String output = '\n';
 
     if (stats.drivesCount > 0)
-      output += '\n\n${stats.drivesCount} drives connected';
+      output += '\n${stats.drivesCount} drives connected';
 
     return output;
   }
@@ -275,7 +275,7 @@ class Stats {
     List<Plot> plots = client.plots;
 
     if (plots.length > 0) {
-      output += ':abacus: ';
+      output += '\n:abacus: ';
 
       var entries = client.typeCount.entries.toList();
       entries.sort((entry1, entry2) => entry1.key.compareTo(entry2.key));
