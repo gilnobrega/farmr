@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 
 import 'package:chiabot/farmer.dart';
 import 'package:chiabot/harvester.dart';
+import 'package:chiabot/hpool.dart';
 import 'package:chiabot/stats.dart';
 import 'package:chiabot/server/price.dart';
 import 'package:chiabot/server/netspace.dart';
@@ -251,6 +252,9 @@ Future<List<Harvester>> _getUserData(String userID) async {
         harvesters.add(client);
       } else if (clientSerial.contains('"type":1')) {
         client = Harvester.fromJson(clientSerial);
+        harvesters.add(client);
+      } else if (clientSerial.contains('"type":2')) {
+        client = HPool.fromJson(clientSerial);
         harvesters.add(client);
       }
     }

@@ -75,53 +75,60 @@ class Farmer extends Harvester {
     return harvesterMap;
   }
 
-  Farmer(Config config, Debug.Log log, [String version = ''])
+  Farmer(
+      {required Config config,
+      required Debug.Log log,
+      String version = '',
+      bool hpool = false})
       : super(config, log, version) {
-    //runs chia farm summary if it is a farmer
-    var result = io.Process.runSync(config.cache.binPath, ["farm", "summary"]);
-    List<String> lines =
-        result.stdout.toString().replaceAll("\r", "").split('\n');
+    if (!hpool) {
+      //runs chia farm summary if it is a farmer
+      var result =
+          io.Process.runSync(config.cache.binPath, ["farm", "summary"]);
+      List<String> lines =
+          result.stdout.toString().replaceAll("\r", "").split('\n');
 
-    //needs last farmed block to calculate effort, this is never stored
-    int lastBlockFarmed = 0;
-    try {
-      for (int i = 0; i < lines.length; i++) {
-        String line = lines[i];
+      //needs last farmed block to calculate effort, this is never stored
+      int lastBlockFarmed = 0;
+      try {
+        for (int i = 0; i < lines.length; i++) {
+          String line = lines[i];
 
-        if (line.startsWith("Total chia farmed: "))
-          _balance = (config.showBalance)
-              ? double.parse(line.split('Total chia farmed: ')[1])
-              : -1.0;
-        else if (line.startsWith("Farming status: "))
-          _status = line.split("Farming status: ")[1];
-        else if (line.startsWith("Last height farmed: "))
-          lastBlockFarmed =
-              int.tryParse(line.split("Last height farmed: ")[1]) ?? 0;
-        else if (line.startsWith("Estimated network space: "))
-          _netSpace = NetSpace(line.split("Estimated network space: ")[1]);
+          if (line.startsWith("Total chia farmed: "))
+            _balance = (config.showBalance)
+                ? double.parse(line.split('Total chia farmed: ')[1])
+                : -1.0;
+          else if (line.startsWith("Farming status: "))
+            _status = line.split("Farming status: ")[1];
+          else if (line.startsWith("Last height farmed: "))
+            lastBlockFarmed =
+                int.tryParse(line.split("Last height farmed: ")[1]) ?? 0;
+          else if (line.startsWith("Estimated network space: "))
+            _netSpace = NetSpace(line.split("Estimated network space: ")[1]);
+        }
+      } catch (exception) {
+        print("Error parsing Farm info.");
       }
-    } catch (exception) {
-      print("Error parsing Farm info.");
+
+      //parses chia wallet show for block height
+      _wallet.parseWalletBalance(
+          config.cache.binPath, lastBlockFarmed, config.showWalletBalance);
+
+      //initializes connections and counts peers
+      _connections = Connections(config.cache.binPath);
+
+      _fullNodesConnected = _connections?.connections
+              .where((connection) => connection.type == ConnectionType.FullNode)
+              .length ??
+          0; //whats wrong with this vs code formatting lmao
+
+      //Parses logs for sub slots info
+      if (config.parseLogs) {
+        calculateSubSlots(log);
+      }
+
+      shortSyncs = log.shortSyncs; //loads short sync events
     }
-
-    //parses chia wallet show for block height
-    _wallet.parseWalletBalance(
-        config.cache.binPath, lastBlockFarmed, config.showWalletBalance);
-
-    //initializes connections and counts peers
-    _connections = Connections(config.cache.binPath);
-
-    _fullNodesConnected = _connections?.connections
-            .where((connection) => connection.type == ConnectionType.FullNode)
-            .length ??
-        0; //whats wrong with this vs code formatting lmao
-
-    //Parses logs for sub slots info
-    if (config.parseLogs) {
-      calculateSubSlots(log);
-    }
-
-    shortSyncs = log.shortSyncs; //loads short sync events
   }
 
   //Server side function to read farm from json file

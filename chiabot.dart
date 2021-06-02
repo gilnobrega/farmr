@@ -86,9 +86,9 @@ main(List<String> args) async {
       Log chiaLog = new Log(chiaDebugPath, cache, config.parseLogs);
 
       var client = (config.type == ClientType.Farmer)
-          ? Farmer(config, chiaLog, version)
+          ? Farmer(config: config, log: chiaLog, version: version)
           : (config.type == ClientType.HPool)
-              ? HPool(config, chiaLog, version)
+              ? HPool(config: config, log: chiaLog, version: version)
               : Harvester(config, chiaLog, version);
       await client.init(chiaConfigPath);
 
