@@ -43,7 +43,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
   ClientType _type = ClientType.Harvester;
   ClientType get type => _type;
 
-  SwarPM? _swarPM;
+  SwarPM? _swarPM = SwarPM(); //initializes empty SwarPM class (jobs = [])
   SwarPM? get swarPM => _swarPM;
 
   Map toJson() => {

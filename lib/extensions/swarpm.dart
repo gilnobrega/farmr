@@ -6,35 +6,37 @@ class SwarPM {
 
   Map toJson() => {"jobs": jobs};
 
-  SwarPM(String managerPath) {
-    String jsonOutput = '';
+  SwarPM([String managerPath = ""]) {
+    if (managerPath != "") {
+      String jsonOutput = '';
 
-    final oldDir = io.Directory.current;
+      final oldDir = io.Directory.current;
 
-    try {
-      //changes working directory to swar's pm
-      io.Directory.current = managerPath;
-      if (io.Platform.isWindows) {
-        jsonOutput =
-            io.Process.runSync("python", ["manager.py", "json"]).stdout;
-      } else {
-        jsonOutput = io.Process.runSync(
-            "/usr/bin/env", ["python3", "manager.py", "json"]).stdout;
+      try {
+        //changes working directory to swar's pm
+        io.Directory.current = managerPath;
+        if (io.Platform.isWindows) {
+          jsonOutput =
+              io.Process.runSync("python", ["manager.py", "json"]).stdout;
+        } else {
+          jsonOutput = io.Process.runSync(
+              "/usr/bin/env", ["python3", "manager.py", "json"]).stdout;
+        }
+
+        dynamic jsonObject = jsonDecode(jsonOutput);
+
+        for (var jobObject in jsonObject["jobs"]) {
+          Job job = Job(jobObject);
+          jobs.add(job);
+        }
+      } catch (e) {
+        print(
+            "Failed to get info about Swar's Chia Plot Manager.\nMake sure you're running version >0.1.0");
       }
 
-      dynamic jsonObject = jsonDecode(jsonOutput);
-
-      for (var jobObject in jsonObject["jobs"]) {
-        Job job = Job(jobObject);
-        jobs.add(job);
-      }
-    } catch (e) {
-      print(
-          "Failed to get info about Swar's Chia Plot Manager.\nMake sure you're running version >0.1.0");
+      //restores old working directory
+      io.Directory.current = oldDir;
     }
-
-    //restores old working directory
-    io.Directory.current = oldDir;
   }
 
   SwarPM.fromJson(dynamic json) {
