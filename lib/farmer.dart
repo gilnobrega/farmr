@@ -50,40 +50,26 @@ class Farmer extends Harvester {
   List<ShortSync> shortSyncs = [];
 
   @override
-  Map toJson() => {
-        'name': name,
-        'currency': currency,
-        'status': status,
-        'balance': balance, //farmed balance
-        'walletBalance': _wallet.balance, //wallet balance
-        //rounds days since last blocks so its harder to track wallets
-        //precision of 0.1 days means uncertainty of 140 minutes
-        'daysSinceLastBlock':
-            double.parse(_wallet.daysSinceLastBlock.toStringAsFixed(1)),
-        'plots': allPlots, //important
-        'totalDiskSpace': totalDiskSpace,
-        'freeDiskSpace': freeDiskSpace,
-        'lastUpdated': lastUpdated.millisecondsSinceEpoch,
-        'lastUpdatedString': lastUpdatedString,
-        'type': type.index,
-        'completeSubSlots': completeSubSlots,
-        'looseSignagePoints': looseSignagePoints,
-        'numberFilters': numberFilters,
-        'eligiblePlots': eligiblePlots,
-        'proofsFound': proofsFound,
-        'totalPlots': totalPlots,
-        'missedChallenges': missedChallenges,
-        'maxTime': maxTime,
-        'minTime': minTime,
-        'avgTime': avgTime,
-        'medianTime': medianTime,
-        'stdDeviation': stdDeviation,
-        'filterCategories': filterCategories,
-        'fullNodesConnected': fullNodesConnected,
-        "shortSyncs": shortSyncs,
-        "swarPM": swarPM,
-        'version': version
-      };
+  Map toJson() {
+    Map harvesterMap = (super.toJson());
+
+    harvesterMap.addEntries({
+      'status': status,
+      'balance': balance, //farmed balance
+      'walletBalance': _wallet.balance, //wallet balance
+      //rounds days since last blocks so its harder to track wallets
+      //precision of 0.1 days means uncertainty of 140 minutes
+      'daysSinceLastBlock':
+          double.parse(_wallet.daysSinceLastBlock.toStringAsFixed(1)),
+      'completeSubSlots': completeSubSlots,
+      'looseSignagePoints': looseSignagePoints,
+
+      'fullNodesConnected': fullNodesConnected,
+      "shortSyncs": shortSyncs,
+    }.entries);
+
+    return harvesterMap;
+  }
 
   Farmer(Config config, Debug.Log log, [String version = ''])
       : super(config, log, version) {
