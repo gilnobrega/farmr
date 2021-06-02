@@ -9,7 +9,7 @@ class Price {
   var _cacheFile;
 
   //list of currencies to get from api and their symbols
-  static final Map<String, String> currencies = {
+  static const Map<String, String> currencies = {
     'USD': '\$',
     'EUR': '€',
     'CAD': '\$',
@@ -122,7 +122,9 @@ class Price {
         .read(Uri.parse("https://api.coinbase.com/v2/prices/USD/spot")));
 
     for (String otherCurrency in currencies.entries
-        .where((entry) => entry != currencies.entries.first)
+        .where((entry) =>
+            entry != currencies.entries.first &&
+            !(rates[entry.key] != null && (rates[entry.key]!.rate > 0)))
         .map((entry) => entry.key)
         .toList()) {
       try {
@@ -130,7 +132,12 @@ class Price {
         double rate = 0.0;
 
         for (var object in data) {
-          if (object['base'] == otherCurrency) {
+          //JPY and INR are too small to have an accurate rate this way,
+          //since the api only stores values up to 0.01 usd
+          if (object['base'] == otherCurrency &&
+              object['base'] != "JPY" &&
+              object['base'] != "INR") {
+            print(object['base']);
             rate = 1 / double.parse(object['amount']);
           }
         }
@@ -148,7 +155,9 @@ class Price {
           // xch price = usd/eur price * xch/usd price
           double xchprice =
               ((rate) * (rates[currencies.entries.first.key]?.rate ?? 0.0));
-          rates.putIfAbsent(otherCurrency, () => Rate(xchprice, 0, 0));
+          rates.update(otherCurrency,
+              (value) => Rate(xchprice, value.change, value.rate),
+              ifAbsent: () => Rate(xchprice, 0, 0));
         }
       } catch (e) {}
     }
