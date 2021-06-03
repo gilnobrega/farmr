@@ -14,7 +14,7 @@ class HPool extends Farmer {
   final ClientType type = ClientType.HPool;
 
   HPool({required Config config, required Debug.Log log, String version = ''})
-      : super(config: config, log: log, version: version, hpool: false);
+      : super(config: config, log: log, version: version, hpool: true);
 
   HPool.fromJson(dynamic json) : super.fromJson(json);
 
