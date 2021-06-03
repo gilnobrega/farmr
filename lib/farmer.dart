@@ -20,7 +20,9 @@ class Farmer extends Harvester {
   //shows not harvesting status if harvester class is not harvesting
   @override
   String get status =>
-      (super.status == "Harvesting") ? _status : "$_status, ${super.status}";
+      (super.status == "Harvesting" || super.status == "Farming")
+          ? _status
+          : "$_status, ${super.status}";
 
   Wallet _wallet = Wallet(-1.0, 0);
   Wallet get wallet => _wallet;
@@ -193,7 +195,7 @@ class Farmer extends Harvester {
     swarPM?.jobs.addAll(harvester.swarPM?.jobs ?? []);
 
     //shows harvesters status if theyre not harvesting
-    if (harvester.status != "Harvesting")
+    if (harvester.status != "Harvesting" || harvester.status != "Farming")
       _status = "$_status,\n${harvester.name} is ${harvester.status}";
   }
 
