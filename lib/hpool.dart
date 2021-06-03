@@ -35,6 +35,6 @@ class HPool extends Farmer {
     this.disableDetailedTimeStats();
 
     //adds swar pm jobs
-    swarPM?.jobs.addAll(harvester.swarPM?.jobs ?? []);
+    swarPM.jobs.addAll(harvester.swarPM.jobs);
   }
 }

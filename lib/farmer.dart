@@ -192,7 +192,7 @@ class Farmer extends Harvester {
     this.disableDetailedTimeStats();
 
     //adds swar pm jobs
-    swarPM?.jobs.addAll(harvester.swarPM?.jobs ?? []);
+    swarPM.jobs.addAll(harvester.swarPM.jobs);
 
     //shows harvesters status if theyre not harvesting
     if (harvester.status != "Harvesting" && harvester.status != "Farming")

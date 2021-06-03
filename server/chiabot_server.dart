@@ -183,7 +183,7 @@ Future<void> main(List<String> args) async {
       }
     } catch (Exception) {
       if (farmersCount == 0) print("Error: Farmer not found.");
-      if (harvesters.length != null && harvesters.length > 0)
+      if (harvesters.length > 0)
         print(
             "Error: $farmersCount farmers and $harvestersCount harvesters found.");
       else
@@ -341,9 +341,7 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount,
         ? ";;" + Stats.showFullNodeStats(harvester) + lastUpdated
         : '';
 
-    String swarPM = ((isFull || isWorkers) &&
-            harvester.swarPM != null &&
-            (harvester.swarPM?.jobs.length ?? 0) > 0)
+    String swarPM = ((isFull || isWorkers) && harvester.swarPM.jobs.length > 0)
         ? ";;" + Stats.showSwarPMJobs(harvester) + lastUpdated
         : '';
 

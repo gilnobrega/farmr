@@ -583,10 +583,10 @@ class Stats {
   static String showSwarPMJobs(Harvester client) {
     String output = '';
 
-    if (client.swarPM != null && (client.swarPM?.jobs.length ?? 0) > 0) {
+    if (client.swarPM.jobs.length > 0) {
       output += "\n**Swar's Chia Plot Manager**";
 
-      for (Job job in client.swarPM?.jobs ?? []) {
+      for (Job job in client.swarPM.jobs) {
         output +=
             "\n${job.number} ${job.name} ${job.elapsed} ${job.phase} ${job.phaseTimes} ${job.percentage} ${job.space}";
       }
