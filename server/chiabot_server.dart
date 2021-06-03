@@ -223,6 +223,8 @@ Future<List<Harvester>> _getUserData(String userID) async {
           harvesters.add(Farmer.fromJson(data));
         else if (data.contains('"type":1'))
           harvesters.add(Harvester.fromJson(data));
+        else if (data.contains('"type":2'))
+          harvesters.add(HPool.fromJson(data));
       }
     }
 
