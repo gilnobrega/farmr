@@ -30,7 +30,7 @@ class Stats {
       (_client is Farmer) ? (_client as Farmer).wallet.balance : -1.0;
   double get walletBalanceFiat => walletBalance * (_price?.rate ?? 0.0);
   double get walletBalanceFiatChange =>
-      walletBalanceFiat * (_price?.rate ?? 0.0);
+      walletBalanceFiat * (_price?.change ?? 0.0);
 
   //PLOTS
   //total number of plots (complete plots)
