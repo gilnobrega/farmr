@@ -19,10 +19,7 @@ class Farmer extends Harvester {
   String _status = "N/A";
   //shows not harvesting status if harvester class is not harvesting
   @override
-  String get status =>
-      (super.status == "Harvesting" || super.status == "Farming")
-          ? _status
-          : "$_status, ${super.status}";
+  String get status => _status;
 
   Wallet _wallet = Wallet(-1.0, 0);
   Wallet get wallet => _wallet;
@@ -130,6 +127,13 @@ class Farmer extends Harvester {
       }
 
       shortSyncs = log.shortSyncs; //loads short sync events
+
+      //harvesting status
+      String harvestingStatusString =
+          harvestingStatus(config.parseLogs) ?? "Harvesting";
+
+      if (harvestingStatusString != "Harvesting")
+        _status = "$_status, $harvestingStatusString";
     }
   }
 
