@@ -5,7 +5,10 @@ import 'package:chiabot/debug.dart' as Debug;
 
 class HPool extends Farmer {
   @override
-  String get status => "HPool :nauseated_face:";
+  String get status => "HPool :sick:";
+
+  @override
+  double get balance => -1.0; //hides balance
 
   @override
   final ClientType type = ClientType.HPool;
