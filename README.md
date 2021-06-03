@@ -63,6 +63,9 @@ Then reopen file explorer in the folder where ``chiabot-linux-amd64.tar.gz`` was
       - If you're setting up a **harvester** Open ``harvester.sh``, once you see the main screen with your id and harvester stats you're good to go.
 3. Link your device to your discord account as shown in [First Time](#first-time)
 
+#### HPool Mode
+You can use chiabot for basic stats if you are farming in HPool. Follow the instructions above according to your platform. Just make sure you run ``hpool.exe`` or ``hpool.sh`` and then edit set ``"HPool Directory"`` in ``config.json``. Then reopen ``hpool.exe`` or ``hpool.sh``.
+
 
 #### Compile from source (every platform/architecture)
 1. Download ``source.tar.gz`` or ``source.zip`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and extract it to a folder.
@@ -111,6 +114,7 @@ These are the default settings:
         "Show Wallet Balance": false,
         "Block Notifications": true,
         "Plot Notifications": false,
+        "Hard Drive Notifications": true,
         "Offline Notifications": false,
         "Farm Status Notifications": true,
         "Parse Logs": false,
@@ -139,11 +143,14 @@ Set ``Block Notifications`` to ``false`` if you do not wish to be notified when 
 #### Plot Notifications
 Set ``Plot Notifications`` to ``true`` if you wish to be notified when your farmer/harvester completes a plot.
 
+#### Hard Drive Notifications
+Set ``Hard Drive Notifications`` to ``false`` if you don't want to be notified when your farmer/harvester loses connection to one of its drives.
+
 #### Offline Notifications
 Set ``Offline Notifications`` to ``true`` if you wish to be notified when your farmer/harvester loses connection.
 
 #### Status Notifications
-Set ``Farm Status Notifications`` to ``false`` if you don't want to be notified when your farmer loses sync and stops farming.
+Set ``Farm Status Notifications`` to ``false`` if you don't want to be notified when your farmer loses sync and stops farming. If you have log parsing enabled, you will also be notified if your harvester stopped receiving challenges.
 
 #### Chia Log Parsing
 If your chia debug level is set to ``INFO`` ([find how to do that here](https://thechiafarmer.com/2021/04/20/how-to-enable-chia-logs-on-windows/)), setting ``Parse Logs`` to ``true`` will enable extra stats, such as number of challenges in the last 24 hours, max, min and average challenge response times, incomplete SubSlots, and number of short losses of sync events.
