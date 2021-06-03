@@ -86,7 +86,7 @@ class Farmer extends Harvester {
     if (!hpool) {
       //runs chia farm summary if it is a farmer
       var result =
-          io.Process.runSync(config.cache.binPath, ["farm", "summary"]);
+          io.Process.runSync(config.cache.binPath, const ["farm", "summary"]);
       List<String> lines =
           result.stdout.toString().replaceAll("\r", "").split('\n');
 

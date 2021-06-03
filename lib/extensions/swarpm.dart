@@ -17,10 +17,10 @@ class SwarPM {
         io.Directory.current = managerPath;
         if (io.Platform.isWindows) {
           jsonOutput =
-              io.Process.runSync("python", ["manager.py", "json"]).stdout;
+              io.Process.runSync("python", const ["manager.py", "json"]).stdout;
         } else {
           jsonOutput = io.Process.runSync(
-              "/usr/bin/env", ["python3", "manager.py", "json"]).stdout;
+              "/usr/bin/env", const ["python3", "manager.py", "json"]).stdout;
         }
 
         dynamic jsonObject = jsonDecode(jsonOutput);

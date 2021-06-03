@@ -30,7 +30,7 @@ class Connections {
 
   Connections(String binPath) {
     var connectionsOutput =
-        io.Process.runSync(binPath, ["show", "-c"]).stdout.toString();
+        io.Process.runSync(binPath, const ["show", "-c"]).stdout.toString();
 
     try {
       RegExp connectionsRegex = RegExp(

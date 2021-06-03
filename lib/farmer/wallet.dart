@@ -26,7 +26,7 @@ class Wallet {
     _lastBlockFarmed = lastBlockFarmed;
 
     var walletOutput =
-        io.Process.runSync(binPath, ["wallet", "show"]).stdout.toString();
+        io.Process.runSync(binPath, const ["wallet", "show"]).stdout.toString();
 
     if (showWalletBalance) {
       try {
