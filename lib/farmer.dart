@@ -191,6 +191,10 @@ class Farmer extends Harvester {
 
     //adds swar pm jobs
     swarPM?.jobs.addAll(harvester.swarPM?.jobs ?? []);
+
+    //shows harvesters status if theyre not harvesting
+    if (harvester.status != "Harvesting")
+      _status = "$_status,\n${harvester.name} is ${harvester.status}";
   }
 
   void calculateSubSlots(Debug.Log log) {

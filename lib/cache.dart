@@ -103,6 +103,7 @@ class Cache {
     try {
       //loads filters list from cache file
       if (contents[0]['filters'] != null) {
+        _filters = [];
         var filtersJson = contents[0]['filters'];
 
         for (var filterJson in filtersJson) {
@@ -113,6 +114,7 @@ class Cache {
 
       //loads subslots list from cache file
       if (contents[0]['signagePoints'] != null) {
+        _signagePoints = [];
         var signagePointsJson = contents[0]['signagePoints'];
 
         for (var signagePointJson in signagePointsJson) {
@@ -124,6 +126,7 @@ class Cache {
 
       //loads shortsyncs list from cache file
       if (contents[0]['shortSyncs'] != null) {
+        _shortSyncs = [];
         var shortSyncsJson = contents[0]['shortSyncs'];
 
         for (var shortSyncJson in shortSyncsJson) {

@@ -165,7 +165,7 @@ main(List<String> args) async {
 
         String url = "https://chiabot.znc.sh/send6.php";
 
-        if (config.type == ClientType.Farmer && config.sendStatusNotifications)
+        if (config.sendStatusNotifications)
           post.putIfAbsent("isFarming", () => isFarming);
 
         //Adds the following if sendPlotNotifications is enabled then it will send plotID
