@@ -130,8 +130,9 @@ Future<void> main(List<String> args) async {
           harvesters.where((client) => !(client is Farmer)).length;
       farmersCount = harvesters.length - harvestersCount;
 
-      Farmer farm = harvesters.where((client) => client is Farmer).first
-          as Farmer; //Selects newest farm as main farm
+      Farmer farm = harvesters
+          .where((client) => (client is Farmer || client is HPool))
+          .first as Farmer; //Selects newest farm as main farm
 
       if (args.contains("workers")) {
         //Sorts workers by alphabetical order
