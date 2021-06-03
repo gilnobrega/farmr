@@ -195,7 +195,7 @@ class Farmer extends Harvester {
     swarPM?.jobs.addAll(harvester.swarPM?.jobs ?? []);
 
     //shows harvesters status if theyre not harvesting
-    if (harvester.status != "Harvesting" || harvester.status != "Farming")
+    if (harvester.status != "Harvesting" && harvester.status != "Farming")
       _status = "$_status,\n${harvester.name} is ${harvester.status}";
   }
 
