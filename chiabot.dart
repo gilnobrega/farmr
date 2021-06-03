@@ -19,7 +19,7 @@ import 'package:chiabot/server/price.dart';
 
 final log = Logger('Client');
 
-final String version = '1.3.0';
+final String version = '1.3.1';
 
 final Duration delay = Duration(minutes: 10); //10 minutes delay between updates
 
