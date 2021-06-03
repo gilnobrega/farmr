@@ -4,6 +4,7 @@ import 'package:mysql1/mysql1.dart' as mysql;
 import 'package:dotenv/dotenv.dart' as dotenv;
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:universal_io/io.dart' as io;
 
 import 'package:chiabot/farmer.dart';
 import 'package:chiabot/harvester.dart';
@@ -193,6 +194,8 @@ Future<void> main(List<String> args) async {
       //print("${userID} - Exception: ${Exception.toString()}");
     }
   }
+
+  io.exit(0); //fixes issue where some commands would hang for some users
 }
 
 //gets harvesters linked to user from mysql db
