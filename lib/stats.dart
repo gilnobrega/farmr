@@ -175,7 +175,7 @@ class Stats {
 
       String etwString = "\n:moneybag: ETW: $etwValue";
 
-      if (stats.balanceFiat > 0) {
+      if (stats.edv > 0) {
         etwString +=
             " EDV: ${stats.edv.toStringAsPrecision(3)} XCH (${stats.edvFiat.toStringAsFixed(2)}${Price.currencies[stats.currency]})";
       }
