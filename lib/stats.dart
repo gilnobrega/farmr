@@ -187,7 +187,7 @@ class Stats {
       if (stats.effort > 0.0) {
         //doesnt show last block days ago if user has not found a block at all
         String lastBlock = (stats.farmedDays > stats.daysSinceLastBlock)
-            ? "(last block ~${stats.daysSinceLastBlock} days ago)"
+            ? "(last block ~${stats.daysSinceLastBlock.round()} days ago)"
             : '';
         output +=
             "\n:person_lifting_weights: Effort: ${stats.effort.toStringAsFixed(1)}% $lastBlock";
