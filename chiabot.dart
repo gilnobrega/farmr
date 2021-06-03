@@ -109,8 +109,9 @@ main(List<String> args) async {
 
       if (client is Farmer) {
         balance = client.balance.toString();
-        status = client.status;
       }
+
+      status = client.status;
 
       //shows stats in client
       Stats.showHarvester(
