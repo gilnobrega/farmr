@@ -8,7 +8,6 @@ import 'package:logging/logging.dart';
 
 import 'package:chiabot/plot.dart';
 import 'package:chiabot/config.dart';
-import 'package:chiabot/hpool.dart';
 
 final Logger log = Logger('Harvester.Plots');
 

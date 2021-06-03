@@ -239,9 +239,11 @@ class Stats {
   static String showNetworkSize(Stats stats) {
     String output = '';
 
-    String growth =
-        (stats.netSpaceGrowth != "") ? "(${stats.netSpaceGrowth})" : "";
-    output += "\n:satellite: Netspace: ${stats.netSpace} $growth";
+    if (stats.netSpace != "0.0 B") {
+      String growth =
+          (stats.netSpaceGrowth != "") ? "(${stats.netSpaceGrowth})" : "";
+      output += "\n:satellite: Netspace: ${stats.netSpace} $growth";
+    }
 
     return output;
   }
