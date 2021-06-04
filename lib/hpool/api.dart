@@ -33,8 +33,6 @@ class HPoolApi {
           'Cookie': stringifyCookies({"auth_token": authToken.trim()})
         });
 
-        print(response.body);
-
         var data = jsonDecode(response.body);
         _poolIncome =
             double.parse(data['data']['list'][0]['pool_income'].toString());

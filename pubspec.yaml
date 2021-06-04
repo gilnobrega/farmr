@@ -1,5 +1,5 @@
 name: chiabot
-version: 1.3.1
+version: 1.3.2
 description: 
 environment: 
   sdk: '>=2.12.0 < 3.0.0'
@@ -9,7 +9,6 @@ dependencies:
   yaml: ^3.1.0
   http: ^0.13.3
 #  dart_console: ^1.0.0  REMOVING thiS IT IS INCOMPATIBLE WITH JS
-  qr: ^2.0.0
   universal_disk_space: ^0.1.19
   stats: ^2.0.0
   intl: ^0.17.0
