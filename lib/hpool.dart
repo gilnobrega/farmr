@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:chiabot/config.dart';
 import 'package:chiabot/farmer/wallet.dart';
 import 'package:chiabot/harvester.dart';
@@ -27,13 +29,20 @@ class HPool extends Farmer {
     _authToken = config.hpoolAuthToken;
   }
 
-  HPool.fromJson(dynamic json) : super.fromJson(json) {
-    _wallet = HPoolWallet(json['walletBalance'], json['undistributedBalance']);
+  HPool.fromJson(String json) : super.fromJson(json) {
+    var object = jsonDecode(json)[0];
+
+    if (object['walletBalance'] != null &&
+        object['undistributedBalance'] != null)
+      _wallet =
+          HPoolWallet(object['walletBalance'], object['undistributedBalance']);
   }
 
   @override
   Map toJson() {
     Map farmerMap = (super.toJson());
+
+    farmerMap.update("walletBalance", (value) => _wallet.balance);
 
     farmerMap.addEntries({
       'undistributedBalance': _wallet.undistributedBalance, //wallet balance
