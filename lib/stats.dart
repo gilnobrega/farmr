@@ -173,18 +173,33 @@ class Stats {
     return output;
   }
 
-  static String showWalletBalance(Stats stats) {
+  static String showWalletBalance(Stats stats, bool sumWalletWithUnsettled) {
+    //for hpool mode it combines settled and unsettled values in !chia
+    //while it displays them separately in !full or !workers
+    double walletBalance =
+        (stats.undistributedBalance > 0 && sumWalletWithUnsettled)
+            ? stats.walletBalance + stats.undistributedBalance
+            : stats.walletBalance;
+    double walletBalanceFiat =
+        (stats.undistributedBalance > 0 && sumWalletWithUnsettled)
+            ? stats.walletBalanceFiat + stats.undistributedBalanceFiat
+            : stats.walletBalanceFiat;
+    double walletBalanceFiatChange = (stats.undistributedBalance > 0 &&
+            sumWalletWithUnsettled)
+        ? stats.walletBalanceFiatChange + stats.undistributedBalanceFiatChange
+        : stats.walletBalanceFiatChange;
+
     String output = '';
 
-    String sign = (stats.walletBalanceFiatChange >= 0) ? '+' : '-';
+    String sign = (walletBalanceFiatChange >= 0) ? '+' : '-';
 
     String walletPriceText = (stats.walletBalanceFiat > 0)
-        ? "(${stats.walletBalanceFiat.toStringAsFixed(2)} ${stats.currency}, $sign${stats.walletBalanceFiatChange.abs().toStringAsFixed(2)}${Price.currencies[stats.currency]})"
+        ? "(${walletBalanceFiat.toStringAsFixed(2)} ${stats.currency}, $sign${walletBalanceFiatChange.abs().toStringAsFixed(2)}${Price.currencies[stats.currency]})"
         : '';
 
     String walletBalanceText =
-        (stats.walletBalance >= 0.0 && stats.walletBalance != stats.balance)
-            ? "\n:credit_card: ${stats.walletBalance} XCH $walletPriceText"
+        (walletBalance >= 0.0 && walletBalance != stats.balance)
+            ? "\n:credit_card: $walletBalance XCH $walletPriceText"
             : '';
 
     output += walletBalanceText;
@@ -203,7 +218,7 @@ class Stats {
 
     String undistributedBalanceText = (stats.undistributedBalance >= 0.0 &&
             stats.undistributedBalance != stats.balance)
-        ? "\n:grey_question: ${stats.undistributedBalance} XCH $undistributedPriceText"
+        ? "\n:grey_question: Unsettled: ${stats.undistributedBalance} XCH $undistributedPriceText"
         : '';
 
     output += undistributedBalanceText;

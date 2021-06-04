@@ -23,8 +23,6 @@ class HPoolApi {
         //TO ADD
         //const String plotsUrl =
         //   r"/api/pool/GetPlots?language=en&page=1&count=1&pool=chia";
-        //const String blocksUrl =
-        //  r"/api/pool/miningdetail?language=en&type=chia&count=50&page=1";
 
         String baseUrl = r"https://hpool.com";
 
@@ -38,6 +36,27 @@ class HPoolApi {
             double.parse(data['data']['list'][0]['pool_income'].toString());
         _undistributedIncome = double.parse(
             data['data']['list'][0]['undistributed_income'].toString());
+
+        //gets individual blocks unsettled value and compares it to _undistributedIncome
+        //if that value is not zero then it updated undistributedIncome with it
+        try {
+          double unsettledReward = 0;
+          const String blocksUrl =
+              r"/api/pool/miningdetail?language=en&type=chia&count=100&page=1";
+
+          http.Response responseBlocks =
+              await http.post(Uri.parse(baseUrl + blocksUrl), headers: {
+            'Cookie': stringifyCookies({"auth_token": authToken.trim()})
+          });
+
+          var blocksData = jsonDecode(responseBlocks.body);
+
+          for (var block in blocksData['data']['list'])
+            if (block['status'] == 0)
+              unsettledReward += double.parse(block['block_reward']);
+
+          if (unsettledReward != 0) _undistributedIncome = unsettledReward;
+        } catch (e) {}
       } catch (e) {
         log.warning(
             "Failed to get HPool Info, make sure your auth_token is correct.");
