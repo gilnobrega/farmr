@@ -71,7 +71,6 @@ class HPool extends Farmer {
     swarPM.jobs.addAll(harvester.swarPM.jobs);
   }
 
-  @override
   Future<void> init(String chiaConfigPath) async {
     //tries to parse hpool api
     HPoolApi api = HPoolApi();
