@@ -27,7 +27,20 @@ class HPool extends Farmer {
     _authToken = config.hpoolAuthToken;
   }
 
-  HPool.fromJson(dynamic json) : super.fromJson(json);
+  HPool.fromJson(dynamic json) : super.fromJson(json) {
+    _wallet = HPoolWallet(json['walletBalance'], json['undistributedBalance']);
+  }
+
+  @override
+  Map toJson() {
+    Map farmerMap = (super.toJson());
+
+    farmerMap.addEntries({
+      'undistributedBalance': _wallet.undistributedBalance, //wallet balance
+    }.entries);
+
+    return farmerMap;
+  }
 
   //Adds harvester's plots into farm's plots
   @override

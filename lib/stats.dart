@@ -203,7 +203,7 @@ class Stats {
 
     String undistributedBalanceText = (stats.undistributedBalance >= 0.0 &&
             stats.undistributedBalance != stats.balance)
-        ? "\n:credit_card: ${stats.undistributedBalance} XCH $undistributedPriceText"
+        ? "\n:grey_question: ${stats.undistributedBalance} XCH $undistributedPriceText"
         : '';
 
     output += undistributedBalanceText;
