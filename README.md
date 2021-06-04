@@ -166,6 +166,10 @@ Set ``Public API`` to true if you want your data to be accessed from chiabot's a
 If you are running Swar's Plot Manager >v0.1.0 then you can set ``"Swar's Chia Plot Manager Path"`` to the path where it's installed.
 Notice that if you run it in a python venv then you must launch chiabot in this venv. Current jobs will be displayed at the bottom of ``!chia full`` and ``!chia workers``
 
+#### HPool Mode
+Set ``HPool Directory`` to the path that leads to the directory containing hpool's ``config.yaml``.
+You need to set ``HPool Auth Token`` to the ``auth_key`` string in your hpool.com cookies. To see this token, open your browser and login to hpool.com, then right-click anywhere on the page and click on "Inspect Element", you should see a panel appear with a "Storage" tab. Right click on the string next to "auth_key" and copy that string. That's the string you should use as ``HPool Auth Token``.
+
 ### Upgrading
 To upgrade, repeat [Installation](#installation) instructions again with the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest).
 If you wish to keep its settings, move ``config.json`` from the previous installation folder to the new folder.
