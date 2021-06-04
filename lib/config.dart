@@ -71,6 +71,9 @@ class Config {
   String _hpoolConfigPath = "";
   String get hpoolConfigPath => _hpoolConfigPath;
 
+  String _hpoolAuthToken = "";
+  String get hpoolAuthToken => _hpoolAuthToken;
+
   final io.File _config = io.File("config.json");
 
   Config(this.cache, String chiaConfigPath,
@@ -159,6 +162,10 @@ class Config {
     //hpool's config.yaml
     if (type == ClientType.HPool)
       configMap.putIfAbsent("HPool Directory", () => hpoolConfigPath);
+
+    //hpool's cookie
+    if (type == ClientType.HPool)
+      configMap.putIfAbsent("HPool Auth Token", () => hpoolAuthToken);
 
     var encoder = new JsonEncoder.withIndent("    ");
     String contents = encoder.convert([configMap]);
@@ -352,6 +359,9 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
 
     if (contents[0]['HPool Directory'] != null)
       _hpoolConfigPath = contents[0]['HPool Directory']; //new
+
+    if (contents[0]['HPool Auth Token'] != null)
+      _hpoolAuthToken = contents[0]['HPool Auth Token']; //new
 
     await saveConfig();
   }

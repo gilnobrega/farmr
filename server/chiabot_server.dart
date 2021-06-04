@@ -321,8 +321,12 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount,
     String main = name +
         Stats.showStatus(stats) +
         Stats.showBalance(stats) +
+        Stats.showWalletBalance(stats) +
+        ((harvester is HPool && (isFull || isWorkers))
+            ? Stats.showUndistributedBalance(stats)
+            : '') +
         Stats.showPlotsInfo(stats) +
-        Stats.showETWEDV(stats, !isWorkers) +
+        Stats.showETWEDV(stats, !isWorkers, (isFull || isWorkers)) +
         Stats.showNetworkSize(stats) +
         Stats.showFarmedTime(stats);
 

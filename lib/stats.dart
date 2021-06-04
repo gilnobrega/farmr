@@ -1,6 +1,8 @@
 import 'package:chiabot/harvester.dart';
 import 'package:chiabot/harvester/plots.dart';
 import 'package:chiabot/farmer.dart';
+import 'package:chiabot/hpool.dart';
+import 'package:chiabot/hpool/wallet.dart';
 import 'package:chiabot/plot.dart';
 import 'package:chiabot/server/price.dart';
 import 'package:chiabot/server/netspace.dart';
@@ -23,14 +25,29 @@ class Stats {
   String get currency => _client.currency;
   double get balance =>
       (_client is Farmer) ? (_client as Farmer).balance : -1.0;
-  double get balanceFiat => balance * (_price?.rate ?? 0.0);
+  double get balanceFiat => calculateFiat(balance, _price);
+
+  static double calculateFiat(double balance, Rate? price) =>
+      balance * (price?.rate ?? 0.0);
+
+  static double calculateFiatChange(double balanceFiat, Rate? price) =>
+      balanceFiat * (price?.change ?? 0.0);
 
   // WALLET BALANCE
   double get walletBalance =>
       (_client is Farmer) ? (_client as Farmer).wallet.balance : -1.0;
-  double get walletBalanceFiat => walletBalance * (_price?.rate ?? 0.0);
+  double get walletBalanceFiat => calculateFiat(walletBalance, _price);
   double get walletBalanceFiatChange =>
-      walletBalanceFiat * (_price?.change ?? 0.0);
+      calculateFiatChange(walletBalanceFiat, _price);
+
+  //HPool Wallet
+  double get undistributedBalance => (_client is HPool)
+      ? ((_client as HPool).wallet as HPoolWallet).undistributedBalance
+      : -1.0;
+  double get undistributedBalanceFiat =>
+      calculateFiat(undistributedBalance, _price);
+  double get undistributedBalanceFiatChange =>
+      calculateFiatChange(undistributedBalanceFiat, _price);
 
   //PLOTS
   //total number of plots (complete plots)
@@ -63,11 +80,15 @@ class Stats {
   String get outOfSpaceString =>
       (plotsLastWeek > 0) ? durationToTime(outOfSpace) : '';
 
-  //ETW AND EDV
+  //EARNINGS
   double get etw => estimateETW(_client, _netSpace);
   final double blockSize = 2.0;
-  double get edv => blockSize / etw;
-  double get edvFiat => estimateEDV(etw, (_price?.rate ?? 0.0));
+  double get edv => blockSize / etw; //daily
+  double get edvFiat => calculateFiat(edv, _price);
+  double get ewv => edv * 7; //weekly
+  double get ewvFiat => calculateFiat(ewv, _price);
+  double get emv => edv * 30; //monthly
+  double get emvFiat => calculateFiat(emv, _price);
 
   //EFFORT
   Duration get farmedDuration => (farmedTime(_client.plots));
@@ -122,10 +143,12 @@ class Stats {
         "";
   }
 
+  static const normalStatus = const ["Harvesting", "Farming", "HPool"];
+
   static String showStatus(Stats stats) {
     String output = '';
 
-    if (stats.status != "Farming" && stats.status != "Harvesting")
+    if (!normalStatus.contains(stats.status))
       output += "\n:warning: **${stats.status}** :warning:";
 
     return output;
@@ -147,6 +170,12 @@ class Stats {
 
     output += balanceText;
 
+    return output;
+  }
+
+  static String showWalletBalance(Stats stats) {
+    String output = '';
+
     String sign = (stats.walletBalanceFiatChange >= 0) ? '+' : '-';
 
     String walletPriceText = (stats.walletBalanceFiat > 0)
@@ -163,7 +192,27 @@ class Stats {
     return output;
   }
 
-  static String showETWEDV(Stats stats, bool full) {
+  static String showUndistributedBalance(Stats stats) {
+    String output = '';
+
+    String sign = (stats.undistributedBalanceFiatChange >= 0) ? '+' : '-';
+
+    String undistributedPriceText = (stats.undistributedBalanceFiat > 0)
+        ? "(${stats.undistributedBalanceFiat.toStringAsFixed(2)} ${stats.currency}, $sign${stats.undistributedBalanceFiatChange.abs().toStringAsFixed(2)}${Price.currencies[stats.currency]})"
+        : '';
+
+    String undistributedBalanceText = (stats.undistributedBalance >= 0.0 &&
+            stats.undistributedBalance != stats.balance)
+        ? "\n:credit_card: ${stats.undistributedBalance} XCH $undistributedPriceText"
+        : '';
+
+    output += undistributedBalanceText;
+
+    return output;
+  }
+
+  static String showETWEDV(
+      Stats stats, bool showLastBlock, bool showWeeklyAndMonthly) {
     String output = '';
 
     if (stats.etw > 0) {
@@ -176,14 +225,23 @@ class Stats {
       String etwString = "\n:moneybag: ETW: $etwValue";
 
       if (stats.edv > 0) {
+        String edvType = (!showWeeklyAndMonthly) ? "EDV" : "\nDaily";
         etwString +=
-            " EDV: ${stats.edv.toStringAsPrecision(3)} XCH (${stats.edvFiat.toStringAsFixed(2)}${Price.currencies[stats.currency]})";
+            " $edvType: ${stats.edv.toStringAsPrecision(3)} XCH (${stats.edvFiat.toStringAsFixed(2)}${Price.currencies[stats.currency]})";
+
+        if (showWeeklyAndMonthly) {
+          etwString +=
+              "\nWeekly: ${stats.ewv.toStringAsPrecision(3)} XCH (${stats.ewvFiat.toStringAsFixed(2)}${Price.currencies[stats.currency]})";
+
+          etwString +=
+              "\nMonthly: ${stats.emv.toStringAsPrecision(3)} XCH (${stats.emvFiat.toStringAsFixed(2)}${Price.currencies[stats.currency]})";
+        }
       }
 
       output += etwString;
     }
 
-    if (stats.numberOfPlots > 0 && full) {
+    if (stats.numberOfPlots > 0 && showLastBlock) {
       if (stats.effort > 0.0) {
         //doesnt show last block days ago if user has not found a block at all
         String lastBlock = (stats.farmedDays > stats.daysSinceLastBlock)
@@ -672,12 +730,6 @@ class Stats {
     double calc = (networkSizeBytes / size) / (blocks * 6.0 * 24.0);
 
     return calc;
-  }
-
-  //estimated price per day
-  static double estimateEDV(double etw, double price) {
-    final double blockSize = 2.0;
-    return blockSize * price / etw;
   }
 
   static Duration averagePlotDuration(List<Plot> lastNPlots) {
