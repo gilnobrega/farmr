@@ -123,7 +123,15 @@ class HarvesterPlots {
     final difference = idslist.length - idsSet.length;
 
     //Removes plots with same ids!
-    allPlots.retainWhere((x) => idsSet.remove(x.id));
+    allPlots.retainWhere((x) {
+      if (idsSet.remove(x.id)) {
+        return true;
+      } else {
+        print(x.id);
+        log.info("Found duplicate plot " + x.id);
+        return false;
+      }
+    });
 
     //Counts how many plots were filtered
     if (client && difference > 0)
