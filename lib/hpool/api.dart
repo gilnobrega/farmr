@@ -52,7 +52,7 @@ class HPoolApi {
           var blocksData = jsonDecode(responseBlocks.body);
 
           for (var block in blocksData['data']['list'])
-            if (block['status'] == 0)
+            if (block['status'] == 0) //0 means unsettled, 2 means settled
               unsettledReward += double.parse(block['block_reward']);
 
           if (unsettledReward != 0) _undistributedIncome = unsettledReward;
