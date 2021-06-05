@@ -38,6 +38,7 @@ class HPool extends Farmer {
           HPoolWallet(object['walletBalance'], object['undistributedBalance']);
   }
 
+  @override
   Map toJson() {
     Map farmerMap = (super.toJson());
 
@@ -51,6 +52,7 @@ class HPool extends Farmer {
   }
 
   //Adds harvester's plots into farm's plots
+  @override
   void addHarvester(Harvester harvester) {
     allPlots.addAll(harvester.allPlots);
 
@@ -69,6 +71,7 @@ class HPool extends Farmer {
     swarPM.jobs.addAll(harvester.swarPM.jobs);
   }
 
+  @override
   Future<void> init(String chiaConfigPath) async {
     //tries to parse hpool api
     HPoolApi api = HPoolApi();
@@ -76,6 +79,6 @@ class HPool extends Farmer {
 
     _wallet = HPoolWallet(api.poolIncome, api.undistributedIncome);
 
-    super.init(chiaConfigPath);
+    await super.init(chiaConfigPath);
   }
 }
