@@ -14,8 +14,9 @@ class HPool extends Farmer {
   @override
   String get status => "HPool";
 
+  double _balance = -1.0;
   @override
-  double get balance => -1.0; //hides balance
+  double get balance => _balance; //hides balance
 
   HPoolWallet _wallet = HPoolWallet(-1.0, -1.0);
   @override
@@ -42,6 +43,7 @@ class HPool extends Farmer {
   Map toJson() {
     Map farmerMap = (super.toJson());
 
+    farmerMap.update("balance", (value) => _balance);
     farmerMap.update("walletBalance", (value) => _wallet.balance);
 
     farmerMap.addEntries({
@@ -77,7 +79,9 @@ class HPool extends Farmer {
     HPoolApi api = HPoolApi();
     await api.init(_authToken);
 
-    _wallet = HPoolWallet(api.poolIncome, api.undistributedIncome);
+    _balance = api.poolIncome; //farmed balance
+    //wallet balance and unsettled income
+    _wallet = HPoolWallet(api.balance, api.undistributedIncome);
 
     await super.init(chiaConfigPath);
   }
