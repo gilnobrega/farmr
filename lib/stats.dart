@@ -154,18 +154,26 @@ class Stats {
     return output;
   }
 
-  static String showBalance(Stats stats) {
+  static String showBalance(Stats stats, bool sumWithUnsettled) {
+    //for hpool mode it combines settled and unsettled values in !chia
+    //while it displays them separately in !full or !workers
+    double balance = (stats.undistributedBalance > 0 && sumWithUnsettled)
+        ? stats.balance + stats.undistributedBalance
+        : stats.balance;
+    double balanceFiat = (stats.undistributedBalance > 0 && sumWithUnsettled)
+        ? stats.balanceFiat + stats.undistributedBalanceFiat
+        : stats.balanceFiat;
+
     String output = '';
 
     String balanceText = '';
 
-    String priceText = (stats.balanceFiat > 0)
-        ? " (${stats.balanceFiat.toStringAsFixed(2)} ${stats.currency})"
+    String priceText = (balanceFiat > 0)
+        ? " (${balanceFiat.toStringAsFixed(2)} ${stats.currency})"
         : '';
 
-    balanceText += (stats.balance >= 0.0)
-        ? "\n\<:chia:833767070201151528> **${stats.balance}** **XCH**" +
-            priceText
+    balanceText += (balance >= 0.0)
+        ? "\n\<:chia:833767070201151528> **$balance** **XCH**" + priceText
         : ''; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
 
     output += balanceText;
@@ -193,12 +201,12 @@ class Stats {
 
     String sign = (walletBalanceFiatChange >= 0) ? '+' : '-';
 
-    String walletPriceText = (stats.walletBalanceFiat > 0)
+    String walletPriceText = (walletBalanceFiat > 0)
         ? "(${walletBalanceFiat.toStringAsFixed(2)} ${stats.currency}, $sign${walletBalanceFiatChange.abs().toStringAsFixed(2)}${Price.currencies[stats.currency]})"
         : '';
 
     String walletBalanceText =
-        (walletBalance >= 0.0 && walletBalance != stats.balance)
+        (walletBalance >= 0.0 && stats.walletBalance != stats.balance)
             ? "\n:credit_card: $walletBalance XCH $walletPriceText"
             : '';
 

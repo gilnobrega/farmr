@@ -320,7 +320,7 @@ showHarvester(Harvester harvester, int harvestersCount, int farmersCount,
 
     String main = name +
         Stats.showStatus(stats) +
-        Stats.showBalance(stats) +
+        Stats.showBalance(stats, !(isFull || isWorkers)) +
         Stats.showWalletBalance(stats, !(isFull || isWorkers)) +
         ((harvester is HPool && (isFull || isWorkers))
             ? Stats.showUndistributedBalance(stats)
