@@ -168,7 +168,8 @@ Notice that if you run it in a python venv then you must launch chiabot in this 
 
 #### HPool Mode
 Set ``HPool Directory`` to the path that leads to the directory containing hpool's ``config.yaml``.
-You need to set ``HPool Auth Token`` to the ``auth_key`` string in your hpool.com cookies. To see this token, open your browser and login to hpool.com, then right-click anywhere on the page and click on "Inspect Element", you should see a panel appear with a "Storage" tab. Right click on the string next to "auth_key" and copy that string. That's the string you should use as ``HPool Auth Token``.
+You need to set ``HPool Auth Token`` to the ``auth_key`` string in your hpool.com cookies. To see this token, open your browser and login to hpool.com, then right-click anywhere on the page and click on ``Inspect Element``, you should see a panel appear with a "Storage" tab. Right click on the string next to "auth_key" and copy that string string in ``value`` column. That's the string you should use as ``HPool Auth Token`` in chiabot's ``config.json``. You should only need to update this value once every 3 months or when you logout from that device.
+![image](https://user-images.githubusercontent.com/82336674/120874560-063c0200-c59f-11eb-8110-2be81469651b.png)
 
 ### Upgrading
 To upgrade, repeat [Installation](#installation) instructions again with the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest).
