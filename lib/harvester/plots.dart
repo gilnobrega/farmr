@@ -68,9 +68,9 @@ class HarvesterPlots {
     for (int i = 0; i < paths.length; i++) {
       var path = paths[i];
 
-      io.Directory dir = new io.Directory(path);
-
       try {
+        io.Directory dir = io.Directory(path);
+
         await dir.list(recursive: false).forEach((file) {
           //Checks if file extension is .plot
           //also checks that it is a File and not a directory
