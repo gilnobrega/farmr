@@ -1,5 +1,15 @@
 #!/bin/bash
-sudo useradd -m chia
+echo "[Unit]
+Description=chiabot
+
+[Service]
+Type=forking
+RemainAfterExit=yes
+WorkingDirectory=/etc/chiabot/
+#Environment=PATH=/chia/Swar-Chia-Plot-Manager/venv/bin:${PATH}
+ExecStart=/usr/bin/tmux new-session -s chiabot -d /usr/bin/chiabot
+ExecStop=/usr/bin/tmux kill-session -t chiabot
+
+[Install]
+WantedBy=default.target" > /home/*/.config/systemd/user/chiabot.service
 systemctl daemon-reload
-systemctl enable chiabot
-chown -R chia /etc/chiabot
