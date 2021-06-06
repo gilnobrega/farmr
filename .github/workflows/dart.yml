@@ -56,10 +56,12 @@ jobs:
         if: matrix.arch == 'arm64'
         uses: kentik/pkg@v1.0.0-rc7
         with:
+        arch: aarch64
+        distro: ubuntu20.04
           # Package name
           name: chiabot
           # Package version
-          version: Release ${{ github.sha }}
+          version: ${{ github.sha }}
           arch: arm64  # optional, default is x86_64
           format: deb
           package: .github/workflows/armpackage.yaml
@@ -71,7 +73,7 @@ jobs:
           release_name: Release ${{ github.sha }}
           draft: true
           files: |
-            ./chiabot_Release ${{ github.sha }}_arm64.deb
+            ./chiabot_${{ github.sha }}_arm64.deb
             ./chiabot-linux-arm64.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
@@ -128,7 +130,7 @@ jobs:
           # Package name
           name: chiabot
           # Package version
-          version: Release ${{ github.sha }}
+          version: ${{ github.sha }}
           arch: amd64  # optional, default is x86_64
           format: deb
           package: .github/workflows/x64package.yaml
@@ -178,7 +180,7 @@ jobs:
             ./chiabot-windows-amd64.zip
             ./chiabot-linux-amd64.tar.gz
             ./chiabot-macOS-amd64.tar.gz
-            ./chiabot_Release ${{ github.sha }}_amd64.deb
+            ./chiabot_${{ github.sha }}_amd64.deb
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
           
