@@ -56,15 +56,15 @@ jobs:
         if: matrix.arch == 'arm64'
         uses: kentik/pkg@v1.0.0-rc7
         with:
-        arch: aarch64
-        distro: ubuntu20.04
+          arch: aarch64
+          distro: ubuntu20.04
           # Package name
           name: chiabot
           # Package version
           version: ${{ github.sha }}
           arch: arm64  # optional, default is x86_64
           format: deb
-          package: .github/workflows/armpackage.yaml
+          package: .github/armpackage.yaml
       
       - name: Release
         uses: softprops/action-gh-release@v1
@@ -133,7 +133,7 @@ jobs:
           version: ${{ github.sha }}
           arch: amd64  # optional, default is x86_64
           format: deb
-          package: .github/workflows/x64package.yaml
+          package: .github/x64package.yaml
         
       - name: Building macOS release
         if: matrix.os == 'macos-latest' && matrix.architecture == 'x64'
