@@ -70,46 +70,51 @@ class HarvesterPlots {
 
       io.Directory dir = new io.Directory(path);
 
-      await dir.list(recursive: false).forEach((file) {
-        //Checks if file extension is .plot
-        //also checks that it is a File and not a directory
-        if (extension(file.path) == ".plot" && file is io.File) {
-          String? id;
+      try {
+        await dir.list(recursive: false).forEach((file) {
+          //Checks if file extension is .plot
+          //also checks that it is a File and not a directory
+          if (extension(file.path) == ".plot" && file is io.File) {
+            String? id;
 
-          try {
-            id = basenameWithoutExtension(file.path).split('-').last;
-          } catch (exception) {
-            log.info("Failed to parse id of plot in ${file.path}");
-          }
-
-          bool inCache = (id != null)
-              ? allPlots.any((cachedPlot) => cachedPlot.id == id)
-              : false;
-          bool duplicate =
-              (id != null) ? newplots.any((plot) => plot.id == id) : false;
-
-          //If plot id it is in cache then adds old plot information (timestamps, etc.)
-          //but updates plot size
-          if (inCache && !duplicate) {
-            Plot plot =
-                allPlots.firstWhere((cachedPlot) => cachedPlot.id == id);
-
-            //updates file size in case plot was being moved while cached
-            if (!plot.complete) {
-              io.FileStat stat = io.FileStat.statSync(file.path);
-              plot.updateSize(stat.size);
+            try {
+              id = basenameWithoutExtension(file.path).split('-').last;
+            } catch (exception) {
+              log.info("Failed to parse id of plot in ${file.path}");
             }
 
-            newplots.add(plot);
+            bool inCache = (id != null)
+                ? allPlots.any((cachedPlot) => cachedPlot.id == id)
+                : false;
+            bool duplicate =
+                (id != null) ? newplots.any((plot) => plot.id == id) : false;
+
+            //If plot id it is in cache then adds old plot information (timestamps, etc.)
+            //but updates plot size
+            if (inCache && !duplicate) {
+              Plot plot =
+                  allPlots.firstWhere((cachedPlot) => cachedPlot.id == id);
+
+              //updates file size in case plot was being moved while cached
+              if (!plot.complete) {
+                io.FileStat stat = io.FileStat.statSync(file.path);
+                plot.updateSize(stat.size);
+              }
+
+              newplots.add(plot);
+            }
+            //Adds plot if it's not in cache already
+            else if (!duplicate) {
+              //print("Found new plot " + id); // UNCOMMENT FOR DEBUGGING PLOT CACHE
+              Plot plot = new Plot(file);
+              newplots.add(plot);
+            }
           }
-          //Adds plot if it's not in cache already
-          else if (!duplicate) {
-            //print("Found new plot " + id); // UNCOMMENT FOR DEBUGGING PLOT CACHE
-            Plot plot = new Plot(file);
-            newplots.add(plot);
-          }
-        }
-      });
+        });
+      } catch (error) {
+        log.warning("Failed to list plots in $path\nIs this directory empty?");
+        log.info(error);
+      }
     }
 
     allPlots = newplots;
