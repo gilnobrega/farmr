@@ -807,4 +807,89 @@ class Stats {
 
     return month + " " + day;
   }
+
+  static String showHarvester(
+      Harvester harvester,
+      int harvestersCount,
+      int farmersCount,
+      NetSpace netSpace,
+      bool isFull,
+      bool isWorkers,
+      Rate? rate,
+      [bool discord = true,
+      bool removeEmojis = false]) {
+    String output = '';
+
+    try {
+      if (!isFull) {
+        harvestersCount = 0;
+        farmersCount = 0;
+      }
+
+      Stats stats = Stats(harvester, rate, netSpace);
+
+      String name = (isWorkers) ? Stats.showName(harvester) : '';
+      String lastUpdated = ((isFull || isWorkers) && discord)
+          ? Stats.showLastUpdated(harvester, farmersCount, harvestersCount)
+          : '';
+
+      String main = name +
+          Stats.showStatus(stats) +
+          Stats.showBalance(stats, !(isFull || isWorkers)) +
+          Stats.showWalletBalance(stats, !(isFull || isWorkers)) +
+          ((harvester is HPool && (isFull || isWorkers))
+              ? Stats.showUndistributedBalance(stats)
+              : '') +
+          Stats.showPlotsInfo(stats) +
+          Stats.showETWEDV(stats, !isWorkers, (isFull || isWorkers)) +
+          Stats.showNetworkSize(stats) +
+          Stats.showFarmedTime(stats);
+
+      String full = (isFull || isWorkers)
+          ? Stats.showDrives(stats) +
+              Stats.showPlotTypes(harvester) +
+              Stats.showLastPlotInfo(harvester) +
+              Stats.showLastNDaysPlots(harvester, 8, netSpace) +
+              Stats.showWeekPlots(stats) +
+              Stats.showIncompletePlotsWarning(harvester) +
+              Stats.showFilters(harvester)
+          : '';
+
+      String fullNodeStats = ((isFull || isWorkers) &&
+              harvester is Farmer &&
+              (harvester.completeSubSlots > 0 ||
+                  harvester.fullNodesConnected > 0 ||
+                  harvester.shortSyncs.length > 0))
+          ? ";;" + Stats.showFullNodeStats(harvester) + lastUpdated
+          : '';
+
+      String swarPM =
+          ((isFull || isWorkers) && harvester.swarPM.jobs.length > 0)
+              ? ";;" + Stats.showSwarPMJobs(harvester) + lastUpdated
+              : '';
+
+      output = main + full + lastUpdated + fullNodeStats + swarPM;
+
+      //removes discord emojis
+      if (!discord || removeEmojis) {
+        try {
+          RegExp emojiRegex = RegExp('(:[\\S]+: )');
+          RegExp externalEmojiRegex = RegExp('(<:[\\S]+:[0-9]+> )');
+
+          var matches = emojiRegex.allMatches(output).toList();
+          matches.addAll(externalEmojiRegex.allMatches(output).toList());
+
+          for (var match in matches)
+            output = output.replaceAll(match.group(1) ?? 'none', "");
+
+          if (!discord)
+            output = output.replaceAll("**", "").replaceAll(";;", "\n");
+        } catch (e) {}
+      }
+    } catch (e) {
+      output = "Failed to display stats.";
+    }
+
+    return output;
+  }
 }

@@ -148,14 +148,14 @@ Future<void> main(List<String> args) async {
           harvester.filterDuplicates(false);
           harvester.sortPlots();
 
-          showHarvester(
+          print(Stats.showHarvester(
               harvester,
               harvestersCount,
               farmersCount,
               netspace,
               args.contains("full"),
               args.contains("workers"),
-              price.rates[harvester.currency]);
+              price.rates[harvester.currency]));
 
           if (harvester != harvesters.last) print(';;');
         }
@@ -173,14 +173,14 @@ Future<void> main(List<String> args) async {
         farm.filterDuplicates(false);
         farm.sortPlots();
 
-        showHarvester(
+        print(Stats.showHarvester(
             farm,
             harvestersCount,
             farmersCount,
             netspace,
             args.contains("full"),
             args.contains("workers"),
-            price.rates[farm.currency]);
+            price.rates[farm.currency]));
       }
     } catch (Exception) {
       if (farmersCount == 0) print("Error: Farmer not found.");
@@ -298,80 +298,4 @@ Future<Price> _getPrice() async {
   await price.init();
 
   return price;
-}
-
-showHarvester(Harvester harvester, int harvestersCount, int farmersCount,
-    NetSpace netSpace, bool isFull, bool isWorkers, Rate? rate,
-    [bool discord = true]) {
-  String output;
-
-  try {
-    if (!isFull) {
-      harvestersCount = 0;
-      farmersCount = 0;
-    }
-
-    Stats stats = Stats(harvester, rate, netSpace);
-
-    String name = (isWorkers) ? Stats.showName(harvester) : '';
-    String lastUpdated = ((isFull || isWorkers) && discord)
-        ? Stats.showLastUpdated(harvester, farmersCount, harvestersCount)
-        : '';
-
-    String main = name +
-        Stats.showStatus(stats) +
-        Stats.showBalance(stats, !(isFull || isWorkers)) +
-        Stats.showWalletBalance(stats, !(isFull || isWorkers)) +
-        ((harvester is HPool && (isFull || isWorkers))
-            ? Stats.showUndistributedBalance(stats)
-            : '') +
-        Stats.showPlotsInfo(stats) +
-        Stats.showETWEDV(stats, !isWorkers, (isFull || isWorkers)) +
-        Stats.showNetworkSize(stats) +
-        Stats.showFarmedTime(stats);
-
-    String full = (isFull || isWorkers)
-        ? Stats.showDrives(stats) +
-            Stats.showPlotTypes(harvester) +
-            Stats.showLastPlotInfo(harvester) +
-            Stats.showLastNDaysPlots(harvester, 8, netSpace) +
-            Stats.showWeekPlots(stats) +
-            Stats.showIncompletePlotsWarning(harvester) +
-            Stats.showFilters(harvester)
-        : '';
-
-    String fullNodeStats = ((isFull || isWorkers) &&
-            harvester is Farmer &&
-            (harvester.completeSubSlots > 0 ||
-                harvester.fullNodesConnected > 0 ||
-                harvester.shortSyncs.length > 0))
-        ? ";;" + Stats.showFullNodeStats(harvester) + lastUpdated
-        : '';
-
-    String swarPM = ((isFull || isWorkers) && harvester.swarPM.jobs.length > 0)
-        ? ";;" + Stats.showSwarPMJobs(harvester) + lastUpdated
-        : '';
-
-    output = main + full + lastUpdated + fullNodeStats + swarPM;
-
-    //removes discord emojis
-    if (!discord) {
-      try {
-        RegExp emojiRegex = RegExp('(:[\\S]+: )');
-        RegExp externalEmojiRegex = RegExp('(<:[\\S]+:[0-9]+> )');
-
-        var matches = emojiRegex.allMatches(output).toList();
-        matches.addAll(externalEmojiRegex.allMatches(output).toList());
-
-        for (var match in matches)
-          output = output.replaceAll(match.group(1) ?? 'none', "");
-
-        output = output.replaceAll("**", "").replaceAll(";;", "\n");
-      } catch (e) {}
-    }
-  } catch (e) {
-    output = "Failed to display stats.";
-  }
-
-  print(output);
 }

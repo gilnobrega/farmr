@@ -13,7 +13,7 @@ import 'package:chiabot/cache.dart';
 import 'package:chiabot/debug.dart';
 import 'package:chiabot/hpool.dart';
 
-import 'server/chiabot_server.dart' as Stats;
+import 'package:chiabot/stats.dart';
 import 'package:chiabot/server/netspace.dart';
 import 'package:chiabot/server/price.dart';
 
@@ -114,7 +114,7 @@ main(List<String> args) async {
       status = client.status;
 
       //shows stats in client
-      Stats.showHarvester(
+      print(Stats.showHarvester(
           client,
           0,
           0,
@@ -122,7 +122,7 @@ main(List<String> args) async {
           false,
           true,
           Rate(0, 0, 0),
-          false);
+          false));
 
       name = client.name;
 
