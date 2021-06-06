@@ -56,7 +56,6 @@ jobs:
         if: matrix.arch == 'arm64'
         uses: kentik/pkg@v1.0.0-rc7
         with:
-          arch: aarch64
           distro: ubuntu20.04
           # Package name
           name: chiabot
