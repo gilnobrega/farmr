@@ -137,76 +137,80 @@ main(List<String> args) async {
     }
 
     if (!standalone) {
-      //SENDS DATA TO SERVER
-      try {
-        //clones farm so it can clear ids before sending them to server
-        //copy.clearIDs();
-        //deprecated
+      Future.sync(() {
+        //SENDS DATA TO SERVER
+        try {
+          //clones farm so it can clear ids before sending them to server
+          //copy.clearIDs();
+          //deprecated
 
-        //String that's actually sent to server
-        String sendJson = copyJson;
+          //String that's actually sent to server
+          String sendJson = copyJson;
 
-        String notifyOffline = (config.sendOfflineNotifications)
-            ? '1'
-            : '0'; //whether user wants to be notified when rig goes offline
-        String isFarming = (status == "Farming" || status == "Harvesting")
-            ? '1' //1 means is farming/harvesting
-            : '0';
+          String notifyOffline = (config.sendOfflineNotifications)
+              ? '1'
+              : '0'; //whether user wants to be notified when rig goes offline
+          String isFarming = (status == "Farming" || status == "Harvesting")
+              ? '1' //1 means is farming/harvesting
+              : '0';
 
-        String publicAPI = (config.publicAPI)
-            ? '1' //1 means client data can be seen from public api
-            : '0';
+          String publicAPI = (config.publicAPI)
+              ? '1' //1 means client data can be seen from public api
+              : '0';
 
-        Map<String, String> post = {
-          "data": sendJson,
-          "notifyOffline": notifyOffline,
-          "name": name,
-          "publicAPI": publicAPI
-        };
+          Map<String, String> post = {
+            "data": sendJson,
+            "notifyOffline": notifyOffline,
+            "name": name,
+            "publicAPI": publicAPI
+          };
 
-        String url = "https://chiabot.znc.sh/send6.php";
+          String url = "https://chiabot.znc.sh/send6.php";
 
-        if (config.sendStatusNotifications)
-          post.putIfAbsent("isFarming", () => isFarming);
+          if (config.sendStatusNotifications)
+            post.putIfAbsent("isFarming", () => isFarming);
 
-        //Adds the following if sendPlotNotifications is enabled then it will send plotID
-        if (config.sendPlotNotifications)
-          post.putIfAbsent("lastPlot", () => lastPlotID);
+          //Adds the following if sendPlotNotifications is enabled then it will send plotID
+          if (config.sendPlotNotifications)
+            post.putIfAbsent("lastPlot", () => lastPlotID);
 
-        //Adds the following if hard drive notifications are enabled then it will send the number of drives connected to pc
-        if (config.sendDriveNotifications)
-          post.putIfAbsent("drives", () => drives);
+          //Adds the following if hard drive notifications are enabled then it will send the number of drives connected to pc
+          if (config.sendDriveNotifications)
+            post.putIfAbsent("drives", () => drives);
 
-        //If the client is a farmer and it is farming and sendBalanceNotifications is enabled then it will send balance
-        if (config.type == ClientType.Farmer &&
-            config.sendBalanceNotifications &&
-            status == "Farming") post.putIfAbsent("balance", () => balance);
+          //If the client is a farmer and it is farming and sendBalanceNotifications is enabled then it will send balance
+          if (config.type == ClientType.Farmer &&
+              config.sendBalanceNotifications &&
+              status == "Farming") post.putIfAbsent("balance", () => balance);
 
-        type = (config.type == ClientType.Farmer) ? "farmer" : "harvester";
+          type = (config.type == ClientType.Farmer) ? "farmer" : "harvester";
 
-        for (String id in cache.ids) {
-          post.putIfAbsent("id", () => id);
-          post.update("id", (value) => id);
+          for (String id in cache.ids) {
+            post.putIfAbsent("id", () => id);
+            post.update("id", (value) => id);
 
-          http.post(Uri.parse(url), body: post).catchError((error) {
-            log.warning("Server timeout.");
-            log.info(error.toString());
-          }).whenComplete(() {
-            String idText = (cache.ids.length == 1) ? '' : "for id " + id;
-            String timestamp = DateFormat.Hms().format(DateTime.now());
-            log.warning(
-                "\n$timestamp - Sent $type report to server $idText\nRetrying in ${delay.inMinutes} minutes");
-          });
+            http.post(Uri.parse(url), body: post).then((_) {
+              String idText = (cache.ids.length == 1) ? '' : "for id " + id;
+              String timestamp = DateFormat.Hms().format(DateTime.now());
+              log.warning(
+                  "\n$timestamp - Sent $type report to server $idText\nRetrying in ${delay.inMinutes} minutes");
+            }).catchError((error) {
+              log.warning("Server timeout.");
+              log.info(error.toString());
+            });
+          }
+
+          log.info("url:$url");
+          log.info("data sent:\n$sendJson");
+
+          if (io.Platform.isWindows) print("Do NOT close this window.");
+        } catch (exception) {
+          log.severe("Oh no, failed to connect to server!");
+          log.severe(exception.toString());
         }
-
-        log.info("url:$url");
-        log.info("data sent:\n$sendJson");
-
-        if (io.Platform.isWindows) print("Do NOT close this window.");
-      } catch (exception) {
-        log.severe("Oh no, failed to connect to server!");
-        log.severe(exception.toString());
-      }
+      }).catchError((error) {
+        log.info(error);
+      });
     }
 
     counter += 1;
