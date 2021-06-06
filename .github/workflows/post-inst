@@ -1,0 +1,5 @@
+#!/bin/bash
+sudo useradd -m chia
+systemctl daemon-reload
+systemctl enable chiabot
+chown -R chia /etc/chiabot

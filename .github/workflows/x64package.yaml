@@ -1,0 +1,19 @@
+meta:
+  description: Chiabot
+  vendor: Joaquim
+  maintainer: Joaquim
+files:
+  "/usr/bin/chiabot":
+    file: chiabot
+    mode: "0755"
+    user: "root"
+  "/etc/chiabot/config":
+    file: config.json.default
+    mode: "0644"
+    user: "chia"
+    keep: true
+units:
+  - .github/workflows/chiabot.service
+scripts:
+  "post-install": .github/workflows/post-inst
+user: foo
