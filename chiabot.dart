@@ -165,7 +165,7 @@ main(List<String> args) async {
             "publicAPI": publicAPI
           };
 
-          String url = "https://chiabot.znc.sh/send6.php";
+          const String url = "https://chiabot.znc.sh/send6.php";
 
           if (config.sendStatusNotifications)
             post.putIfAbsent("isFarming", () => isFarming);
