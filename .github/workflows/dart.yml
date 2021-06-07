@@ -54,7 +54,7 @@ jobs:
              tar -czvf ./chiabot-linux-arm64.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh ./hpool.sh
       
       - name: Build DEB file for arm64
-        #if: matrix.arch == 'arm64'
+        if: matrix.arch == 'arm64'
         uses: kentik/pkg@v1.0.0-rc7
         with:
           distro: ubuntu20.04
