@@ -37,6 +37,7 @@ jobs:
           distro: ubuntu20.04
           if: matrix.arch == 'arm64'
           run: |
+             echo "GIT_TAG=`echo $(git describe --tags --abbrev=0)`" >> $GITHUB_ENV
              ls
              ./dart-sdk/bin/dart pub get
              mv .github/workflows/config.test .github/workflows/config.yaml
@@ -60,7 +61,7 @@ jobs:
           # Package name
           name: chiabot
           # Package version
-          version: ${{GITHUB_REF:10}}
+          version: ${GITHUB_ENV}
           arch: arm64  # optional, default is x86_64
           format: deb
           package: .github/armpackage.yaml
@@ -72,7 +73,7 @@ jobs:
           release_name: Release ${{ github.sha }}
           draft: true
           files: |
-            ./chiabot_${{GITHUB_REF:10}}-1_arm64.deb
+            ./chiabot_${GITHUB_ENV}-1_arm64.deb
             ./chiabot-linux-arm64.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
@@ -109,6 +110,7 @@ jobs:
       - name: Building Linux release
         if: matrix.os == 'ubuntu-latest' && matrix.architecture == 'x64'
         run: |
+             run: echo "GIT_TAG=`echo $(git describe --tags --abbrev=0)`" >> $GITHUB_ENV
              mv .github/workflows/config.test .github/workflows/config.yaml
              mv .github/workflows/farmer.sh ./farmer.sh
              mv .github/workflows/harvester.sh ./harvester.sh
@@ -129,7 +131,7 @@ jobs:
           # Package name
           name: chiabot
           # Package version
-          version: ${{GITHUB_REF:10}}
+          version: ${GITHUB_ENV}
           arch: amd64  # optional, default is x86_64
           format: deb
           package: .github/x64package.yaml
@@ -179,7 +181,7 @@ jobs:
             ./chiabot-windows-amd64.zip
             ./chiabot-linux-amd64.tar.gz
             ./chiabot-macOS-amd64.tar.gz
-            ./chiabot_${{GITHUB_REF:10}}-1_amd64.deb
+            ./chiabot_${GITHUB_ENV}-1_amd64.deb
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
           
