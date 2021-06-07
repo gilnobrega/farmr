@@ -11,7 +11,20 @@ on:
   pull_request:
     branches: [ main ]
 
-jobs:  
+jobs:
+  :
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set output
+        id: vars
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+      - name: Check output
+        env:
+          RELEASE_VERSION: ${{ steps.vars.outputs.tag }}
+        run: |
+          echo $RELEASE_VERSION
+          echo ${{ steps.vars.outputs.tag }} 
   arm64:
   
     runs-on: ubuntu-latest
@@ -60,7 +73,7 @@ jobs:
           # Package name
           name: chiabot
           # Package version
-          version: ${{GITHUB_REF:10}}
+          version: ${RELEASE_VERSION}
           arch: arm64  # optional, default is x86_64
           format: deb
           package: .github/armpackage.yaml
@@ -72,7 +85,7 @@ jobs:
           release_name: Release ${{ github.sha }}
           draft: true
           files: |
-            ./chiabot_${{GITHUB_REF:10}}-1_arm64.deb
+            ./chiabot_${RELEASE_VERSION}-1_arm64.deb
             ./chiabot-linux-arm64.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
@@ -129,7 +142,7 @@ jobs:
           # Package name
           name: chiabot
           # Package version
-          version: ${{GITHUB_REF:10}}
+          version: ${RELEASE_VERSION}
           arch: amd64  # optional, default is x86_64
           format: deb
           package: .github/x64package.yaml
@@ -179,7 +192,7 @@ jobs:
             ./chiabot-windows-amd64.zip
             ./chiabot-linux-amd64.tar.gz
             ./chiabot-macOS-amd64.tar.gz
-            ./chiabot_${{GITHUB_REF:10}}-1_amd64.deb
+            ./chiabot_${RELEASE_VERSION}-1_amd64.deb
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
           
