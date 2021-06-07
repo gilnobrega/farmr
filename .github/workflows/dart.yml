@@ -129,7 +129,7 @@ jobs:
           # Package name
           name: chiabot
           # Package version
-         version: 1_${{ github.sha }}
+          version: 1_${{ github.sha }}
           arch: amd64  # optional, default is x86_64
           format: deb
           package: .github/x64package.yaml
