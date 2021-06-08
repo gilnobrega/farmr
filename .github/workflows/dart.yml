@@ -39,9 +39,7 @@ jobs:
           if: matrix.arch == 'arm64'
           run: |
              ls
-#gets dependencies
              ./dart-sdk/bin/dart pub get
-#generates environment config
              ./dart-sdk/bin/dart run environment_config:generate
              mv .github/workflows/config.test .github/workflows/config.yaml
              mv .github/workflows/farmer.sh ./farmer.sh
@@ -50,7 +48,6 @@ jobs:
              chmod +x ./farmer.sh
              chmod +x ./harvester.sh
              chmod +x ./hpool.sh
-#compiles chiabot
              ./dart-sdk/bin/dart compile exe chiabot.dart
              chmod +x chiabot.exe
              mv chiabot.exe chiabot
