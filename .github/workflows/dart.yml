@@ -11,7 +11,8 @@ on:
   pull_request:
     branches: [ main ]
 
-jobs:  
+jobs:
+  
   arm64:
   
     runs-on: ubuntu-latest
@@ -51,7 +52,20 @@ jobs:
              mv chiabot.exe chiabot
              mv config.json.default config.json
              tar -czvf ./chiabot-linux-arm64.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh ./hpool.sh
-        
+      
+      - name: Build DEB file for arm64
+        if: matrix.arch == 'arm64'
+        uses: kentik/pkg@v1.0.0-rc7
+        with:
+          distro: ubuntu20.04
+          # Package name
+          name: chiabot
+          # Package version
+          version: 1.3.4
+          arch: arm64  # optional, default is x86_64
+          format: deb
+          package: .github/armpackage.yaml
+      
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -59,6 +73,7 @@ jobs:
           release_name: Release ${{ github.sha }}
           draft: true
           files: |
+            ./chiabot_1.3.4-1_arm64.deb
             ./chiabot-linux-arm64.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
@@ -108,6 +123,18 @@ jobs:
              mv chiabot.exe chiabot
              tar -czvf ./chiabot-linux-amd64.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh ./hpool.sh
         
+      - name: Build DEB file for x64
+        if: matrix.os == 'ubuntu-latest' && matrix.architecture == 'x64'
+        uses: kentik/pkg@v1.0.0-rc7
+        with:
+          # Package name
+          name: chiabot
+          # Package version
+          version: 1.3.4
+          arch: amd64  # optional, default is x86_64
+          format: deb
+          package: .github/x64package.yaml
+        
       - name: Building macOS release
         if: matrix.os == 'macos-latest' && matrix.architecture == 'x64'
         run: |
@@ -153,6 +180,7 @@ jobs:
             ./chiabot-windows-amd64.zip
             ./chiabot-linux-amd64.tar.gz
             ./chiabot-macOS-amd64.tar.gz
+            ./chiabot_1.3.4-1_amd64.deb
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
           
