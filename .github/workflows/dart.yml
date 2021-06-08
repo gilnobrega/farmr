@@ -22,7 +22,8 @@ jobs:
         format: [deb, rpm]        
 
     steps:
-
+      - uses: actions/checkout@v2
+      
       - name: Download dart sdk x64
         if: matrix.architecture == 'x86_64'
         run: curl https://storage.googleapis.com/dart-archive/channels/stable/release/latest/sdk/dartsdk-linux-x64-release.zip -o dart-${{ matrix.architecture }}.zip
