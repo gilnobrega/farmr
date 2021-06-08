@@ -20,12 +20,12 @@ jobs:
       - name: Downloads dart sdk x64
         uses: wei/wget@v1
         with:
-          args: -O dart-x64.zip https://storage.googleapis.com/dart-archive/channels/stable/release/2.12.4/sdk/dartsdk-linux-x64-release.zip
+          args: -O dart-x64.zip https://storage.googleapis.com/dart-archive/channels/stable/release/latest/sdk/dartsdk-linux-x64-release.zip
       
       - name: Downloads dart sdk arm64
         uses: wei/wget@v1
         with:
-          args: -O dart-arm64.zip https://storage.googleapis.com/dart-archive/channels/stable/release/2.12.4/sdk/dartsdk-linux-arm64-release.zip
+          args: -O dart-arm64.zip https://storage.googleapis.com/dart-archive/channels/stable/release/latest/sdk/dartsdk-linux-arm64-release.zip
       
       - name: Decompresses dart-arm64.zip
         uses: TonyBogdanov/zip@1.0
@@ -37,6 +37,20 @@ jobs:
         with:
           args: unzip -qq ./dart-x64.zip -d ./dart-x86_64
 
+      - name: Temporarily save dart-aarch64
+        uses: actions/upload-artifact@v2
+        with:
+          name: dart-aarch64
+          path: dart-aarch64
+          retention-days: 1
+
+      - name: Temporarily save dart-x86_64
+        uses: actions/upload-artifact@v2
+        with:
+          name: dart-x86_64
+          path: dart-x86_64
+          retention-days: 1
+
   ubuntu:
     needs: setupdart
     runs-on: ubuntu-latest
@@ -47,6 +61,13 @@ jobs:
         format: [deb, rpm]        
 
     steps:
+
+      - name: Retrieve saved dart sdk for ${{ matrix.architecture }}
+        uses: actions/download-artifact@v2
+        with:
+          name: dart-${{ matrix.architecture }}
+          path: dart-${{ matrix.architecture }}
+
       - name: Setup dev files
         run: |
              ./dart-${{ matrix.architecture }}/dart-sdk/bin/dart pub get
