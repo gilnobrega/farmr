@@ -19,7 +19,6 @@ jobs:
     strategy:
       matrix:
         architecture: [x86_64, aarch64]
-        format: [deb, rpm]        
 
     steps:
       - uses: actions/checkout@v2
@@ -94,13 +93,22 @@ jobs:
       - name: Compressing ${{ matrix.architecture }} .tar.gz
         run: tar -czvf ./chiabot-${{ env.version }}-linux-${{ matrix.architecture }}.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh ./hpool.sh
 
-      - name: Build .${{ matrix.format }} file for ${{ matrix.architecture }}
+      - name: Build .deb file for ${{ matrix.architecture }}
         uses: kentik/pkg@v1.0.0-rc7
         with:
           name: chiabot
           version: ${{ env.version }}
           arch: ${{ matrix.architecture }}
-          format: ${{ matrix.format }}
+          format: deb
+          package: .github/package.yaml
+
+      - name: Build .rpm file for ${{ matrix.architecture }}
+        uses: kentik/pkg@v1.0.0-rc7
+        with:
+          name: chiabot
+          version: ${{ env.version }}
+          arch: ${{ matrix.architecture }}
+          format: rpm
           package: .github/package.yaml
 
       - name: Release
