@@ -8,12 +8,12 @@ files:
     mode: "0755"
     user: "root"
   "/etc/chiabot/config":
-   file: config.json.default
-   mode: "0644"
-   user: "root"
+    file: config.json.default
+    mode: "0644"
+    user: "root"
     keep: true
 units:
- # - .github/workflows/chiabot.service
+  #- .github/workflows/chiabot.service
 scripts:
   "post-install": .github/workflows/post-inst
 user: foo
