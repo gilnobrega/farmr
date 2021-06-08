@@ -71,8 +71,7 @@ jobs:
              chmod +x chiabot
       
       - name: Copying default config.json
-      - run: |
-             mv config.json config.json.default
+      - run: mv config.json config.json.default
 
       - name: Load .env file
         uses: xom9ikk/dotenv@v1.0.2
