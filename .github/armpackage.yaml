@@ -8,9 +8,9 @@ files:
     mode: "0755"
     user: "root"
   "/etc/chiabot/config":
-    file: config.json.default
-    mode: "0644"
-    user: "root"
+   file: config.json.default
+   mode: "0644"
+   user: "root"
     keep: true
 units:
  # - .github/workflows/chiabot.service

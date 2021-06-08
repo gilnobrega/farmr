@@ -12,40 +12,52 @@ on:
     branches: [ main ]
 
 jobs:
-  
-  arm64:
-  
+  setupdart:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Downloads dart sdk x64
+        uses: wei/wget@v1
+        with:
+          args: -O dart-x64.zip https://storage.googleapis.com/dart-archive/channels/stable/release/2.12.4/sdk/dartsdk-linux-x64-release.zip
+      
+      - name: Downloads dart sdk arm64
+        uses: wei/wget@v1
+        with:
+          args: -O dart-arm64.zip https://storage.googleapis.com/dart-archive/channels/stable/release/2.12.4/sdk/dartsdk-linux-arm64-release.zip
+      
+      - name: Decompresses dart-arm64.zip
+        uses: TonyBogdanov/zip@1.0
+        with:
+          args: unzip -qq ./dart-arm64.zip -d ./dart-aarch64
+      
+      - name: Decompresses dart-x64.zip
+        uses: TonyBogdanov/zip@1.0
+        with:
+          args: unzip -qq ./dart-x64.zip -d ./dart-x86_64
+ 
+  ubuntu:
+    needs: setupdart
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        architecture: [aarch64]
+        architecture: [x86_64, aarch64]
         format: [deb, rpm]        
 
     steps:
-      - uses: actions/checkout@v2
-      
-      - name: wget
-        uses: wei/wget@v1
-        with:
-          args: -O dart.zip https://storage.googleapis.com/dart-archive/channels/stable/release/2.12.4/sdk/dartsdk-linux-arm64-release.zip
-      
-      - name: Decompress
-        uses: TonyBogdanov/zip@1.0
-        with:
-          args: unzip -qq ./dart.zip -d .
-          
+
       - uses: uraimo/run-on-arch-action@v2.0.9
-        name: Building Linux Arm release
+        name: Building Linux ${{ matrix.architecture }} release
         id: runcmd
         with:
-          arch: aarch64
+          arch: ${{ matrix.architecture }}
           distro: ubuntu20.04
-          if: matrix.arch == 'arm64'
           run: |
              ls
-             ./dart-sdk/bin/dart pub get
-             ./dart-sdk/bin/dart run environment_config:generate
+             ./dart-${{ matrix.architecture }}/dart-sdk/bin/dart pub get
+             ./dart-${{ matrix.architecture }}/dart-sdk/bin/dart run environment_config:generate
              mv .github/workflows/config.test .github/workflows/config.yaml
              mv .github/workflows/farmer.sh ./farmer.sh
              mv .github/workflows/harvester.sh ./harvester.sh
@@ -53,15 +65,15 @@ jobs:
              chmod +x ./farmer.sh
              chmod +x ./harvester.sh
              chmod +x ./hpool.sh
-             ./dart-sdk/bin/dart compile exe chiabot.dart
+             ./dart-${{ matrix.architecture }}/dart-sdk/bin/dart compile exe chiabot.dart
              chmod +x chiabot.exe
              mv chiabot.exe chiabot
-             mv config.json.default config.json
+             mv config.json config.json.default
       
       - name: Load .env file
         uses: xom9ikk/dotenv@v1.0.2
 
-      - name: Compressing arm64 .tar.gz
+      - name: Compressing ${{ matrix.architecture }} .tar.gz
         run: tar -czvf ./chiabot_${{ env.version }}-linux-${{ matrix.architecture }}.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh ./hpool.sh
 
       - name: Build .${{ matrix.format }} file for ${{ matrix.architecture }}
@@ -87,16 +99,16 @@ jobs:
             ./chiabot_${{ env.version }}-linux-${{ matrix.architecture }}.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
-  amd64:
+
+  otherOSes:
     # A strategy is used to define various build environments this job will run.
     #
     # To say it simple, this will create 3 separate independent jobs which will
     # run on ubuntu, mac & windows.
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [macos-latest, windows-latest]
         architecture: [x86_64]
-        format: [deb, rpm]        
 
     runs-on: ${{ matrix.os }}
 
@@ -124,34 +136,6 @@ jobs:
       - name: Load .env file
         uses: xom9ikk/dotenv@v1.0.2
 
-      - name: Building Linux release
-        if: matrix.os == 'ubuntu-latest' && matrix.architecture == 'x86_64'
-        run: |
-             mv .github/workflows/config.test .github/workflows/config.yaml
-             mv .github/workflows/farmer.sh ./farmer.sh
-             mv .github/workflows/harvester.sh ./harvester.sh
-             chmod +x ./farmer.sh
-             chmod +x ./harvester.sh
-             mv .github/workflows/hpool.sh ./hpool.sh
-             chmod +x ./hpool.sh
-             dart compile exe chiabot.dart
-             chmod +x chiabot.exe
-             ./chiabot.exe harvester onetime
-             mv chiabot.exe chiabot
-             tar -czvf ./chiabot_${{ env.version }}-linux-${{ matrix.architecture }}.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh ./hpool.sh
-        
-      - name: Build .${{ matrix.format }} file for amd64
-        if: matrix.os == 'ubuntu-latest' && matrix.architecture == 'x86_64'
-        uses: kentik/pkg@v1.0.0-rc7
-        with:
-          # Package name
-          name: chiabot
-          # Package version
-          version: ${{ env.version }}
-          arch: ${{ matrix.architecture }}  # optional, default is x86_64
-          format: ${{ matrix.format }}
-          package: .github/x64package.yaml
-        
       - name: Building macOS release
         if: matrix.os == 'macos-latest' && matrix.architecture == 'x86_64'
         run: |
@@ -180,7 +164,7 @@ jobs:
              move ./chiabot_hpool.exe ./hpool.exe
              move ./chiabot_harvester.exe ./harvester.exe
              
-      - name: Build
+      - name: Created windows zip file
         shell: bash
         if: matrix.os == 'windows-latest' && matrix.architecture == 'x86_64'
         run: |
@@ -195,9 +179,7 @@ jobs:
           draft: true
           files: |
             ./chiabot_${{ env.version }}-windows-${{ matrix.architecture }}.zip
-            ./chiabot_${{ env.version }}-linux-${{ matrix.architecture }}.tar.gz
             ./chiabot_${{ env.version }}-macOS-${{ matrix.architecture }}.tar.gz
-            ./chiabot_${{ env.version }}-1_${{ matrix.architecture }}.${{ matrix.format }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
           
