@@ -404,10 +404,6 @@ class Stats {
 
   static String showLastNDaysPlots(
       Harvester client, int daysAgo, NetSpace netSpace) {
-    int weekCount = 0; //counts plots in week of completed days
-    int weekSize = 0;
-    int daysWithPlots = 0; //days in the last week with plots
-
     String text = "";
 
     for (int k = 0; k < daysAgo; k++) {
@@ -440,9 +436,6 @@ class Stats {
 
         if (k > 0) {
           day = "${humanReadableDate(nDaysAgoString(client, k))}";
-          weekCount += count;
-          weekSize += sumSize;
-          daysWithPlots += 1;
         }
 
         text += "\n$day: completed $count plots $types";
