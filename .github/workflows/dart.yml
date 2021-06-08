@@ -68,20 +68,23 @@ jobs:
                ./dart-aarch64/dart-sdk/bin/dart pub get
                ./dart-aarch64/dart-sdk/bin/dart run environment_config:generate
                ./dart-aarch64/dart-sdk/bin/dart compile exe chiabot.dart
+               ./chiabot.exe harvester onetime
 
       - name: Compile x86_64
+        if: matrix.architecture == 'x86_64'
         run: |
              ./dart-x86_64/dart-sdk/bin/dart pub get
              ./dart-x86_64/dart-sdk/bin/dart run environment_config:generate
              ./dart-x86_64/dart-sdk/bin/dart compile exe chiabot.dart
+             ./chiabot.exe harvester onetime
 
-      - name: Getting chiabot binary ready
+      - name: Renames chiabot binary
         run: |
-             mv chiabot.exe chiabot
-             chmod +x chiabot
+             chmod +x ./chiabot.exe
+             mv ./chiabot.exe ./chiabot
       
       - name: Copying default config.json
-        run: mv config.json config.json.default
+        run: cp config.json config.json.default
 
       - name: Load .env file
         uses: xom9ikk/dotenv@v1.0.2
