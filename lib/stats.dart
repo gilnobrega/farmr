@@ -105,6 +105,29 @@ class Stats {
 
   DateTime get currentDay => stringToDate(_client.lastUpdatedString);
 
+  //Filter stats
+  double get avgPlots => (_client.totalPlots > 0)
+      ? _client.totalPlots
+      : (_client.plots.length / 1.0);
+  int get numberFilters => _client.numberFilters;
+  int get eligiblePlots => _client.eligiblePlots;
+  int get proofsFound => _client.proofsFound;
+  int get missedChallenges => _client.missedChallenges;
+
+  //Calculates ratio based on each harvesters proportion (farmer's filterRatio)
+  double get filterPassedRatio => (_client is Farmer && _client.filterRatio > 0)
+      ? _client.filterRatio / avgPlots
+      : (eligiblePlots / numberFilters * 512 / avgPlots);
+  String get efficiency => (filterPassedRatio * 100).toStringAsFixed(0);
+
+  //filter response times
+  double get maxTime => _client.maxTime;
+  double get minTime => _client.minTime;
+  double get avgTime => _client.avgTime;
+  double get medianTime => _client.medianTime;
+  double get stdDeviation => _client.stdDeviation;
+
+  //Full Node Stats
   int get fullNodesConnected =>
       (_client is Farmer) ? (_client as Farmer).fullNodesConnected : 0;
 
@@ -497,43 +520,32 @@ class Stats {
     return output;
   }
 
-  static String showFilters(Harvester harvester) {
+  static String showFilters(Harvester harvester, Stats stats) {
     String output = '';
     if (harvester.numberFilters > 0) {
-      int totalEligiblePlots = harvester.eligiblePlots;
       output +=
-          "\n\nLast 24 hours: $totalEligiblePlots plots passed ${harvester.numberFilters} filters";
+          "\n\nLast 24 hours: ${stats.eligiblePlots} plots passed ${stats.numberFilters} filters";
 
       //displays number of proofs found if > 0
       if (harvester.proofsFound > 0)
-        output += "\nFound ${harvester.proofsFound} proofs";
+        output += "\nFound ${stats.proofsFound} proofs";
 
-      double totalPlots = (harvester.totalPlots > 0)
-          ? harvester.totalPlots
-          : (harvester.plots.length / 1.0);
+      output +=
+          "\nEach plot passed ${stats.filterPassedRatio.toStringAsFixed(2)} times per 512 filters";
+      output += "\n24h Efficiency: **${stats.efficiency}%**";
 
-      //Calculates ratio based on each harvesters proportion (farmer's filterRatio)
-      double ratio = (harvester is Farmer && harvester.filterRatio > 0)
-          ? harvester.filterRatio / totalPlots
-          : (totalEligiblePlots / harvester.numberFilters * 512 / totalPlots);
-      String ratioString = ratio.toStringAsFixed(2);
-      String luck = ((ratio) * 100).toStringAsFixed(0) + "%";
-
-      output += "\nEach plot passed $ratioString times per 512 filters";
-      output += "\n24h Efficiency: **$luck**";
-
-      output += "\n\nLongest response: **${harvester.maxTime}** seconds";
-      output += "\nShortest response: ${harvester.minTime} seconds";
+      output += "\n\nLongest response: **${stats.maxTime}** seconds";
+      output += "\nShortest response: ${stats.minTime} seconds";
 
       int decimals = 3;
 
-      if (harvester.medianTime > 0 || harvester.avgTime > 0)
+      if (stats.medianTime > 0 || stats.avgTime > 0)
         output +=
-            "\nMedian: ${harvester.medianTime.toStringAsFixed(decimals)}s Avg: ${harvester.avgTime.toStringAsFixed(decimals)}s σ: ${harvester.stdDeviation.toStringAsFixed(decimals)}s";
+            "\nMedian: ${stats.medianTime.toStringAsFixed(decimals)}s Avg: ${stats.avgTime.toStringAsFixed(decimals)}s σ: ${stats.stdDeviation.toStringAsFixed(decimals)}s";
 
-      if (harvester.maxTime >= 30) {
+      if (stats.maxTime >= 30) {
         output +=
-            "\n:warning: **Missed ${harvester.missedChallenges} challenges** :warning:";
+            "\n:warning: **Missed ${stats.missedChallenges} challenges** :warning:";
         output += "\nFailed challenges with response times > 30 seconds";
       }
 
@@ -852,7 +864,7 @@ class Stats {
               Stats.showLastNDaysPlots(harvester, 8, netSpace) +
               Stats.showWeekPlots(stats) +
               Stats.showIncompletePlotsWarning(harvester) +
-              Stats.showFilters(harvester)
+              Stats.showFilters(harvester, stats)
           : '';
 
       String fullNodeStats = ((isFull || isWorkers) &&
