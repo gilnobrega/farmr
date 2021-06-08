@@ -68,6 +68,7 @@ jobs:
 
       - name: chmod
         run: |
+             mv chiabot.exe chiabot
              chmod +x chiabot
 
       - name: Load .env file
