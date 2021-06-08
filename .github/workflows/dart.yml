@@ -47,7 +47,6 @@ jobs:
              chmod +x ./farmer.sh
              chmod +x ./harvester.sh
              chmod +x ./hpool.sh
-             mv config.json config.json.default
 
       - uses: uraimo/run-on-arch-action@v2.0.9
         name: Compile aarch64
@@ -66,10 +65,14 @@ jobs:
              ./dart-${{ matrix.architecture }}/dart-sdk/bin/dart run environment_config:generate
              ./dart-x86_64/dart-sdk/bin/dart compile exe chiabot.dart
 
-      - name: chmod
+      - name: Getting chiabot binary ready
         run: |
              mv chiabot.exe chiabot
              chmod +x chiabot
+      
+      - name: Copying default config.json
+      - run: |
+             mv config.json config.json.default
 
       - name: Load .env file
         uses: xom9ikk/dotenv@v1.0.2
