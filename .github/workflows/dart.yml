@@ -79,8 +79,8 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ env.version }}
-          release_name: ${{ env.version }}
+          tag_name: ${{ env.version }}-dev${{ env.GITHUB_RUN_NUMBER }}
+          release_name: ${{ env.version }}-dev${{ env.GITHUB_RUN_NUMBER }}
           draft: true
           files: |
             ./chiabot_${{ env.version }}-1_${{ matrix.architecture }}.${{ matrix.format }}
@@ -190,8 +190,8 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ env.version }}
-          release_name: ${{ env.version }}
+          tag_name: ${{ env.version }}-dev${{ env.GITHUB_RUN_NUMBER }}
+          release_name: ${{ env.version }}-dev${{ env.GITHUB_RUN_NUMBER }}
           draft: true
           files: |
             ./chiabot_${{ env.version }}-windows-${{ matrix.architecture }}.zip

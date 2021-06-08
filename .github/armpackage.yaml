@@ -9,7 +9,7 @@ files:
     user: "root"
   "/etc/chiabot/config":
     file: config.json.default
-    mode: "0666"
+    mode: "0644"
     user: "root"
     keep: true
 units:
