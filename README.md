@@ -74,12 +74,14 @@ You can use chiabot for basic stats if you are farming in HPool. Follow the inst
    - If you're setting up a **farmer**:
 ```
 dart pub get; 
+dart run environment_config:generate;
 dart compile exe chiabot.dart; 
 mv chiabot.exe chiabot;
 ```
    - If you're setting up a **harvester**:
 ```
 dart pub get; 
+dart run environment_config:generate;
 dart compile exe chiabot_harvester.dart; 
 mv chiabot_harvester.exe chiabot;
 ```

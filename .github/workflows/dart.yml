@@ -17,6 +17,11 @@ jobs:
   
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        architecture: [aarch64]
+        format: [deb, rpm]        
+
     steps:
       - uses: actions/checkout@v2
       
@@ -52,30 +57,34 @@ jobs:
              chmod +x chiabot.exe
              mv chiabot.exe chiabot
              mv config.json.default config.json
-             tar -czvf ./chiabot-linux-arm64.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh ./hpool.sh
       
-      - name: Build DEB file for arm64
-        if: matrix.arch == 'arm64'
+      - name: Load .env file
+        uses: xom9ikk/dotenv@v1.0.2
+
+      - name: Compressing arm64 .tar.gz
+        run: tar -czvf ./chiabot_${{ env.version }}-linux-${{ matrix.architecture }}.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh ./hpool.sh
+
+      - name: Build .${{ matrix.format }} file for ${{ matrix.architecture }}
         uses: kentik/pkg@v1.0.0-rc7
         with:
           distro: ubuntu20.04
           # Package name
           name: chiabot
           # Package version
-          version: 1.3.4
-          arch: arm64  # optional, default is x86_64
-          format: deb
+          version: ${{ env.version }}
+          arch: ${{ matrix.architecture }}  # optional, default is x86_64
+          format: ${{ matrix.format }}
           package: .github/armpackage.yaml
-      
+
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: Release ${{ github.sha }}
-          release_name: Release ${{ github.sha }}
+          tag_name: ${{ env.version }}
+          release_name: ${{ env.version }}
           draft: true
           files: |
-            ./chiabot_1.3.4-1_arm64.deb
-            ./chiabot-linux-arm64.tar.gz
+            ./chiabot_${{ env.version }}-1_${{ matrix.architecture }}.${{ matrix.format }}
+            ./chiabot_${{ env.version }}-linux-${{ matrix.architecture }}.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
   amd64:
@@ -86,8 +95,9 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        architecture: [x64]
-        
+        architecture: [x86_64]
+        format: [deb, rpm]        
+
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -115,7 +125,7 @@ jobs:
         uses: xom9ikk/dotenv@v1.0.2
 
       - name: Building Linux release
-        if: matrix.os == 'ubuntu-latest' && matrix.architecture == 'x64'
+        if: matrix.os == 'ubuntu-latest' && matrix.architecture == 'x86_64'
         run: |
              mv .github/workflows/config.test .github/workflows/config.yaml
              mv .github/workflows/farmer.sh ./farmer.sh
@@ -128,22 +138,22 @@ jobs:
              chmod +x chiabot.exe
              ./chiabot.exe harvester onetime
              mv chiabot.exe chiabot
-             tar -czvf ./chiabot-linux-amd64-${{ env.version }}.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh ./hpool.sh
+             tar -czvf ./chiabot_${{ env.version }}-linux-${{ matrix.architecture }}.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh ./hpool.sh
         
-      - name: Build DEB file for x64
-        if: matrix.os == 'ubuntu-latest' && matrix.architecture == 'x64'
+      - name: Build .${{ matrix.format }} file for amd64
+        if: matrix.os == 'ubuntu-latest' && matrix.architecture == 'x86_64'
         uses: kentik/pkg@v1.0.0-rc7
         with:
           # Package name
           name: chiabot
           # Package version
           version: ${{ env.version }}
-          arch: amd64  # optional, default is x86_64
-          format: deb
+          arch: ${{ matrix.architecture }}  # optional, default is x86_64
+          format: ${{ matrix.format }}
           package: .github/x64package.yaml
         
       - name: Building macOS release
-        if: matrix.os == 'macos-latest' && matrix.architecture == 'x64'
+        if: matrix.os == 'macos-latest' && matrix.architecture == 'x86_64'
         run: |
              mv .github/workflows/config.test .github/workflows/config.yaml
              mv .github/workflows/farmer.sh ./farmer.sh
@@ -156,10 +166,10 @@ jobs:
              chmod +x chiabot.exe
              ./chiabot.exe harvester onetime
              mv chiabot.exe chiabot
-             tar -czvf ./chiabot-macOS-amd64-${{ env.version }}.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh ./hpool.sh
+             tar -czvf ./chiabot_${{ env.version }}-macOS-${{ matrix.architecture }}.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh ./hpool.sh
              
       - name: Building Windows release
-        if: matrix.os == 'windows-latest' && matrix.architecture == 'x64'
+        if: matrix.os == 'windows-latest' && matrix.architecture == 'x86_64'
         run: |
              mv .github/workflows/config.test .github/workflows/config.yaml
              dart compile exe chiabot.dart
@@ -172,10 +182,10 @@ jobs:
              
       - name: Build
         shell: bash
-        if: matrix.os == 'windows-latest' && matrix.architecture == 'x64'
+        if: matrix.os == 'windows-latest' && matrix.architecture == 'x86_64'
         run: |
           # Pack files WINDOWS
-          7z a -tzip "chiabot-windows-amd64-${{ env.version }}.zip" "./*.exe" "./config.json"
+          7z a -tzip "chiabot_${{ env.version }}-windows-${{ matrix.architecture }}.zip" "./*.exe" "./config.json"
 
       - name: Release
         uses: softprops/action-gh-release@v1
@@ -184,10 +194,10 @@ jobs:
           release_name: ${{ env.version }}
           draft: true
           files: |
-            ./chiabot-windows-amd64-${{ env.version }}.zip
-            ./chiabot-linux-amd64-${{ env.version }}.tar.gz
-            ./chiabot-macOS-amd64-${{ env.version }}.tar.gz
-            ./chiabot_${{ env.version }}-1_amd64.deb
+            ./chiabot_${{ env.version }}-windows-${{ matrix.architecture }}.zip
+            ./chiabot_${{ env.version }}-linux-${{ matrix.architecture }}.tar.gz
+            ./chiabot_${{ env.version }}-macOS-${{ matrix.architecture }}.tar.gz
+            ./chiabot_${{ env.version }}-1_${{ matrix.architecture }}.${{ matrix.format }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
           
