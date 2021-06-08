@@ -35,9 +35,10 @@ jobs:
         uses: TonyBogdanov/zip@1.0
         with:
           args: unzip -qq ./dart-${{ matrix.architecture }}.zip -d ./dart-${{ matrix.architecture }}
-      
+
       - name: Setup dev files
         run: |
+             sudo chmod -r 755 dart-${{ matrix.architecture }}
              ./dart-${{ matrix.architecture }}/dart-sdk/bin/dart pub get
              ./dart-${{ matrix.architecture }}/dart-sdk/bin/dart run environment_config:generate
              mv .github/workflows/config.test .github/workflows/config.yaml
