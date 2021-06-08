@@ -38,8 +38,8 @@ jobs:
              mkdir -p dart-x86_64/dart-sdk/bin/
              cp .github/workflows/dummydart.sh dart-aarch64/dart-sdk/bin/dart
              cp .github/workflows/dummydart.sh dart-x86_64/dart-sdk/bin/dart
-             sudo chmod 755 dart-aarch64/dart-sdk/bin/dart
-             sudo chmod 755 dart-x86_64/dart-sdk/bin/dart
+             chmod 755 dart-aarch64/dart-sdk/bin/dart
+             chmod 755 dart-x86_64/dart-sdk/bin/dart
              sudo rm -rf dart-${{ matrix.architecture }}
         
       - name: Decompresses dart-${{ matrix.architecture }}.zip
