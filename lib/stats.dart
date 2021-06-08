@@ -130,6 +130,28 @@ class Stats {
   //Full Node Stats
   int get fullNodesConnected =>
       (_client is Farmer) ? (_client as Farmer).fullNodesConnected : 0;
+  int get completeSubSlots =>
+      (_client is Farmer) ? (_client as Farmer).completeSubSlots : 0;
+  int get looseSignagePoints =>
+      (_client is Farmer) ? (_client as Farmer).looseSignagePoints : 0;
+  int get totalSignagePoints => (64 * completeSubSlots) + looseSignagePoints;
+  double get looseRatio => looseSignagePoints / totalSignagePoints;
+  String get loosePercentage => (looseRatio * 100).toStringAsFixed(0);
+
+  int get shortSyncNumber =>
+      (_client is Farmer) ? (_client as Farmer).shortSyncs.length : 0;
+  int get shortSyncSkippedBlocks => (_client is Farmer)
+      ? ShortSync.skippedBlocks((_client as Farmer).shortSyncs)
+      : 0;
+  String get shortSyncDescription {
+    String output = '';
+    if (_client is Farmer) {
+      for (ShortSync shortSync in (_client as Farmer).shortSyncs)
+        output +=
+            "\n${shortSync.localTime} from block ${shortSync.start} to ${shortSync.end}";
+    }
+    return output;
+  }
 
   Stats(this._client, this._price, this._netSpace);
 
@@ -598,38 +620,24 @@ class Stats {
     return output;
   }
 
-  static String showFullNodeStats(Harvester harvester) {
+  static String showFullNodeStats(Stats stats) {
     String output = '';
     output += "\n*Full Node Stats*";
 
-    if (harvester is Farmer && harvester.completeSubSlots > 0) {
-      int totalSignagePoints =
-          (64 * harvester.completeSubSlots) + harvester.looseSignagePoints;
-
-      double ratio = harvester.looseSignagePoints / (totalSignagePoints);
-
-      String percentage = (ratio * 100).toStringAsFixed(2);
-
-      output += "\n${harvester.completeSubSlots} complete Sub Slots";
-      output += "\n$percentage% orphan Signage Points";
+    if (stats.completeSubSlots > 0) {
+      output += "\n${stats.completeSubSlots} complete Sub Slots";
+      output += "\n${stats.loosePercentage}% orphan Signage Points";
     }
 
-    if (harvester is Farmer && harvester.shortSyncs.length > 0) {
-      int events = harvester.shortSyncs.length;
-
-      //sums al lengths of short sync events
-      int totalBlocksSkipped = ShortSync.skippedBlocks(harvester.shortSyncs);
-
+    if (stats.shortSyncNumber > 0) {
       output +=
-          "\n:warning: **Lost sync $events times**, skipped $totalBlocksSkipped blocks";
+          "\n:warning: **Lost sync ${stats.shortSyncNumber} times**, skipped ${stats.shortSyncSkippedBlocks} blocks";
 
-      for (ShortSync shortSync in harvester.shortSyncs)
-        output +=
-            "\n${shortSync.localTime} from block ${shortSync.start} to ${shortSync.end}";
+      output += stats.shortSyncDescription;
     }
 
-    if (harvester is Farmer && harvester.fullNodesConnected > 0) {
-      output += "\nConnected to ${harvester.fullNodesConnected} peers";
+    if (stats.fullNodesConnected > 0) {
+      output += "\nConnected to ${stats.fullNodesConnected} peers";
     }
 
     return output;
@@ -865,7 +873,7 @@ class Stats {
               (harvester.completeSubSlots > 0 ||
                   harvester.fullNodesConnected > 0 ||
                   harvester.shortSyncs.length > 0))
-          ? ";;" + Stats.showFullNodeStats(harvester) + lastUpdated
+          ? ";;" + Stats.showFullNodeStats(stats) + lastUpdated
           : '';
 
       String swarPM =
