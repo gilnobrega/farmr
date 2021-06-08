@@ -39,6 +39,7 @@ jobs:
              echo "#!/bin/sh" > dart-x86_64/dart-sdk/bin/dart
              sudo chmod 755 dart-aarch64/dart-sdk/bin/dart
              sudo chmod 755 dart-x86_64/dart-sdk/bin/dart
+             sudo rm -rf dart-${{ matrix.architecture }}
         
       - name: Decompresses dart-${{ matrix.architecture }}.zip
         uses: TonyBogdanov/zip@1.0
