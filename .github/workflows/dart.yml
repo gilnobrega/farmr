@@ -13,7 +13,7 @@ on:
 
 jobs:
 
-  ubuntu:
+  linux:
     runs-on: ubuntu-latest
 
     strategy:
@@ -92,7 +92,7 @@ jobs:
         uses: xom9ikk/dotenv@v1.0.2
 
       - name: Compressing ${{ matrix.architecture }} .tar.gz
-        run: tar -czvf ./chiabot_${{ env.version }}-linux-${{ matrix.architecture }}.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh ./hpool.sh
+        run: tar -czvf ./chiabot-${{ env.version }}-linux-${{ matrix.architecture }}.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh ./hpool.sh
 
       - name: Build .${{ matrix.format }} file for ${{ matrix.architecture }}
         uses: kentik/pkg@v1.0.0-rc7
@@ -110,12 +110,12 @@ jobs:
           release_name: ${{ env.version }}-dev${{ env.GITHUB_RUN_NUMBER }}
           draft: true
           files: |
-            ./chiabot_${{ env.version }}-1_${{ matrix.architecture }}.${{ matrix.format }}
-            ./chiabot_${{ env.version }}-linux-${{ matrix.architecture }}.tar.gz
+            ./chiabot-${{ env.version }}-1_${{ matrix.architecture }}.${{ matrix.format }}
+            ./chiabot-${{ env.version }}-linux-${{ matrix.architecture }}.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
 
-  windowsAndMac:
+  inferiorOSes:
     # A strategy is used to define various build environments this job will run.
     #
     # To say it simple, this will create 3 separate independent jobs which will
@@ -165,7 +165,7 @@ jobs:
              chmod +x chiabot.exe
              ./chiabot.exe harvester onetime
              mv chiabot.exe chiabot
-             tar -czvf ./chiabot_${{ env.version }}-macOS-${{ matrix.architecture }}.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh ./hpool.sh
+             tar -czvf ./chiabot-${{ env.version }}-macOS-${{ matrix.architecture }}.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh ./hpool.sh
              
       - name: Building Windows release
         if: matrix.os == 'windows-latest'
@@ -184,17 +184,17 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           # Pack files WINDOWS
-          7z a -tzip "chiabot_${{ env.version }}-windows-${{ matrix.architecture }}.zip" "./*.exe" "./config.json"
+          7z a -tzip "chiabot-${{ env.version }}-windows-${{ matrix.architecture }}.zip" "./*.exe" "./config.json"
 
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ env.version }}-dev${{ env.GITHUB_RUN_NUMBER }}
-          release_name: ${{ env.version }}-dev${{ env.GITHUB_RUN_NUMBER }}
+          tag_name: ${{ env.version }}
+          release_name: ${{ env.version }}
           draft: true
           files: |
-            ./chiabot_${{ env.version }}-windows-${{ matrix.architecture }}.zip
-            ./chiabot_${{ env.version }}-macOS-${{ matrix.architecture }}.tar.gz
+            ./chiabot-${{ env.version }}-windows-${{ matrix.architecture }}.zip
+            ./chiabot-${{ env.version }}-macOS-${{ matrix.architecture }}.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
           
