@@ -16,3 +16,4 @@ dependencies:
   dotenv: ^3.0.0
   mysql1: ^0.19.2
   universal_io: ^2.0.4
+  environment_config: ^3.0.0

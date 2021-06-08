@@ -12,14 +12,13 @@ import 'package:chiabot/config.dart';
 import 'package:chiabot/cache.dart';
 import 'package:chiabot/debug.dart';
 import 'package:chiabot/hpool.dart';
+import 'package:chiabot/environment_config.dart';
 
 import 'package:chiabot/stats.dart';
 import 'package:chiabot/server/netspace.dart';
 import 'package:chiabot/server/price.dart';
 
 final log = Logger('Client');
-
-final String version = '1.3.4';
 
 final Duration delay = Duration(minutes: 10); //10 minutes delay between updates
 
@@ -86,10 +85,14 @@ main(List<String> args) async {
       Log chiaLog = new Log(chiaDebugPath, cache, config.parseLogs);
 
       var client = (config.type == ClientType.Farmer)
-          ? Farmer(config: config, log: chiaLog, version: version)
+          ? Farmer(
+              config: config, log: chiaLog, version: EnvironmentConfig.version)
           : (config.type == ClientType.HPool)
-              ? HPool(config: config, log: chiaLog, version: version)
-              : Harvester(config, chiaLog, version);
+              ? HPool(
+                  config: config,
+                  log: chiaLog,
+                  version: EnvironmentConfig.version)
+              : Harvester(config, chiaLog, EnvironmentConfig.version);
       //hpool has a special config.yaml directory, as defined in chiabot's config.json
       await client.init((config.type == ClientType.HPool)
           ? config.hpoolConfigPath

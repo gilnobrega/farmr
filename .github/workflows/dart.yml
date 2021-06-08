@@ -39,7 +39,10 @@ jobs:
           if: matrix.arch == 'arm64'
           run: |
              ls
+#gets dependencies
              ./dart-sdk/bin/dart pub get
+#generates environment config
+             ./dart-sdk/bin/dart run environment_config:generate
              mv .github/workflows/config.test .github/workflows/config.yaml
              mv .github/workflows/farmer.sh ./farmer.sh
              mv .github/workflows/harvester.sh ./harvester.sh
@@ -47,6 +50,7 @@ jobs:
              chmod +x ./farmer.sh
              chmod +x ./harvester.sh
              chmod +x ./hpool.sh
+#compiles chiabot
              ./dart-sdk/bin/dart compile exe chiabot.dart
              chmod +x chiabot.exe
              mv chiabot.exe chiabot
@@ -104,8 +108,14 @@ jobs:
       - name: Install dependencies
         run: dart pub get
 
+      - name: Generate EnvironmentConfig
+        run: dart run environment_config:generate
+
       - name: Analyze project source
         run: dart analyze
+
+      - name: Load .env file
+        uses: xom9ikk/dotenv@v1.0.2
 
       - name: Building Linux release
         if: matrix.os == 'ubuntu-latest' && matrix.architecture == 'x64'
@@ -121,7 +131,7 @@ jobs:
              chmod +x chiabot.exe
              ./chiabot.exe harvester onetime
              mv chiabot.exe chiabot
-             tar -czvf ./chiabot-linux-amd64.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh ./hpool.sh
+             tar -czvf ./chiabot-linux-amd64-${{ env.version }}.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh ./hpool.sh
         
       - name: Build DEB file for x64
         if: matrix.os == 'ubuntu-latest' && matrix.architecture == 'x64'
@@ -130,7 +140,7 @@ jobs:
           # Package name
           name: chiabot
           # Package version
-          version: 1.3.4
+          version: ${{ env.version }}
           arch: amd64  # optional, default is x86_64
           format: deb
           package: .github/x64package.yaml
@@ -149,7 +159,7 @@ jobs:
              chmod +x chiabot.exe
              ./chiabot.exe harvester onetime
              mv chiabot.exe chiabot
-             tar -czvf ./chiabot-macOS-amd64.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh ./hpool.sh
+             tar -czvf ./chiabot-macOS-amd64-${{ env.version }}.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh ./hpool.sh
              
       - name: Building Windows release
         if: matrix.os == 'windows-latest' && matrix.architecture == 'x64'
@@ -168,19 +178,19 @@ jobs:
         if: matrix.os == 'windows-latest' && matrix.architecture == 'x64'
         run: |
           # Pack files WINDOWS
-          7z a -tzip "chiabot-windows-amd64.zip" "./*.exe" "./config.json"
+          7z a -tzip "chiabot-windows-amd64-${{ env.version }}.zip" "./*.exe" "./config.json"
 
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: Release ${{ github.sha }}
-          release_name: Release ${{ github.sha }}
+          tag_name: ${{ env.version }}
+          release_name: ${{ env.version }}
           draft: true
           files: |
-            ./chiabot-windows-amd64.zip
-            ./chiabot-linux-amd64.tar.gz
-            ./chiabot-macOS-amd64.tar.gz
-            ./chiabot_1.3.4-1_amd64.deb
+            ./chiabot-windows-amd64-${{ env.version }}.zip
+            ./chiabot-linux-amd64-${{ env.version }}.tar.gz
+            ./chiabot-macOS-amd64-${{ env.version }}.tar.gz
+            ./chiabot_${{ env.version }}-1_amd64.deb
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
           
