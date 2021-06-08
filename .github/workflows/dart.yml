@@ -12,52 +12,8 @@ on:
     branches: [ main ]
 
 jobs:
-  setupdart:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      
-      - name: Downloads dart sdk x64
-        uses: wei/wget@v1
-        with:
-          args: -O dart-x64.zip https://storage.googleapis.com/dart-archive/channels/stable/release/latest/sdk/dartsdk-linux-x64-release.zip
-      
-      - name: Downloads dart sdk arm64
-        uses: wei/wget@v1
-        with:
-          args: -O dart-arm64.zip https://storage.googleapis.com/dart-archive/channels/stable/release/latest/sdk/dartsdk-linux-arm64-release.zip
-      
-      - name: Decompresses dart-arm64.zip
-        uses: TonyBogdanov/zip@1.0
-        with:
-          args: unzip -qq ./dart-arm64.zip -d ./dart-aarch64
-      
-      - name: Decompresses dart-x64.zip
-        uses: TonyBogdanov/zip@1.0
-        with:
-          args: unzip -qq ./dart-x64.zip -d ./dart-x86_64
-
-      - name: Set permissions
-        run: |
-             sudo chmod -R 755 dart-x86_64
-             sudo chmod -R 755 dart-aarch64
-
-      - name: Temporarily save dart-aarch64
-        uses: actions/upload-artifact@v2
-        with:
-          name: dart-aarch64
-          path: dart-aarch64
-          retention-days: 1
-
-      - name: Temporarily save dart-x86_64
-        uses: actions/upload-artifact@v2
-        with:
-          name: dart-x86_64
-          path: dart-x86_64
-          retention-days: 1
 
   ubuntu:
-    needs: setupdart
     runs-on: ubuntu-latest
 
     strategy:
@@ -67,12 +23,19 @@ jobs:
 
     steps:
 
-      - name: Retrieve saved dart sdk for ${{ matrix.architecture }}
-        uses: actions/download-artifact@v2
-        with:
-          name: dart-${{ matrix.architecture }}
-          path: dart-${{ matrix.architecture }}
+      - name: Download dart sdk x64
+        if: matrix.architecture == 'x86_64'
+        run: curl https://storage.googleapis.com/dart-archive/channels/stable/release/latest/sdk/dartsdk-linux-x64-release.zip -o dart-${{ matrix.architecture }}.zip
 
+      - name: Download dart sdk arm64
+        if: matrix.architecture == 'aarch64'
+        run: curl https://storage.googleapis.com/dart-archive/channels/stable/release/latest/sdk/dartsdk-linux-arm64-release.zip -o dart-${{ matrix.architecture }}.zip
+              
+      - name: Decompresses dart-${{ matrix.architecture }}.zip
+        uses: TonyBogdanov/zip@1.0
+        with:
+          args: unzip -qq ./dart-${{ matrix.architecture }}.zip -d ./dart-${{ matrix.architecture }}
+      
       - name: Setup dev files
         run: |
              ./dart-${{ matrix.architecture }}/dart-sdk/bin/dart pub get
@@ -94,7 +57,7 @@ jobs:
           distro: ubuntu20.04
           run: |
                ./dart-${{ matrix.architecture }}/dart-sdk/bin/dart compile exe chiabot.dart
-               mv chiabot.exe chiabot_arm64
+               mv chiabot.exe chiabot_aarch64
 
       - name: Compile x86_64
         run: |
