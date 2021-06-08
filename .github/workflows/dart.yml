@@ -97,7 +97,6 @@ jobs:
       - name: Build .${{ matrix.format }} file for ${{ matrix.architecture }}
         uses: kentik/pkg@v1.0.0-rc7
         with:
-          distro: ubuntu20.04
           # Package name
           name: chiabot
           # Package version
