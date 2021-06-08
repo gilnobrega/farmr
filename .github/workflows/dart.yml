@@ -37,6 +37,11 @@ jobs:
         with:
           args: unzip -qq ./dart-x64.zip -d ./dart-x86_64
 
+      - name: Set permissions
+        run: |
+             chmod -R 755 dart-x86_64
+             chmod -R 755 dart-aarch64
+
       - name: Temporarily save dart-aarch64
         uses: actions/upload-artifact@v2
         with:
