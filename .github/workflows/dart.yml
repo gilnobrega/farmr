@@ -35,7 +35,7 @@ jobs:
       - name: Decompresses dart-x64.zip
         uses: TonyBogdanov/zip@1.0
         with:
-          args: unzip -qq ./dart-x64.zip -d ./dart-amd64
+          args: unzip -qq ./dart-x64.zip -d ./dart-x86_64
 
   ubuntu:
     needs: setupdart
@@ -43,19 +43,12 @@ jobs:
 
     strategy:
       matrix:
-        architecture: [amd64, aarch64]
+        architecture: [x86_64, aarch64]
         format: [deb, rpm]        
 
     steps:
-
-      - uses: uraimo/run-on-arch-action@v2.0.9
-        name: Building Linux ${{ matrix.architecture }} release
-        id: runcmd
-        with:
-          arch: ${{ matrix.architecture }}
-          distro: ubuntu20.04
-          run: |
-             ls
+      - name: Setup dev files
+        run: |
              ./dart-${{ matrix.architecture }}/dart-sdk/bin/dart pub get
              ./dart-${{ matrix.architecture }}/dart-sdk/bin/dart run environment_config:generate
              mv .github/workflows/config.test .github/workflows/config.yaml
@@ -65,11 +58,28 @@ jobs:
              chmod +x ./farmer.sh
              chmod +x ./harvester.sh
              chmod +x ./hpool.sh
-             ./dart-${{ matrix.architecture }}/dart-sdk/bin/dart compile exe chiabot.dart
-             chmod +x chiabot.exe
-             mv chiabot.exe chiabot
              mv config.json config.json.default
-      
+
+      - uses: uraimo/run-on-arch-action@v2.0.9
+        name: Compile aarch64
+        id: runcmd
+        with:
+          arch: aarch64
+          distro: ubuntu20.04
+          run: |
+               ./dart-${{ matrix.architecture }}/dart-sdk/bin/dart compile exe chiabot.dart
+               mv chiabot.exe chiabot_arm64
+
+      - name: Compile x86_64
+        run: |
+             ./dart-${{ matrix.architecture }}/dart-sdk/bin/dart compile exe chiabot.dart
+             mv chiabot.exe chiabot_x86_64
+
+      - name: Move selected binary
+        run: |
+             mv chiabot_${{ matrix.architecture }} chiabot
+             chmod +x chiabot
+
       - name: Load .env file
         uses: xom9ikk/dotenv@v1.0.2
 
@@ -84,19 +94,7 @@ jobs:
           name: chiabot
           # Package version
           version: ${{ env.version }}
-          arch: aarch64  
-          format: ${{ matrix.format }}
-          package: .github/package.yaml
-
-      - name: Build .${{ matrix.format }} file for ${{ matrix.architecture }}
-        uses: kentik/pkg@v1.0.0-rc7
-        with:
-          distro: ubuntu20.04
-          # Package name
-          name: chiabot
-          # Package version
-          version: ${{ env.version }}
-          arch: x86_64  
+          arch: ${{ matrix.architecture }}
           format: ${{ matrix.format }}
           package: .github/package.yaml
 
@@ -120,7 +118,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, windows-latest]
-        architecture: [amd64]
+        architecture: [x64]
 
     runs-on: ${{ matrix.os }}
 
