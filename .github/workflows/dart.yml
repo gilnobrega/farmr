@@ -77,7 +77,6 @@ jobs:
         run: tar -czvf ./chiabot_${{ env.version }}-linux-${{ matrix.architecture }}.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh ./hpool.sh
 
       - name: Build .${{ matrix.format }} file for ${{ matrix.architecture }}
-        if:  matrix.architecture == "aarch64"
         uses: kentik/pkg@v1.0.0-rc7
         with:
           distro: ubuntu20.04
@@ -90,7 +89,6 @@ jobs:
           package: .github/package.yaml
 
       - name: Build .${{ matrix.format }} file for ${{ matrix.architecture }}
-        if:  matrix.architecture == "amd64"
         uses: kentik/pkg@v1.0.0-rc7
         with:
           distro: ubuntu20.04
