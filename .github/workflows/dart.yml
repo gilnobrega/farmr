@@ -31,17 +31,7 @@ jobs:
       - name: Download dart sdk arm64
         if: matrix.architecture == 'aarch64'
         run: curl https://storage.googleapis.com/dart-archive/channels/stable/release/latest/sdk/dartsdk-linux-arm64-release.zip -o dart-${{ matrix.architecture }}.zip
- 
-      - name: Create dummy scripts
-        run: |
-             mkdir -p dart-aarch64/dart-sdk/bin/
-             mkdir -p dart-x86_64/dart-sdk/bin/
-             cp .github/workflows/dummydart.sh dart-aarch64/dart-sdk/bin/dart
-             cp .github/workflows/dummydart.sh dart-x86_64/dart-sdk/bin/dart
-             chmod 755 dart-aarch64/dart-sdk/bin/dart
-             chmod 755 dart-x86_64/dart-sdk/bin/dart
-             sudo rm -rf dart-${{ matrix.architecture }}
-        
+
       - name: Decompresses dart-${{ matrix.architecture }}.zip
         uses: TonyBogdanov/zip@1.0
         with:
@@ -50,8 +40,6 @@ jobs:
       - name: Setup dev files
         run: |
              sudo chmod -R 755 dart-${{ matrix.architecture }}
-             ./dart-${{ matrix.architecture }}/dart-sdk/bin/dart pub get
-             ./dart-${{ matrix.architecture }}/dart-sdk/bin/dart run environment_config:generate
              mv .github/workflows/config.test .github/workflows/config.yaml
              mv .github/workflows/farmer.sh ./farmer.sh
              mv .github/workflows/harvester.sh ./harvester.sh
@@ -68,10 +56,14 @@ jobs:
           arch: aarch64
           distro: ubuntu20.04
           run: |
+               ./dart-${{ matrix.architecture }}/dart-sdk/bin/dart pub get
+               ./dart-${{ matrix.architecture }}/dart-sdk/bin/dart run environment_config:generate
                ./dart-aarch64/dart-sdk/bin/dart compile exe chiabot.dart
 
       - name: Compile x86_64
         run: |
+             ./dart-${{ matrix.architecture }}/dart-sdk/bin/dart pub get
+             ./dart-${{ matrix.architecture }}/dart-sdk/bin/dart run environment_config:generate
              ./dart-x86_64/dart-sdk/bin/dart compile exe chiabot.dart
 
       - name: chmod
