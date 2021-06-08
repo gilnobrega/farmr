@@ -30,7 +30,16 @@ jobs:
       - name: Download dart sdk arm64
         if: matrix.architecture == 'aarch64'
         run: curl https://storage.googleapis.com/dart-archive/channels/stable/release/latest/sdk/dartsdk-linux-arm64-release.zip -o dart-${{ matrix.architecture }}.zip
-              
+ 
+      - name: Create dummy scripts
+        run: |
+             mkdir -p dart-aarch64/dart-sdk/bin/
+             mkdir -p dart-x86_64/dart-sdk/bin/
+             echo "#!/bin/sh" > dart-aarch64/dart-sdk/bin/dart
+             echo "#!/bin/sh" > dart-x86_64/dart-sdk/bin/dart
+             sudo chmod 755 dart-aarch64/dart-sdk/bin/dart
+             sudo chmod 755 dart-x86_64/dart-sdk/bin/dart
+        
       - name: Decompresses dart-${{ matrix.architecture }}.zip
         uses: TonyBogdanov/zip@1.0
         with:
@@ -57,17 +66,14 @@ jobs:
           arch: aarch64
           distro: ubuntu20.04
           run: |
-               ./dart-${{ matrix.architecture }}/dart-sdk/bin/dart compile exe chiabot.dart
-               mv chiabot.exe chiabot_aarch64
+               ./dart-aarch64/dart-sdk/bin/dart compile exe chiabot.dart
 
       - name: Compile x86_64
         run: |
-             ./dart-${{ matrix.architecture }}/dart-sdk/bin/dart compile exe chiabot.dart
-             mv chiabot.exe chiabot_x86_64
+             ./dart-x86_64/dart-sdk/bin/dart compile exe chiabot.dart
 
-      - name: Move selected binary
+      - name: chmod
         run: |
-             mv chiabot_${{ matrix.architecture }} chiabot
              chmod +x chiabot
 
       - name: Load .env file
