@@ -56,6 +56,9 @@ class Stats {
 
   //DRIVES
   int get drivesCount => (_client.drivesCount);
+  int get totalDriveSize => (_client.totalDiskSpace);
+  String get totalDriveSpace => fileSize(totalDriveSize);
+
   bool get supportDiskSpace => (_client.supportDiskSpace);
   //sums size occupied by plots
   int get plotsSize => plotSumSize(_client.plots);
