@@ -139,7 +139,9 @@ class Stats {
       (_client is Farmer) ? (_client as Farmer).looseSignagePoints : 0;
   int get totalSignagePoints => (64 * completeSubSlots) + looseSignagePoints;
   double get looseRatio => looseSignagePoints / totalSignagePoints;
-  String get loosePercentage => (looseRatio * 100).toStringAsFixed(0);
+  double get orderedRatio => 1 - looseRatio;
+  String get loosePercentage => (looseRatio * 100).toStringAsFixed(1);
+  String get orderedPercentage => (orderedRatio * 100).toStringAsFixed(1);
 
   int get shortSyncNumber =>
       (_client is Farmer) ? (_client as Farmer).shortSyncs.length : 0;
