@@ -1,2 +1,2 @@
 #!/bin/sh
-./chiabot 
+./farmr

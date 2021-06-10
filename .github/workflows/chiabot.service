@@ -1,13 +1,13 @@
 [Unit]
-Description=chiabot
+Description=farmr
 
 [Service]
 Type=forking
 RemainAfterExit=yes
-WorkingDirectory=/etc/chiabot/
+WorkingDirectory=/etc/farmr/
 #Environment=PATH=/chia/Swar-Chia-Plot-Manager/venv/bin:${PATH}
-ExecStart=/usr/bin/tmux new-session -s chiabot -d /usr/bin/chiabot
-ExecStop=/usr/bin/tmux kill-session -t chiabot
+ExecStart=/usr/bin/tmux new-session -s farmr -d /usr/bin/farmr
+ExecStop=/usr/bin/tmux kill-session -t farmr
 
 [Install]
 WantedBy=default.target

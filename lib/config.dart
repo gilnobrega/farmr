@@ -78,19 +78,6 @@ class Config {
 
   Config(this.cache, String chiaConfigPath,
       [isHarvester = false, isHPool = false]) {
-    //Move old config/cache files to new locations
-    io.File _oldConfig = io.File(chiaConfigPath + "chiabot.json");
-
-    try {
-      //Copies old config file to new path and deletes old config file
-      if (_oldConfig.existsSync()) {
-        _oldConfig.copySync(_config.absolute.path);
-        _oldConfig.deleteSync();
-      }
-    } catch (e) {
-      print("Failed to port old config files!");
-    }
-
     //sets default name according to client type
     if (isHarvester) {
       _type = ClientType.Harvester;
@@ -110,7 +97,7 @@ class Config {
       await saveConfig(); //creates config file if doesnt exist
     //If file exists then loads config
     else
-      _loadConfig(); //chiabot.json
+      _loadConfig(); //config.json
 
     //and asks for bin path if path is not defined/not found and is Farmer
     if (type == ClientType.Farmer &&
@@ -381,10 +368,13 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
 
     print(line);
 
+    String instructions = """visit https://farmr.net to add it to your account.
+    Alternatively, you can also link it through farmrbot (a discord bot) by running the following command:""";
+
     if (cache.ids.length > 1)
-      log.warning("Your ids are " + cache.ids.toString() + ", run");
+      log.warning("Your ids are " + cache.ids.toString() + ", $instructions");
     else
-      log.warning("Your id is " + cache.ids[0] + ", run");
+      log.warning("Your id is " + cache.ids[0] + ", $instructions" "");
 
     print("");
 
@@ -397,7 +387,7 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     else
       print("to link this client to your discord user");
 
-    print("""You can interact with ChiaBot in Swar's Chia Community
+    print("""You can interact with farmrbot in Swar's Chia Community
 Open the following link to join the server: https://discord.gg/fPjnWYYFmp""");
 
     print(line);

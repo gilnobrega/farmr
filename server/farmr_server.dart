@@ -16,7 +16,7 @@ import 'package:farmr_client/server/netspace.dart';
 Future<void> main(List<String> args) async {
   dotenv.load();
 
-  //prints chiabot status
+  //prints farmr status
   if (args[0] == "status") {
     _getUsers();
   }
@@ -189,7 +189,7 @@ Future<void> main(List<String> args) async {
             "Error: $farmersCount farmers and $harvestersCount harvesters found.");
       else
         print(
-            "No clients found! Find out how you can install ChiaBot in your farmer/harvester in <#838789194696097843>");
+            "No clients found! Find out how you can install farmr client in your farmer/harvester in <#838789194696097843>");
 
       //print("${userID} - Exception: ${Exception.toString()}");
     }
@@ -235,8 +235,8 @@ Future<List<Harvester>> _getUserData(String userID) async {
   }
   //reads from public api in case connection to mysql database fails
   catch (e) {
-    String contents = await http
-        .read(Uri.parse("http://chiabot.znc.sh/read.php?user=$userID"));
+    String contents =
+        await http.read(Uri.parse("http://farmr.net/read.php?user=$userID"));
 
     contents = contents
         .trim(); //filters last , of send page, can be fixed on server side later

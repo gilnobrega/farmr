@@ -1,6 +1,6 @@
 import 'farmr.dart' as Client;
 
-//launches chiabot as harvester
+//launches farmr client in hpool mode
 main() {
   Client.main(["hpool"]);
 }

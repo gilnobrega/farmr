@@ -1,3 +1,3 @@
 
 dart pub get
-dart ../chiabot.dart standalone
+dart ../farmr.dart standalone

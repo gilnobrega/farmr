@@ -57,4 +57,4 @@ if [ ! -f "/usr/bin/screen" ]; then
 fi
 
 $dartpath pub get;
-screen -q -d -R -S chiabot $dartpath chiabot.dart $1 ;
+screen -q -d -R -S farmr $dartpath farmr.dart $1 ;

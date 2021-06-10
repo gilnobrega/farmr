@@ -93,7 +93,7 @@ main(List<String> args) async {
                   log: chiaLog,
                   version: EnvironmentConfig.version)
               : Harvester(config, chiaLog, EnvironmentConfig.version);
-      //hpool has a special config.yaml directory, as defined in chiabot's config.json
+      //hpool has a special config.yaml directory, as defined in farmr's config.json
       await client.init((config.type == ClientType.HPool)
           ? config.hpoolConfigPath
           : chiaConfigPath);
@@ -168,7 +168,7 @@ main(List<String> args) async {
             "publicAPI": publicAPI
           };
 
-          const String url = "https://chiabot.znc.sh/send6.php";
+          const String url = "https://farmr.net/send6.php";
 
           if (config.sendStatusNotifications)
             post.putIfAbsent("isFarming", () => isFarming);

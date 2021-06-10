@@ -1,3 +1,3 @@
 
 dart pub get
-dart ../chiabot.dart harvester standalone
+dart ../farmr.dart harvester standalone

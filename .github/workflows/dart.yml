@@ -3,7 +3,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: chiabot
+name: farmr_client
 
 on:
   push:
@@ -37,10 +37,10 @@ jobs:
              mkdir -p dart-x86_64/dart-sdk/bin/
              cp .github/workflows/dummydart.sh dart-aarch64/dart-sdk/bin/dart
              cp .github/workflows/dummydart.sh dart-x86_64/dart-sdk/bin/dart
-             cp .github/workflows/dummydart.sh chiabot.exe
+             cp .github/workflows/dummydart.sh farmr.exe
              chmod 755 dart-aarch64/dart-sdk/bin/dart
              chmod 755 dart-x86_64/dart-sdk/bin/dart
-             chmod 755 chiabot.exe
+             chmod 755 farmr.exe
              sudo rm -rf dart-${{ matrix.architecture }}
         
       - name: Decompresses dart-${{ matrix.architecture }}.zip
@@ -68,21 +68,21 @@ jobs:
           run: |
                ./dart-aarch64/dart-sdk/bin/dart pub get
                ./dart-aarch64/dart-sdk/bin/dart run environment_config:generate
-               ./dart-aarch64/dart-sdk/bin/dart compile exe chiabot.dart
-               ./chiabot.exe harvester onetime
+               ./dart-aarch64/dart-sdk/bin/dart compile exe farmr.dart
+               ./farmr.exe harvester onetime
 
       - name: Compile x86_64
         if: matrix.architecture == 'x86_64'
         run: |
              ./dart-x86_64/dart-sdk/bin/dart pub get
              ./dart-x86_64/dart-sdk/bin/dart run environment_config:generate
-             ./dart-x86_64/dart-sdk/bin/dart compile exe chiabot.dart
-             ./chiabot.exe harvester onetime
+             ./dart-x86_64/dart-sdk/bin/dart compile exe farmr.dart
+             ./farmr.exe harvester onetime
 
-      - name: Renames chiabot binary
+      - name: Renames farmr binary
         run: |
-             chmod +x ./chiabot.exe
-             mv ./chiabot.exe ./chiabot
+             chmod +x ./farmr.exe
+             mv ./farmr.exe ./farmr
       
       - name: Copying default config.json
         run: cp config.json config.json.default
@@ -91,12 +91,12 @@ jobs:
         uses: xom9ikk/dotenv@v1.0.2
 
       - name: Compressing ${{ matrix.architecture }} .tar.gz
-        run: tar -czvf ./chiabot-${{ env.version }}-linux-${{ matrix.architecture }}.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh ./hpool.sh
+        run: tar -czvf ./farmr-${{ env.version }}-linux-${{ matrix.architecture }}.tar.gz ./farmr ./config.json ./farmer.sh ./harvester.sh ./hpool.sh
 
       - name: Build .deb file for ${{ matrix.architecture }}
         uses: kentik/pkg@v1.0.0-rc7
         with:
-          name: chiabot
+          name: farmr
           version: ${{ env.version }}
           arch: ${{ matrix.architecture }}
           format: deb
@@ -105,7 +105,7 @@ jobs:
       - name: Build .rpm file for ${{ matrix.architecture }}
         uses: kentik/pkg@v1.0.0-rc7
         with:
-          name: chiabot
+          name: farmr
           version: ${{ env.version }}
           arch: ${{ matrix.architecture }}
           format: rpm
@@ -118,10 +118,10 @@ jobs:
           release_name: ${{ env.version }}
           draft: true
           files: |
-            ./chiabot_${{ env.version }}-1_amd64.deb
-            ./chiabot_${{ env.version }}-1_arm64.deb
-            ./chiabot-${{ env.version }}-1.${{ matrix.architecture }}.rpm
-            ./chiabot-${{ env.version }}-linux-${{ matrix.architecture }}.tar.gz
+            ./farmr_${{ env.version }}-1_amd64.deb
+            ./farmr_${{ env.version }}-1_arm64.deb
+            ./farmr-${{ env.version }}-1.${{ matrix.architecture }}.rpm
+            ./farmr-${{ env.version }}-linux-${{ matrix.architecture }}.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
 
@@ -171,30 +171,30 @@ jobs:
              chmod +x ./harvester.sh
              mv .github/workflows/hpool.sh ./hpool.sh
              chmod +x ./hpool.sh
-             dart compile exe chiabot.dart
-             chmod +x chiabot.exe
-             ./chiabot.exe harvester onetime
-             mv chiabot.exe chiabot
-             tar -czvf ./chiabot-${{ env.version }}-macOS-${{ matrix.architecture }}.tar.gz ./chiabot ./config.json ./farmer.sh ./harvester.sh ./hpool.sh
+             dart compile exe farmr.dart
+             chmod +x farmr.exe
+             ./farmr.exe harvester onetime
+             mv farmr.exe farmr
+             tar -czvf ./farmr-${{ env.version }}-macOS-${{ matrix.architecture }}.tar.gz ./farmr ./config.json ./farmer.sh ./harvester.sh ./hpool.sh
              
       - name: Building Windows release
         if: matrix.os == 'windows-latest'
         run: |
              mv .github/workflows/config.test .github/workflows/config.yaml
-             dart compile exe chiabot.dart
-             dart compile exe chiabot_harvester.dart
-             dart compile exe chiabot_hpool.dart
-             ./chiabot.exe harvester onetime
-             move ./chiabot.exe ./farmer.exe
-             move ./chiabot_hpool.exe ./hpool.exe
-             move ./chiabot_harvester.exe ./harvester.exe
+             dart compile exe farmr.dart
+             dart compile exe farmr_harvester.dart
+             dart compile exe farmr_hpool.dart
+             ./farmr.exe harvester onetime
+             move ./farmr.exe ./farmer.exe
+             move ./farmr_hpool.exe ./hpool.exe
+             move ./farmr_harvester.exe ./harvester.exe
              
       - name: Created windows zip file
         shell: bash
         if: matrix.os == 'windows-latest'
         run: |
           # Pack files WINDOWS
-          7z a -tzip "chiabot-${{ env.version }}-windows-${{ matrix.architecture }}.zip" "./*.exe" "./config.json"
+          7z a -tzip "farmr-${{ env.version }}-windows-${{ matrix.architecture }}.zip" "./*.exe" "./config.json"
 
       - name: Release
         uses: softprops/action-gh-release@v1
@@ -203,8 +203,8 @@ jobs:
           release_name: ${{ env.version }}
           draft: true
           files: |
-            ./chiabot-${{ env.version }}-windows-${{ matrix.architecture }}.zip
-            ./chiabot-${{ env.version }}-macOS-${{ matrix.architecture }}.tar.gz
+            ./farmr-${{ env.version }}-windows-${{ matrix.architecture }}.zip
+            ./farmr-${{ env.version }}-macOS-${{ matrix.architecture }}.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
           

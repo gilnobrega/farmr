@@ -28,14 +28,15 @@ class Cache {
   List<ShortSync> _shortSyncs = [];
   List<ShortSync> get shortSyncs => _shortSyncs;
 
-  final io.File _cache = io.File(".chiabot_cache.json");
+  final io.File _cache = io.File(".farmr_cache.json");
 
   int parseUntil =
       DateTime.now().subtract(Duration(days: 1)).millisecondsSinceEpoch;
 
   Cache(String chiaConfigPath) {
+    //ports old cache file to new cache file
     try {
-      io.File _oldCache = io.File(chiaConfigPath + "chiabot_cache.json");
+      io.File _oldCache = io.File(".chiabot_cache.json");
       if (!_cache.existsSync() && _oldCache.existsSync())
         _oldCache.copySync(_cache.absolute.path);
     } catch (Exception) {
@@ -61,7 +62,7 @@ class Cache {
     if (!_cache.existsSync())
       save(); //creates cache file if doesnt exist
     else {
-      load(); //chiabot_cache.json
+      load(); //.farmr_cache.json
 
       save();
     }
@@ -136,7 +137,7 @@ class Cache {
       }
     } catch (Exception) {
       log.severe(
-          "ERROR: Failed to load .chiabot_cache.json, please delete this file and restart client.");
+          "ERROR: Failed to load .farmr_cache.json, please delete this file and restart client.");
     }
   }
 

@@ -19,19 +19,19 @@ bot.onText(/!chia (.+)/, (msg, match) => {
     const args = match[1].split(' '); // the captured "whatever"
     
     if (args.length == 0) {
-        runCommand("../server/chiabot_server.exe " + userID, chatId);
+        runCommand("../server/farmr_server.exe " + userID, chatId);
     }
     else if (args.length == 1 && args[0] == "full") {
-        runCommand("../server/chiabot_server.exe " + userID + " full",chatId);
+        runCommand("../server/farmr_server.exe " + userID + " full",chatId);
     }
     else if (args.length == 1 && args[0] == "workers") {
-        runCommand("../server/chiabot_server.exe " + userID + " workers",chatId);
+        runCommand("../server/farmr_server.exe " + userID + " workers",chatId);
     }
     else if (args.length == 1 && args[0] == "status") {
-        runCommand("../server/chiabot_server.exe status", chatId);
+        runCommand("../server/farmr_server.exe status", chatId);
     }
     else if (args.length == 1 && args[0] == "price") {
-        runCommand("../server/chiabot_server.exe price", chatId);
+        runCommand("../server/farmr_server.exe price", chatId);
     }
 
 });

@@ -1,19 +1,19 @@
 meta:
-  description: Chiabot
-  vendor: Joaquim
-  maintainer: Joaquim
+  description: farmr
+  vendor: farmr
+  maintainer: farmr
 files:
-  "/usr/bin/chiabot":
-    file: chiabot
+  "/usr/bin/farmr":
+    file: farmr
     mode: "0755"
     user: "root"
-  "/etc/chiabot/config":
+  "/etc/farmr/config":
     file: config.json.default
     mode: "0644"
     user: "root"
     keep: true
 units:
-  #- .github/workflows/chiabot.service
+  #- .github/workflows/farmr.service
 scripts:
   "post-install": .github/workflows/post-inst
 user: foo
