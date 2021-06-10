@@ -3,12 +3,9 @@ echo "[Unit]
 Description=farmr
 
 [Service]
-Type=forking
-RemainAfterExit=yes
+Type=simple
 WorkingDirectory=/etc/farmr/
-#Environment=PATH=/chia/Swar-Chia-Plot-Manager/venv/bin:${PATH}
-ExecStart=/usr/bin/tmux new-session -s farmr -d /usr/bin/farmr
-ExecStop=/usr/bin/tmux kill-session -t farmr
+ExecStart=/usr/bin/farmr
 
 [Install]
 WantedBy=default.target" > /home/*/.config/systemd/user/farmr.service;
