@@ -1,4 +1,4 @@
-import 'chiabot.dart' as Client;
+import 'farmr.dart' as Client;
 
 //launches chiabot as harvester
 main() {
