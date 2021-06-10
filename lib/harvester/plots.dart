@@ -1,13 +1,13 @@
 import 'dart:core';
-import 'package:chiabot/hpool.dart';
+import 'package:farmr_client/hpool.dart';
 import 'package:universal_io/io.dart' as io;
 
 import 'package:yaml/yaml.dart';
 import 'package:path/path.dart';
 import 'package:logging/logging.dart';
 
-import 'package:chiabot/plot.dart';
-import 'package:chiabot/config.dart';
+import 'package:farmr_client/plot.dart';
+import 'package:farmr_client/config.dart';
 
 final Logger log = Logger('Harvester.Plots');
 

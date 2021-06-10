@@ -6,17 +6,17 @@ import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 import 'package:intl/intl.dart';
 
-import 'package:chiabot/farmer.dart';
-import 'package:chiabot/harvester.dart';
-import 'package:chiabot/config.dart';
-import 'package:chiabot/cache.dart';
-import 'package:chiabot/debug.dart';
-import 'package:chiabot/hpool.dart';
-import 'package:chiabot/environment_config.dart';
+import 'package:farmr_client/farmer.dart';
+import 'package:farmr_client/harvester.dart';
+import 'package:farmr_client/config.dart';
+import 'package:farmr_client/cache.dart';
+import 'package:farmr_client/debug.dart';
+import 'package:farmr_client/hpool.dart';
+import 'package:farmr_client/environment_config.dart';
 
-import 'package:chiabot/stats.dart';
-import 'package:chiabot/server/netspace.dart';
-import 'package:chiabot/server/price.dart';
+import 'package:farmr_client/stats.dart';
+import 'package:farmr_client/server/netspace.dart';
+import 'package:farmr_client/server/price.dart';
 
 final log = Logger('Client');
 

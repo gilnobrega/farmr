@@ -1,12 +1,12 @@
 import 'dart:convert';
 
-import 'package:chiabot/config.dart';
-import 'package:chiabot/farmer/wallet.dart';
-import 'package:chiabot/harvester.dart';
-import 'package:chiabot/farmer.dart';
-import 'package:chiabot/debug.dart' as Debug;
-import 'package:chiabot/hpool/api.dart';
-import 'package:chiabot/hpool/wallet.dart';
+import 'package:farmr_client/config.dart';
+import 'package:farmr_client/farmer/wallet.dart';
+import 'package:farmr_client/harvester.dart';
+import 'package:farmr_client/farmer.dart';
+import 'package:farmr_client/debug.dart' as Debug;
+import 'package:farmr_client/hpool/api.dart';
+import 'package:farmr_client/hpool/wallet.dart';
 
 class HPool extends Farmer {
   String _authToken = '';

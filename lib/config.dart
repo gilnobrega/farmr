@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'package:logging/logging.dart';
 import 'package:uuid/uuid.dart';
 
-import 'package:chiabot/cache.dart';
+import 'package:farmr_client/cache.dart';
 
 final log = Logger('Config');
 
@@ -252,10 +252,10 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
       }
 
       possiblePaths = [
-        // checks if binary exists in /package:chiabot/chia-blockchain/resources/app.asar.unpacked/daemon/chia in linux or
+        // checks if binary exists in /package:farmr_client/chia-blockchain/resources/app.asar.unpacked/daemon/chia in linux or
         // checks if binary exists in /Applications/Chia.app/Contents/Resources/app.asar.unpacked/daemon/chia in macOS
         chiaRootDir.path + file,
-        // Checks if binary exists in /usr/package:chiabot/chia-blockchain/resources/app.asar.unpacked/daemon/chia
+        // Checks if binary exists in /usr/package:farmr_client/chia-blockchain/resources/app.asar.unpacked/daemon/chia
         "/usr" + chiaRootDir.path + file,
         //checks if binary exists in /home/user/.local/bin/chia
         io.Platform.environment['HOME']! + "/.local/bin/chia"

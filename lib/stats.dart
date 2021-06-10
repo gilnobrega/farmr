@@ -1,14 +1,14 @@
-import 'package:chiabot/harvester.dart';
-import 'package:chiabot/harvester/plots.dart';
-import 'package:chiabot/farmer.dart';
-import 'package:chiabot/hpool.dart';
-import 'package:chiabot/hpool/wallet.dart';
-import 'package:chiabot/plot.dart';
-import 'package:chiabot/server/price.dart';
-import 'package:chiabot/server/netspace.dart';
-import 'package:chiabot/log/shortsync.dart';
+import 'package:farmr_client/harvester.dart';
+import 'package:farmr_client/harvester/plots.dart';
+import 'package:farmr_client/farmer.dart';
+import 'package:farmr_client/hpool.dart';
+import 'package:farmr_client/hpool/wallet.dart';
+import 'package:farmr_client/plot.dart';
+import 'package:farmr_client/server/price.dart';
+import 'package:farmr_client/server/netspace.dart';
+import 'package:farmr_client/log/shortsync.dart';
 
-import 'package:chiabot/extensions/swarpm.dart';
+import 'package:farmr_client/extensions/swarpm.dart';
 
 class Stats {
   Harvester _client; //Either a Farmer or Harvester

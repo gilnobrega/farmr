@@ -127,3 +127,5 @@ netspace.json
 TODO
 test.dart
 environment_config.dart
+.dart_tool/
+*.snapshot

@@ -1,4 +1,4 @@
-import 'package:chiabot/farmer/wallet.dart';
+import 'package:farmr_client/farmer/wallet.dart';
 
 class HPoolWallet extends Wallet {
   double _undistributedBalance = -1.0;

@@ -1,8 +1,8 @@
 import 'dart:math' as Math;
 
-import 'package:chiabot/log/filter.dart';
-import 'package:chiabot/debug.dart';
-import 'package:chiabot/harvester.dart';
+import 'package:farmr_client/log/filter.dart';
+import 'package:farmr_client/debug.dart';
+import 'package:farmr_client/harvester.dart';
 
 import 'package:stats/stats.dart';
 

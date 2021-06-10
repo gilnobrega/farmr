@@ -4,14 +4,14 @@ import 'dart:convert';
 import 'package:uuid/uuid.dart';
 import 'package:logging/logging.dart';
 
-import 'package:chiabot/plot.dart';
-import 'package:chiabot/config.dart';
-import 'package:chiabot/harvester/plots.dart';
-import 'package:chiabot/harvester/diskspace.dart';
-import 'package:chiabot/debug.dart' as Debug;
-import 'package:chiabot/harvester/filters.dart';
+import 'package:farmr_client/plot.dart';
+import 'package:farmr_client/config.dart';
+import 'package:farmr_client/harvester/plots.dart';
+import 'package:farmr_client/harvester/diskspace.dart';
+import 'package:farmr_client/debug.dart' as Debug;
+import 'package:farmr_client/harvester/filters.dart';
 
-import 'package:chiabot/extensions/swarpm.dart';
+import 'package:farmr_client/extensions/swarpm.dart';
 
 final log = Logger('Harvester');
 

@@ -5,7 +5,7 @@ import 'dart:math' as Math;
 import 'package:logging/logging.dart';
 import 'package:path/path.dart';
 
-import 'package:chiabot/server/netspace.dart';
+import 'package:farmr_client/server/netspace.dart';
 
 final log = Logger('Plot');
 

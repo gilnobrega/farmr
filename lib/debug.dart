@@ -4,12 +4,12 @@ import 'dart:convert';
 
 import 'package:logging/logging.dart';
 
-import 'package:chiabot/cache.dart';
-import 'package:chiabot/log/filter.dart';
-import 'package:chiabot/log/subslot.dart';
-import 'package:chiabot/log/logitem.dart';
-import 'package:chiabot/log/signagepoint.dart';
-import 'package:chiabot/log/shortsync.dart';
+import 'package:farmr_client/cache.dart';
+import 'package:farmr_client/log/filter.dart';
+import 'package:farmr_client/log/subslot.dart';
+import 'package:farmr_client/log/logitem.dart';
+import 'package:farmr_client/log/signagepoint.dart';
+import 'package:farmr_client/log/shortsync.dart';
 
 final log = Logger('LOG');
 

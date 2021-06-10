@@ -6,12 +6,12 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:universal_io/io.dart' as io;
 
-import 'package:chiabot/farmer.dart';
-import 'package:chiabot/harvester.dart';
-import 'package:chiabot/hpool.dart';
-import 'package:chiabot/stats.dart';
-import 'package:chiabot/server/price.dart';
-import 'package:chiabot/server/netspace.dart';
+import 'package:farmr_client/farmer.dart';
+import 'package:farmr_client/harvester.dart';
+import 'package:farmr_client/hpool.dart';
+import 'package:farmr_client/stats.dart';
+import 'package:farmr_client/server/price.dart';
+import 'package:farmr_client/server/netspace.dart';
 
 Future<void> main(List<String> args) async {
   dotenv.load();

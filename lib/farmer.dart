@@ -4,14 +4,14 @@ import 'dart:convert';
 
 import 'package:logging/logging.dart';
 
-import 'package:chiabot/config.dart';
-import 'package:chiabot/harvester.dart';
-import 'package:chiabot/debug.dart' as Debug;
-import 'package:chiabot/farmer/wallet.dart';
-import 'package:chiabot/farmer/connections.dart';
-import 'package:chiabot/log/shortsync.dart';
+import 'package:farmr_client/config.dart';
+import 'package:farmr_client/harvester.dart';
+import 'package:farmr_client/debug.dart' as Debug;
+import 'package:farmr_client/farmer/wallet.dart';
+import 'package:farmr_client/farmer/connections.dart';
+import 'package:farmr_client/log/shortsync.dart';
 
-import 'package:chiabot/server/netspace.dart';
+import 'package:farmr_client/server/netspace.dart';
 
 final log = Logger('Farmer');
 
