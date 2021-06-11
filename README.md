@@ -1,8 +1,9 @@
-# Joaquim's ChiaBot
+# farmr
 
-A discord bot that monitors your chia farm summary and sends notifications when blocks are found and new plots are completed. It can link multiple farmers/harvesters to your account.
+A web dashboard that allows you to monitor your Chia farm and sends notifications when blocks are found and new plots are completed through a discord bot. It can link multiple farmers/harvesters to your account.
 
-The ChiaBot client is available for Windows, Linux and macOS. You can interact with the bot in [Swar's Chia Community](https://discord.gg/q5T4QbwcnH) discord server.
+The farmr client collects local stats about your farm and it is available for Windows, Linux and macOS [here](https://github.com/joaquimguimaraes/chiabot/releases/latest). 
+The dashboard can be found in [farmr.net](https://farmr.net). Alternatively, you can interact with the bot in [Swar's Chia Community](https://discord.gg/q5T4QbwcnH) discord server. You must be in this server to receive notifications.
 
 ### Main Features
 | ``!chia`` command | Block, Plot and Offline notifications |
@@ -21,7 +22,7 @@ The ChiaBot client is available for Windows, Linux and macOS. You can interact w
 Proceed with the following platform-specific instructions:
 
 #### Windows
-1. Download ``chiabot-windows-amd64.zip`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and extract it to an **empty** folder.
+1. Download ``farmr-windows-amd64.zip`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and extract it to an **empty** folder.
 
 - If you're setting up a **farmer/full-node** (need to have at least 1 farmer/full-node linked to your account)
    1. Open ``farmer.exe``, once you see the main screen with your id and farmer stats you're good to go.
@@ -35,7 +36,7 @@ Do not run both ``farmer.exe`` and ``harvester.exe`` in the same PC at the same 
 
 
 #### Ubuntu (16.04+), and other amd64 Linux distros
-1. Download ``chiabot-linux-amd64.tar.gz`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and extract it to an **empty** folder.
+1. Download ``farmr-linux-amd64.tar.gz`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and extract it to an **empty** folder.
 2. Open the following file:
       - If you're setting up a **farmer/full-node** Open ``farmer.sh``, once you see the main screen with your id and farmer stats you're good to go.
       - If you're setting up a **harvester** Open ``harvester.sh``, once you see the main screen with your id and harvester stats you're good to go.
@@ -45,11 +46,11 @@ If you're on ubuntu and can't open ``farmer.sh`` or ``harvester.sh`` from file e
 ```
 gsettings set org.gnome.nautilus.preferences executable-text-activation ask
 ```
-Then reopen file explorer in the folder where ``chiabot-linux-amd64.tar.gz`` was extracted to. You should be able to double click ``farmer.sh`` or ``harvester.sh`` and let it "Run in terminal" when asked to.
+Then reopen file explorer in the folder where ``farmr-linux-amd64.tar.gz`` was extracted to. You should be able to double click ``farmer.sh`` or ``harvester.sh`` and let it "Run in terminal" when asked to.
 
 
 #### Ubuntu for Raspberry Pi and other arm64 Linux distros
-1. Download ``chiabot-linux-arm64.tar.gz`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and extract it to an **empty** folder.
+1. Download ``farmr-linux-arm64.tar.gz`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and extract it to an **empty** folder.
 2. Open the following file:
       - If you're setting up a **farmer/full-node** Open ``farmer.sh``, once you see the main screen with your id and farmer stats you're good to go.
       - If you're setting up a **harvester** Open ``harvester.sh``, once you see the main screen with your id and harvester stats you're good to go.
@@ -57,14 +58,14 @@ Then reopen file explorer in the folder where ``chiabot-linux-amd64.tar.gz`` was
 
 
 #### macOS (use Rosetta for m1 devices)
-1. Download ``chiabot-macos-amd64.tar.gz`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and extract it to an **empty** folder.
+1. Download ``farmr-macos-amd64.tar.gz`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and extract it to an **empty** folder.
 2. Open the following file:
       - If you're setting up a **farmer/full-node** Open ``farmer.sh``, once you see the main screen with your id and farmer stats you're good to go.
       - If you're setting up a **harvester** Open ``harvester.sh``, once you see the main screen with your id and harvester stats you're good to go.
 3. Link your device to your discord account as shown in [First Time](#first-time)
 
 #### HPool Mode
-You can use chiabot for basic stats if you are farming in HPool. Follow the instructions above according to your platform. Just make sure you run ``hpool.exe`` or ``hpool.sh`` and then edit set ``"HPool Directory"`` in ``config.json``. Then reopen ``hpool.exe`` or ``hpool.sh``.
+You can use farmr for basic stats if you are farming in HPool. Follow the instructions above according to your platform. Just make sure you run ``hpool.exe`` or ``hpool.sh`` and then edit set ``"HPool Directory"`` in ``config.json``. Then reopen ``hpool.exe`` or ``hpool.sh``.
 
 
 #### Compile from source (every platform/architecture)
@@ -75,36 +76,42 @@ You can use chiabot for basic stats if you are farming in HPool. Follow the inst
 ```
 dart pub get; 
 dart run environment_config:generate;
-dart compile exe chiabot.dart; 
-mv chiabot.exe chiabot;
+dart compile exe farmr.dart; 
+mv farmr.exe farmr;
 ```
    - If you're setting up a **harvester**:
 ```
 dart pub get; 
 dart run environment_config:generate;
-dart compile exe chiabot_harvester.dart; 
-mv chiabot_harvester.exe chiabot;
+dart compile exe farmr_harvester.dart; 
+mv farmr_harvester.exe farmr;
 ```
-4. Run ``./chiabot`` once you see the main screen with your id and farmer/harvester stats you're good to go.
+4. Run ``./farmr`` once you see the main screen with your id and farmer/harvester stats you're good to go.
 5. Link your device to your discord account as shown in [First Time](#first-time)
 
 ### First time
-ChiaBot will generate an id for your device. You can link this device to your discord account by heading to [Swar's Chia Community](https://discord.gg/q5T4QbwcnH) and sending the following message:
+The farmr client will generate an id for your device. 
+After you've logged in to [farmr.net](https://farmr.net), you can link this device by clicking on "Add device" in the upper right corner of the dashboard, where you can copy and paste the random id (e.g.: ``e134104c-0e2e-49e0-a832-985c5a5e4516``) and then click "Add".
+
+Alternatively, you can link this device to your discord account by heading to [Swar's Chia Community](https://discord.gg/q5T4QbwcnH) and sending the following message:
 ```
 !chia link [your-client-id]
 ```
-ChiaBot will save your id in its cache file (``.chiabot_cache.json``), so you only need to run this command once per device.
+The client will save your id in its cache file (``.farmr_cache.json``), so you only need to run this command once per device. Mind you that you will need to do this again if this file gets deleted/corrupt.
 
 ## Usage
-If your device was linked sucessfully, you may use `` !chia `` to see your farm summary, or `` !chia full `` to display additional statistics about it and `` !chia workers `` to show them per farmer/harvester.
+If your device was linked sucessfully, you will see two new tiles appear from the left (may need to refresh page). One called ``Farm`` and the other with the name of your newly added device.
+``Farm`` tile is the overall statistics for your farm (multiple devices), while the other tiles will show individual statistics for each device that is linked to your account.
+
+ Alternatively, you can use `` !chia `` in discord to see your farm summary, or `` !chia full `` to display additional statistics about it and `` !chia workers `` to show them per farmer/harvester.
 To see the full list of commands you can use, type: `` !chia help ``
 
-You **must not close its window** as doing that will kill the client. If you do so, open it again.
+You **must not close the clients' console window** as doing that will kill the client and it will stop sending statistics. If you do so, open it again.
 Press ``ctrl+c`` when you want to close the client. You must reopen it after restarting your computer.
 
 ### Configuration
-ChiaBot stores your current configuration in ``config.json``
-You do not need to edit this file, as it's automatically generated by ChiaBot. However, you may wish to customize some of its options.
+farmr client stores your current configuration in ``config.json``
+You do not need to edit this file, as it's automatically generated by farmr. However, you may wish to customize some of its options.
 If you wish to do so, you can rename ``config.json.default`` to ``config.json`` to change them.
 These are the default settings:
 ```json
@@ -159,28 +166,28 @@ If your chia debug level is set to ``INFO`` ([find how to do that here](https://
 
 #### Multiple Discord Users
 Change ``Number of Discord Users`` if you would like to link your farmer/harvester to more than one discord user. It will generate one unique ID per user.
-You may delete ``config.json`` and ``.chiabot_cache.json`` to reset settings and generate new ids once the client is started again.
+You may delete ``config.json`` and ``.farmr_cache.json`` to reset settings and generate new ids once the client is started again.
 
 #### Public API
-Set ``Public API`` to true if you want your data to be accessed from chiabot's api page (``!chia api`` will show you your link)
+Set ``Public API`` to true if you want your data to be accessed from farmr's api page (``!chia api`` will show you your link)
 
 #### Swar's Chia Plot Manager Integration (experimental)
 If you are running Swar's Plot Manager >v0.1.0 then you can set ``"Swar's Chia Plot Manager Path"`` to the path where it's installed.
-Notice that if you run it in a python venv then you must launch chiabot in this venv. Current jobs will be displayed at the bottom of ``!chia full`` and ``!chia workers``
+Notice that if you run it in a python venv then you must launch the farmr client in this venv. Current jobs will be displayed at the bottom of ``!chia full`` and ``!chia workers``
 
 #### HPool Mode
 Set ``HPool Directory`` to the path that leads to the directory containing hpool's ``config.yaml``.
-You need to set ``HPool Auth Token`` to the ``auth_key`` string in your hpool.com cookies. To see this token, open your browser and login to hpool.com, then right-click anywhere on the page and click on ``Inspect Element``, you should see a panel appear with a "Storage" tab. Right click on the string next to "auth_key" and copy that string string in ``value`` column. That's the string you should use as ``HPool Auth Token`` in chiabot's ``config.json``. You should only need to update this value once every 3 months or when you logout from that device.
+You need to set ``HPool Auth Token`` to the ``auth_key`` string in your hpool.com cookies. To see this token, open your browser and login to hpool.com, then right-click anywhere on the page and click on ``Inspect Element``, you should see a panel appear with a "Storage" tab. Right click on the string next to "auth_key" and copy that string string in ``value`` column. That's the string you should use as ``HPool Auth Token`` in farmr's ``config.json``. You should only need to update this value once every 3 months or when you logout from that device.
 ![image](https://user-images.githubusercontent.com/82336674/120874560-063c0200-c59f-11eb-8110-2be81469651b.png)
 
 ### Upgrading
 To upgrade, repeat [Installation](#installation) instructions again with the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest).
 If you wish to keep its settings, move ``config.json`` from the previous installation folder to the new folder.
-Similarly, you may keep the previous cache file by doing the same with ``.chiabot_cache.json``. This file is hidden in Linux/macOS.
+Similarly, you may keep the previous cache file by doing the same with ``.farmr_cache.json``. This file is hidden in Linux/macOS.
 
 ### Troubleshooting
 
-##### My farmer/harvester doesn't have plots. Can I still use ChiaBot?
+##### My farmer/harvester doesn't have plots. Can I still use farmr?
 Yes, your client will add itself when chia completes a plot.
 
 If the client crashes:
@@ -189,7 +196,7 @@ If the client crashes:
 ##### Are your plot drives mounted?
   If they're not, then mount them.
 ##### Does your user have permission to access the folders where plots are stored?
-  ChiaBot will not be able to list your plots if their folder was mounted as root.
+  farmr will not be able to list your plots if their folder was mounted as root.
 
 ##### What if I have two or more farmers?
   Run one of them as a farmer and the others as harvesters.
@@ -200,7 +207,7 @@ If the client crashes:
 ## FAQ
 
 ##### Are you going to steal my keys?
-No. The only commands issued by chiabot client is ``chia farm summary`` for farmer stats, ``chia wallet show`` for wallet balance parsing and ``chia show -c`` to count how many peers are connected to your full node. It does not use Chia's RCP servers, therefore it doesn't even need your private key.
+No. The only commands issued by farmr client is ``chia farm summary`` for farmer stats, ``chia wallet show`` for wallet balance parsing and ``chia show -c`` to count how many peers are connected to your full node. It does not use Chia's RCP servers, therefore it doesn't even need your private key.
 
 ##### How can I trust you?
 This project is open-source, so you don't have to trust me. Read the code yourself :)
