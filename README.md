@@ -2,10 +2,12 @@
 
 A web dashboard that allows you to monitor your Chia farm and sends notifications when blocks are found and new plots are completed through a discord bot. It can link multiple farmers/harvesters to your account.
 
+![image](https://user-images.githubusercontent.com/82336674/121625370-41d93f00-ca6b-11eb-9152-03cabc89a1b6.png)
+
 The farmr client collects local stats about your farm and it is available for Windows, Linux and macOS [here](https://github.com/joaquimguimaraes/chiabot/releases/latest). 
 The dashboard can be found in [farmr.net](https://farmr.net). Alternatively, you can interact with the bot in [Swar's Chia Community](https://discord.gg/q5T4QbwcnH) discord server. You must be in this server to receive notifications.
 
-### Main Features
+### farmrBot commands
 | ``!chia`` command | Block, Plot and Offline notifications |
 |-----------------------------------------------------|-------------------|
 |![screenshot](https://i.imgur.com/ilPYPe3_d.webp?maxwidth=450&fidelity=grand)|![notifications](https://i.imgur.com/HXKroKS_d.webp?maxwidth=450&fidelity=grand)|
@@ -92,6 +94,8 @@ mv farmr_harvester.exe farmr;
 ### First time
 The farmr client will generate an id for your device. 
 After you've logged in to [farmr.net](https://farmr.net), you can link this device by clicking on "Add device" in the upper right corner of the dashboard, where you can copy and paste the random id (e.g.: ``e134104c-0e2e-49e0-a832-985c5a5e4516``) and then click "Add".
+
+![tutorial](https://user-images.githubusercontent.com/82336674/121625132-c4adca00-ca6a-11eb-8906-c3d90bbf85c0.gif)
 
 Alternatively, you can link this device to your discord account by heading to [Swar's Chia Community](https://discord.gg/q5T4QbwcnH) and sending the following message:
 ```
@@ -234,3 +238,14 @@ BNB: 0x340281cbad30702af6dca467e4f2524916bb9d61
 BTC: 1Gdzsx6VjZrDxP43y1pgkNMZGsyL357odS
 BTC (BEP20): 0x340281cbad30702af6dca467e4f2524916bb9d61
 ```
+
+
+## Acknowledgements
+Dashboard's structure based on the work by Abu Anwar MD Abdullah [@abuanwar072/Flutter-Responsive-Admin-Panel-or-Dashboard](https://github.com/abuanwar072/Flutter-Responsive-Admin-Panel-or-Dashboard), licensed under MIT license.
+
+[Poppins font](https://fonts.google.com/specimen/Poppins#standard-styles) designed by Indian Type Foundry, Jonny Pinhorn, licensed under Open Font License.
+
+Icons by Google and [Material Design Icons](https://materialdesignicons.com/)
+
+
+This project is not affiliated with [Chia Network™](https://www.chia.net/).
