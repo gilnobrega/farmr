@@ -94,6 +94,7 @@ class Memory {
   }
 
   toJson() => {
+        "timestamp": timestamp,
         "total": totalMemory,
         "free": freeMemory,
         "totalVirtual": totalVirtualMemory,
@@ -101,6 +102,7 @@ class Memory {
       };
 
   Memory.fromJson(dynamic json) {
+    if (json['timestamp'] != null) _timestamp = json['timestamp'];
     if (json['total'] != null) _totalMemory = json['total'];
     if (json['free'] != null) _freeMemory = json['free'];
     if (json['totalVirtual'] != null)
