@@ -9,6 +9,8 @@ import 'package:farmr_client/log/filter.dart';
 import 'package:farmr_client/log/signagepoint.dart';
 import 'package:farmr_client/log/shortsync.dart';
 
+import 'package:farmr_client/hardware.dart';
+
 final log = Logger('Cache');
 
 class Cache {
@@ -27,6 +29,10 @@ class Cache {
 
   List<ShortSync> _shortSyncs = [];
   List<ShortSync> get shortSyncs => _shortSyncs;
+
+  //past values for memory (24 hour)
+  List<Memory> _memories = [];
+  List<Memory> get memories => _memories;
 
   final io.File _cache = io.File(".farmr_cache.json");
 
@@ -50,7 +56,8 @@ class Cache {
         "plots": plots,
         "filters": filters,
         "signagePoints": signagePoints,
-        "shortSyncs": shortSyncs
+        "shortSyncs": shortSyncs,
+        "memories": memories,
       };
 
   void init() {
@@ -135,6 +142,17 @@ class Cache {
           if (shortSync.timestamp > parseUntil) _shortSyncs.add(shortSync);
         }
       }
+
+      //loads memories list from cache file
+      if (contents[0]['memories'] != null) {
+        _memories = [];
+        var memoriesJson = contents[0]['memories'];
+
+        for (var memoryJson in memoriesJson) {
+          Memory memory = Memory.fromJson(memoryJson);
+          if (memory.timestamp > parseUntil) _memories.add(memory);
+        }
+      }
     } catch (Exception) {
       log.severe(
           "ERROR: Failed to load .farmr_cache.json, please delete this file and restart client.");
@@ -158,6 +176,11 @@ class Cache {
 
   void saveShortSyncs(List<ShortSync> shortSyncs) {
     _shortSyncs = shortSyncs;
+    save();
+  }
+
+  void saveMemories(List<Memory> memories) {
+    _memories = memories;
     save();
   }
 }

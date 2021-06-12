@@ -1,6 +1,7 @@
 import 'dart:core';
 import 'dart:convert';
 
+import 'package:farmr_client/hardware.dart';
 import 'package:uuid/uuid.dart';
 import 'package:logging/logging.dart';
 
@@ -48,31 +49,41 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
   SwarPM _swarPM = SwarPM(); //initializes empty SwarPM class (jobs = [])
   SwarPM get swarPM => _swarPM;
 
-  Map toJson() => {
-        'name': _name,
-        'status': status,
-        'currency': currency,
-        'drivesCount': drivesCount,
-        'plots': allPlots, //important
-        'totalDiskSpace': totalDiskSpace,
-        'freeDiskSpace': freeDiskSpace,
-        'lastUpdated': lastUpdated.millisecondsSinceEpoch,
-        'lastUpdatedString': lastUpdatedString,
-        'type': type.index,
-        'numberFilters': numberFilters,
-        'eligiblePlots': eligiblePlots,
-        'proofsFound': proofsFound,
-        'totalPlots': totalPlots,
-        'missedChallenges': missedChallenges,
-        'maxTime': maxTime,
-        'minTime': minTime,
-        'avgTime': avgTime,
-        'medianTime': medianTime,
-        'stdDeviation': stdDeviation,
-        'filterCategories': filterCategories,
-        "swarPM": swarPM,
-        'version': version
-      };
+  Hardware? _hardware;
+  Hardware? get hardware => _hardware;
+
+  Map toJson() {
+    var initialMap = {
+      'name': _name,
+      'status': status,
+      'currency': currency,
+      'drivesCount': drivesCount,
+      'plots': allPlots, //important
+      'totalDiskSpace': totalDiskSpace,
+      'freeDiskSpace': freeDiskSpace,
+      'lastUpdated': lastUpdated.millisecondsSinceEpoch,
+      'lastUpdatedString': lastUpdatedString,
+      'type': type.index,
+      'numberFilters': numberFilters,
+      'eligiblePlots': eligiblePlots,
+      'proofsFound': proofsFound,
+      'totalPlots': totalPlots,
+      'missedChallenges': missedChallenges,
+      'maxTime': maxTime,
+      'minTime': minTime,
+      'avgTime': avgTime,
+      'medianTime': medianTime,
+      'stdDeviation': stdDeviation,
+      'filterCategories': filterCategories,
+      "swarPM": swarPM,
+      'version': version
+    };
+
+    if (_config.showHardwareInfo && hardware != null)
+      initialMap.putIfAbsent("hardware", () => hardware!);
+
+    return initialMap;
+  }
 
   Harvester(this._config, Debug.Log log, [String version = '']) {
     _version = version;
@@ -90,6 +101,12 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
 
     //loads swar plot manager config if defined by user
     if (_config.swarPath != "") _swarPM = SwarPM(_config.swarPath);
+
+    //gets memory/cpu info and loads past memory info
+    if (_config.showHardwareInfo) {
+      _hardware = Hardware(_config.cache.memories);
+      _config.cache.saveMemories(_hardware?.memories ?? []);
+    }
   }
 
   Harvester.fromJson(String json) {
@@ -135,6 +152,9 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
       _lastUpdatedString = object['lastUpdatedString'];
 
     if (object['swarPM'] != null) _swarPM = SwarPM.fromJson(object['swarPM']);
+
+    if (object['hardware'] != null)
+      _hardware = Hardware.fromJson(object['hardware']);
   }
 
   Future<void> init(String chiaConfigPath) async {

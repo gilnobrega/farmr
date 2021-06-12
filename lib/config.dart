@@ -64,6 +64,10 @@ class Config {
   bool _publicAPI = false;
   bool get publicAPI => _publicAPI;
 
+  //allows parsing RAM content and CPU
+  bool _showHardwareInfo = true;
+  bool get showHardwareInfo => _showHardwareInfo;
+
   //Nahvan requested for a disk space override for computers in shared networks
   bool _ignoreDiskSpace = false;
   bool get ignoreDiskSpace => _ignoreDiskSpace;
@@ -128,6 +132,7 @@ class Config {
       "Currency": currency,
       "Show Farmed XCH": showBalance,
       "Show Wallet Balance": showWalletBalance,
+      "Show Hardware Info": showHardwareInfo,
       "Block Notifications": sendBalanceNotifications,
       "Plot Notifications": sendPlotNotifications,
       "Hard Drive Notifications": sendDriveNotifications,
@@ -147,11 +152,11 @@ class Config {
       configMap.putIfAbsent("Ignore Disk Space", () => ignoreDiskSpace);
 
     //hpool's config.yaml
-    if (type == ClientType.HPool)
+    if (type == ClientType.HPool || hpoolConfigPath != "")
       configMap.putIfAbsent("HPool Directory", () => hpoolConfigPath);
 
     //hpool's cookie
-    if (type == ClientType.HPool)
+    if (type == ClientType.HPool || hpoolAuthToken != "")
       configMap.putIfAbsent("HPool Auth Token", () => hpoolAuthToken);
 
     var encoder = new JsonEncoder.withIndent("    ");
@@ -280,7 +285,8 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     if (contents[0]['name'] != null) _name = contents[0]['name']; //old
     if (contents[0]['Name'] != null &&
         contents[0]['Name'] != "Farmer" &&
-        contents[0]['Name'] != "Harvester") _name = contents[0]['Name']; //new
+        contents[0]['Name'] != "Harvester" &&
+        contents['Name'] != "HPool") _name = contents[0]['Name']; //new
 
     //loads custom currency
     if (contents[0]['currency'] != null)

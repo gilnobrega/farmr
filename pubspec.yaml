@@ -17,3 +17,5 @@ dependencies:
   mysql1: ^0.19.2
   universal_io: ^2.0.4
   environment_config: ^3.0.0
+  system_info: ^1.0.0
+  collection: ^1.15.0
