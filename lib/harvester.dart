@@ -34,7 +34,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
 
   List<String> _plotDests = []; //plot destination paths
 
-  final String id = Uuid().v4();
+  String id = Uuid().v4();
 
   //Timestamp to when the farm was last parsed
   DateTime _lastUpdated = DateTime.now();
