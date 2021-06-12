@@ -173,9 +173,7 @@ class Farmer extends Harvester {
 
   //Adds harvester's plots into farm's plots
   void addHarvester(Harvester harvester) {
-    allPlots.addAll(harvester.allPlots);
-
-    addHarversterFilters(harvester);
+    super.addHarvester(harvester);
 
     if (harvester is Farmer) {
       _completeSubSlots += harvester.completeSubSlots;
@@ -183,24 +181,6 @@ class Farmer extends Harvester {
 
       shortSyncs.addAll(harvester.shortSyncs);
     }
-
-    if (harvester.totalDiskSpace == 0 || harvester.freeDiskSpace == 0)
-      supportDiskSpace = false;
-
-    //Adds harvester total and free disk space when merging
-    totalDiskSpace += harvester.totalDiskSpace;
-    freeDiskSpace += harvester.freeDiskSpace;
-    drivesCount += harvester.drivesCount;
-
-    //Disables avg, median, etc. in !chia full
-    this.disableDetailedTimeStats();
-
-    //adds swar pm jobs
-    swarPM.jobs.addAll(harvester.swarPM.jobs);
-
-    //shows harvesters status if theyre not harvesting
-    if (harvester.status != "Harvesting" && harvester.status != "Farming")
-      _status = "$_status,\n${harvester.name} is ${harvester.status}";
   }
 
   void calculateSubSlots(Debug.Log log) {

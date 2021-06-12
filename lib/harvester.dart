@@ -175,6 +175,31 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     }
   }
 
+  //Merges another harvester with this harvester
+  void addHarvester(Harvester harvester) {
+    allPlots.addAll(harvester.allPlots);
+
+    addHarversterFilters(harvester);
+
+    if (harvester.totalDiskSpace == 0 || harvester.freeDiskSpace == 0)
+      supportDiskSpace = false;
+
+    //Adds harvester total and free disk space when merging
+    totalDiskSpace += harvester.totalDiskSpace;
+    freeDiskSpace += harvester.freeDiskSpace;
+    drivesCount += harvester.drivesCount;
+
+    //Disables avg, median, etc. in !chia full
+    this.disableDetailedTimeStats();
+
+    //adds swar pm jobs
+    swarPM.jobs.addAll(harvester.swarPM.jobs);
+
+    //shows harvesters status if theyre not harvesting
+    if (harvester.status != "Harvesting" && harvester.status != "Farming")
+      _status = "$_status,\n${harvester.name} is ${harvester.status}";
+  }
+
   //clears plots ids before sending info to server
   /*void clearIDs() {
     for (int i = 0; i < allPlots.length; i++) allPlots[i].clearID();
