@@ -129,3 +129,4 @@ test.dart
 environment_config.dart
 .dart_tool/
 *.snapshot
+.farmr_cache.json

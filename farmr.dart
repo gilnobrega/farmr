@@ -12,6 +12,8 @@ import 'package:farmr_client/config.dart';
 import 'package:farmr_client/cache.dart';
 import 'package:farmr_client/debug.dart';
 import 'package:farmr_client/hpool/hpool.dart';
+import 'package:farmr_client/foxypool/foxypoolog.dart';
+
 import 'package:farmr_client/environment_config.dart';
 
 import 'package:farmr_client/stats.dart';
@@ -60,8 +62,12 @@ main(List<String> args) async {
   cache.init();
 
   //Initializes config, either creates a new one or loads a config file
-  Config config = new Config(cache, chiaConfigPath, args.contains("harvester"),
-      args.contains("hpool")); //checks if is harvester (or hpool mode)
+  Config config = new Config(
+      cache,
+      chiaConfigPath,
+      args.contains("harvester"),
+      args.contains("hpool"),
+      args.contains("foxypoolog")); //checks if is harvester (or hpool mode)
 
   await config.init();
 
@@ -92,7 +98,12 @@ main(List<String> args) async {
                   config: config,
                   log: chiaLog,
                   version: EnvironmentConfig.version)
-              : Harvester(config, chiaLog, EnvironmentConfig.version);
+              : (config.type == ClientType.FoxyPoolOG)
+                  ? FoxyPoolOG(
+                      config: config,
+                      log: chiaLog,
+                      version: EnvironmentConfig.version)
+                  : Harvester(config, chiaLog, EnvironmentConfig.version);
       //hpool has a special config.yaml directory, as defined in farmr's config.json
       await client.init((config.type == ClientType.HPool)
           ? config.hpoolConfigPath
@@ -121,7 +132,10 @@ main(List<String> args) async {
           client,
           0,
           0,
-          (client is Farmer) ? client.netSpace : NetSpace(),
+          //shows netspace is client is farmer or foxypoolOG since foxypoolOG uses same chia client and full node
+          (client is Farmer || client is FoxyPoolOG)
+              ? (client as Farmer).netSpace
+              : NetSpace(),
           false,
           true,
           Rate(0, 0, 0),

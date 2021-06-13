@@ -11,9 +11,6 @@ class FoxyPoolOG extends Farmer {
   //public pool key
   String _publicKey = '';
 
-  @override
-  String get status => "FoxyPool";
-
   FoxyPoolWallet _wallet = FoxyPoolWallet(-1.0, 0, -1.0, -1.0);
   @override
   Wallet get wallet => _wallet;

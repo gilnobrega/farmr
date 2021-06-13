@@ -86,7 +86,7 @@ class Config {
   final io.File _config = io.File("config.json");
 
   Config(this.cache, String chiaConfigPath,
-      [isHarvester = false, isHPool = false]) {
+      [isHarvester = false, isHPool = false, isFoxyPoolOG = false]) {
     //sets default name according to client type
     if (isHarvester) {
       _type = ClientType.Harvester;
@@ -94,6 +94,9 @@ class Config {
     } else if (isHPool) {
       _type = ClientType.HPool;
       _name = "HPool";
+    } else if (isFoxyPoolOG) {
+      _type = ClientType.FoxyPoolOG;
+      _name = "FoxyPool";
     } else {
       _type = ClientType.Farmer;
       _name = "Farmer";
@@ -295,7 +298,8 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     if (contents[0]['Name'] != null &&
         contents[0]['Name'] != "Farmer" &&
         contents[0]['Name'] != "Harvester" &&
-        contents['Name'] != "HPool") _name = contents[0]['Name']; //new
+        contents['Name'] != "HPool" &&
+        contents['Name'] != "FoxyPool") _name = contents[0]['Name']; //new
 
     //loads custom currency
     if (contents[0]['currency'] != null)
