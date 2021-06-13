@@ -83,32 +83,32 @@ class Cache {
   }
 
   void load() {
-    var contents = jsonDecode(_cache.readAsStringSync());
-    //print(contents);
-
-    //loads id from cache file //OLD
-    if (contents[0]['id'] != null) {
-      ids = [];
-      ids.add(contents[0]['id']);
-    }
-    //loads ids from cache file //new
-    if (contents[0]['ids'] != null) {
-      ids = [];
-      for (String id in contents[0]['ids']) ids.add(id);
-    }
-
-    //loads plot list from cache file
-    if (contents[0]['plots'] != null) {
-      _plots = [];
-      var plotsJson = contents[0]['plots'];
-
-      for (var plotJson in plotsJson) _plots.add(Plot.fromJson(plotJson));
-    }
-
-    //loads chia binary path from cache
-    if (contents[0]['binPath'] != null) binPath = contents[0]['binPath'];
-
     try {
+      var contents = jsonDecode(_cache.readAsStringSync());
+      //print(contents);
+
+      //loads id from cache file //OLD
+      if (contents[0]['id'] != null) {
+        ids = [];
+        ids.add(contents[0]['id']);
+      }
+      //loads ids from cache file //new
+      if (contents[0]['ids'] != null) {
+        ids = [];
+        for (String id in contents[0]['ids']) ids.add(id);
+      }
+
+      //loads plot list from cache file
+      if (contents[0]['plots'] != null) {
+        _plots = [];
+        var plotsJson = contents[0]['plots'];
+
+        for (var plotJson in plotsJson) _plots.add(Plot.fromJson(plotJson));
+      }
+
+      //loads chia binary path from cache
+      if (contents[0]['binPath'] != null) binPath = contents[0]['binPath'];
+
       //loads filters list from cache file
       if (contents[0]['filters'] != null) {
         _filters = [];
@@ -155,7 +155,7 @@ class Cache {
       }
     } catch (Exception) {
       log.severe(
-          "ERROR: Failed to load .farmr_cache.json, please delete this file and restart client.");
+          "ERROR: Failed to load .farmr_cache.json\nGenerating a new cache file.");
     }
   }
 
