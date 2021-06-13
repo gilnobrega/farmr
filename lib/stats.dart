@@ -1,7 +1,7 @@
-import 'package:farmr_client/harvester.dart';
+import 'package:farmr_client/harvester/harvester.dart';
 import 'package:farmr_client/harvester/plots.dart';
-import 'package:farmr_client/farmer.dart';
-import 'package:farmr_client/hpool.dart';
+import 'package:farmr_client/farmer/farmer.dart';
+import 'package:farmr_client/hpool/hpool.dart';
 import 'package:farmr_client/hpool/wallet.dart';
 import 'package:farmr_client/plot.dart';
 import 'package:farmr_client/server/price.dart';

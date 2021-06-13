@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:farmr_client/config.dart';
 import 'package:farmr_client/farmer/wallet.dart';
-import 'package:farmr_client/harvester.dart';
-import 'package:farmr_client/farmer.dart';
+import 'package:farmr_client/harvester/harvester.dart';
+import 'package:farmr_client/farmer/farmer.dart';
 import 'package:farmr_client/debug.dart' as Debug;
 import 'package:farmr_client/hpool/api.dart';
 import 'package:farmr_client/hpool/wallet.dart';

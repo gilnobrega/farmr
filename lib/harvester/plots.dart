@@ -1,5 +1,5 @@
 import 'dart:core';
-import 'package:farmr_client/hpool.dart';
+import 'package:farmr_client/hpool/hpool.dart';
 import 'package:universal_io/io.dart' as io;
 
 import 'package:yaml/yaml.dart';

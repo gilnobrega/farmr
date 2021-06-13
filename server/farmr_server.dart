@@ -6,9 +6,9 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:universal_io/io.dart' as io;
 
-import 'package:farmr_client/farmer.dart';
-import 'package:farmr_client/harvester.dart';
-import 'package:farmr_client/hpool.dart';
+import 'package:farmr_client/farmer/farmer.dart';
+import 'package:farmr_client/harvester/harvester.dart';
+import 'package:farmr_client/hpool/hpool.dart';
 import 'package:farmr_client/stats.dart';
 import 'package:farmr_client/server/price.dart';
 import 'package:farmr_client/server/netspace.dart';

@@ -6,12 +6,12 @@ import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 import 'package:intl/intl.dart';
 
-import 'package:farmr_client/farmer.dart';
-import 'package:farmr_client/harvester.dart';
+import 'package:farmr_client/farmer/farmer.dart';
+import 'package:farmr_client/harvester/harvester.dart';
 import 'package:farmr_client/config.dart';
 import 'package:farmr_client/cache.dart';
 import 'package:farmr_client/debug.dart';
-import 'package:farmr_client/hpool.dart';
+import 'package:farmr_client/hpool/hpool.dart';
 import 'package:farmr_client/environment_config.dart';
 
 import 'package:farmr_client/stats.dart';

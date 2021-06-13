@@ -72,11 +72,16 @@ class Config {
   bool _ignoreDiskSpace = false;
   bool get ignoreDiskSpace => _ignoreDiskSpace;
 
+  //HPOOL MODE
   String _hpoolConfigPath = "";
   String get hpoolConfigPath => _hpoolConfigPath;
 
   String _hpoolAuthToken = "";
   String get hpoolAuthToken => _hpoolAuthToken;
+
+  //FOXYPOOL MODE
+  String _poolPublicKey = "";
+  String get poolPublicKey => _poolPublicKey;
 
   final io.File _config = io.File("config.json");
 
@@ -158,6 +163,10 @@ class Config {
     //hpool's cookie
     if (type == ClientType.HPool || hpoolAuthToken != "")
       configMap.putIfAbsent("HPool Auth Token", () => hpoolAuthToken);
+
+    //poolPublicKey used in FoxyPool's chia-og
+    if (type == ClientType.FoxyPoolOG || poolPublicKey != "")
+      configMap.putIfAbsent("Pool Public Key", () => poolPublicKey);
 
     var encoder = new JsonEncoder.withIndent("    ");
     String contents = encoder.convert([configMap]);
@@ -356,6 +365,15 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     if (contents[0]['HPool Auth Token'] != null)
       _hpoolAuthToken = contents[0]['HPool Auth Token']; //new
 
+    //loads pool public key used by foxypool mode
+    if (contents[0]['Pool Public Key'] != null) {
+      _poolPublicKey = contents[0]['Pool Public Key'];
+
+      //appends 0x to pool public key if it doesnt start with 0x
+      if (_poolPublicKey.length == 96 && !_poolPublicKey.startsWith("0x"))
+        _poolPublicKey = "0x" + poolPublicKey;
+    }
+
     await saveConfig();
   }
 
@@ -374,8 +392,8 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
 
     print(line);
 
-    String instructions = """visit https://farmr.net to add it to your account.
-    Alternatively, you can also link it through farmrbot (a discord bot) by running the following command:""";
+    String instructions =
+        "visit https://farmr.net to add it to your account.\nAlternatively, you can also link it through farmrbot (a discord bot) by running the following command:";
 
     if (cache.ids.length > 1)
       log.warning("Your ids are " + cache.ids.toString() + ", $instructions");
@@ -424,4 +442,4 @@ Open the following link to join the server: https://discord.gg/fPjnWYYFmp""");
 }
 
 //Tells if client is harvester or not
-enum ClientType { Farmer, Harvester, HPool }
+enum ClientType { Farmer, Harvester, HPool, FoxyPoolOG }
