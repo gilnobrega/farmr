@@ -1,5 +1,6 @@
 import 'dart:core';
 
+import 'package:farmr_client/foxypool/foxypoolog.dart';
 import 'package:mysql1/mysql1.dart' as mysql;
 import 'package:dotenv/dotenv.dart' as dotenv;
 import 'package:http/http.dart' as http;
@@ -127,12 +128,14 @@ Future<void> main(List<String> args) async {
           .lastUpdated.millisecondsSinceEpoch
           .compareTo(client2.lastUpdated.millisecondsSinceEpoch)));
 
-      harvestersCount =
-          harvesters.where((client) => !(client is Farmer)).length;
+      harvestersCount = harvesters
+          .where((client) => !(client is Farmer || client is FoxyPoolOG))
+          .length;
       farmersCount = harvesters.length - harvestersCount;
 
       Farmer farm = harvesters
-          .where((client) => (client is Farmer || client is HPool))
+          .where((client) =>
+              (client is Farmer || client is HPool || client is FoxyPoolOG))
           .first as Farmer; //Selects newest farm as main farm
 
       if (args.contains("workers")) {
@@ -228,6 +231,8 @@ Future<List<Harvester>> _getUserData(String userID) async {
           harvesters.add(Harvester.fromJson(data));
         else if (data.contains('"type":2'))
           harvesters.add(HPool.fromJson(data));
+        else if (data.contains('"type":3'))
+          harvesters.add(FoxyPoolOG.fromJson(data));
       }
     }
 
@@ -261,6 +266,9 @@ Future<List<Harvester>> _getUserData(String userID) async {
         harvesters.add(client);
       } else if (clientSerial.contains('"type":2')) {
         client = HPool.fromJson(clientSerial);
+        harvesters.add(client);
+      } else if (clientSerial.contains('"type":3')) {
+        client = FoxyPoolOG.fromJson(clientSerial);
         harvesters.add(client);
       }
     }

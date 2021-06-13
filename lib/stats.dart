@@ -1,3 +1,5 @@
+import 'package:farmr_client/foxypool/foxypoolog.dart';
+import 'package:farmr_client/foxypool/wallet.dart';
 import 'package:farmr_client/harvester/harvester.dart';
 import 'package:farmr_client/harvester/plots.dart';
 import 'package:farmr_client/farmer/farmer.dart';
@@ -48,6 +50,21 @@ class Stats {
       calculateFiat(undistributedBalance, _price);
   double get undistributedBalanceFiatChange =>
       calculateFiatChange(undistributedBalanceFiat, _price);
+
+  //FoxyPool Wallet
+  double get pendingBalance => (_client is FoxyPoolOG)
+      ? ((_client as FoxyPoolOG).wallet as FoxyPoolWallet).pendingBalance
+      : -1.0;
+  double get pendingBalanceFiat => calculateFiat(pendingBalance, _price);
+  double get pendingBalanceFiatChange =>
+      calculateFiatChange(pendingBalanceFiat, _price);
+
+  double get collateralBalance => (_client is FoxyPoolOG)
+      ? ((_client as FoxyPoolOG).wallet as FoxyPoolWallet).collateralBalance
+      : -1.0;
+  double get collateralBalanceFiat => calculateFiat(collateralBalance, _price);
+  double get collateralBalanceFiatChange =>
+      calculateFiatChange(collateralBalanceFiat, _price);
 
   //PLOTS
   //total number of plots (complete plots)
@@ -281,6 +298,42 @@ class Stats {
         : '';
 
     output += undistributedBalanceText;
+
+    return output;
+  }
+
+  static String showPendingBalance(Stats stats) {
+    String output = '';
+
+    String sign = (stats.pendingBalanceFiatChange >= 0) ? '+' : '-';
+
+    String pendingPriceText = (stats.pendingBalanceFiat > 0)
+        ? "(${stats.pendingBalanceFiat.toStringAsFixed(2)} ${stats.currency}, $sign${stats.pendingBalanceFiatChange.abs().toStringAsFixed(2)}${Price.currencies[stats.currency]})"
+        : '';
+
+    String pendingBalanceText = (stats.pendingBalance >= 0.0)
+        ? "\n:grey_question: Pending: ${stats.pendingBalance} XCH $pendingPriceText"
+        : '';
+
+    output += pendingBalanceText;
+
+    return output;
+  }
+
+  static String showCollateralBalance(Stats stats) {
+    String output = '';
+
+    String sign = (stats.collateralBalanceFiatChange >= 0) ? '+' : '-';
+
+    String collateralPriceText = (stats.collateralBalanceFiat > 0)
+        ? "(${stats.collateralBalanceFiat.toStringAsFixed(2)} ${stats.currency}, $sign${stats.collateralBalanceFiatChange.abs().toStringAsFixed(2)}${Price.currencies[stats.currency]})"
+        : '';
+
+    String collateralBalanceText = (stats.collateralBalance >= 0.0)
+        ? "\n:grey_question: Collateral: ${stats.collateralBalance} XCH $collateralPriceText"
+        : '';
+
+    output += collateralBalanceText;
 
     return output;
   }
@@ -858,6 +911,10 @@ class Stats {
           Stats.showWalletBalance(stats, !(isFull || isWorkers)) +
           ((harvester is HPool && (isFull || isWorkers))
               ? Stats.showUndistributedBalance(stats)
+              : '') +
+          ((harvester is FoxyPoolOG && (isFull || isWorkers))
+              ? Stats.showPendingBalance(stats) +
+                  Stats.showCollateralBalance(stats)
               : '') +
           Stats.showPlotsInfo(stats) +
           Stats.showETWEDV(stats, !isWorkers, (isFull || isWorkers)) +
