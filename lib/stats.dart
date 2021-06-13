@@ -223,7 +223,8 @@ class Stats {
         : '';
 
     balanceText += (balance >= 0.0)
-        ? "\n\<:chia:833767070201151528> **$balance** **XCH**" + priceText
+        ? "\n\<:chia:833767070201151528> **${balance.toStringAsFixed(2)}** **XCH**" +
+            priceText
         : ''; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
 
     output += balanceText;
