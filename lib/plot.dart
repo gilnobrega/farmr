@@ -105,9 +105,11 @@ class Plot {
     _end = DateTime.fromMillisecondsSinceEpoch(json['end']);
     _size = json['size'];
 
-    if (json['id'] != null)
+    if (json['id'] != null) {
       _id = json['id'];
-    else
+
+      if (!complete) log.warning("Warning: plot " + _id + " is incomplete!");
+    } else
       //in the client plotid is a long hash, while in the server its based on timestamps
       _id = begin.millisecondsSinceEpoch.toString() +
           end.millisecondsSinceEpoch.toString() +
