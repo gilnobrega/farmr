@@ -65,23 +65,24 @@ class Memory {
   int _timestamp = 0;
   int get timestamp => _timestamp;
 
-  //info about RAM in bytes
+  //info about RAM in bytes (PHYSICAL MEMORY)
   int _totalMemory = 0;
   int get totalMemory => _totalMemory;
-
   int _freeMemory = 0;
   int get freeMemory => _freeMemory;
-
   int get usedMemory => totalMemory - freeMemory;
 
   //info about RAM + SWAP file in bytes
   int _totalVirtualMemory = 0;
   int get totalVirtualMemory => _totalVirtualMemory;
-
   int _freeVirtualMemory = 0;
   int get freeVirtualMemory => _freeVirtualMemory;
-
   int get usedVirtualMemory => totalVirtualMemory - freeVirtualMemory;
+
+  //Swap only
+  int get totalSwapMemory => _totalVirtualMemory - _totalMemory;
+  int get freeSwapMemory => _freeVirtualMemory - _freeMemory;
+  int get usedSwapMemory => usedVirtualMemory - usedMemory;
 
   Memory(this._totalMemory, this._freeMemory, this._totalVirtualMemory,
       this._freeVirtualMemory) {
