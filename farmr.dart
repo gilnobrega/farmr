@@ -182,7 +182,7 @@ main(List<String> args) async {
             "publicAPI": publicAPI
           };
 
-          const String url = "https://farmr.net/send6.php";
+          const String url = "https://farmr.net/send7.php";
 
           if (config.sendStatusNotifications)
             post.putIfAbsent("isFarming", () => isFarming);
