@@ -111,7 +111,17 @@ class Stats {
   double get emvFiat => calculateFiat(emv, _price);
 
   //EFFORT
-  Duration get farmedDuration => (farmedTime(_client.plots));
+  Duration get farmedDuration {
+    late Duration duration;
+    try {
+      duration = farmedTime(_client.plots);
+    } catch (err) {
+      duration = Duration(seconds: 0);
+    }
+
+    return duration;
+  }
+
   double get farmedDays => (farmedDuration.inHours / 24.0);
   double get effort => (_client is Farmer)
       ? (_client as Farmer).wallet.getCurrentEffort(etw, farmedDays)
