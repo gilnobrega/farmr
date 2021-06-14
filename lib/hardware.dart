@@ -94,6 +94,15 @@ class Memory {
             10;
   }
 
+  //sums two memories together
+  Memory operator +(Memory memory) {
+    return Memory(
+        _totalMemory + memory.totalMemory,
+        _freeMemory + memory._freeMemory,
+        _totalVirtualMemory + memory.totalVirtualMemory,
+        _freeVirtualMemory + memory.freeVirtualMemory);
+  }
+
   toJson() => {
         "timestamp": timestamp,
         "total": totalMemory,

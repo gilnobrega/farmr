@@ -195,6 +195,9 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     //adds swar pm jobs
     swarPM.jobs.addAll(harvester.swarPM.jobs);
 
+    //adds memories
+    _hardware?.memories.addAll(harvester.hardware?.memories ?? []);
+
     //shows harvesters status if theyre not harvesting
     if (harvester.status != "Harvesting" && harvester.status != "Farming")
       _status = "$_status,\n${harvester.name} is ${harvester.status}";
