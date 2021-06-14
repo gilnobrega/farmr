@@ -191,27 +191,22 @@ class NetSpace {
     }
   }
 
-  static final Map<String, int> units = {
-    "K": 1,
-    "M": 2,
-    "G": 3,
-    'T': 4,
-    'P': 5,
-    'E': 6
-  };
-  static final Map<String, int> bases = {'B': 1000, 'iB': 1024};
+  static const List<String> units = ['', 'K', 'M', 'G', 'T', 'P', 'E'];
+
+  static const Map<String, double> bases = {'B': 1000, 'iB': 1024};
+
+  static double logBase(num x, num base) => Math.log(x) / Math.log(base);
 
   //generates a human readable string in xiB from an int size in bytes
-  static String generateHumanReadableSize(double size, [int decimals = 3]) {
+  static String generateHumanReadableSize(double size,
+      [String base = "iB", int decimals = 3]) {
     try {
-      var unit;
-      for (var entry in units.entries) {
-        if (size >= Math.pow(bases['iB'] ?? 1024, entry.value)) unit = entry;
-      }
+      var index = ((logBase(size, bases[base]!)).floor());
+      var unit = units[index];
 
-      double value = size / (Math.pow(bases['iB'] ?? 1024, unit.value) * 1.0);
+      double value = size / (Math.pow(bases[base]!, index) * 1.0);
 
-      return "${value.toStringAsFixed(decimals)} ${unit.key}iB";
+      return "${value.toStringAsFixed(decimals)} $unit$base";
     } catch (e) {
       return "$size B"; //when value in bytes
     }
@@ -221,12 +216,12 @@ class NetSpace {
     double size = 0;
 
     //converts xiB or xB to bytes
-    for (var base in bases.entries) {
-      for (var unit in units.entries) {
-        if (netspace.contains("${unit.key}${base.key}")) {
-          double value = double.parse(
-              netspace.replaceAll("${unit.key}${base.key}", "").trim());
-          size = (value * (Math.pow(base.value, unit.value)));
+    for (var base in bases.entries.toList().reversed) {
+      for (var unit in units.reversed) {
+        if (netspace.contains("$unit${base.key}")) {
+          double value =
+              double.parse(netspace.replaceAll("$unit${base.key}", "").trim());
+          size = (value * (Math.pow(base.value, units.indexOf(unit))));
 
           return size;
         }

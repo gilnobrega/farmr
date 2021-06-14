@@ -190,5 +190,6 @@ String twoDigits(String input) {
 }
 
 String fileSize(int size, [int decimals = 1]) {
-  return NetSpace.generateHumanReadableSize(size.abs().toDouble(), decimals);
+  return NetSpace.generateHumanReadableSize(
+      size.abs().toDouble(), "iB", decimals);
 }
