@@ -151,7 +151,8 @@ class Farmer extends Harvester {
     if (object['walletBalance'] != null)
       walletBalance = double.parse(object['walletBalance'].toString());
     if (object['daysSinceLastBlock'] != null)
-      daysSinceLastBlock = object['daysSinceLastBlock'];
+      daysSinceLastBlock =
+          double.parse(object['daysSinceLastBlock'].toString());
 
     _wallet = Wallet(walletBalance, daysSinceLastBlock);
 
