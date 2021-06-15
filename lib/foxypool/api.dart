@@ -50,10 +50,10 @@ class FoxyPoolApi {
       stopwatch.stop();
       //print(stopwatch.elapsedMilliseconds);
 
-      print(this.collateralBalance);
-      print(this.pendingBalance);
-      print(this.effectiveCapacity);
-      print(this.shares);
+      //print(this.collateralBalance);
+      //print(this.pendingBalance);
+      //print(this.effectiveCapacity);
+      //print(this.shares);
     }
   }
 
@@ -85,7 +85,7 @@ class FoxyPoolApi {
       }, ack: (data) {
         //print('ack $data');
         if (data != null) {
-          print(data);
+          //print(data);
           try {
             _pendingBalance = double.parse(data['pending'].toString());
             _collateralBalance = double.parse(data['collateral'].toString());
