@@ -1,3 +1,6 @@
 [submodule "chiabot-discord"]
 	path = farmrbot_discord
 	url = https://github.com/joaquimguimaraes/chiabot-discord
+[submodule "lib/system_info"]
+	path = lib/system_info
+	url = https://github.com/joaquimguimaraes/system_info
