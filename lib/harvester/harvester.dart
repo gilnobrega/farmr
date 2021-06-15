@@ -213,4 +213,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     for (int i = 0; i < allPlots.length; i++) allPlots[i].clearID();
   }*/
 
+  void regenID() {
+    id = Uuid().v4();
+  }
 }
