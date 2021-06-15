@@ -112,9 +112,8 @@ class Config {
       _loadConfig(); //config.json
 
     //and asks for bin path if path is not defined/not found and is Farmer
-    if (type == ClientType.Farmer ||
-        type == ClientType.FoxyPoolOG &&
-            (cache.binPath == '' || !io.File(cache.binPath).existsSync()))
+    if ((type == ClientType.Farmer || type == ClientType.FoxyPoolOG) &&
+        (cache.binPath == '' || !io.File(cache.binPath).existsSync()))
       await _askForBinPath();
 
     /** Generate Discord Id's */
