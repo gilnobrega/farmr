@@ -298,8 +298,8 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     if (contents[0]['Name'] != null &&
         contents[0]['Name'] != "Farmer" &&
         contents[0]['Name'] != "Harvester" &&
-        contents['Name'] != "HPool" &&
-        contents['Name'] != "FoxyPool") _name = contents[0]['Name']; //new
+        contents[0]['Name'] != "HPool" &&
+        contents[0]['Name'] != "FoxyPool") _name = contents[0]['Name']; //new
 
     //loads custom currency
     if (contents[0]['currency'] != null)
