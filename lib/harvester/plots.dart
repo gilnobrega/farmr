@@ -42,19 +42,23 @@ class HarvesterPlots {
     List<String> pathsFiltered = [];
 
     for (int i = 0; i < pathsUnfiltered.length; i++) {
-      io.Directory dir = io.Directory(pathsUnfiltered[i]);
+      try {
+        io.Directory dir = io.Directory(pathsUnfiltered[i]);
 
-      if (dir.existsSync()) {
-        //It used to not add empty directories before,
-        //but that would mean it would not get the disk space of those directories
-        //bool isEmpty =
-        //  dir.listSync().where((file) => extension(file.path) == ".plot").toList().length == 0;
+        if (dir.existsSync()) {
+          //It used to not add empty directories before,
+          //but that would mean it would not get the disk space of those directories
+          //bool isEmpty =
+          //  dir.listSync().where((file) => extension(file.path) == ".plot").toList().length == 0;
 
-        //Adds plot dest if it contains at least one .plot file
-        //if (!isEmpty) {
-        pathsFiltered.add(dir.absolute.path);
-        log.info("Found plot destination directory:" + dir.absolute.path);
-        //}
+          //Adds plot dest if it contains at least one .plot file
+          //if (!isEmpty) {
+          pathsFiltered.add(dir.absolute.path);
+          log.info("Found plot destination directory:" + dir.absolute.path);
+          //}
+        }
+      } catch (err) {
+        log.warning("Unable to load " + pathsFiltered[i]);
       }
     }
 
