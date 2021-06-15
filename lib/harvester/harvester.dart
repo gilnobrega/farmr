@@ -197,6 +197,11 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
 
     //adds memories
     _hardware?.memories.addAll(harvester.hardware?.memories ?? []);
+    //sorts memories by timestamp
+    _hardware?.memories.sort((m1, m2) => m1.timestamp.compareTo(m2.timestamp));
+
+    //clears cpu list
+    this.hardware?.cpus = [];
 
     //shows harvesters status if theyre not harvesting
     if (harvester.status != "Harvesting" && harvester.status != "Farming")

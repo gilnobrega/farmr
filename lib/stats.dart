@@ -185,6 +185,32 @@ class Stats {
     return output;
   }
 
+  //Hardware
+  String get cpuName => ((_client.hardware?.cpus.length ?? 0) > 0)
+      ? _client.hardware?.cpus[0].name ?? ""
+      : "";
+  int get cpuThreads => ((_client.hardware?.cpus.length ?? 0) > 0)
+      ? _client.hardware?.cpus[0].threads ?? 0
+      : 0;
+
+  int get totalMemory => ((_client.hardware?.memories.length ?? 0) > 0)
+      ? _client.hardware?.memories.last.totalMemory ?? 0
+      : 0;
+  int get freeMemory => ((_client.hardware?.memories.length ?? 0) > 0)
+      ? _client.hardware?.memories.last.freeMemory ?? 0
+      : 0;
+  int get usedMemory => ((_client.hardware?.memories.length ?? 0) > 0)
+      ? _client.hardware?.memories.last.usedMemory ?? 0
+      : 0;
+
+  double get usedMemoryRatio => usedMemory / totalMemory;
+  String get usedMemoryPercentage =>
+      ("${(usedMemoryRatio * 100).toStringAsFixed(1)}");
+
+  String get totalMemoryString => fileSize(totalMemory);
+  String get freeMemoryString => fileSize(freeMemory);
+  String get usedMemoryString => fileSize(usedMemory);
+
   Stats(this._client, this._price, this._netSpace);
 
   static String showName(Harvester harvester, [int count = 0]) {
@@ -489,6 +515,18 @@ class Stats {
         output += "${type.value} ${type.key} plots" + comma;
       }
     }
+
+    return output;
+  }
+
+  static String showHardware(Stats stats) {
+    String output = '';
+
+    if (stats.cpuName != "")
+      output += "\nCPU: ${stats.cpuName} with ${stats.cpuThreads} threads";
+    if (stats.totalMemory > 0)
+      output +=
+          "\nRAM: using ${stats.usedMemoryString} out of ${stats.totalMemoryString} (${stats.usedMemoryPercentage}%)";
 
     return output;
   }
@@ -933,6 +971,7 @@ class Stats {
 
       String full = (isFull || isWorkers)
           ? Stats.showDrives(stats) +
+              Stats.showHardware(stats) +
               Stats.showPlotTypes(harvester) +
               Stats.showLastPlotInfo(harvester) +
               Stats.showLastNDaysPlots(harvester, 8, netSpace) +
