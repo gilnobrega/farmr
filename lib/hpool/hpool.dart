@@ -33,7 +33,8 @@ class HPool extends Farmer {
   HPool.fromJson(String json) : super.fromJson(json) {
     var object = jsonDecode(json)[0];
 
-    if (object['balance'] != null) _balance = object['balance'];
+    if (object['balance'] != null)
+      _balance = double.parse(object['balance'].toString());
 
     if (object['walletBalance'] != null &&
         object['undistributedBalance'] != null)
