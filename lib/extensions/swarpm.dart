@@ -17,15 +17,18 @@ class SwarPM {
         io.Directory.current = managerPath;
         if (io.Platform.isWindows) {
           String binaryPath = "python";
+
+          /*
           const String venvPath = "venv/Scripts/python.exe";
 
           //if it detects venv then launches it from there
-          if (io.File(venvPath).existsSync()) binaryPath = venvPath;
+          if (io.File(venvPath).existsSync()) binaryPath = venvPath;*/
 
           jsonOutput =
               io.Process.runSync(binaryPath, const ["manager.py", "json"])
                   .stdout;
         } else {
+          /*
           const List<String> venvPaths = const [
             "venv/bin/python3",
             "venv/bin/python"
@@ -37,7 +40,7 @@ class SwarPM {
               jsonOutput =
                   io.Process.runSync(venvPath, const ["manager.py", "json"])
                       .stdout;
-          }
+          }*/
 
           if (jsonOutput == '')
             jsonOutput = io.Process.runSync(
