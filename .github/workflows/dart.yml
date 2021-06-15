@@ -61,12 +61,12 @@ jobs:
              chmod +x ./hpool.sh
              chmod +x ./foxypoolog.sh
 
-      - uses: uraimo/run-on-arch-action@v2.0.9
+      - uses: uraimo/run-on-arch-action@v2.0.10
         name: Compile aarch64
         id: runcmd
         with:
           arch: aarch64
-          distro: ubuntu20.04
+          distro: ubuntu18.04
           run: |
                ./dart-aarch64/dart-sdk/bin/dart pub get
                ./dart-aarch64/dart-sdk/bin/dart run environment_config:generate
