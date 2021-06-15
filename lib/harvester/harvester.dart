@@ -200,6 +200,10 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     //sorts memories by timestamp
     _hardware?.memories.sort((m1, m2) => m1.timestamp.compareTo(m2.timestamp));
 
+    //combines recent memory
+    if (harvester.hardware != null && _hardware != null)
+      _hardware!.recentMemory += harvester.hardware!.recentMemory;
+
     //clears cpu list
     this.hardware?.cpus = [];
 

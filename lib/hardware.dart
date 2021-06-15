@@ -12,6 +12,8 @@ class Hardware {
 
   List<Memory> memories = [];
 
+  Memory recentMemory = Memory(0, 0, 0, 0);
+
   toJson() => {"os": os, "cpus": cpus, "memories": memories};
 
   Hardware.fromJson(dynamic json) {
@@ -20,9 +22,15 @@ class Hardware {
     if (json['cpus'] != null)
       for (var cpu in json['cpus']) cpus.add(CPU.fromJson(cpu));
 
-    if (json['memories'] != null)
+    if (json['memories'] != null) {
       for (var memory in json['memories'])
         memories.add(Memory.fromJson(memory));
+
+      if (memories.length > 0) {
+        memories.sort((m1, m2) => m1.timestamp.compareTo(m2.timestamp));
+        recentMemory = memories.last;
+      }
+    }
   }
 
   Hardware([List<Memory> pastMemories = const []]) {

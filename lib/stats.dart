@@ -193,15 +193,9 @@ class Stats {
       ? _client.hardware?.cpus[0].threads ?? 0
       : 0;
 
-  int get totalMemory => ((_client.hardware?.memories.length ?? 0) > 0)
-      ? _client.hardware?.memories.last.totalMemory ?? 0
-      : 0;
-  int get freeMemory => ((_client.hardware?.memories.length ?? 0) > 0)
-      ? _client.hardware?.memories.last.freeMemory ?? 0
-      : 0;
-  int get usedMemory => ((_client.hardware?.memories.length ?? 0) > 0)
-      ? _client.hardware?.memories.last.usedMemory ?? 0
-      : 0;
+  int get totalMemory => _client.hardware?.recentMemory.totalMemory ?? 0;
+  int get freeMemory => _client.hardware?.recentMemory.freeMemory ?? 0;
+  int get usedMemory => _client.hardware?.recentMemory.usedMemory ?? 0;
 
   double get usedMemoryRatio => usedMemory / totalMemory;
   String get usedMemoryPercentage =>
