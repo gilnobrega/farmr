@@ -67,7 +67,12 @@ Then reopen file explorer in the folder where ``farmr-linux-amd64.tar.gz`` was e
 3. Link your device to your discord account as shown in [First Time](#first-time)
 
 #### HPool Mode
-You can use farmr for basic stats if you are farming in HPool. Follow the instructions above according to your platform. Just make sure you run ``hpool.exe`` or ``hpool.sh`` and then edit set ``"HPool Directory"`` in ``config.json``. Then reopen ``hpool.exe`` or ``hpool.sh``.
+You can use farmr for basic stats if you are farming in HPool. Follow the instructions above according to your platform. Just make sure you run ``hpool.exe`` or ``hpool.sh`` and then set ``"HPool Directory"`` and ``"HPool Auth Token"`` in ``config.json``. Then reopen ``hpool.exe`` or ``hpool.sh``.
+farmr client uses this auth token locally and it is never sent to farmr's servers.
+
+#### FoxyPool (chia-og) Mode
+farmr can show your pending and collateral balances from FoxyPool. Follow the instructions above according to your platform. Just make sure you run ``foxypoolog.exe`` or ``foxypoolog.sh`` and then set ``"Pool Public Key"`` in ``config.json``. Then reopen ``foxypoolog.exe`` or ``foxypoolog.sh``.
+farmr client uses this key locally and it is never sent to farmr's servers.
 
 
 #### Compile from source (every platform/architecture)
