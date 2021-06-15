@@ -32,10 +32,10 @@ class FoxyPoolOG extends Farmer {
         object['pendingBalance'] != null &&
         object['collateralBalance'] != null)
       _wallet = FoxyPoolWallet(
-          object['walletBalance'],
-          object['daysSinceLastBlock'],
-          object['pendingBalance'],
-          object['collateralBalance']);
+          double.parse(object['walletBalance'].toString()),
+          double.parse(object['daysSinceLastBlock'].toString()),
+          double.parse(object['pendingBalance'].toString()),
+          double.parse(object['collateralBalance'].toString()));
   }
 
   @override

@@ -37,8 +37,8 @@ class HPool extends Farmer {
 
     if (object['walletBalance'] != null &&
         object['undistributedBalance'] != null)
-      _wallet =
-          HPoolWallet(object['walletBalance'], object['undistributedBalance']);
+      _wallet = HPoolWallet(double.parse(object['walletBalance'].toString()),
+          double.parse(object['undistributedBalance'].toString()));
   }
 
   @override
