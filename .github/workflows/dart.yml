@@ -22,7 +22,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      
+        with:
+          submodules: recursive     
+
       - name: Download dart sdk x64
         if: matrix.architecture == 'x86_64'
         run: curl https://storage.googleapis.com/dart-archive/channels/stable/release/latest/sdk/dartsdk-linux-x64-release.zip -o dart-${{ matrix.architecture }}.zip
@@ -141,7 +143,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      
+        with:
+          submodules: recursive     
+                
       # Note: This workflow uses the latest stable version of the Dart SDK.
       # You can specify other versions if desired, see documentation here:
       # https://github.com/dart-lang/setup-dart/blob/main/README.md
