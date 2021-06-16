@@ -1,12 +1,1 @@
 #!/bin/bash
-echo "[Unit]
-Description=farmr
-
-[Service]
-Type=simple
-WorkingDirectory=/etc/farmr/
-ExecStart=/usr/bin/farmr
-
-[Install]
-WantedBy=default.target" > /home/*/.config/systemd/user/farmr.service;
-systemctl daemon-reload;

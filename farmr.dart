@@ -25,22 +25,37 @@ final log = Logger('Client');
 final Duration delay = Duration(minutes: 10); //10 minutes delay between updates
 
 //test mode for github releases
-String chiaConfigPath = (io.File(".github/workflows/config.yaml").existsSync())
-    ? ".github/workflows"
+final String chiaConfigPath =
+    (io.File(".github/workflows/config.yaml").existsSync())
+        ? ".github/workflows"
 //Sets config file path according to platform
-    : (io.Platform.isLinux || io.Platform.isMacOS)
-        ? io.Platform.environment['HOME']! + "/.chia/mainnet/config"
-        : (io.Platform.isWindows)
-            ? io.Platform.environment['UserProfile']! +
-                "\\.chia\\mainnet\\config"
-            : "";
+        : (io.Platform.isLinux || io.Platform.isMacOS)
+            ? io.Platform.environment['HOME']! + "/.chia/mainnet/config"
+            : (io.Platform.isWindows)
+                ? io.Platform.environment['UserProfile']! +
+                    "\\.chia\\mainnet\\config"
+                : "";
 
 //Sets config file path according to platform
-String chiaDebugPath = (io.Platform.isLinux || io.Platform.isMacOS)
+final String chiaDebugPath = (io.Platform.isLinux || io.Platform.isMacOS)
     ? io.Platform.environment['HOME']! + "/.chia/mainnet/log/"
     : (io.Platform.isWindows)
         ? io.Platform.environment['UserProfile']! + "\\.chia\\mainnet\\log\\"
         : "";
+
+// '/home/user/.farmr' for package installs, '.' (project path) for the rest
+late String rootPath;
+
+//prepares rootPath
+prepareRootPath(bool package) {
+  rootPath = (io.Platform.isLinux && package)
+      ? io.Platform.environment['HOME']! + "/.farmr/"
+      : "";
+
+  //Creates /home/user/.farmr folder if that doesnt exist
+  if (package && !io.Directory(rootPath).existsSync())
+    io.Directory(rootPath).createSync();
+}
 
 main(List<String> args) async {
   initLogger(); //initializes logger
@@ -58,13 +73,19 @@ main(List<String> args) async {
   bool standalone =
       onetime || args.contains("standalone") || args.contains("offline");
 
-  Cache cache = new Cache(chiaConfigPath);
+  //if running from .deb package then launches it in package mode
+  //which uses a different config path $HOME/.farmr
+  bool package = args.contains("package");
+  prepareRootPath(package);
+
+  Cache cache = new Cache(chiaConfigPath, rootPath);
   cache.init();
 
   //Initializes config, either creates a new one or loads a config file
   Config config = new Config(
       cache,
       chiaConfigPath,
+      rootPath,
       args.contains("harvester"),
       args.contains("hpool"),
       args.contains("foxypoolog")); //checks if is harvester (or hpool mode)

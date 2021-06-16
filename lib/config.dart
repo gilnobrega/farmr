@@ -83,10 +83,13 @@ class Config {
   String _poolPublicKey = "";
   String get poolPublicKey => _poolPublicKey;
 
-  final io.File _config = io.File("config.json");
+  // '/home/user/.farmr' for package installs, '' (project path) for the rest
+  late String _rootPath;
+  late io.File _config;
 
-  Config(this.cache, String chiaConfigPath,
+  Config(this.cache, String chiaConfigPath, this._rootPath,
       [isHarvester = false, isHPool = false, isFoxyPoolOG = false]) {
+    _config = io.File(_rootPath + "config.json");
     //sets default name according to client type
     if (isHarvester) {
       _type = ClientType.Harvester;

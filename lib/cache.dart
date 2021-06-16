@@ -34,12 +34,16 @@ class Cache {
   List<Memory> _memories = [];
   List<Memory> get memories => _memories;
 
-  final io.File _cache = io.File(".farmr_cache.json");
+  // '/home/user/.farmr' for package installs, '' (project path) for the rest
+  late String _rootPath;
+  late io.File _cache;
 
   int parseUntil =
       DateTime.now().subtract(Duration(days: 1)).millisecondsSinceEpoch;
 
-  Cache(String chiaConfigPath) {
+  Cache(String chiaConfigPath, this._rootPath) {
+    _cache = io.File(_rootPath + ".farmr_cache.json");
+
     //ports old cache file to new cache file
     try {
       io.File _oldCache = io.File(".chiabot_cache.json");
