@@ -10,7 +10,6 @@ import 'package:farmr_client/farmer/farmer.dart';
 import 'package:farmr_client/harvester/harvester.dart';
 import 'package:farmr_client/config.dart';
 import 'package:farmr_client/blockchain.dart';
-import 'package:farmr_client/debug.dart';
 import 'package:farmr_client/hpool/hpool.dart';
 import 'package:farmr_client/foxypool/foxypoolog.dart';
 
