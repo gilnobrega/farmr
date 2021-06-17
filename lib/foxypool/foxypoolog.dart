@@ -6,7 +6,6 @@ import 'package:farmr_client/farmer/wallet.dart';
 import 'package:farmr_client/foxypool/api.dart';
 import 'package:farmr_client/foxypool/wallet.dart';
 import 'package:farmr_client/farmer/farmer.dart';
-import 'package:farmr_client/debug.dart' as Debug;
 
 class FoxyPoolOG extends Farmer {
   //public pool key

@@ -10,7 +10,6 @@ import 'package:farmr_client/plot.dart';
 import 'package:farmr_client/config.dart';
 import 'package:farmr_client/harvester/plots.dart';
 import 'package:farmr_client/harvester/diskspace.dart';
-import 'package:farmr_client/debug.dart' as Debug;
 import 'package:farmr_client/harvester/filters.dart';
 
 import 'package:farmr_client/extensions/swarpm.dart';
