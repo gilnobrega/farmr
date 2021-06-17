@@ -79,7 +79,7 @@ main(List<String> args) async {
   prepareRootPath(package);
 
   BlockChain blockChain = new BlockChain(rootPath, "chia", args);
-  blockChain.init();
+  await blockChain.init();
 
   int counter = 1;
 

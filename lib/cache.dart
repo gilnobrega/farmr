@@ -64,7 +64,7 @@ class Cache {
         "memories": memories,
       };
 
-  void init() {
+  Future<void> init() async {
     //Tells log parser when it should stop parsing
     parseUntil =
         DateTime.now().subtract(Duration(days: 1)).millisecondsSinceEpoch;

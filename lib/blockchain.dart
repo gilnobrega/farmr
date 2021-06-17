@@ -50,7 +50,7 @@ class BlockChain {
   }
 
   Future<void> init() async {
-    this.cache.init();
+    await this.cache.init();
     await this.config.init();
   }
 
