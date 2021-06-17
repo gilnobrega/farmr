@@ -63,8 +63,9 @@ class BlockChain {
       //Sets config file path according to platform
       "Unix": io.Platform.environment['HOME']! +
           "/.${coinName}/mainnet/${finalFolder}",
-      "Windows": io.Platform.environment['UserProfile']! +
-          "\\.${coinName}\\mainnet\\${finalFolder}",
+      // FIXME: How to fix the null issue?
+      // "Windows": io.Platform.environment['UserProfile']! +
+      //     "\\.${coinName}\\mainnet\\${finalFolder}",
       //test mode for github releases
       "GitHub": ".github/workflows",
     };
