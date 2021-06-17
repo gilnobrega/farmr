@@ -1,16 +1,4 @@
 import 'dart:core';
-import 'package:universal_io/io.dart' as io;
-import 'dart:convert';
-
-import 'package:logging/logging.dart';
-
-import 'package:farmr_client/plot.dart';
-import 'package:farmr_client/log/filter.dart';
-import 'package:farmr_client/log/signagepoint.dart';
-import 'package:farmr_client/log/shortsync.dart';
-
-import 'package:farmr_client/hardware.dart';
-
 
 // hmmm creating a blockchain.dart class with path / file structure classes would be great
 // and then replacing any path containing chia with the respective file
@@ -22,14 +10,18 @@ class BlockChain {
   String binaryPath = '';
   String configPath = '';
   String currencySymbol = '';
-  
-  BlockChain(this.binaryPath, this.configPath, this.currencySymbol)
 
-    // Map toJson() => {
-    //   binaryPath,
-    //   configPath
-    //   currencySymbol,
-    // };
+  BlockChain(this.binaryPath, this.configPath, this.currencySymbol);
+
+  Map toJson() => {
+        "binaryPath": binaryPath,
+        "configPath": configPath,
+        "currencySymbol": currencySymbol,
+      };
+
+  // void test() {
+  //   this.currencySymbol = "XCHHH";
+  // }
 }
 
 // Map toJson() => {
