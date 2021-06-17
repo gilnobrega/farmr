@@ -27,22 +27,23 @@ class BlockChain {
     // Setup
     this.cache = new Cache(rootPath);
 
-    // TODO: Dynamic
-    String chiaConfigPath =
-        (io.File(".github/workflows/config.yaml").existsSync())
-            ? ".github/workflows"
-            //Sets config file path according to platform
-            : (io.Platform.isLinux || io.Platform.isMacOS)
-                ? io.Platform.environment['HOME']! + "/.chia/mainnet/config"
-                : (io.Platform.isWindows)
-                    ? io.Platform.environment['UserProfile']! +
-                        "\\.chia\\mainnet\\config"
-                    : "";
+    Map configPath = {
+      "Unix": io.Platform.environment['HOME']! + "/.${coinName}/mainnet/config",
+      "Windows": io.Platform.environment['UserProfile']! +
+          "\\.${coinName}\\mainnet\\config",
+      "GitHub": ".github/workflows",
+    };
+
+    // TODO: Potentially leverage String os = io.Platform.operatingSystem;
+    var os = "";
+    if (io.Platform.isLinux || io.Platform.isMacOS) os = "Unix";
+    if (io.Platform.isWindows) os = "Windows";
+    if (io.File(".github/workflows/config.yaml").existsSync()) os = "GitHub";
 
     /** Initializes config, either creates a new one or loads a config file */
     this.config = new Config(
         this.cache,
-        chiaConfigPath,
+        configPath[os],
         rootPath,
         args.contains("harvester"),
         args.contains("hpool"),
