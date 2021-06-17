@@ -28,7 +28,8 @@ class BlockChain {
     this.cache = new Cache(rootPath);
 
     Map configPath = {
-      "Unix": io.Platform.environment['HOME']! + "/.${coinName}/mainnet/config",
+      "Unix": io.Platform.environment['HOME'] ??
+          '' + "/.${coinName}/mainnet/config",
       "Windows": io.Platform.environment['UserProfile'] ??
           '' + "\\.${coinName}\\mainnet\\config",
       "GitHub": ".github/workflows",
