@@ -24,18 +24,6 @@ final log = Logger('Client');
 
 final Duration delay = Duration(minutes: 10); //10 minutes delay between updates
 
-//test mode for github releases
-final String chiaConfigPath =
-    (io.File(".github/workflows/config.yaml").existsSync())
-        ? ".github/workflows"
-//Sets config file path according to platform
-        : (io.Platform.isLinux || io.Platform.isMacOS)
-            ? io.Platform.environment['HOME']! + "/.chia/mainnet/config"
-            : (io.Platform.isWindows)
-                ? io.Platform.environment['UserProfile']! +
-                    "\\.chia\\mainnet\\config"
-                : "";
-
 //Sets config file path according to platform
 final String chiaDebugPath = (io.Platform.isLinux || io.Platform.isMacOS)
     ? io.Platform.environment['HOME']! + "/.chia/mainnet/log/"
@@ -119,7 +107,7 @@ main(List<String> args) async {
       //hpool has a special config.yaml directory, as defined in farmr's config.json
       await client.init((blockChain.config.type == ClientType.HPool)
           ? blockChain.config.hpoolConfigPath
-          : chiaConfigPath);
+          : blockChain.configPath);
 
       //Throws exception in case no plots were found
       if (client.plots.length == 0)
