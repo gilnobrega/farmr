@@ -14,6 +14,7 @@ class BlockChain {
   String binaryName = '';
   String configName = '';
   String currencySymbol = '';
+  String configPath = '';
 
   late Cache cache;
   late Config config;
@@ -26,25 +27,11 @@ class BlockChain {
 
     // Setup
     this.cache = new Cache(rootPath);
-
-    Map configPath = {
-      "Unix": io.Platform.environment['HOME'] ??
-          '' + "/.${coinName}/mainnet/config",
-      "Windows": io.Platform.environment['UserProfile'] ??
-          '' + "\\.${coinName}\\mainnet\\config",
-      "GitHub": ".github/workflows",
-    };
-
-    // TODO: Potentially leverage String os = io.Platform.operatingSystem;
-    var os = "";
-    if (io.Platform.isLinux || io.Platform.isMacOS) os = "Unix";
-    if (io.Platform.isWindows) os = "Windows";
-    if (io.File(".github/workflows/config.yaml").existsSync()) os = "GitHub";
-
+    this.configPath = this.getPlatformConfigPath(coinName);
     /** Initializes config, either creates a new one or loads a config file */
     this.config = new Config(
         this.cache,
-        configPath[os],
+        this.configPath,
         rootPath,
         args.contains("harvester"),
         args.contains("hpool"),
@@ -62,4 +49,24 @@ class BlockChain {
         "configName": configName,
         "currencySymbol": currencySymbol,
       };
+
+  /** Returns configPath for the coin */
+  String getPlatformConfigPath(String coinName) {
+    Map configPathMap = {
+      //Sets config file path according to platform
+      "Unix": io.Platform.environment['HOME'] ??
+          '' + "/.${coinName}/mainnet/config",
+      "Windows": io.Platform.environment['UserProfile'] ??
+          '' + "\\.${coinName}\\mainnet\\config",
+      //test mode for github releases
+      "GitHub": ".github/workflows",
+    };
+    // TODO: Potentially leverage String os = io.Platform.operatingSystem;
+    var os = "";
+    if (io.Platform.isLinux || io.Platform.isMacOS) os = "Unix";
+    if (io.Platform.isWindows) os = "Windows";
+    if (io.File(".github/workflows/config.yaml").existsSync()) os = "GitHub";
+
+    return configPathMap[os];
+  }
 }
