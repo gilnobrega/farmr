@@ -1,5 +1,6 @@
 import 'dart:core';
 import 'package:farmr_client/config.dart';
+import 'package:farmr_client/debug.dart';
 import 'package:universal_io/io.dart' as io;
 
 import 'package:farmr_client/cache.dart';
@@ -19,6 +20,7 @@ class BlockChain {
 
   late Cache cache;
   late Config config;
+  late Log log;
 
   BlockChain(String rootPath, String coinName, List<String> args) {
     // TODO: read file
@@ -38,6 +40,8 @@ class BlockChain {
         args.contains("harvester"),
         args.contains("hpool"),
         args.contains("foxypoolog"));
+
+    this.log = new Log(this);
   }
 
   Future<void> init() async {
