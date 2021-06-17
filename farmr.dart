@@ -9,7 +9,6 @@ import 'package:intl/intl.dart';
 import 'package:farmr_client/farmer/farmer.dart';
 import 'package:farmr_client/harvester/harvester.dart';
 import 'package:farmr_client/config.dart';
-import 'package:farmr_client/cache.dart';
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/debug.dart';
 import 'package:farmr_client/hpool/hpool.dart';
@@ -79,21 +78,8 @@ main(List<String> args) async {
   bool package = args.contains("package");
   prepareRootPath(package);
 
-  Cache cache = new Cache(rootPath);
-  cache.init();
-
-  BlockChain coinInfo = new BlockChain("chia", "config.json", "XCH");
-
-  //Initializes config, either creates a new one or loads a config file
-  Config config = new Config(
-      cache,
-      chiaConfigPath,
-      rootPath,
-      args.contains("harvester"),
-      args.contains("hpool"),
-      args.contains("foxypoolog")); //checks if is harvester (or hpool mode)
-
-  await config.init();
+  BlockChain blockChain = new BlockChain(rootPath, "chia", args);
+  blockChain.init();
 
   int counter = 1;
 
@@ -111,26 +97,29 @@ main(List<String> args) async {
 
       log.info("Generating new report #$counter");
 
-      cache.init();
-      Log chiaLog = new Log(chiaDebugPath, cache, config.parseLogs);
+      blockChain.cache.init();
+      Log chiaLog =
+          new Log(chiaDebugPath, blockChain.cache, blockChain.config.parseLogs);
 
-      var client = (config.type == ClientType.Farmer)
+      var client = (blockChain.config.type == ClientType.Farmer)
           ? Farmer(
-              config: config, log: chiaLog, version: EnvironmentConfig.version)
-          : (config.type == ClientType.HPool)
+              blockChain: blockChain,
+              log: chiaLog,
+              version: EnvironmentConfig.version)
+          : (blockChain.config.type == ClientType.HPool)
               ? HPool(
-                  config: config,
+                  blockChain: blockChain,
                   log: chiaLog,
                   version: EnvironmentConfig.version)
-              : (config.type == ClientType.FoxyPoolOG)
+              : (blockChain.config.type == ClientType.FoxyPoolOG)
                   ? FoxyPoolOG(
-                      config: config,
+                      blockChain: blockChain,
                       log: chiaLog,
                       version: EnvironmentConfig.version)
-                  : Harvester(config, chiaLog, EnvironmentConfig.version);
+                  : Harvester(blockChain, chiaLog, EnvironmentConfig.version);
       //hpool has a special config.yaml directory, as defined in farmr's config.json
-      await client.init((config.type == ClientType.HPool)
-          ? config.hpoolConfigPath
+      await client.init((blockChain.config.type == ClientType.HPool)
+          ? blockChain.config.hpoolConfigPath
           : chiaConfigPath);
 
       //Throws exception in case no plots were found
@@ -139,11 +128,13 @@ main(List<String> args) async {
             "No plots have been found! Make sure your user has access to the folders where plots are stored.");
 
       //if plot notifications are off then it will default to 0
-      lastPlotID = (config.sendPlotNotifications) ? client.lastPlotID() : "0";
+      lastPlotID =
+          (blockChain.config.sendPlotNotifications) ? client.lastPlotID() : "0";
 
       //if hard drive notifications are disabled then it will default to 0
-      drives =
-          (config.sendDriveNotifications) ? client.drivesCount.toString() : "0";
+      drives = (blockChain.config.sendDriveNotifications)
+          ? client.drivesCount.toString()
+          : "0";
 
       if (client is Farmer) {
         balance = client.balance.toString();
@@ -172,8 +163,8 @@ main(List<String> args) async {
     } catch (exception) {
       log.severe("Oh no! Something went wrong.");
       log.severe(exception.toString());
-      log.info("Config:\n$config\n");
-      log.info("Cache:\n$cache");
+      // log.info("Config:\n$config\n"); // TODO: Fix
+      // log.info("Cache:\n$cache"); // TODO: Fix
       if (onetime) io.exit(1);
     }
 
@@ -188,14 +179,14 @@ main(List<String> args) async {
           //String that's actually sent to server
           String sendJson = copyJson;
 
-          String notifyOffline = (config.sendOfflineNotifications)
+          String notifyOffline = (blockChain.config.sendOfflineNotifications)
               ? '1'
               : '0'; //whether user wants to be notified when rig goes offline
           String isFarming = (status == "Farming" || status == "Harvesting")
               ? '1' //1 means is farming/harvesting
               : '0';
 
-          String publicAPI = (config.publicAPI)
+          String publicAPI = (blockChain.config.publicAPI)
               ? '1' //1 means client data can be seen from public api
               : '0';
 
@@ -208,30 +199,33 @@ main(List<String> args) async {
 
           const String url = "https://farmr.net/send7.php";
 
-          if (config.sendStatusNotifications)
+          if (blockChain.config.sendStatusNotifications)
             post.putIfAbsent("isFarming", () => isFarming);
 
           //Adds the following if sendPlotNotifications is enabled then it will send plotID
-          if (config.sendPlotNotifications)
+          if (blockChain.config.sendPlotNotifications)
             post.putIfAbsent("lastPlot", () => lastPlotID);
 
           //Adds the following if hard drive notifications are enabled then it will send the number of drives connected to pc
-          if (config.sendDriveNotifications)
+          if (blockChain.config.sendDriveNotifications)
             post.putIfAbsent("drives", () => drives);
 
           //If the client is a farmer and it is farming and sendBalanceNotifications is enabled then it will send balance
-          if (config.type == ClientType.Farmer &&
-              config.sendBalanceNotifications &&
+          if (blockChain.config.type == ClientType.Farmer &&
+              blockChain.config.sendBalanceNotifications &&
               status == "Farming") post.putIfAbsent("balance", () => balance);
 
-          type = (config.type == ClientType.Farmer) ? "farmer" : "harvester";
+          type = (blockChain.config.type == ClientType.Farmer)
+              ? "farmer"
+              : "harvester";
 
-          for (String id in cache.ids) {
+          for (String id in blockChain.cache.ids) {
             post.putIfAbsent("id", () => id);
             post.update("id", (value) => id);
 
             http.post(Uri.parse(url), body: post).then((_) {
-              String idText = (cache.ids.length == 1) ? '' : "for id " + id;
+              String idText =
+                  (blockChain.cache.ids.length == 1) ? '' : "for id " + id;
               String timestamp = DateFormat.Hms().format(DateTime.now());
               log.warning(
                   "\n$timestamp - Sent $type report to server $idText\nRetrying in ${delay.inMinutes} minutes");

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/config.dart';
 import 'package:farmr_client/farmer/wallet.dart';
 import 'package:farmr_client/foxypool/api.dart';
@@ -19,9 +20,12 @@ class FoxyPoolOG extends Farmer {
   final ClientType type = ClientType.FoxyPoolOG;
 
   FoxyPoolOG(
-      {required Config config, required Debug.Log log, String version = ''})
-      : super(config: config, log: log, version: version, hpool: false) {
-    _publicKey = config.poolPublicKey;
+      {required BlockChain blockChain,
+      required Debug.Log log,
+      String version = ''})
+      : super(
+            blockChain: blockChain, log: log, version: version, hpool: false) {
+    _publicKey = blockChain.config.poolPublicKey;
   }
 
   FoxyPoolOG.fromJson(String json) : super.fromJson(json) {

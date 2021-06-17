@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'package:farmr_client/blockchain.dart';
 import 'package:universal_io/io.dart' as io;
 import 'dart:convert';
 
@@ -75,15 +76,15 @@ class Farmer extends Harvester {
   }
 
   Farmer(
-      {required Config config,
+      {required BlockChain blockChain,
       required Debug.Log log,
       String version = '',
       bool hpool = false})
-      : super(config, log, version) {
+      : super(blockChain, log, version) {
     if (!hpool) {
       //runs chia farm summary if it is a farmer
-      var result =
-          io.Process.runSync(config.cache.binPath, const ["farm", "summary"]);
+      var result = io.Process.runSync(
+          blockChain.config.cache.binPath, const ["farm", "summary"]);
       List<String> lines =
           result.stdout.toString().replaceAll("\r", "").split('\n');
 
@@ -94,7 +95,7 @@ class Farmer extends Harvester {
           String line = lines[i];
 
           if (line.startsWith("Total chia farmed: "))
-            _balance = (config.showBalance)
+            _balance = (blockChain.config.showBalance)
                 ? double.parse(line.split('Total chia farmed: ')[1])
                 : -1.0;
           else if (line.startsWith("Farming status: "))
@@ -110,11 +111,11 @@ class Farmer extends Harvester {
       }
 
       //parses chia wallet show for block height
-      _wallet.parseWalletBalance(
-          config.cache.binPath, lastBlockFarmed, config.showWalletBalance);
+      _wallet.parseWalletBalance(blockChain.config.cache.binPath,
+          lastBlockFarmed, blockChain.config.showWalletBalance);
 
       //initializes connections and counts peers
-      _connections = Connections(config.cache.binPath);
+      _connections = Connections(blockChain.config.cache.binPath);
 
       _fullNodesConnected = _connections?.connections
               .where((connection) => connection.type == ConnectionType.FullNode)
@@ -122,7 +123,7 @@ class Farmer extends Harvester {
           0; //whats wrong with this vs code formatting lmao
 
       //Parses logs for sub slots info
-      if (config.parseLogs) {
+      if (blockChain.config.parseLogs) {
         calculateSubSlots(log);
       }
 
@@ -130,7 +131,7 @@ class Farmer extends Harvester {
 
       //harvesting status
       String harvestingStatusString =
-          harvestingStatus(config.parseLogs) ?? "Harvesting";
+          harvestingStatus(blockChain.config.parseLogs) ?? "Harvesting";
 
       if (harvestingStatusString != "Harvesting")
         _status = "$_status, $harvestingStatusString";

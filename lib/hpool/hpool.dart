@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/config.dart';
 import 'package:farmr_client/farmer/wallet.dart';
 import 'package:farmr_client/harvester/harvester.dart';
@@ -25,9 +26,12 @@ class HPool extends Farmer {
   @override
   final ClientType type = ClientType.HPool;
 
-  HPool({required Config config, required Debug.Log log, String version = ''})
-      : super(config: config, log: log, version: version, hpool: true) {
-    _authToken = config.hpoolAuthToken;
+  HPool(
+      {required BlockChain blockChain,
+      required Debug.Log log,
+      String version = ''})
+      : super(blockChain: blockChain, log: log, version: version, hpool: true) {
+    _authToken = blockChain.config.hpoolAuthToken;
   }
 
   HPool.fromJson(String json) : super.fromJson(json) {

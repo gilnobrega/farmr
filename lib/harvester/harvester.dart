@@ -1,6 +1,7 @@
 import 'dart:core';
 import 'dart:convert';
 
+import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/hardware.dart';
 import 'package:uuid/uuid.dart';
 import 'package:logging/logging.dart';
@@ -85,7 +86,8 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     return initialMap;
   }
 
-  Harvester(this._config, Debug.Log log, [String version = '']) {
+  Harvester(BlockChain blockChain, Debug.Log log, [String version = '']) {
+    this._config = blockChain.config;
     _version = version;
     _name = _config.name; //loads name from config
     _currency = _config.currency; // loads currency from config
