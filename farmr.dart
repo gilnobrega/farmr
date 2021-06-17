@@ -10,6 +10,7 @@ import 'package:farmr_client/farmer/farmer.dart';
 import 'package:farmr_client/harvester/harvester.dart';
 import 'package:farmr_client/config.dart';
 import 'package:farmr_client/cache.dart';
+import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/debug.dart';
 import 'package:farmr_client/hpool/hpool.dart';
 import 'package:farmr_client/foxypool/foxypoolog.dart';
@@ -78,7 +79,9 @@ main(List<String> args) async {
   bool package = args.contains("package");
   prepareRootPath(package);
 
-  Cache cache = new Cache(chiaConfigPath, rootPath);
+  BlockChain coinInfo = new BlockChain("testBinPath", "testConfigPath", "XCH");
+
+  Cache cache = new Cache(rootPath);
   cache.init();
 
   //Initializes config, either creates a new one or loads a config file

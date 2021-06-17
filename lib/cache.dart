@@ -41,7 +41,7 @@ class Cache {
   int parseUntil =
       DateTime.now().subtract(Duration(days: 1)).millisecondsSinceEpoch;
 
-  Cache(String chiaConfigPath, this._rootPath) {
+  Cache(this._rootPath) {
     _cache = io.File(_rootPath + ".farmr_cache.json");
 
     //ports old cache file to new cache file
