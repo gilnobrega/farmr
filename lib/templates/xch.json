@@ -1,5 +1,5 @@
 {
-    "binaryPath": "",
-    "configPath": "",
+    "binaryName": "chia",
+    "configName": "config.json",
     "currencySymbol": "XCH"
 }

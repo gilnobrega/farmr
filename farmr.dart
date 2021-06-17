@@ -79,10 +79,10 @@ main(List<String> args) async {
   bool package = args.contains("package");
   prepareRootPath(package);
 
-  BlockChain coinInfo = new BlockChain("testBinPath", "testConfigPath", "XCH");
-
   Cache cache = new Cache(rootPath);
   cache.init();
+
+  BlockChain coinInfo = new BlockChain("chia", "config.json", "XCH");
 
   //Initializes config, either creates a new one or loads a config file
   Config config = new Config(

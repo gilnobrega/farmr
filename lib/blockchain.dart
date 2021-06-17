@@ -7,41 +7,15 @@ import 'dart:core';
 // or download other templates
 
 class BlockChain {
-  String binaryPath = '';
-  String configPath = '';
+  String binaryName = '';
+  String configName = '';
   String currencySymbol = '';
 
-  BlockChain(this.binaryPath, this.configPath, this.currencySymbol);
+  BlockChain(this.binaryName, this.configName, this.currencySymbol);
 
   Map toJson() => {
-        "binaryPath": binaryPath,
-        "configPath": configPath,
+        "binaryName": binaryName,
+        "configName": configName,
         "currencySymbol": currencySymbol,
       };
-
-  // void test() {
-  //   this.currencySymbol = "XCHHH";
-  // }
 }
-
-// Map toJson() => {
-//   "Name": "Harvester",
-//   "Currency": "USD",
-//   "Show Farmed XCH": true,
-//   "Show Wallet Balance": false,
-//   "Block Notifications": true,
-//   "Plot Notifications": false,
-//   "Offline Notifications": false,
-//   "Farm Status Notifications": true,
-//   "Parse Logs": false,
-//   "Number of Discord Users": 1,
-//   "Public API": false,
-//   "Swar's Chia Plot Manager Path": ""
-//   "ids": ids,
-//   "binPath": binPath,
-//   "plots": plots,
-//   "filters": filters,
-//   "signagePoints": signagePoints,
-//   "shortSyncs": shortSyncs,
-//   "memories": memories,
-// };
