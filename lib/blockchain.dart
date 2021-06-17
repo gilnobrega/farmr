@@ -49,13 +49,6 @@ class BlockChain {
     await this.config.init();
   }
 
-  // Not completely sure what this is for
-  Map toJson() => {
-        "binaryName": binaryName,
-        "configName": configName,
-        "currencySymbol": currencySymbol,
-      };
-
   /** Returns configPath & logPath for the coin based on platform */
   String getCoinNamePath(String coinName, String finalFolder) {
     Map configPathMap = {
