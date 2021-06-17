@@ -61,10 +61,10 @@ class BlockChain {
   String getCoinNamePath(String coinName, String finalFolder) {
     Map configPathMap = {
       //Sets config file path according to platform
-      "Unix": io.Platform.environment['HOME'] ??
-          '' + "/.${coinName}/mainnet/${finalFolder}",
-      "Windows": io.Platform.environment['UserProfile'] ??
-          '' + "\\.${coinName}\\mainnet\\${finalFolder}",
+      "Unix": io.Platform.environment['HOME']! +
+          "/.${coinName}/mainnet/${finalFolder}",
+      "Windows": io.Platform.environment['UserProfile']! +
+          "\\.${coinName}\\mainnet\\${finalFolder}",
       //test mode for github releases
       "GitHub": ".github/workflows",
     };
