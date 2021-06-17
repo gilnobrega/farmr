@@ -31,7 +31,7 @@ class BlockChain {
     // Setup
     this.cache = new Cache(rootPath);
     this.configPath = this.getCoinNamePath(coinName, "config");
-    print("AAAA| ${this.configPath} | ${coinName} | ")
+    print("AAAA| ${this.configPath} | ${coinName} | ");
     this.logPath = this.getCoinNamePath(coinName, "log");
     /** Initializes config, either creates a new one or loads a config file */
     this.config = new Config(
