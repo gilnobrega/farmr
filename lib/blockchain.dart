@@ -19,7 +19,7 @@ class BlockChain {
   late Config config;
 
   BlockChain(String rootPath, String coinName, List<String> args) {
-    // read file
+    // TODO: read file
     this.binaryName = "chia";
     this.configName = "config.json";
     this.currencySymbol = "XCH";
@@ -27,6 +27,7 @@ class BlockChain {
     // Setup
     this.cache = new Cache(rootPath);
 
+    // TODO: Dynamic
     String chiaConfigPath =
         (io.File(".github/workflows/config.yaml").existsSync())
             ? ".github/workflows"
@@ -38,7 +39,7 @@ class BlockChain {
                         "\\.chia\\mainnet\\config"
                     : "";
 
-    //Initializes config, either creates a new one or loads a config file
+    /** Initializes config, either creates a new one or loads a config file */
     this.config = new Config(
         this.cache,
         chiaConfigPath,
@@ -53,6 +54,7 @@ class BlockChain {
     await this.config.init();
   }
 
+  // Not completely sure what this is for
   Map toJson() => {
         "binaryName": binaryName,
         "configName": configName,
