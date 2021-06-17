@@ -19,12 +19,8 @@ class FoxyPoolOG extends Farmer {
   @override
   final ClientType type = ClientType.FoxyPoolOG;
 
-  FoxyPoolOG(
-      {required BlockChain blockChain,
-      required Debug.Log log,
-      String version = ''})
-      : super(
-            blockChain: blockChain, log: log, version: version, hpool: false) {
+  FoxyPoolOG({required BlockChain blockChain, String version = ''})
+      : super(blockChain: blockChain, version: version, hpool: false) {
     _publicKey = blockChain.config.poolPublicKey;
   }
 

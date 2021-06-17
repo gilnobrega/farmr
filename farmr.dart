@@ -79,22 +79,15 @@ main(List<String> args) async {
       log.info("Generating new report #$counter");
 
       var client = (blockChain.config.type == ClientType.Farmer)
-          ? Farmer(
-              blockChain: blockChain,
-              log: blockChain.log,
-              version: EnvironmentConfig.version)
+          ? Farmer(blockChain: blockChain, version: EnvironmentConfig.version)
           : (blockChain.config.type == ClientType.HPool)
               ? HPool(
-                  blockChain: blockChain,
-                  log: blockChain.log,
-                  version: EnvironmentConfig.version)
+                  blockChain: blockChain, version: EnvironmentConfig.version)
               : (blockChain.config.type == ClientType.FoxyPoolOG)
                   ? FoxyPoolOG(
                       blockChain: blockChain,
-                      log: blockChain.log,
                       version: EnvironmentConfig.version)
-                  : Harvester(
-                      blockChain, blockChain.log, EnvironmentConfig.version);
+                  : Harvester(blockChain, EnvironmentConfig.version);
       //hpool has a special config.yaml directory, as defined in farmr's config.json
       await client.init((blockChain.config.type == ClientType.HPool)
           ? blockChain.config.hpoolConfigPath

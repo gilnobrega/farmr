@@ -76,11 +76,8 @@ class Farmer extends Harvester {
   }
 
   Farmer(
-      {required BlockChain blockChain,
-      required Debug.Log log,
-      String version = '',
-      bool hpool = false})
-      : super(blockChain, log, version) {
+      {required BlockChain blockChain, String version = '', bool hpool = false})
+      : super(blockChain, version) {
     if (!hpool) {
       //runs chia farm summary if it is a farmer
       var result = io.Process.runSync(
@@ -124,10 +121,10 @@ class Farmer extends Harvester {
 
       //Parses logs for sub slots info
       if (blockChain.config.parseLogs) {
-        calculateSubSlots(log);
+        calculateSubSlots(blockChain.log);
       }
 
-      shortSyncs = log.shortSyncs; //loads short sync events
+      shortSyncs = blockChain.log.shortSyncs; //loads short sync events
 
       //harvesting status
       String harvestingStatusString =

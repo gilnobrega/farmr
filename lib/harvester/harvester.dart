@@ -86,7 +86,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     return initialMap;
   }
 
-  Harvester(BlockChain blockChain, Debug.Log log, [String version = '']) {
+  Harvester(BlockChain blockChain, [String version = '']) {
     this._config = blockChain.config;
     _version = version;
     _name = _config.name; //loads name from config
@@ -97,7 +97,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     _lastUpdated = DateTime.now();
     _lastUpdatedString = dateToString(_lastUpdated);
 
-    loadFilters(log);
+    loadFilters(blockChain.log);
 
     _status = harvestingStatus(_config.parseLogs) ?? _status;
 
