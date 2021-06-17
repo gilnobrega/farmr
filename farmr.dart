@@ -24,13 +24,6 @@ final log = Logger('Client');
 
 final Duration delay = Duration(minutes: 10); //10 minutes delay between updates
 
-//Sets config file path according to platform
-final String chiaDebugPath = (io.Platform.isLinux || io.Platform.isMacOS)
-    ? io.Platform.environment['HOME']! + "/.chia/mainnet/log/"
-    : (io.Platform.isWindows)
-        ? io.Platform.environment['UserProfile']! + "\\.chia\\mainnet\\log\\"
-        : "";
-
 // '/home/user/.farmr' for package installs, '.' (project path) for the rest
 late String rootPath;
 
@@ -85,8 +78,7 @@ main(List<String> args) async {
 
       log.info("Generating new report #$counter");
 
-      Log chiaLog =
-          new Log(chiaDebugPath, blockChain.cache, blockChain.config.parseLogs);
+      Log chiaLog = new Log(blockChain);
 
       var client = (blockChain.config.type == ClientType.Farmer)
           ? Farmer(

@@ -15,6 +15,7 @@ class BlockChain {
   String configName = '';
   String currencySymbol = '';
   String configPath = '';
+  String logPath = '';
 
   late Cache cache;
   late Config config;
@@ -27,7 +28,8 @@ class BlockChain {
 
     // Setup
     this.cache = new Cache(rootPath);
-    this.configPath = this.getPlatformConfigPath(coinName);
+    this.configPath = this.getCoinNamePath(coinName, "config");
+    this.logPath = this.getCoinNamePath(coinName, "log");
     /** Initializes config, either creates a new one or loads a config file */
     this.config = new Config(
         this.cache,
@@ -50,14 +52,14 @@ class BlockChain {
         "currencySymbol": currencySymbol,
       };
 
-  /** Returns configPath for the coin */
-  String getPlatformConfigPath(String coinName) {
+  /** Returns configPath & logPath for the coin based on platform */
+  String getCoinNamePath(String coinName, String finalFolder) {
     Map configPathMap = {
       //Sets config file path according to platform
       "Unix": io.Platform.environment['HOME'] ??
-          '' + "/.${coinName}/mainnet/config",
+          '' + "/.${coinName}/mainnet/${finalFolder}",
       "Windows": io.Platform.environment['UserProfile'] ??
-          '' + "\\.${coinName}\\mainnet\\config",
+          '' + "\\.${coinName}\\mainnet\\${finalFolder}",
       //test mode for github releases
       "GitHub": ".github/workflows",
     };
