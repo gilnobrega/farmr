@@ -1,5 +1,4 @@
 import 'dart:core';
-import 'package:farmr_client/blockchain.dart';
 import 'package:universal_io/io.dart' as io;
 import 'dart:convert';
 
@@ -15,7 +14,7 @@ import 'package:farmr_client/log/shortsync.dart';
 final log = Logger('LOG');
 
 class Log {
-  late Cache _cache;
+  Cache _cache;
 
   late String debugPath;
   late io.File _debugFile;
@@ -31,18 +30,16 @@ class Log {
 
   List<ShortSync> shortSyncs = [];
 
-  Log(BlockChain blockChain) {
-    this._cache = blockChain.cache;
-
+  Log(String logPath, this._cache, bool parseLogs) {
     _parseUntil = _cache.parseUntil;
     _filters = _cache.filters; //loads cached filters
     signagePoints = _cache.signagePoints; //loads cached subslots
     shortSyncs = _cache.shortSyncs;
 
-    debugPath = blockChain.logPath + "/debug.log";
+    debugPath = logPath + "/debug.log";
     _debugFile = io.File(debugPath);
 
-    if (blockChain.config.parseLogs) {
+    if (parseLogs) {
       loadLogItems();
       _cache.saveFilters(filters);
       _cache.saveSignagePoints(signagePoints); //saves signagePoints to cache

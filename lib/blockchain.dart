@@ -41,7 +41,7 @@ class BlockChain {
         args.contains("hpool"),
         args.contains("foxypoolog"));
 
-    this.log = new Log(this);
+    this.log = new Log(this.logPath, this.cache, this.config.parseLogs);
   }
 
   Future<void> init() async {
