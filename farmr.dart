@@ -97,7 +97,6 @@ main(List<String> args) async {
 
       log.info("Generating new report #$counter");
 
-      blockChain.cache.init();
       Log chiaLog =
           new Log(chiaDebugPath, blockChain.cache, blockChain.config.parseLogs);
 
