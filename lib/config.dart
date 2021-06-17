@@ -381,6 +381,9 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
         _poolPublicKey = "0x" + poolPublicKey;
     }
 
+    if (contents[0]["Show Hardware Info"] != null)
+      _showHardwareInfo = contents[0]["Show Hardware Info"];
+
     await saveConfig();
   }
 
