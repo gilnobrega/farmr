@@ -78,6 +78,9 @@ main(List<String> args) async {
 
       log.info("Generating new report #$counter");
 
+      // TODO: Split this apart so duplicate isn't necessary
+      blockChain.cache.init();
+
       var client = (blockChain.config.type == ClientType.Farmer)
           ? Farmer(blockChain: blockChain, version: EnvironmentConfig.version)
           : (blockChain.config.type == ClientType.HPool)
