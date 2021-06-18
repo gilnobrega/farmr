@@ -70,9 +70,9 @@ class Blockchain {
     Map<OS, String> configPathMap = {
       //Sets config file path according to platform
       OS.Linux:
-          "${io.Platform.environment['HOME']}/${binaryName}/mainnet/${finalFolder}",
+          "${io.Platform.environment['HOME']}/.${binaryName}/mainnet/${finalFolder}",
       OS.MacOS:
-          "${io.Platform.environment['HOME']}/${binaryName}/mainnet/${finalFolder}",
+          "${io.Platform.environment['HOME']}/.${binaryName}/mainnet/${finalFolder}",
       OS.Windows:
           "${io.Platform.environment['UserProfile']}\\.${binaryName}\\mainnet\\${finalFolder}",
       //test mode for github releases
