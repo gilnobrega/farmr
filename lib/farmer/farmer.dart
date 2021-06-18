@@ -76,12 +76,12 @@ class Farmer extends Harvester {
   }
 
   Farmer(
-      {required BlockChain blockChain, String version = '', bool hpool = false})
-      : super(blockChain, version) {
+      {required Blockchain blockchain, String version = '', bool hpool = false})
+      : super(blockchain, version) {
     if (!hpool) {
       //runs chia farm summary if it is a farmer
       var result = io.Process.runSync(
-          blockChain.config.cache.binPath, const ["farm", "summary"]);
+          blockchain.config.cache.binPath, const ["farm", "summary"]);
       List<String> lines =
           result.stdout.toString().replaceAll("\r", "").split('\n');
 
@@ -92,7 +92,7 @@ class Farmer extends Harvester {
           String line = lines[i];
 
           if (line.startsWith("Total chia farmed: "))
-            _balance = (blockChain.config.showBalance)
+            _balance = (blockchain.config.showBalance)
                 ? double.parse(line.split('Total chia farmed: ')[1])
                 : -1.0;
           else if (line.startsWith("Farming status: "))
@@ -108,11 +108,11 @@ class Farmer extends Harvester {
       }
 
       //parses chia wallet show for block height
-      _wallet.parseWalletBalance(blockChain.config.cache.binPath,
-          lastBlockFarmed, blockChain.config.showWalletBalance);
+      _wallet.parseWalletBalance(blockchain.config.cache.binPath,
+          lastBlockFarmed, blockchain.config.showWalletBalance);
 
       //initializes connections and counts peers
-      _connections = Connections(blockChain.config.cache.binPath);
+      _connections = Connections(blockchain.config.cache.binPath);
 
       _fullNodesConnected = _connections?.connections
               .where((connection) => connection.type == ConnectionType.FullNode)
@@ -120,15 +120,15 @@ class Farmer extends Harvester {
           0; //whats wrong with this vs code formatting lmao
 
       //Parses logs for sub slots info
-      if (blockChain.config.parseLogs) {
-        calculateSubSlots(blockChain.log);
+      if (blockchain.config.parseLogs) {
+        calculateSubSlots(blockchain.log);
       }
 
-      shortSyncs = blockChain.log.shortSyncs; //loads short sync events
+      shortSyncs = blockchain.log.shortSyncs; //loads short sync events
 
       //harvesting status
       String harvestingStatusString =
-          harvestingStatus(blockChain.config.parseLogs) ?? "Harvesting";
+          harvestingStatus(blockchain.config.parseLogs) ?? "Harvesting";
 
       if (harvestingStatusString != "Harvesting")
         _status = "$_status, $harvestingStatusString";

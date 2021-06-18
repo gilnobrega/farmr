@@ -58,9 +58,9 @@ main(List<String> args) async {
   bool package = args.contains("package");
   prepareRootPath(package);
 
-  BlockChain blockChain =
-      new BlockChain("", rootPath, args); // TODO: Pass Config Path
-  await blockChain.init();
+  Blockchain blockchain =
+      new Blockchain("", rootPath, args); // TODO: Pass Config Path
+  await blockchain.init();
 
   int counter = 1;
 
@@ -79,22 +79,22 @@ main(List<String> args) async {
       log.info("Generating new report #$counter");
 
       // TODO: Split this apart so duplicate isn't necessary
-      blockChain.cache.init();
+      blockchain.cache.init();
 
-      var client = (blockChain.config.type == ClientType.Farmer)
-          ? Farmer(blockChain: blockChain, version: EnvironmentConfig.version)
-          : (blockChain.config.type == ClientType.HPool)
+      var client = (blockchain.config.type == ClientType.Farmer)
+          ? Farmer(blockchain: blockchain, version: EnvironmentConfig.version)
+          : (blockchain.config.type == ClientType.HPool)
               ? HPool(
-                  blockChain: blockChain, version: EnvironmentConfig.version)
-              : (blockChain.config.type == ClientType.FoxyPoolOG)
+                  blockchain: blockchain, version: EnvironmentConfig.version)
+              : (blockchain.config.type == ClientType.FoxyPoolOG)
                   ? FoxyPoolOG(
-                      blockChain: blockChain,
+                      blockchain: blockchain,
                       version: EnvironmentConfig.version)
-                  : Harvester(blockChain, EnvironmentConfig.version);
+                  : Harvester(blockchain, EnvironmentConfig.version);
       //hpool has a special config.yaml directory, as defined in farmr's config.json
-      await client.init((blockChain.config.type == ClientType.HPool)
-          ? blockChain.config.hpoolConfigPath
-          : blockChain.configPath);
+      await client.init((blockchain.config.type == ClientType.HPool)
+          ? blockchain.config.hpoolConfigPath
+          : blockchain.configPath);
 
       //Throws exception in case no plots were found
       if (client.plots.length == 0)
@@ -103,10 +103,10 @@ main(List<String> args) async {
 
       //if plot notifications are off then it will default to 0
       lastPlotID =
-          (blockChain.config.sendPlotNotifications) ? client.lastPlotID() : "0";
+          (blockchain.config.sendPlotNotifications) ? client.lastPlotID() : "0";
 
       //if hard drive notifications are disabled then it will default to 0
-      drives = (blockChain.config.sendDriveNotifications)
+      drives = (blockchain.config.sendDriveNotifications)
           ? client.drivesCount.toString()
           : "0";
 
@@ -153,14 +153,14 @@ main(List<String> args) async {
           //String that's actually sent to server
           String sendJson = copyJson;
 
-          String notifyOffline = (blockChain.config.sendOfflineNotifications)
+          String notifyOffline = (blockchain.config.sendOfflineNotifications)
               ? '1'
               : '0'; //whether user wants to be notified when rig goes offline
           String isFarming = (status == "Farming" || status == "Harvesting")
               ? '1' //1 means is farming/harvesting
               : '0';
 
-          String publicAPI = (blockChain.config.publicAPI)
+          String publicAPI = (blockchain.config.publicAPI)
               ? '1' //1 means client data can be seen from public api
               : '0';
 
@@ -173,33 +173,33 @@ main(List<String> args) async {
 
           const String url = "https://farmr.net/send7.php";
 
-          if (blockChain.config.sendStatusNotifications)
+          if (blockchain.config.sendStatusNotifications)
             post.putIfAbsent("isFarming", () => isFarming);
 
           //Adds the following if sendPlotNotifications is enabled then it will send plotID
-          if (blockChain.config.sendPlotNotifications)
+          if (blockchain.config.sendPlotNotifications)
             post.putIfAbsent("lastPlot", () => lastPlotID);
 
           //Adds the following if hard drive notifications are enabled then it will send the number of drives connected to pc
-          if (blockChain.config.sendDriveNotifications)
+          if (blockchain.config.sendDriveNotifications)
             post.putIfAbsent("drives", () => drives);
 
           //If the client is a farmer and it is farming and sendBalanceNotifications is enabled then it will send balance
-          if (blockChain.config.type == ClientType.Farmer &&
-              blockChain.config.sendBalanceNotifications &&
+          if (blockchain.config.type == ClientType.Farmer &&
+              blockchain.config.sendBalanceNotifications &&
               status == "Farming") post.putIfAbsent("balance", () => balance);
 
-          type = (blockChain.config.type == ClientType.Farmer)
+          type = (blockchain.config.type == ClientType.Farmer)
               ? "farmer"
               : "harvester";
 
-          for (String id in blockChain.cache.ids) {
+          for (String id in blockchain.cache.ids) {
             post.putIfAbsent("id", () => id);
             post.update("id", (value) => id);
 
             http.post(Uri.parse(url), body: post).then((_) {
               String idText =
-                  (blockChain.cache.ids.length == 1) ? '' : "for id " + id;
+                  (blockchain.cache.ids.length == 1) ? '' : "for id " + id;
               String timestamp = DateFormat.Hms().format(DateTime.now());
               log.warning(
                   "\n$timestamp - Sent $type report to server $idText\nRetrying in ${delay.inMinutes} minutes");

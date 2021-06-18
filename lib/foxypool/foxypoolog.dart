@@ -18,9 +18,9 @@ class FoxyPoolOG extends Farmer {
   @override
   final ClientType type = ClientType.FoxyPoolOG;
 
-  FoxyPoolOG({required BlockChain blockChain, String version = ''})
-      : super(blockChain: blockChain, version: version, hpool: false) {
-    _publicKey = blockChain.config.poolPublicKey;
+  FoxyPoolOG({required Blockchain blockchain, String version = ''})
+      : super(blockchain: blockchain, version: version, hpool: false) {
+    _publicKey = blockchain.config.poolPublicKey;
   }
 
   FoxyPoolOG.fromJson(String json) : super.fromJson(json) {

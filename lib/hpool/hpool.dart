@@ -25,9 +25,9 @@ class HPool extends Farmer {
   @override
   final ClientType type = ClientType.HPool;
 
-  HPool({required BlockChain blockChain, String version = ''})
-      : super(blockChain: blockChain, version: version, hpool: true) {
-    _authToken = blockChain.config.hpoolAuthToken;
+  HPool({required Blockchain blockchain, String version = ''})
+      : super(blockchain: blockchain, version: version, hpool: true) {
+    _authToken = blockchain.config.hpoolAuthToken;
   }
 
   HPool.fromJson(String json) : super.fromJson(json) {

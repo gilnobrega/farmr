@@ -11,7 +11,7 @@ import 'package:farmr_client/cache.dart';
 // and users could customize that
 // or download other templates
 
-class BlockChain {
+class Blockchain {
   String binaryName = '';
   String configName = '';
   String currencySymbol = '';
@@ -22,7 +22,7 @@ class BlockChain {
   late Config config;
   late Log log;
 
-  BlockChain(String configToProcess, String rootPath, List<String> args) {
+  Blockchain(String configToProcess, String rootPath, List<String> args) {
     // TODO: read file via configToProcess
     this.binaryName = "chia";
     this.configName = "config.json";
