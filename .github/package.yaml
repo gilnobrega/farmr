@@ -7,16 +7,8 @@ files:
     file: farmr_package
     mode: "0755"
     user: "root"
-  "/usr/bin/farmr-foxypoolog":
-    file: foxypoolog.sh
-    mode: "0755"
-    user: "root"
-  "/usr/bin/farmr-hpool":
-    file: hpool.sh
-    mode: "0755"
-    user: "root"
-  "/usr/bin/farmr-harvester":
-    file: harvester.sh
+  "/etc/systemd/user":
+    file: .github/workflows/farmr.service
     mode: "0755"
     user: "root"
   "/etc/farmr/config.json":
@@ -25,7 +17,7 @@ files:
     user: "root"
     keep: true
 units:
-  - .github/workflows/farmr.service
+  #- .github/workflows/farmr.service
 scripts:
   "post-install": .github/workflows/post-inst
 user: foo
