@@ -1,3 +1,4 @@
+import 'package:farmr_client/blockchain.dart';
 import 'package:universal_io/io.dart' as io;
 
 import 'package:logging/logging.dart';
@@ -5,6 +6,8 @@ import 'package:logging/logging.dart';
 final log = Logger('FarmerWallet');
 
 class Wallet {
+  Blockchain blockchain;
+
   //wallet balance
   double _balance = -1.0; //-1.0 is default value if disabled
   double get balance => _balance; //hides balance if string
@@ -19,7 +22,7 @@ class Wallet {
       ? _estimateLastFarmedTime()
       : _daysSinceLastBlock;
 
-  Wallet(this._balance, this._daysSinceLastBlock);
+  Wallet(this._balance, this._daysSinceLastBlock, this.blockchain);
 
   void parseWalletBalance(
       String binPath, int lastBlockFarmed, bool showWalletBalance) {
@@ -32,9 +35,9 @@ class Wallet {
       try {
         //If user enabled showWalletBalance then parses ``chia wallet show``
         RegExp walletRegex = RegExp(
-            "-Total Balance:(.*)xch \\(([0-9]+) mojo\\)",
+            "-Total Balance:(.*)${this.blockchain.currencySymbol} \\(([0-9]+) ${this.blockchain.minorCurrencySymbol}\\)",
             multiLine: false);
-        //converts mojo to xch
+        //converts minor symbol to major symbol
         _balance =
             int.parse(walletRegex.firstMatch(walletOutput)?.group(2) ?? '-1') /
                 1e12;

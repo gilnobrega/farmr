@@ -11,7 +11,7 @@ class FoxyPoolOG extends Farmer {
   //public pool key
   String _publicKey = '';
 
-  FoxyPoolWallet _wallet = FoxyPoolWallet(-1.0, 0, -1.0, -1.0);
+  late FoxyPoolWallet _wallet;
   @override
   Wallet get wallet => _wallet;
 
@@ -20,7 +20,8 @@ class FoxyPoolOG extends Farmer {
 
   FoxyPoolOG({required Blockchain blockchain, String version = ''})
       : super(blockchain: blockchain, version: version, hpool: false) {
-    _publicKey = blockchain.config.poolPublicKey;
+    _wallet = FoxyPoolWallet(-1.0, 0, -1.0, -1.0, this.blockchain);
+    _publicKey = this.blockchain.config.poolPublicKey;
   }
 
   FoxyPoolOG.fromJson(String json) : super.fromJson(json) {
@@ -34,7 +35,8 @@ class FoxyPoolOG extends Farmer {
           double.parse(object['walletBalance'].toString()),
           double.parse(object['daysSinceLastBlock'].toString()),
           double.parse(object['pendingBalance'].toString()),
-          double.parse(object['collateralBalance'].toString()));
+          double.parse(object['collateralBalance'].toString()),
+          this.blockchain);
   }
 
   @override
@@ -65,7 +67,8 @@ class FoxyPoolOG extends Farmer {
         super.wallet.balance,
         super.wallet.daysSinceLastBlock,
         api.pendingBalance,
-        api.collateralBalance);
+        api.collateralBalance,
+        this.blockchain);
 
     await super.init(chiaConfigPath);
   }

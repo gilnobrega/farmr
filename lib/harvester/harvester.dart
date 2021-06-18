@@ -18,6 +18,7 @@ final log = Logger('Harvester');
 
 class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
   late Config _config;
+  late Blockchain blockchain; // TODO: Why is late necessary here?
 
   String _name = "Harvester";
   String get name => _name;
@@ -85,8 +86,8 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     return initialMap;
   }
 
-  Harvester(Blockchain blockchain, [String version = '']) {
-    this._config = blockchain.config;
+  Harvester(this.blockchain, [String version = '']) {
+    this._config = this.blockchain.config;
     _version = version;
     _name = _config.name; //loads name from config
     _currency = _config.currency; // loads currency from config

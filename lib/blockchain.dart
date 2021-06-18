@@ -15,6 +15,7 @@ class Blockchain {
   String binaryName = '';
   String configName = '';
   String currencySymbol = '';
+  String minorCurrencySymbol = '';
   String configPath = '';
   String logPath = '';
 
@@ -26,7 +27,8 @@ class Blockchain {
     // TODO: read file via configToProcess
     this.binaryName = "chia";
     this.configName = "config.json";
-    this.currencySymbol = "XCH";
+    this.currencySymbol = "xch";
+    this.minorCurrencySymbol = "mojo";
 
     // Setup
     this.cache = new Cache(rootPath);
@@ -51,6 +53,7 @@ class Blockchain {
 
   /** Returns configPath & logPath for the coin based on platform */
   String getCoinNamePath(String coinName, String finalFolder) {
+    // TODO: Enum?
     Map configPathMap = {
       //Sets config file path according to platform
       "Unix": io.Platform.environment['HOME']! +

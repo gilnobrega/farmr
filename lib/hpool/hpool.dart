@@ -18,7 +18,7 @@ class HPool extends Farmer {
   @override
   double get balance => _balance; //hides balance
 
-  HPoolWallet _wallet = HPoolWallet(-1.0, -1.0);
+  late HPoolWallet _wallet;
   @override
   Wallet get wallet => _wallet;
 
@@ -27,6 +27,7 @@ class HPool extends Farmer {
 
   HPool({required Blockchain blockchain, String version = ''})
       : super(blockchain: blockchain, version: version, hpool: true) {
+    _wallet = HPoolWallet(-1.0, -1.0, this.blockchain);
     _authToken = blockchain.config.hpoolAuthToken;
   }
 
@@ -38,8 +39,10 @@ class HPool extends Farmer {
 
     if (object['walletBalance'] != null &&
         object['undistributedBalance'] != null)
-      _wallet = HPoolWallet(double.parse(object['walletBalance'].toString()),
-          double.parse(object['undistributedBalance'].toString()));
+      _wallet = HPoolWallet(
+          double.parse(object['walletBalance'].toString()),
+          double.parse(object['undistributedBalance'].toString()),
+          this.blockchain);
   }
 
   @override
@@ -69,7 +72,8 @@ class HPool extends Farmer {
 
     _balance = api.poolIncome; //farmed balance
     //wallet balance and unsettled income
-    _wallet = HPoolWallet(api.balance, api.undistributedIncome);
+    _wallet =
+        HPoolWallet(api.balance, api.undistributedIncome, this.blockchain);
 
     await super.init(chiaConfigPath);
   }

@@ -22,7 +22,7 @@ class Farmer extends Harvester {
   @override
   String get status => _status;
 
-  Wallet _wallet = Wallet(-1.0, 0);
+  late Wallet _wallet;
   Wallet get wallet => _wallet;
 
   Connections? _connections;
@@ -78,6 +78,8 @@ class Farmer extends Harvester {
   Farmer(
       {required Blockchain blockchain, String version = '', bool hpool = false})
       : super(blockchain, version) {
+    _wallet = Wallet(-1.0, 0, this.blockchain);
+
     if (!hpool) {
       //runs chia farm summary if it is a farmer
       var result = io.Process.runSync(
@@ -152,7 +154,7 @@ class Farmer extends Harvester {
       daysSinceLastBlock =
           double.parse(object['daysSinceLastBlock'].toString());
 
-    _wallet = Wallet(walletBalance, daysSinceLastBlock);
+    _wallet = Wallet(walletBalance, daysSinceLastBlock, this.blockchain);
 
     if (object['completeSubSlots'] != null)
       _completeSubSlots = object['completeSubSlots'];
