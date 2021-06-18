@@ -6,6 +6,8 @@ import 'package:universal_io/io.dart' as io;
 import 'package:farmr_client/cache.dart';
 
 class Blockchain {
+  OS? _os;
+
   String binaryName = '';
   String configName = '';
   String currencySymbol = '';
@@ -18,7 +20,12 @@ class Blockchain {
   late Log log;
 
   Blockchain(String configToProcess, String rootPath, List<String> args) {
+    _os = detectOS();
+
+    if (_os == null) throw Exception("This OS is not supported!");
+
     // TODO: read file via configToProcess
+    // ALSO TODO: log path map
     this.binaryName = "chia";
     this.configName = "config.json";
     this.currencySymbol = "XCH";
@@ -40,6 +47,19 @@ class Blockchain {
         : this.getMainnetPath(this.binaryName, "config");
   }
 
+  static OS? detectOS() {
+    OS? os;
+    if (io.File(".github/workflows/config.yaml").existsSync())
+      os = OS.GitHub;
+    else if (io.Platform.isLinux)
+      os = OS.Linux;
+    else if (io.Platform.isMacOS)
+      os = OS.MacOS;
+    else if (io.Platform.isWindows) os = OS.Windows;
+
+    return os;
+  }
+
   Future<void> init() async {
     await this.cache.init();
     await this.config.init();
@@ -47,23 +67,22 @@ class Blockchain {
 
   /** Returns configPath & logPath for the coin based on platform */
   String getMainnetPath(String binaryName, String finalFolder) {
-    // TODO: Enum?
-    Map configPathMap = {
+    Map<OS, String> configPathMap = {
       //Sets config file path according to platform
-      "Unix": io.Platform.environment['HOME']! +
+      OS.Linux: io.Platform.environment['HOME']! +
           "/.${binaryName}/mainnet/${finalFolder}",
-      // FIXME: How to fix the null issue?
-      // "Windows": io.Platform.environment['UserProfile']! +
-      //     "\\.${coinName}\\mainnet\\${finalFolder}",
+      OS.MacOS: io.Platform.environment['HOME']! +
+          "/.${binaryName}/mainnet/${finalFolder}",
+      OS.Windows: io.Platform.environment['UserProfile']! +
+          "\\.${binaryName}\\mainnet\\${finalFolder}",
       //test mode for github releases
-      "GitHub": ".github/workflows",
+      OS.GitHub: ".github/workflows",
     };
     // TODO: Potentially leverage String os = io.Platform.operatingSystem;
-    var os = "";
-    if (io.Platform.isLinux || io.Platform.isMacOS) os = "Unix";
-    if (io.Platform.isWindows) os = "Windows";
-    if (io.File(".github/workflows/config.yaml").existsSync()) os = "GitHub";
 
-    return configPathMap[os];
+    return configPathMap[_os]!;
   }
 }
+
+//github is reserved to github actions
+enum OS { Linux, MacOS, Windows, GitHub }
