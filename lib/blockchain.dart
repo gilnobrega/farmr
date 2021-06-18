@@ -59,6 +59,7 @@ class Blockchain {
   }
 
   Future<void> init() async {
+    await this.cache.init();
     await this.config.init();
 
     this.log = new Log(
