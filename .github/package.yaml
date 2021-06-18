@@ -9,7 +9,19 @@ files:
     user: "root"
   "/etc/systemd/user/farmr.service":
     file: .github/workflows/farmr.service
-    mode: "0755"
+    mode: "0644"
+    user: "root"
+  "/etc/systemd/user/farmr-hpool.service":
+    file: .github/workflows/farmr-hpool.service
+    mode: "0644"
+    user: "root"
+  "/etc/systemd/user/farmr-harvester.service":
+    file: .github/workflows/farmr-harvester.service
+    mode: "0644"
+    user: "root"
+  "/etc/systemd/user/farmr-foxypoolog.service":
+    file: .github/workflows/farmr-foxypoolog.service
+    mode: "0644"
     user: "root"
   "/etc/farmr/config.json":
     file: config.json
