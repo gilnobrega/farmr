@@ -159,9 +159,9 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
       _hardware = Hardware.fromJson(object['hardware']);
   }
 
-  Future<void> init(String chiaConfigPath) async {
+  Future<void> init() async {
     //LOADS CHIA CONFIG FILE AND PARSES PLOT DIRECTORIES
-    _plotDests = listPlotDest(chiaConfigPath);
+    _plotDests = listPlotDest(this.blockchain.configPath);
 
     await listPlots(_plotDests, _config);
 

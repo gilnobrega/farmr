@@ -87,7 +87,7 @@ class Config {
   late String _rootPath;
   late io.File _config;
 
-  Config(this.cache, String chiaConfigPath, this._rootPath,
+  Config(this.cache, this._rootPath,
       [isHarvester = false, isHPool = false, isFoxyPoolOG = false]) {
     _config = io.File(_rootPath + "config.json");
     //sets default name according to client type

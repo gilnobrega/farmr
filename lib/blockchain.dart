@@ -26,17 +26,16 @@ class Blockchain {
 
     // Setup
     this.cache = new Cache(rootPath);
-    this.configPath = this.getMainnetPath(this.binaryName, "config");
     this.logPath = this.getMainnetPath(this.binaryName, "log");
-    /** Initializes config, either creates a new one or loads a config file */
-    this.config = new Config(
-        this.cache,
-        this.configPath,
-        rootPath,
-        args.contains("harvester"),
-        args.contains("hpool"),
-        args.contains("foxypoolog"));
 
+    /** Initializes config, either creates a new one or loads a config file */
+    this.config = new Config(this.cache, rootPath, args.contains("harvester"),
+        args.contains("hpool"), args.contains("foxypoolog"));
+
+    // TODO: Clean this up further
+    this.configPath = (this.config.type == ClientType.HPool)
+        ? this.config.hpoolConfigPath
+        : this.getMainnetPath(this.binaryName, "config");
     this.log = new Log(
         this.logPath, this.cache, this.config.parseLogs, this.binaryName);
   }

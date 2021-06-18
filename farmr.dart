@@ -93,9 +93,7 @@ main(List<String> args) async {
                       version: EnvironmentConfig.version)
                   : Harvester(blockchain, EnvironmentConfig.version);
       //hpool has a special config.yaml directory, as defined in farmr's config.json
-      await client.init((blockchain.config.type == ClientType.HPool)
-          ? blockchain.config.hpoolConfigPath
-          : blockchain.configPath);
+      await client.init();
 
       //Throws exception in case no plots were found
       if (client.plots.length == 0)

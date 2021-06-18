@@ -65,7 +65,7 @@ class HPool extends Farmer {
   }
 
   @override
-  Future<void> init(String chiaConfigPath) async {
+  Future<void> init() async {
     //tries to parse hpool api
     HPoolApi api = HPoolApi();
     await api.init(_authToken);
@@ -75,6 +75,6 @@ class HPool extends Farmer {
     _wallet =
         HPoolWallet(api.balance, api.undistributedIncome, this.blockchain);
 
-    await super.init(chiaConfigPath);
+    await super.init();
   }
 }

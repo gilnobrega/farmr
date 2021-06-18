@@ -55,8 +55,8 @@ class FoxyPoolOG extends Farmer {
     return farmerMap;
   }
 
-  Future<void> init(String chiaConfigPath) async {
-    super.init(chiaConfigPath);
+  Future<void> init() async {
+    super.init();
 
     //tries to parse hpool api
     FoxyPoolApi api = FoxyPoolApi();
@@ -70,6 +70,6 @@ class FoxyPoolOG extends Farmer {
         api.collateralBalance,
         this.blockchain);
 
-    await super.init(chiaConfigPath);
+    await super.init();
   }
 }
