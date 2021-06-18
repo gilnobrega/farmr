@@ -93,9 +93,10 @@ class Farmer extends Harvester {
         for (int i = 0; i < lines.length; i++) {
           String line = lines[i];
 
-          if (line.startsWith("Total chia farmed: "))
+          if (line.startsWith("Total ${this.blockchain.binaryName} farmed: "))
             _balance = (blockchain.config.showBalance)
-                ? double.parse(line.split('Total chia farmed: ')[1])
+                ? double.parse(line
+                    .split('Total ${this.blockchain.binaryName} farmed: ')[1])
                 : -1.0;
           else if (line.startsWith("Farming status: "))
             _status = line.split("Farming status: ")[1];

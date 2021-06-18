@@ -5,12 +5,6 @@ import 'package:universal_io/io.dart' as io;
 
 import 'package:farmr_client/cache.dart';
 
-// hmmm creating a blockchain.dart class with path / file structure classes would be great
-// and then replacing any path containing chia with the respective file
-// then we could serialize that blockchain class into a blockchain.json file
-// and users could customize that
-// or download other templates
-
 class Blockchain {
   String binaryName = '';
   String configName = '';
@@ -32,8 +26,8 @@ class Blockchain {
 
     // Setup
     this.cache = new Cache(rootPath);
-    this.configPath = this.getCoinNamePath(this.binaryName, "config");
-    this.logPath = this.getCoinNamePath(this.binaryName, "log");
+    this.configPath = this.getMainnetPath(this.binaryName, "config");
+    this.logPath = this.getMainnetPath(this.binaryName, "log");
     /** Initializes config, either creates a new one or loads a config file */
     this.config = new Config(
         this.cache,
@@ -43,7 +37,8 @@ class Blockchain {
         args.contains("hpool"),
         args.contains("foxypoolog"));
 
-    this.log = new Log(this.logPath, this.cache, this.config.parseLogs);
+    this.log = new Log(
+        this.logPath, this.cache, this.config.parseLogs, this.binaryName);
   }
 
   Future<void> init() async {
@@ -52,12 +47,12 @@ class Blockchain {
   }
 
   /** Returns configPath & logPath for the coin based on platform */
-  String getCoinNamePath(String coinName, String finalFolder) {
+  String getMainnetPath(String binaryName, String finalFolder) {
     // TODO: Enum?
     Map configPathMap = {
       //Sets config file path according to platform
       "Unix": io.Platform.environment['HOME']! +
-          "/.${coinName}/mainnet/${finalFolder}",
+          "/.${binaryName}/mainnet/${finalFolder}",
       // FIXME: How to fix the null issue?
       // "Windows": io.Platform.environment['UserProfile']! +
       //     "\\.${coinName}\\mainnet\\${finalFolder}",
