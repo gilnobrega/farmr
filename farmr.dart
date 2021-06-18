@@ -53,10 +53,8 @@ main(List<String> args) async {
   bool standalone =
       onetime || args.contains("standalone") || args.contains("offline");
 
-  //if running from .deb package then launches it in package mode
-  //which uses a different config path $HOME/.farmr
-  bool package = args.contains("package");
-  prepareRootPath(package);
+  bool packageMode = args.contains("package"); // alternative .deb config path
+  prepareRootPath(packageMode);
 
   Blockchain blockchain =
       new Blockchain("", rootPath, args); // TODO: Pass Config Path

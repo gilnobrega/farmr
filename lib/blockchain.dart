@@ -31,13 +31,13 @@ class Blockchain {
     /** Initializes config, either creates a new one or loads a config file */
     this.config = new Config(this.cache, rootPath, args.contains("harvester"),
         args.contains("hpool"), args.contains("foxypoolog"));
+    this.log = new Log(
+        this.logPath, this.cache, this.config.parseLogs, this.binaryName);
 
     // TODO: Clean this up further
     this.configPath = (this.config.type == ClientType.HPool)
         ? this.config.hpoolConfigPath
         : this.getMainnetPath(this.binaryName, "config");
-    this.log = new Log(
-        this.logPath, this.cache, this.config.parseLogs, this.binaryName);
   }
 
   Future<void> init() async {
