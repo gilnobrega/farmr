@@ -138,8 +138,8 @@ main(List<String> args) async {
     } catch (exception) {
       log.severe("Oh no! Something went wrong.");
       log.severe(exception.toString());
-      // log.info("Config:\n$config\n"); // TODO: Fix
-      // log.info("Cache:\n$cache"); // TODO: Fix
+      log.info("Config:\n${blockchain.cache}\n");
+      log.info("Cache:\n${blockchain.cache}");
       if (onetime) io.exit(1);
     }
 
