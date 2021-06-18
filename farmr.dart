@@ -58,7 +58,8 @@ main(List<String> args) async {
   bool package = args.contains("package");
   prepareRootPath(package);
 
-  BlockChain blockChain = new BlockChain(rootPath, "chia", args);
+  BlockChain blockChain =
+      new BlockChain("", rootPath, args); // TODO: Pass Config Path
   await blockChain.init();
 
   int counter = 1;

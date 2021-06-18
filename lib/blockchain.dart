@@ -22,16 +22,16 @@ class BlockChain {
   late Config config;
   late Log log;
 
-  BlockChain(String rootPath, String coinName, List<String> args) {
-    // TODO: read file
+  BlockChain(String configToProcess, String rootPath, List<String> args) {
+    // TODO: read file via configToProcess
     this.binaryName = "chia";
     this.configName = "config.json";
     this.currencySymbol = "XCH";
 
     // Setup
     this.cache = new Cache(rootPath);
-    this.configPath = this.getCoinNamePath(coinName, "config");
-    this.logPath = this.getCoinNamePath(coinName, "log");
+    this.configPath = this.getCoinNamePath(this.binaryName, "config");
+    this.logPath = this.getCoinNamePath(this.binaryName, "log");
     /** Initializes config, either creates a new one or loads a config file */
     this.config = new Config(
         this.cache,
