@@ -4,7 +4,7 @@ meta:
   maintainer: farmr
 files:
   "/usr/bin/farmr":
-    file: farmr
+    file: farmr_package
     mode: "0755"
     user: "root"
   "/usr/bin/farmr-foxypoolog":

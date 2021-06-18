@@ -73,6 +73,7 @@ jobs:
                ./dart-aarch64/dart-sdk/bin/dart pub get
                ./dart-aarch64/dart-sdk/bin/dart run environment_config:generate
                ./dart-aarch64/dart-sdk/bin/dart compile exe farmr.dart
+               ./dart-aarch64/dart-sdk/bin/dart compile exe farmr_package.dart
                ./farmr.exe harvester onetime
 
       - name: Compile x86_64
@@ -81,12 +82,14 @@ jobs:
              ./dart-x86_64/dart-sdk/bin/dart pub get
              ./dart-x86_64/dart-sdk/bin/dart run environment_config:generate
              ./dart-x86_64/dart-sdk/bin/dart compile exe farmr.dart
+             ./dart-x86_64/dart-sdk/bin/dart compile exe farmr_package.dart
              ./farmr.exe harvester onetime
 
       - name: Renames farmr binary
         run: |
              chmod +x ./farmr.exe
              mv ./farmr.exe ./farmr
+             mv ./farmr_package.exe ./farmr_package
       
       - name: Copying default config.json
         run: cp config.json config.json.default
