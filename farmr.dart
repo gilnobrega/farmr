@@ -62,9 +62,9 @@ main(List<String> args) async {
       new Blockchain("", rootPath, args); // TODO: Pass Config Path
   await blockchain.init();
 
-  int counter = 1;
+  int counter = 0;
 
-  while (!onetime || counter == 1) {
+  while (true) {
     String lastPlotID = "";
     String balance = "";
     String status = "";
@@ -76,6 +76,7 @@ main(List<String> args) async {
     try {
       clearLog(); //clears log
 
+      counter += 1;
       log.info("Generating new report #$counter");
 
       // TODO: Split this apart so duplicate isn't necessary
@@ -222,12 +223,9 @@ main(List<String> args) async {
       });
     }
 
-    counter += 1;
-
-    if (!onetime) await Future.delayed(delay);
+    if (onetime) io.exit(0);
+    await Future.delayed(delay);
   }
-
-  io.exit(0);
 }
 
 void clearLog() {
