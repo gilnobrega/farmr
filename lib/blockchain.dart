@@ -61,8 +61,8 @@ class Blockchain {
   }
 
   Future<void> init() async {
-    await this.cache.init();
     await this.config.init();
+    await this.cache.init();
   }
 
   /** Returns configPath & logPath for the coin based on platform */
