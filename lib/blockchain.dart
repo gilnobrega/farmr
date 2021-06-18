@@ -10,10 +10,14 @@ class Blockchain {
 
   String binaryName = '';
   String configName = '';
+
   String currencySymbol = '';
   String minorCurrencySymbol = '';
+
   String configPath = '';
   String logPath = '';
+
+  String net = '';
 
   late Cache cache;
   late Config config;
@@ -30,10 +34,11 @@ class Blockchain {
     this.configName = "config.json";
     this.currencySymbol = "XCH";
     this.minorCurrencySymbol = "mojo";
+    this.net = 'mainnet';
 
     // Setup
     this.cache = new Cache(rootPath);
-    this.logPath = this.getMainnetPath(this.binaryName, "log");
+    this.logPath = this._getPath(this.binaryName, "log");
 
     /** Initializes config, either creates a new one or loads a config file */
     this.config = new Config(this.cache, rootPath, args.contains("harvester"),
@@ -42,7 +47,7 @@ class Blockchain {
     // TODO: Clean this up further
     this.configPath = (this.config.type == ClientType.HPool)
         ? this.config.hpoolConfigPath
-        : this.getMainnetPath(this.binaryName, "config");
+        : this._getPath(this.binaryName, "config");
   }
 
   static OS? detectOS() {
@@ -67,15 +72,15 @@ class Blockchain {
   }
 
   /** Returns configPath & logPath for the coin based on platform */
-  String getMainnetPath(String binaryName, String finalFolder) {
+  String _getPath(String binaryName, String finalFolder) {
     Map<OS, String> configPathMap = {
       //Sets config file path according to platform
       OS.Linux:
-          "${io.Platform.environment['HOME']}/.${binaryName}/mainnet/${finalFolder}",
+          "${io.Platform.environment['HOME']}/.${binaryName}/${net}/${finalFolder}",
       OS.MacOS:
-          "${io.Platform.environment['HOME']}/.${binaryName}/mainnet/${finalFolder}",
+          "${io.Platform.environment['HOME']}/.${binaryName}/${net}/${finalFolder}",
       OS.Windows:
-          "${io.Platform.environment['UserProfile']}\\.${binaryName}\\mainnet\\${finalFolder}",
+          "${io.Platform.environment['UserProfile']}\\.${binaryName}\\${net}\\${finalFolder}",
       //test mode for github releases
       OS.GitHub: ".github/workflows",
     };
