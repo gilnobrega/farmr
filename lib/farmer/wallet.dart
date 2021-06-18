@@ -35,7 +35,7 @@ class Wallet {
       try {
         //If user enabled showWalletBalance then parses ``chia wallet show``
         RegExp walletRegex = RegExp(
-            "-Total Balance:(.*)${this.blockchain.currencySymbol} \\(([0-9]+) ${this.blockchain.minorCurrencySymbol}\\)",
+            "-Total Balance:(.*)${this.blockchain.currencySymbol.toLowerCase()} \\(([0-9]+) ${this.blockchain.minorCurrencySymbol.toLowerCase()}\\)",
             multiLine: false);
         //converts minor symbol to major symbol
         _balance =

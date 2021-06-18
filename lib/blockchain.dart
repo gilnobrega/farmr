@@ -27,7 +27,7 @@ class Blockchain {
     // TODO: read file via configToProcess
     this.binaryName = "chia";
     this.configName = "config.json";
-    this.currencySymbol = "xch";
+    this.currencySymbol = "XCH";
     this.minorCurrencySymbol = "mojo";
 
     // Setup

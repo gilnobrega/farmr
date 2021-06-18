@@ -211,7 +211,8 @@ class Config {
       if (io.File(cache.binPath).existsSync())
         validDirectory = true;
       else if (io.Directory(chiaPath).existsSync())
-        log.warning("""Could not locate chia binary in your directory.
+        log.warning(
+            """Could not locate chia binary in your directory.
 (${cache.binPath} not found)
 Please try again.
 Make sure this folder has the same structure as Chia's GitHub repo.""");
@@ -418,7 +419,8 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     else
       print("to link this client to your discord user");
 
-    print("""You can interact with farmrbot in Swar's Chia Community
+    print(
+        """You can interact with farmrbot in Swar's Chia Community
 Open the following link to join the server: https://discord.gg/fPjnWYYFmp""");
 
     print(line);
