@@ -7,7 +7,7 @@ files:
     file: farmr_package
     mode: "0755"
     user: "root"
-  "/etc/systemd/user":
+  "/etc/systemd/user/farmr.service":
     file: .github/workflows/farmr.service
     mode: "0755"
     user: "root"
