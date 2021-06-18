@@ -41,8 +41,13 @@ class Blockchain {
     this.logPath = this._getPath(this.binaryName, "log");
 
     /** Initializes config, either creates a new one or loads a config file */
-    this.config = new Config(this.cache, rootPath, args.contains("harvester"),
-        args.contains("hpool"), args.contains("foxypoolog"));
+    this.config = new Config(
+        this,
+        this.cache,
+        rootPath,
+        args.contains("harvester"),
+        args.contains("hpool"),
+        args.contains("foxypoolog"));
 
     // TODO: Clean this up further
     this.configPath = (this.config.type == ClientType.HPool)

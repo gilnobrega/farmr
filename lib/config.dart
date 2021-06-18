@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'package:farmr_client/blockchain.dart';
 import 'package:universal_io/io.dart' as io;
 import 'dart:convert';
 
@@ -10,6 +11,7 @@ import 'package:farmr_client/cache.dart';
 final log = Logger('Config');
 
 class Config {
+  late Blockchain blockchain;
   Cache cache;
 
   ClientType _type = ClientType.Harvester;
@@ -87,7 +89,7 @@ class Config {
   late String _rootPath;
   late io.File _config;
 
-  Config(this.cache, this._rootPath,
+  Config(this.blockchain, this.cache, this._rootPath,
       [isHarvester = false, isHPool = false, isFoxyPoolOG = false]) {
     _config = io.File(_rootPath + "config.json");
     //sets default name according to client type
@@ -182,9 +184,9 @@ class Config {
 
   Future<void> _askForBinPath() async {
     String exampleDir = (io.Platform.isLinux || io.Platform.isMacOS)
-        ? "/home/user/chia-blockchain"
+        ? "/home/user/${blockchain.binaryName}-blockchain"
         : (io.Platform.isWindows)
-            ? "C:\\Users\\user\\AppData\\Local\\chia-blockchain or C:\\Users\\user\\AppData\\Local\\chia-blockchain\\app-1.0.3\\resources\\app.asar.unpacked"
+            ? "C:\\Users\\user\\AppData\\Local\\${blockchain.binaryName}-blockchain or C:\\Users\\user\\AppData\\Local\\${blockchain.binaryName}-blockchain\\app-1.0.3\\resources\\app.asar.unpacked"
             : "";
 
     bool validDirectory = false;
@@ -205,14 +207,13 @@ class Config {
       log.info("Input chia path: '$_chiaPath'");
 
       cache.binPath = (io.Platform.isLinux || io.Platform.isMacOS)
-          ? _chiaPath + "/venv/bin/chia"
-          : _chiaPath + "\\daemon\\chia.exe";
+          ? _chiaPath + "/venv/bin/${blockchain.binaryName}"
+          : _chiaPath + "\\daemon\\${blockchain.binaryName}.exe";
 
       if (io.File(cache.binPath).existsSync())
         validDirectory = true;
       else if (io.Directory(chiaPath).existsSync())
-        log.warning(
-            """Could not locate chia binary in your directory.
+        log.warning("""Could not locate chia binary in your directory.
 (${cache.binPath} not found)
 Please try again.
 Make sure this folder has the same structure as Chia's GitHub repo.""");
@@ -235,7 +236,7 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     if (io.Platform.isWindows) {
       //Checks if binary exist in C:\User\AppData\Local\chia-blockchain\resources\app.asar.unpacked\daemon\chia.exe
       chiaRootDir = io.Directory(io.Platform.environment['UserProfile']! +
-          "/AppData/Local/chia-blockchain");
+          "/AppData/Local/${blockchain.binaryName}-blockchain");
 
       file = "/resources/app.asar.unpacked/daemon/chia.exe";
 
@@ -252,11 +253,12 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
       List<String> possiblePaths = [];
 
       if (io.Platform.isLinux) {
-        chiaRootDir = io.Directory("/usr/lib/chia-blockchain");
-        file = "/resources/app.asar.unpacked/daemon/chia";
+        chiaRootDir =
+            io.Directory("/usr/lib/${blockchain.binaryName}-blockchain");
+        file = "/resources/app.asar.unpacked/daemon/${blockchain.binaryName}";
       } else if (io.Platform.isMacOS) {
         chiaRootDir = io.Directory("/Applications/Chia.app/Contents");
-        file = "/Resources/app.asar.unpacked/daemon/chia";
+        file = "/Resources/app.asar.unpacked/daemon/${blockchain.binaryName}";
       }
 
       possiblePaths = [
@@ -266,7 +268,8 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
         // Checks if binary exists in /usr/package:farmr_client/chia-blockchain/resources/app.asar.unpacked/daemon/chia
         "/usr" + chiaRootDir.path + file,
         //checks if binary exists in /home/user/.local/bin/chia
-        io.Platform.environment['HOME']! + "/.local/bin/chia"
+        io.Platform.environment['HOME']! +
+            "/.local/bin/${blockchain.binaryName}"
       ];
 
       for (int i = 0; i < possiblePaths.length; i++) {
@@ -419,8 +422,7 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     else
       print("to link this client to your discord user");
 
-    print(
-        """You can interact with farmrbot in Swar's Chia Community
+    print("""You can interact with farmrbot in Swar's Chia Community
 Open the following link to join the server: https://discord.gg/fPjnWYYFmp""");
 
     print(line);
