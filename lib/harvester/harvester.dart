@@ -26,6 +26,8 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
   String _status = "Harvesting";
   String get status => _status;
 
+  String _crypto = "XCH";
+  String get crypto => _crypto;
   String _currency = 'USD';
   String get currency => _currency.toUpperCase();
 
@@ -57,6 +59,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     var initialMap = {
       'name': _name,
       'status': status,
+      'crypto': crypto,
       'currency': currency,
       'drivesCount': drivesCount,
       'plots': allPlots, //important
@@ -87,6 +90,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
   }
 
   Harvester(this.blockchain, [String version = '']) {
+    this._crypto = blockchain.currencySymbol;
     this._config = this.blockchain.config;
     _version = version;
     _name = _config.name; //loads name from config

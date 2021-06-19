@@ -24,6 +24,7 @@ class Stats {
   Map<String, int> get typeCount => _client.typeCount;
 
   // FARMED BALANCE
+  String get crypto => _client.crypto;
   String get currency => _client.currency;
   double get balance =>
       (_client is Farmer) ? (_client as Farmer).balance : -1.0;
@@ -270,7 +271,7 @@ class Stats {
         : '';
 
     balanceText += (balance >= 0.0)
-        ? "\n\<:chia:833767070201151528> **${balance.toStringAsFixed(2)}** **XCH**" +
+        ? "\n\<:chia:833767070201151528> **${balance.toStringAsFixed(2)}** **${stats.crypto}**" +
             priceText
         : ''; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
 
@@ -305,7 +306,7 @@ class Stats {
 
     String walletBalanceText =
         (walletBalance >= 0.0 && stats.walletBalance != stats.balance)
-            ? "\n:credit_card: $walletBalance XCH $walletPriceText"
+            ? "\n:credit_card: $walletBalance ${stats.crypto} $walletPriceText"
             : '';
 
     output += walletBalanceText;
@@ -324,7 +325,7 @@ class Stats {
 
     String undistributedBalanceText = (stats.undistributedBalance >= 0.0 &&
             stats.undistributedBalance != stats.balance)
-        ? "\n:grey_question: Unsettled: ${stats.undistributedBalance} XCH $undistributedPriceText"
+        ? "\n:grey_question: Unsettled: ${stats.undistributedBalance} ${stats.crypto} $undistributedPriceText"
         : '';
 
     output += undistributedBalanceText;
@@ -342,7 +343,7 @@ class Stats {
         : '';
 
     String pendingBalanceText = (stats.pendingBalance >= 0.0)
-        ? "\n:grey_question: Pending: ${stats.pendingBalance} XCH $pendingPriceText"
+        ? "\n:grey_question: Pending: ${stats.pendingBalance} ${stats.crypto} $pendingPriceText"
         : '';
 
     output += pendingBalanceText;
@@ -360,7 +361,7 @@ class Stats {
         : '';
 
     String collateralBalanceText = (stats.collateralBalance >= 0.0)
-        ? "\n:grey_question: Collateral: ${stats.collateralBalance} XCH $collateralPriceText"
+        ? "\n:grey_question: Collateral: ${stats.collateralBalance} ${stats.crypto} $collateralPriceText"
         : '';
 
     output += collateralBalanceText;
@@ -384,14 +385,14 @@ class Stats {
       if (stats.edv > 0) {
         String edvType = (!showWeeklyAndMonthly) ? "EDV" : "\nDaily";
         etwString +=
-            " $edvType: ${stats.edv.toStringAsPrecision(3)} XCH (${stats.edvFiat.toStringAsFixed(2)}${Price.currencies[stats.currency]})";
+            " $edvType: ${stats.edv.toStringAsPrecision(3)} ${stats.crypto} (${stats.edvFiat.toStringAsFixed(2)}${Price.currencies[stats.currency]})";
 
         if (showWeeklyAndMonthly) {
           etwString +=
-              "\nWeekly: ${stats.ewv.toStringAsPrecision(3)} XCH (${stats.ewvFiat.toStringAsFixed(2)}${Price.currencies[stats.currency]})";
+              "\nWeekly: ${stats.ewv.toStringAsPrecision(3)} ${stats.crypto} (${stats.ewvFiat.toStringAsFixed(2)}${Price.currencies[stats.currency]})";
 
           etwString +=
-              "\nMonthly: ${stats.emv.toStringAsPrecision(3)} XCH (${stats.emvFiat.toStringAsFixed(2)}${Price.currencies[stats.currency]})";
+              "\nMonthly: ${stats.emv.toStringAsPrecision(3)} ${stats.crypto} (${stats.emvFiat.toStringAsFixed(2)}${Price.currencies[stats.currency]})";
         }
       }
 
@@ -473,7 +474,7 @@ class Stats {
           ? "" //for some reason needs a new line here
           : "(" +
               chiaPerDay.toStringAsFixed(2) +
-              " XCH per day)"; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
+              " ${stats.crypto} per day)"; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
 
       output += "\n:clock10: Farmed for " +
           durationToTime(stats.farmedDuration) +
