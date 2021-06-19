@@ -8,37 +8,45 @@ import 'package:farmr_client/cache.dart';
 class Blockchain {
   OS? _os;
 
-  String binaryName = '';
+  String _binaryName = '';
+  String get binaryName => _binaryName.toLowerCase();
 
-  String currencySymbol = '';
-  String minorCurrencySymbol = '';
+  String _currencySymbol = '';
+  String get currencySymbol => _currencySymbol.toLowerCase();
+  String _minorCurrencySymbol = '';
+  String get minorCurrencySymbol => _minorCurrencySymbol.toLowerCase();
 
   String get fileExtension => "-$currencySymbol";
 
-  String configPath = '';
-  String logPath = '';
+  String _configPath = '';
+  String get configPath => (config != null && config.type == ClientType.HPool)
+      ? this.config.hpoolConfigPath
+      : (_configPath == '')
+          ? this._getPath(this.binaryName, "config")
+          : _configPath;
+  //if _configath is undefined then it reads log path from _getPath (which depends on platform),
+  //if it is defined then _configPath overrides _getPath
 
-  String net = '';
+  String _logPath = '';
+  String get logPath =>
+      (_logPath == '') ? this._getPath(this.binaryName, "log") : _logPath;
+  //if _logPath is undefined then it reads log path from _getPath,
+  //if it is defined then _logPath overrides _getPath
+
+  String _net = '';
+  String get net => _net;
 
   late Cache cache;
   late Config config;
   late Log log;
 
-  Blockchain(String configToProcess, String rootPath, List<String> args) {
+  Blockchain(String rootPath, List<String> args) {
     _os = detectOS();
 
     if (_os == null) throw Exception("This OS is not supported!");
 
-    // TODO: read file via configToProcess
-    // ALSO TODO: log path map
-    this.binaryName = "chia";
-    this.currencySymbol = "XCH";
-    this.minorCurrencySymbol = "mojo";
-    this.net = 'mainnet';
-
     // Setup
     this.cache = new Cache(this, rootPath);
-    this.logPath = this._getPath(this.binaryName, "log");
 
     /** Initializes config, either creates a new one or loads a config file */
     this.config = new Config(
@@ -48,11 +56,16 @@ class Blockchain {
         args.contains("harvester"),
         args.contains("hpool"),
         args.contains("foxypoolog"));
+  }
 
-    // TODO: Clean this up further
-    this.configPath = (this.config.type == ClientType.HPool)
-        ? this.config.hpoolConfigPath
-        : this._getPath(this.binaryName, "config");
+  Blockchain.fromJson(dynamic json, String rootPath, List<String> args) {
+    //defaults to chia config
+    _binaryName = json['Binary Name'] ?? 'chia';
+    _currencySymbol = json['Currency Symbol'] ?? 'xch';
+    _minorCurrencySymbol = json['Minor Currency Symbol'] ?? 'mojo';
+    _net = json['Net'] ?? 'mainnet';
+    _logPath = json['Log Path'] ?? '';
+    _configPath = json['Config Path'] ?? '';
   }
 
   static OS? detectOS() {
