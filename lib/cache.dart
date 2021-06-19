@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'package:farmr_client/blockchain.dart';
 import 'package:universal_io/io.dart' as io;
 import 'dart:convert';
 
@@ -14,6 +15,10 @@ import 'package:farmr_client/hardware.dart';
 final log = Logger('Cache');
 
 class Cache {
+  late Blockchain _blockchain;
+  String get _blockchainExtension =>
+      (_blockchain.binaryName != "chia") ? "-${_blockchain.binaryName}" : "";
+
   List<String> ids = [];
 
   String binPath = '';
@@ -41,12 +46,12 @@ class Cache {
   int parseUntil =
       DateTime.now().subtract(Duration(days: 1)).millisecondsSinceEpoch;
 
-  Cache(this._rootPath) {
-    _cache = io.File(_rootPath + ".farmr_cache.json");
+  Cache(this._blockchain, this._rootPath) {
+    _cache = io.File(_rootPath + ".farmr_cache$_blockchainExtension.json");
 
     //ports old cache file to new cache file
     try {
-      io.File _oldCache = io.File(".chiabot_cache.json");
+      io.File _oldCache = io.File(".chiabot_cache$_blockchainExtension.json");
       if (!_cache.existsSync() && _oldCache.existsSync())
         _oldCache.copySync(_cache.absolute.path);
     } catch (Exception) {
@@ -159,7 +164,7 @@ class Cache {
       }
     } catch (Exception) {
       log.severe(
-          "ERROR: Failed to load .farmr_cache.json\nGenerating a new cache file.");
+          "ERROR: Failed to load .farmr_cache$_blockchainExtension.json\nGenerating a new cache file.");
     }
   }
 

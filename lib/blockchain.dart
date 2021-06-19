@@ -37,7 +37,7 @@ class Blockchain {
     this.net = 'mainnet';
 
     // Setup
-    this.cache = new Cache(rootPath);
+    this.cache = new Cache(this, rootPath);
     this.logPath = this._getPath(this.binaryName, "log");
 
     /** Initializes config, either creates a new one or loads a config file */

@@ -11,8 +11,11 @@ import 'package:farmr_client/cache.dart';
 final log = Logger('Config');
 
 class Config {
-  late Blockchain blockchain;
   Cache cache;
+
+  late Blockchain _blockchain;
+  String get _blockchainExtension =>
+      (_blockchain.binaryName != "chia") ? "-${_blockchain.binaryName}" : "";
 
   ClientType _type = ClientType.Harvester;
   ClientType get type => _type;
@@ -89,9 +92,9 @@ class Config {
   late String _rootPath;
   late io.File _config;
 
-  Config(this.blockchain, this.cache, this._rootPath,
+  Config(this._blockchain, this.cache, this._rootPath,
       [isHarvester = false, isHPool = false, isFoxyPoolOG = false]) {
-    _config = io.File(_rootPath + "config.json");
+    _config = io.File(_rootPath + "config$_blockchainExtension.json");
     //sets default name according to client type
     if (isHarvester) {
       _type = ClientType.Harvester;
@@ -158,7 +161,8 @@ class Config {
     };
 
     //hides chiaPath from config.json if not defined (null)
-    if (chiaPath != '') configMap.putIfAbsent("chiaPath", () => chiaPath);
+    if (chiaPath != '')
+      configMap.putIfAbsent("${_blockchain.binaryName}Path", () => chiaPath);
 
     //hides ignoreDiskSpace from config.json if false (default)
     if (ignoreDiskSpace)
@@ -184,9 +188,9 @@ class Config {
 
   Future<void> _askForBinPath() async {
     String exampleDir = (io.Platform.isLinux || io.Platform.isMacOS)
-        ? "/home/user/${blockchain.binaryName}-blockchain"
+        ? "/home/user/${_blockchain.binaryName}-blockchain"
         : (io.Platform.isWindows)
-            ? "C:\\Users\\user\\AppData\\Local\\${blockchain.binaryName}-blockchain or C:\\Users\\user\\AppData\\Local\\${blockchain.binaryName}-blockchain\\app-1.0.3\\resources\\app.asar.unpacked"
+            ? "C:\\Users\\user\\AppData\\Local\\${_blockchain.binaryName}-blockchain or C:\\Users\\user\\AppData\\Local\\${_blockchain.binaryName}-blockchain\\app-1.0.3\\resources\\app.asar.unpacked"
             : "";
 
     bool validDirectory = false;
@@ -207,8 +211,8 @@ class Config {
       log.info("Input chia path: '$_chiaPath'");
 
       cache.binPath = (io.Platform.isLinux || io.Platform.isMacOS)
-          ? _chiaPath + "/venv/bin/${blockchain.binaryName}"
-          : _chiaPath + "\\daemon\\${blockchain.binaryName}.exe";
+          ? _chiaPath + "/venv/bin/${_blockchain.binaryName}"
+          : _chiaPath + "\\daemon\\${_blockchain.binaryName}.exe";
 
       if (io.File(cache.binPath).existsSync())
         validDirectory = true;
@@ -236,9 +240,10 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     if (io.Platform.isWindows) {
       //Checks if binary exist in C:\User\AppData\Local\chia-blockchain\resources\app.asar.unpacked\daemon\chia.exe
       chiaRootDir = io.Directory(io.Platform.environment['UserProfile']! +
-          "/AppData/Local/${blockchain.binaryName}-blockchain");
+          "/AppData/Local/${_blockchain.binaryName}-blockchain");
 
-      file = "/resources/app.asar.unpacked/daemon/chia.exe";
+      file =
+          "/resources/app.asar.unpacked/daemon/${_blockchain.binaryName}.exe";
 
       if (chiaRootDir.existsSync()) {
         await chiaRootDir.list(recursive: false).forEach((dir) {
@@ -254,11 +259,11 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
 
       if (io.Platform.isLinux) {
         chiaRootDir =
-            io.Directory("/usr/lib/${blockchain.binaryName}-blockchain");
-        file = "/resources/app.asar.unpacked/daemon/${blockchain.binaryName}";
+            io.Directory("/usr/lib/${_blockchain.binaryName}-blockchain");
+        file = "/resources/app.asar.unpacked/daemon/${_blockchain.binaryName}";
       } else if (io.Platform.isMacOS) {
         chiaRootDir = io.Directory("/Applications/Chia.app/Contents");
-        file = "/Resources/app.asar.unpacked/daemon/${blockchain.binaryName}";
+        file = "/Resources/app.asar.unpacked/daemon/${_blockchain.binaryName}";
       }
 
       possiblePaths = [
@@ -269,7 +274,7 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
         "/usr" + chiaRootDir.path + file,
         //checks if binary exists in /home/user/.local/bin/chia
         io.Platform.environment['HOME']! +
-            "/.local/bin/${blockchain.binaryName}"
+            "/.local/bin/${_blockchain.binaryName}"
       ];
 
       for (int i = 0; i < possiblePaths.length; i++) {
