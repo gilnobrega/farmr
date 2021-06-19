@@ -9,6 +9,8 @@ class Blockchain {
   OS? _os;
 
   String binaryName = '';
+  String get fileExtension => (binaryName != "chia") ? "-${binaryName}" : "";
+
   String configName = '';
 
   String currencySymbol = '';

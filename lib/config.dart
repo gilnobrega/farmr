@@ -14,8 +14,6 @@ class Config {
   Cache cache;
 
   late Blockchain _blockchain;
-  String get _blockchainExtension =>
-      (_blockchain.binaryName != "chia") ? "-${_blockchain.binaryName}" : "";
 
   ClientType _type = ClientType.Harvester;
   ClientType get type => _type;
@@ -94,7 +92,7 @@ class Config {
 
   Config(this._blockchain, this.cache, this._rootPath,
       [isHarvester = false, isHPool = false, isFoxyPoolOG = false]) {
-    _config = io.File(_rootPath + "config$_blockchainExtension.json");
+    _config = io.File(_rootPath + "config${_blockchain.fileExtension}.json");
     //sets default name according to client type
     if (isHarvester) {
       _type = ClientType.Harvester;
@@ -146,7 +144,7 @@ class Config {
     Map<String, dynamic> configMap = {
       "Name": name,
       "Currency": currency,
-      "Show Farmed XCH": showBalance,
+      "Show Farmed ${_blockchain.currencySymbol}": showBalance,
       "Show Wallet Balance": showWalletBalance,
       "Show Hardware Info": showHardwareInfo,
       "Block Notifications": sendBalanceNotifications,
@@ -198,14 +196,16 @@ class Config {
     validDirectory = await _tryDirectories();
 
     if (validDirectory)
-      log.info("Automatically found chia binary at: '${cache.binPath}'");
+      log.info(
+          "Automatically found ${_blockchain.binaryName} binary at: '${cache.binPath}'");
     else
       log.info("Could not automatically locate chia binary.");
 
     while (!validDirectory) {
-      log.warning("Specify your chia-blockchain directory below: (e.g.: " +
-          exampleDir +
-          ")");
+      log.warning(
+          "Specify your ${_blockchain.binaryName}-blockchain directory below: (e.g.: " +
+              exampleDir +
+              ")");
 
       _chiaPath = io.stdin.readLineSync() ?? '';
       log.info("Input chia path: '$_chiaPath'");
@@ -327,8 +327,9 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
 
     if (contents[0]['showBalance'] != null)
       _showBalance = contents[0]['showBalance']; //old
-    if (contents[0]['Show Farmed XCH'] != null)
-      _showBalance = contents[0]['Show Farmed XCH']; //new
+    if (contents[0]['Show Farmed ${_blockchain.currencySymbol}'] != null)
+      _showBalance =
+          contents[0]['Show Farmed ${_blockchain.currencySymbol}']; //new
 
     if (contents[0]['showWalletBalance'] != null)
       _showWalletBalance = contents[0]['showWalletBalance']; //old
