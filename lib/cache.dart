@@ -88,11 +88,13 @@ class Cache {
       if (contents[0]['id'] != null) {
         _blockchain.id.ids = [];
         _blockchain.id.ids.add(contents[0]['id']);
+        _blockchain.id.save();
       }
       //loads ids from cache file
       if (contents[0]['ids'] != null) {
         _blockchain.id.ids = [];
         for (String id in contents[0]['ids']) _blockchain.id.ids.add(id);
+        _blockchain.id.save();
       }
 
       //loads plot list from cache file

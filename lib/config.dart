@@ -135,7 +135,7 @@ class Config {
         for (int i = 0; i < userNumber; i++)
           _blockchain.id.ids.add(Uuid().v4());
       }
-      cache.save();
+      _blockchain.id.save();
     }
 
     _info(); //shows first screen info with qr code, id, !chia, etc.
