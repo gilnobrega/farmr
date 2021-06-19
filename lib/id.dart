@@ -25,8 +25,6 @@ class ID {
       save(); //creates id file if doesnt exist
     else {
       load(); //id.json
-
-      save();
     }
   }
 
