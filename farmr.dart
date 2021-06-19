@@ -243,8 +243,13 @@ main(List<String> args) async {
                 : "harvester";
 
             for (String id in blockchain.cache.ids) {
-              post.putIfAbsent("id", () => id);
-              post.update("id", (value) => id);
+              //Appends -xfx, -cng to each id if theyre not xch (to make it backwards compatible with previous ids)
+              String idExtension = (blockchain.currencySymbol == "xch")
+                  ? ""
+                  : blockchain.fileExtension;
+
+              post.putIfAbsent("id", () => id + idExtension);
+              post.update("id", (value) => id + idExtension);
 
               http.post(Uri.parse(url), body: post).then((_) {
                 String idText =
