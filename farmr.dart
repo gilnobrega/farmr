@@ -75,8 +75,8 @@ List<Blockchain> readBlockchains(String rootPath, List<String> args) {
     for (var file in blockchainDir.listSync()) {
       //only loads files ending in .json and not .json.template
       if (file.path.endsWith(".json")) {
-        Blockchain blockchain = Blockchain.fromJson(
-            jsonDecode(io.File(file.path).readAsStringSync()), rootPath, args);
+        Blockchain blockchain = Blockchain(
+            rootPath, args, jsonDecode(io.File(file.path).readAsStringSync()));
         blockchains.add(blockchain);
       }
     }

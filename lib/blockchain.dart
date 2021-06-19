@@ -40,7 +40,18 @@ class Blockchain {
   late Config config;
   late Log log;
 
-  Blockchain(String rootPath, List<String> args) {
+  Blockchain(String rootPath, List<String> args, [dynamic json = null]) {
+    //loads blockchain file from json file if that object is defined
+    if (json != null) {
+      //defaults to chia config
+      _binaryName = json['Binary Name'] ?? 'chia';
+      _currencySymbol = json['Currency Symbol'] ?? 'xch';
+      _minorCurrencySymbol = json['Minor Currency Symbol'] ?? 'mojo';
+      _net = json['Net'] ?? 'mainnet';
+      _logPath = json['Log Path'] ?? '';
+      _configPath = json['Config Path'] ?? '';
+    }
+
     _os = detectOS();
 
     if (_os == null) throw Exception("This OS is not supported!");
@@ -56,16 +67,6 @@ class Blockchain {
         args.contains("harvester"),
         args.contains("hpool"),
         args.contains("foxypoolog"));
-  }
-
-  Blockchain.fromJson(dynamic json, String rootPath, List<String> args) {
-    //defaults to chia config
-    _binaryName = json['Binary Name'] ?? 'chia';
-    _currencySymbol = json['Currency Symbol'] ?? 'xch';
-    _minorCurrencySymbol = json['Minor Currency Symbol'] ?? 'mojo';
-    _net = json['Net'] ?? 'mainnet';
-    _logPath = json['Log Path'] ?? '';
-    _configPath = json['Config Path'] ?? '';
   }
 
   static OS? detectOS() {
