@@ -69,7 +69,7 @@ createDirsAndportOldFiles(String rootPath) {
 List<Blockchain> readBlockchains(String rootPath, List<String> args) {
   List<Blockchain> blockchains = [];
 
-  io.Directory blockchainDir = io.Directory("blockchains");
+  io.Directory blockchainDir = io.Directory("blockchain");
 
   if (blockchainDir.existsSync()) {
     for (var file in blockchainDir.listSync()) {
