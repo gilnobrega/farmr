@@ -2,10 +2,13 @@ import 'dart:core';
 import 'package:farmr_client/config.dart';
 import 'package:farmr_client/debug.dart';
 import 'package:universal_io/io.dart' as io;
+import 'package:farmr_client/id.dart';
 
 import 'package:farmr_client/cache.dart';
 
 class Blockchain {
+  late ID id;
+
   OS? _os;
 
   String _binaryName = '';
@@ -40,7 +43,8 @@ class Blockchain {
   late Config config;
   late Log log;
 
-  Blockchain(String rootPath, List<String> args, [dynamic json = null]) {
+  Blockchain(this.id, String rootPath, List<String> args,
+      [dynamic json = null]) {
     //loads blockchain file from json file if that object is defined
     if (json != null) {
       //defaults to chia config

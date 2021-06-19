@@ -17,8 +17,6 @@ final log = Logger('Cache');
 class Cache {
   late Blockchain _blockchain;
 
-  List<String> ids = [];
-
   String binPath = '';
 
   List<Plot> _plots = []; //cached plots
@@ -50,7 +48,6 @@ class Cache {
   }
 
   Map toJson() => {
-        "ids": ids,
         "binPath": binPath,
         "plots": plots,
         "filters": filters,
@@ -86,15 +83,16 @@ class Cache {
       var contents = jsonDecode(_cache.readAsStringSync());
       //print(contents);
 
-      //loads id from cache file //OLD
+      //LOADS IDS FROM CACHE FILE (backwards compatible)
+      //loads id from cache file
       if (contents[0]['id'] != null) {
-        ids = [];
-        ids.add(contents[0]['id']);
+        _blockchain.id.ids = [];
+        _blockchain.id.ids.add(contents[0]['id']);
       }
-      //loads ids from cache file //new
+      //loads ids from cache file
       if (contents[0]['ids'] != null) {
-        ids = [];
-        for (String id in contents[0]['ids']) ids.add(id);
+        _blockchain.id.ids = [];
+        for (String id in contents[0]['ids']) _blockchain.id.ids.add(id);
       }
 
       //loads plot list from cache file

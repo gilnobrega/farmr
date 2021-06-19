@@ -12,6 +12,7 @@ import 'package:farmr_client/config.dart';
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/hpool/hpool.dart';
 import 'package:farmr_client/foxypool/foxypoolog.dart';
+import 'package:farmr_client/id.dart';
 
 import 'package:farmr_client/environment_config.dart';
 
@@ -66,7 +67,7 @@ createDirsAndportOldFiles(String rootPath) {
   }
 }
 
-List<Blockchain> readBlockchains(String rootPath, List<String> args) {
+List<Blockchain> readBlockchains(ID id, String rootPath, List<String> args) {
   List<Blockchain> blockchains = [];
 
   io.Directory blockchainDir = io.Directory("blockchain");
@@ -75,8 +76,8 @@ List<Blockchain> readBlockchains(String rootPath, List<String> args) {
     for (var file in blockchainDir.listSync()) {
       //only loads files ending in .json and not .json.template
       if (file.path.endsWith(".json")) {
-        Blockchain blockchain = Blockchain(
-            rootPath, args, jsonDecode(io.File(file.path).readAsStringSync()));
+        Blockchain blockchain = Blockchain(id, rootPath, args,
+            jsonDecode(io.File(file.path).readAsStringSync()));
         blockchains.add(blockchain);
       }
     }
@@ -106,7 +107,9 @@ main(List<String> args) async {
   prepareRootPath(packageMode);
   createDirsAndportOldFiles(rootPath);
 
-  List<Blockchain> blockchains = readBlockchains(rootPath, args);
+  ID id = ID(rootPath);
+
+  List<Blockchain> blockchains = readBlockchains(id, rootPath, args);
 
   for (Blockchain blockchain in blockchains) await blockchain.init();
 
@@ -242,7 +245,7 @@ main(List<String> args) async {
                 ? "farmer"
                 : "harvester";
 
-            for (String id in blockchain.cache.ids) {
+            for (String id in blockchain.id.ids) {
               //Appends -xfx, -cng to each id if theyre not xch (to make it backwards compatible with previous ids)
               String idExtension = (blockchain.currencySymbol == "xch")
                   ? ""
@@ -253,7 +256,7 @@ main(List<String> args) async {
 
               http.post(Uri.parse(url), body: post).then((_) {
                 String idText =
-                    (blockchain.cache.ids.length == 1) ? '' : "for id " + id;
+                    (blockchain.id.ids.length == 1) ? '' : "for id " + id;
                 String timestamp = DateFormat.Hms().format(DateTime.now());
                 log.warning(
                     "\n$timestamp - Sent $type report to server $idText\nRetrying in ${delay.inMinutes} minutes");

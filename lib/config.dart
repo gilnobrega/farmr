@@ -124,15 +124,16 @@ class Config {
       await _askForBinPath();
 
     /** Generate Discord Id's */
-    if (cache.ids.length != userNumber) {
-      if (userNumber > cache.ids.length) {
+    if (_blockchain.id.ids.length != userNumber) {
+      if (userNumber > _blockchain.id.ids.length) {
         // More Id's (add)
-        int newIds = userNumber - cache.ids.length;
-        for (int i = 0; i < newIds; i++) cache.ids.add(Uuid().v4());
-      } else if (userNumber < cache.ids.length) {
+        int newIds = userNumber - _blockchain.id.ids.length;
+        for (int i = 0; i < newIds; i++) _blockchain.id.ids.add(Uuid().v4());
+      } else if (userNumber < _blockchain.id.ids.length) {
         // Less Id's (fresh list)
-        cache.ids = [];
-        for (int i = 0; i < userNumber; i++) cache.ids.add(Uuid().v4());
+        _blockchain.id.ids = [];
+        for (int i = 0; i < userNumber; i++)
+          _blockchain.id.ids.add(Uuid().v4());
       }
       cache.save();
     }
@@ -304,7 +305,7 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
 
     //leave this here for compatibility with old versions,
     //old versions stored id in config file
-    if (contents[0]['id'] != null) cache.ids.add(contents[0]['id']);
+    if (contents[0]['id'] != null) _blockchain.id.ids.add(contents[0]['id']);
 
     //loads custom client name
     if (contents[0]['name'] != null) _name = contents[0]['name']; //old
@@ -413,18 +414,19 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     String instructions =
         "visit https://farmr.net to add it to your account.\nAlternatively, you can also link it through farmrbot (a discord bot) by running the following command:";
 
-    if (cache.ids.length > 1)
-      log.warning("Your ids are " + cache.ids.toString() + ", $instructions");
+    if (_blockchain.id.ids.length > 1)
+      log.warning(
+          "Your ids are " + _blockchain.id.ids.toString() + ", $instructions");
     else
-      log.warning("Your id is " + cache.ids[0] + ", $instructions" "");
+      log.warning("Your id is " + _blockchain.id.ids[0] + ", $instructions" "");
 
     print("");
 
-    for (String id in cache.ids) print("!chia link " + id);
+    for (String id in _blockchain.id.ids) print("!chia link " + id);
 
     print("");
 
-    if (cache.ids.length > 1)
+    if (_blockchain.id.ids.length > 1)
       print("To link this client to each discord user (one id per user)");
     else
       print("to link this client to your discord user");
