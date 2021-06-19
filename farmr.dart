@@ -42,7 +42,7 @@ createDirsAndportOldFiles(String rootPath) {
   io.File configFile = io.File(rootPath + "config.json");
 
   if (!configDir.existsSync()) {
-    configDir.create();
+    configDir.createSync();
     if (configFile.existsSync()) {
       configFile.copySync(rootPath + "config/config-xch.json");
       configFile.deleteSync();
@@ -56,7 +56,7 @@ createDirsAndportOldFiles(String rootPath) {
   ];
 
   if (!cacheDir.existsSync()) {
-    cacheDir.create();
+    cacheDir.createSync();
     for (io.File cacheFile in cacheFiles) {
       if (cacheFile.existsSync()) {
         cacheFile.copySync(rootPath + "cache/cache-xch.json");
