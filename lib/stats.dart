@@ -466,7 +466,7 @@ class Stats {
 
   static String showFarmedTime(Stats stats) {
     String output = '';
-    if (stats.numberOfPlots > 0) {
+    if (stats.crypto.toLowerCase() == "xch" && stats.numberOfPlots > 0) {
       double chiaPerDay = (stats.balance / stats.farmedDays);
 
       //hides balance if client is harvester or if it's farmer and showBalance is false

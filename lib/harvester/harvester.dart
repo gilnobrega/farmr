@@ -128,6 +128,8 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
 
     //loads currency from json file
     if (object['currency'] != null) _currency = object['currency'];
+    //loads crypto from json file
+    if (object['crypto'] != null) _crypto = object['crypto'];
 
     //loads version from json
     if (object['version'] != null) _version = object['version'];
