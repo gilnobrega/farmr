@@ -58,8 +58,6 @@ class Blockchain {
 
     _os = detectOS();
 
-    if (_os == null) throw Exception("This OS is not supported!");
-
     // Setup
     this.cache = new Cache(this, rootPath);
 
@@ -81,7 +79,10 @@ class Blockchain {
       os = OS.Linux;
     else if (io.Platform.isMacOS)
       os = OS.MacOS;
-    else if (io.Platform.isWindows) os = OS.Windows;
+    else if (io.Platform.isWindows)
+      os = OS.Windows;
+    else
+      throw Exception("This OS is not supported!");
 
     return os;
   }
