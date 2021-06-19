@@ -46,17 +46,7 @@ class Cache {
 
   Cache(this._blockchain, this._rootPath) {
     _cache =
-        io.File(_rootPath + ".farmr_cache${_blockchain.fileExtension}.json");
-
-    //ports old cache file to new cache file
-    try {
-      io.File _oldCache =
-          io.File(".chiabot_cache${_blockchain.fileExtension}.json");
-      if (!_cache.existsSync() && _oldCache.existsSync())
-        _oldCache.copySync(_cache.absolute.path);
-    } catch (Exception) {
-      print("Failed to port old cache file");
-    }
+        io.File(_rootPath + "cache/cache${_blockchain.fileExtension}.json");
   }
 
   Map toJson() => {

@@ -9,12 +9,11 @@ class Blockchain {
   OS? _os;
 
   String binaryName = '';
-  String get fileExtension => (binaryName != "chia") ? "-${binaryName}" : "";
-
-  String configName = '';
 
   String currencySymbol = '';
   String minorCurrencySymbol = '';
+
+  String get fileExtension => "-$currencySymbol";
 
   String configPath = '';
   String logPath = '';
@@ -33,7 +32,6 @@ class Blockchain {
     // TODO: read file via configToProcess
     // ALSO TODO: log path map
     this.binaryName = "chia";
-    this.configName = "config.json";
     this.currencySymbol = "XCH";
     this.minorCurrencySymbol = "mojo";
     this.net = 'mainnet';

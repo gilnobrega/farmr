@@ -92,7 +92,8 @@ class Config {
 
   Config(this._blockchain, this.cache, this._rootPath,
       [isHarvester = false, isHPool = false, isFoxyPoolOG = false]) {
-    _config = io.File(_rootPath + "config${_blockchain.fileExtension}.json");
+    _config =
+        io.File(_rootPath + "config/config${_blockchain.fileExtension}.json");
     //sets default name according to client type
     if (isHarvester) {
       _type = ClientType.Harvester;

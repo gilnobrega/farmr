@@ -37,6 +37,35 @@ prepareRootPath(bool package) {
     io.Directory(rootPath).createSync();
 }
 
+createDirsAndportOldFiles(String rootPath) {
+  io.Directory configDir = io.Directory(rootPath + "config");
+  io.File configFile = io.File(rootPath + "config.json");
+
+  if (!configDir.existsSync()) {
+    configDir.create();
+    if (configFile.existsSync()) {
+      configFile.copySync(rootPath + "config/config-xch.json");
+      configFile.deleteSync();
+    }
+  }
+
+  io.Directory cacheDir = io.Directory(rootPath + "cache");
+  List<io.File> cacheFiles = [
+    io.File(rootPath + ".chiabot_cache.json"),
+    io.File(rootPath + ".farmr_cache.json")
+  ];
+
+  if (!cacheDir.existsSync()) {
+    cacheDir.create();
+    for (io.File cacheFile in cacheFiles) {
+      if (cacheFile.existsSync()) {
+        cacheFile.copySync(rootPath + "cache/cache-xch.json");
+        cacheFile.deleteSync();
+      }
+    }
+  }
+}
+
 main(List<String> args) async {
   initLogger(); //initializes logger
 
@@ -55,6 +84,7 @@ main(List<String> args) async {
 
   bool packageMode = args.contains("package"); // alternative .deb config path
   prepareRootPath(packageMode);
+  createDirsAndportOldFiles(rootPath);
 
   Blockchain blockchain =
       new Blockchain("", rootPath, args); // TODO: Pass Config Path
