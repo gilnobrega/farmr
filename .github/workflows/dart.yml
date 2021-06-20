@@ -90,9 +90,6 @@ jobs:
              chmod +x ./farmr.exe
              mv ./farmr.exe ./farmr
              mv ./farmr_package.exe ./farmr_package
-      
-      - name: Copying default config.json
-        run: cp config/config.json config/config.json.default
 
       - name: Load .env file
         uses: xom9ikk/dotenv@v1.0.2
