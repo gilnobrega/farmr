@@ -129,8 +129,10 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     //loads currency from json file
     if (object['currency'] != null) _currency = object['currency'];
     //loads crypto from json file and makes sure it is lowercase
-    if (object['crypto'] != null)
+    if (object['crypto'] != null) {
       _crypto = object['crypto'].toString().toLowerCase();
+    }
+    blockchain = Blockchain.fromSymbol(_crypto);
 
     //loads version from json
     if (object['version'] != null) _version = object['version'];

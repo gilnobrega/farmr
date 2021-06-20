@@ -71,6 +71,10 @@ class Blockchain {
         args.contains("foxypoolog"));
   }
 
+  //this is used on server side
+  //since blockchain objects cant be initialized as null
+  Blockchain.fromSymbol(this._currencySymbol);
+
   static OS? detectOS() {
     OS? os;
     if (io.File(".github/workflows/config.yaml").existsSync())
