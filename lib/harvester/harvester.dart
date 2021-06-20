@@ -31,6 +31,12 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
   String _currency = 'USD';
   String get currency => _currency.toUpperCase();
 
+  double _blockRewards = 2.0;
+  double get blockRewards => _blockRewards;
+
+  double _blocksPer10Mins = 32.0;
+  double get blocksPer10Mins => _blocksPer10Mins;
+
   // pubspec.yaml version
   String _version = '';
   String get version => _version;
@@ -60,6 +66,8 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
       'name': _name,
       'status': status,
       'crypto': crypto,
+      'blockRewards': blockRewards,
+      'blocksPer10Mins': blocksPer10Mins,
       'currency': currency,
       'drivesCount': drivesCount,
       'plots': allPlots, //important
@@ -90,7 +98,11 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
   }
 
   Harvester(this.blockchain, [String version = '']) {
+    //loads necessary variables from blockchain
     this._crypto = blockchain.currencySymbol;
+    this._blockRewards = blockchain.blockRewards;
+    this._blocksPer10Mins = blockchain.blocksPer10Mins;
+
     this._config = this.blockchain.config;
     _version = version;
     _name = _config.name; //loads name from config
@@ -133,6 +145,13 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
       _crypto = object['crypto'].toString().toLowerCase();
     }
     blockchain = Blockchain.fromSymbol(_crypto);
+
+    if (object['blockRewards'] != null) {
+      _blockRewards = double.parse(object['blockRewards'].toString());
+    }
+    if (object['blocksPer10Mins'] != null) {
+      _blocksPer10Mins = double.parse(object['blocksPer10Mins'].toString());
+    }
 
     //loads version from json
     if (object['version'] != null) _version = object['version'];

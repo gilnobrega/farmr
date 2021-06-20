@@ -39,6 +39,12 @@ class Blockchain {
   String _net = '';
   String get net => _net;
 
+  double _blockRewards = 2.0;
+  double get blockRewards => _blockRewards;
+
+  double _blocksPer10Mins = 32.0;
+  double get blocksPer10Mins => _blocksPer10Mins;
+
   late Cache cache;
   late Config config;
   late Log log;
@@ -54,6 +60,8 @@ class Blockchain {
       _net = json['Net'] ?? 'mainnet';
       _logPath = json['Log Path'] ?? '';
       _configPath = json['Config Path'] ?? '';
+      _blockRewards = json['Block Rewards'] ?? 2.0;
+      _blockRewards = json['Blocks Per 10 Minutes'] ?? 32.0;
     }
 
     _os = detectOS();

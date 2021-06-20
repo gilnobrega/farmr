@@ -2,5 +2,7 @@
     "Binary Name": "chaingreen",
     "Currency Symbol": "CGN",
     "Minor Currency Symbol": "mojo",
-    "Net": "mainnet"
+    "Net": "mainnet",
+    "Block Rewards": 500.0,
+    "Blocks Per 10 Minutes": 32.0
 }

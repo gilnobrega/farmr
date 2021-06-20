@@ -2,5 +2,7 @@
     "Binary Name": "chia",
     "Currency Symbol": "XCH",
     "Minor Currency Symbol": "mojo",
-    "Net": "mainnet"
+    "Net": "mainnet",
+    "Block Rewards": 2.0,
+    "Blocks Per 10 Minutes": 32.0
 }

@@ -26,6 +26,10 @@ class Stats {
   // FARMED BALANCE
   String get crypto => _client.crypto;
   String get currency => _client.currency;
+
+  double get blockRewards => _client.blockRewards;
+  double get blocksPer10Mins => _client.blocksPer10Mins;
+
   double get balance =>
       (_client is Farmer) ? (_client as Farmer).balance : -1.0;
   double get balanceFiat => calculateFiat(balance, _price, crypto);
@@ -105,8 +109,7 @@ class Stats {
 
   //EARNINGS
   double get etw => estimateETW(_client, _netSpace);
-  final double blockSize = 2.0;
-  double get edv => blockSize / etw; //daily
+  double get edv => blockRewards / etw; //daily
   double get edvFiat => calculateFiat(edv, _price, crypto);
   double get ewv => edv * 7; //weekly
   double get ewvFiat => calculateFiat(ewv, _price, crypto);
@@ -865,9 +868,8 @@ class Stats {
 
     int size = plotSumSize(client.plots);
 
-    double blocks = 32.0; //32 blocks per 10 minutes
-
-    double calc = (networkSizeBytes / size) / (blocks * 6.0 * 24.0);
+    double calc =
+        (networkSizeBytes / size) / (client.blocksPer10Mins * 6.0 * 24.0);
 
     return calc;
   }
