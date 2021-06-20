@@ -95,6 +95,7 @@ class Blockchain {
     await this.cache.init();
     await this.config.init();
 
+    //TODO: find a way to not have to run this logUpdate command twice (in blockchain.init and every 10 minutes)
     logUpdate();
   }
 

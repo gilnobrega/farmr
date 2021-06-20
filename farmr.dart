@@ -258,8 +258,9 @@ main(List<String> args) async {
               post.update("id", (value) => id + blockchain.fileExtension);
 
               http.post(Uri.parse(url), body: post).then((_) {
-                String idText =
-                    (blockchain.id.ids.length == 1) ? '' : "for id " + id;
+                String idText = (blockchain.id.ids.length == 1)
+                    ? ''
+                    : "for id " + id + blockchain.fileExtension;
                 String timestamp = DateFormat.Hms().format(DateTime.now());
                 log.warning(
                     "\n$timestamp - Sent ${blockchain.binaryName} $type report to server $idText\nRetrying in ${delay.inMinutes} minutes");

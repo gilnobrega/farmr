@@ -103,11 +103,16 @@ class HarvesterFilters {
         _totalPlots = (numPlots / 1.0);
 
       //loads stats about filters
-      if (json['maxTime'] != null) _maxTime = json['maxTime'];
-      if (json['minTime'] != null) _minTime = json['minTime'];
-      if (json['avgTime'] != null) _avgTime = json['avgTime'];
-      if (json['medianTime'] != null) _medianTime = json['medianTime'];
-      if (json['stdDeviation'] != null) _stdDeviation = json['stdDeviation'];
+      if (json['maxTime'] != null)
+        _maxTime = double.parse(json['maxTime'].toString());
+      if (json['minTime'] != null)
+        _minTime = double.parse(json['minTime'].toString());
+      if (json['avgTime'] != null)
+        _avgTime = double.parse(json['avgTime'].toString());
+      if (json['medianTime'] != null)
+        _medianTime = double.parse(json['medianTime'].toString());
+      if (json['stdDeviation'] != null)
+        _stdDeviation = double.parse(json['stdDeviation'].toString());
 
       //loads filterCategories map
       if (json['filterCategories'] != null)
