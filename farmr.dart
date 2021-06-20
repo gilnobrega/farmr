@@ -111,6 +111,9 @@ main(List<String> args) async {
 
   List<Blockchain> blockchains = readBlockchains(id, rootPath, args);
 
+  //shows info with ids to link
+  id.info(blockchains);
+
   for (Blockchain blockchain in blockchains) await blockchain.init();
 
   int counter = 0;
@@ -281,6 +284,10 @@ main(List<String> args) async {
     }
 
     if (onetime) io.exit(0);
+
+    //shows info with ids to link
+    id.info(blockchains);
+
     await Future.delayed(delay);
   }
 }

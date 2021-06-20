@@ -137,8 +137,6 @@ class Config {
       }
       _blockchain.id.save();
     }
-
-    _info(); //shows first screen info with qr code, id, !chia, etc.
   }
 
   //Creates config file
@@ -394,48 +392,6 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     }
 
     await saveConfig();
-  }
-
-  void _info() {
-    /*try {
-      //If terminal is long enough to show a qr code
-      if (console.windowHeight > 2 * 29 && console.windowWidth > 2 * 29)
-        _showQR(console);
-    } catch (e) {}*/
-
-    String line = "";
-
-    /*try {
-      for (int i = 0; i < console.windowWidth; i++) line += "=";
-    } catch (e) {}*/
-
-    print(line);
-
-    String instructions =
-        "visit https://farmr.net to add it to your account.\nAlternatively, you can also link it through farmrbot (a discord bot) by running the following command:";
-
-    if (_blockchain.id.ids.length > 1)
-      log.warning(
-          "Your ids are " + _blockchain.id.ids.toString() + ", $instructions");
-    else
-      log.warning("Your id is " + _blockchain.id.ids[0] + ", $instructions" "");
-
-    print("");
-
-    for (String id in _blockchain.id.ids) print("!chia link " + id);
-
-    print("");
-
-    if (_blockchain.id.ids.length > 1)
-      print("To link this client to each discord user (one id per user)");
-    else
-      print("to link this client to your discord user");
-
-    print("""You can interact with farmrbot in Swar's Chia Community
-Open the following link to join the server: https://discord.gg/fPjnWYYFmp""");
-
-    print(line);
-    print("");
   }
 
   /*void _showQR(Console console) {

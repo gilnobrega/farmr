@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:farmr_client/blockchain.dart';
 import 'package:universal_io/io.dart' as io;
 import 'package:uuid/uuid.dart';
 
@@ -51,4 +52,46 @@ class ID {
   }
 
   toJson() => {"ids", ids};
+
+  void info(List<Blockchain> blockchains) {
+    List<String> idsWithBlockchains = [];
+
+    for (Blockchain blockchain in blockchains) {
+      //Appends -xfx, -cng to each id if theyre not xch (to make it backwards compatible with previous ids)
+      String idExtension =
+          (blockchain.currencySymbol == "xch") ? "" : blockchain.fileExtension;
+
+      for (String id in ids) idsWithBlockchains.add(id + idExtension);
+    }
+    String line = "";
+
+    print(line);
+
+    String instructions =
+        "visit https://farmr.net to add it to your account.\nAlternatively, you can also link it through farmrbot (a discord bot) by running the following command:";
+
+    if (idsWithBlockchains.length > 1)
+      log.warning(
+          "Your ids are " + idsWithBlockchains.toString() + ", $instructions");
+    else
+      log.warning("Your id is " + idsWithBlockchains[0] + ", $instructions" "");
+
+    print("");
+
+    for (String idWithBlockchain in idsWithBlockchains)
+      print("!chia link " + idWithBlockchain);
+
+    print("");
+
+    if (idsWithBlockchains.length > 1)
+      print("To link this client to each discord user (one id per user)");
+    else
+      print("to link this client to your discord user");
+
+    print("""You can interact with farmrbot in Swar's Chia Community
+Open the following link to join the server: https://discord.gg/swar""");
+
+    print(line);
+    print("");
+  }
 }
