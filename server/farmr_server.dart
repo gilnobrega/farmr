@@ -17,6 +17,10 @@ import 'package:farmr_client/server/netspace.dart';
 Future<void> main(List<String> args) async {
   dotenv.load();
 
+  String blockchain = "xch";
+  if (args.contains("--blockchain"))
+    blockchain = args[args.indexOf("--blockchain") + 1].toLowerCase();
+
   //prints farmr status
   if (args[0] == "status") {
     _getUsers();
@@ -109,7 +113,7 @@ Future<void> main(List<String> args) async {
 
     try {
       //Gets user data and Price in parallel, since both are parsed from web
-      final async1 = _getUserData(userID);
+      final async1 = _getUserData(userID, blockchain);
       final async2 = _getPrice();
       final async3 = netspace.init();
 
@@ -203,7 +207,7 @@ Future<void> main(List<String> args) async {
 
 //gets harvesters linked to user from mysql db
 //if userID is null then it gets all harvesters from database
-Future<List<Harvester>> _getUserData(String userID) async {
+Future<List<Harvester>> _getUserData(String userID, String blockchain) async {
   List<Harvester> harvesters = [];
 
   try {
@@ -273,6 +277,10 @@ Future<List<Harvester>> _getUserData(String userID) async {
       }
     }
   }
+
+  //filters harvesters with specific blockchain
+  harvesters =
+      harvesters.where((harvester) => harvester.crypto == blockchain).toList();
 
   return harvesters;
 }

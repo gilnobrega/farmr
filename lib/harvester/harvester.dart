@@ -26,7 +26,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
   String _status = "Harvesting";
   String get status => _status;
 
-  String _crypto = "XCH";
+  String _crypto = "xch";
   String get crypto => _crypto;
   String _currency = 'USD';
   String get currency => _currency.toUpperCase();
@@ -128,8 +128,9 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
 
     //loads currency from json file
     if (object['currency'] != null) _currency = object['currency'];
-    //loads crypto from json file
-    if (object['crypto'] != null) _crypto = object['crypto'];
+    //loads crypto from json file and makes sure it is lowercase
+    if (object['crypto'] != null)
+      _crypto = object['crypto'].toString().toLowerCase();
 
     //loads version from json
     if (object['version'] != null) _version = object['version'];
