@@ -190,6 +190,7 @@ main(List<String> args) async {
             false));
 
         name = client.name;
+        if (blockchains.length > 1) name += " (${blockchain.currencySymbol})";
 
         //copies object to a json string
         copyJson = jsonEncode(client);
