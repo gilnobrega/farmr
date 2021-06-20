@@ -57,9 +57,9 @@ class ID {
     List<String> idsWithBlockchains = [];
 
     for (Blockchain blockchain in blockchains) {
-      //Appends -xfx, -cng to each id if theyre not xch (to make it backwards compatible with previous ids)
+      //Appends blockchain symbol to id if there is more than one blockchain
       String idExtension =
-          (blockchain.currencySymbol == "xch") ? "" : blockchain.fileExtension;
+          (blockchains.length == 1) ? "" : blockchain.fileExtension;
 
       for (String id in ids) idsWithBlockchains.add(id + idExtension);
     }

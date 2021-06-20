@@ -252,10 +252,9 @@ main(List<String> args) async {
                 : "harvester";
 
             for (String id in blockchain.id.ids) {
-              //Appends -xfx, -cng to each id if theyre not xch (to make it backwards compatible with previous ids)
-              String idExtension = (blockchain.currencySymbol == "xch")
-                  ? ""
-                  : blockchain.fileExtension;
+              //Appends blockchain symbol to id if there is more than one blockchain
+              String idExtension =
+                  (blockchains.length == 1) ? "" : blockchain.fileExtension;
 
               post.putIfAbsent("id", () => id + idExtension);
               post.update("id", (value) => id + idExtension);
