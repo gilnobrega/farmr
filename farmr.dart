@@ -265,7 +265,7 @@ main(List<String> args) async {
                     (blockchain.id.ids.length == 1) ? '' : "for id " + id;
                 String timestamp = DateFormat.Hms().format(DateTime.now());
                 log.warning(
-                    "\n$timestamp - Sent $type report to server $idText\nRetrying in ${delay.inMinutes} minutes");
+                    "\n$timestamp - Sent ${blockchain.binaryName} $type report to server $idText\nRetrying in ${delay.inMinutes} minutes");
               }).catchError((error) {
                 log.warning("Server timeout.");
                 log.info(error.toString());
