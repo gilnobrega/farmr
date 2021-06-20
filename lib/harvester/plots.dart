@@ -58,7 +58,7 @@ class HarvesterPlots {
           //}
         }
       } catch (err) {
-        log.warning("Unable to load " + pathsFiltered[i]);
+        log.warning("Unable to load " + pathsUnfiltered[i]);
       }
     }
 

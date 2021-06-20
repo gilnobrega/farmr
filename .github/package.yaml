@@ -4,20 +4,24 @@ meta:
   maintainer: farmr
 files:
   "/usr/bin/farmr":
-    file: farmr
+    file: farmr_package
     mode: "0755"
     user: "root"
-  "/usr/bin/farmr-foxypoolog":
-    file: foxypoolog.sh
-    mode: "0755"
+  "/etc/systemd/user/farmr.service":
+    file: .github/workflows/farmr.service
+    mode: "0644"
     user: "root"
-  "/usr/bin/farmr-hpool":
-    file: hpool.sh
-    mode: "0755"
+  "/etc/systemd/user/farmr-hpool.service":
+    file: .github/workflows/farmr-hpool.service
+    mode: "0644"
     user: "root"
-  "/usr/bin/farmr-harvester":
-    file: harvester.sh
-    mode: "0755"
+  "/etc/systemd/user/farmr-harvester.service":
+    file: .github/workflows/farmr-harvester.service
+    mode: "0644"
+    user: "root"
+  "/etc/systemd/user/farmr-foxypoolog.service":
+    file: .github/workflows/farmr-foxypoolog.service
+    mode: "0644"
     user: "root"
   "/etc/farmr/config.json":
     file: config.json
@@ -25,7 +29,7 @@ files:
     user: "root"
     keep: true
 units:
-  - .github/workflows/farmr.service
+  #- .github/workflows/farmr.service
 scripts:
   "post-install": .github/workflows/post-inst
 user: foo

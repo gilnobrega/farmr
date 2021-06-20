@@ -1,0 +1,10 @@
+[Unit]
+Description=farmr
+
+[Service]
+Type=simple
+WorkingDirectory=/etc/farmr/
+ExecStart=/usr/bin/farmr hpool
+
+[Install]
+WantedBy=default.target
