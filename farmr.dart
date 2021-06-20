@@ -108,7 +108,7 @@ main(List<String> args) async {
   createDirsAndportOldFiles(rootPath);
 
   ID id = ID(rootPath);
-  id.init(); //creates id.json or loads ids from id.json
+  await id.init(); //creates id.json or loads ids from id.json
 
   List<Blockchain> blockchains = readBlockchains(id, rootPath, args);
 
@@ -136,7 +136,7 @@ main(List<String> args) async {
         clearLog(); //clears log
 
         // TODO: Split this apart so duplicate isn't necessary
-        blockchain.cache.init();
+        await blockchain.cache.init();
 
         var client = (blockchain.config.type == ClientType.Farmer)
             ? Farmer(blockchain: blockchain, version: EnvironmentConfig.version)
