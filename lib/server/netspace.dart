@@ -40,6 +40,11 @@ class NetSpace {
     } catch (e) {}
   }
 
+  NetSpace.fromBytes(double bytes) {
+    _timestamp = DateTime.now().millisecondsSinceEpoch;
+    _size = bytes;
+  }
+
   //genCache=true forces generation of netspace.json file
   init([bool genCache = false, bool skipCache = false]) async {
     if (skipCache) {

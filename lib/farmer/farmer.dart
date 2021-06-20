@@ -69,6 +69,7 @@ class Farmer extends Harvester {
 
       'fullNodesConnected': fullNodesConnected,
       "shortSyncs": shortSyncs,
+      "netSpace": netSpace.size,
     }.entries);
 
     //returns complete map with both farmer's + harvester's entries
@@ -168,6 +169,12 @@ class Farmer extends Harvester {
     if (object['shortSyncs'] != null) {
       for (var shortSync in object['shortSyncs'])
         shortSyncs.add(ShortSync.fromJson(shortSync));
+    }
+
+    //reads netspace from json
+    if (object['netSpace'] != null) {
+      _netSpace =
+          NetSpace.fromBytes(double.parse(object['netSpace'].toString()));
     }
 
     calculateFilterRatio(this);

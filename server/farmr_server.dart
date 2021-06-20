@@ -114,6 +114,7 @@ Future<void> main(List<String> args) async {
     try {
       //Gets user data and Price in parallel, since both are parsed from web
       final async1 = _getUserData(userID, blockchain);
+
       final async2 = _getPrice();
       final async3 = netspace.init();
 
@@ -159,10 +160,14 @@ Future<void> main(List<String> args) async {
               harvester,
               harvestersCount,
               farmersCount,
-              netspace,
+              //for other blockchains loads local value for netspace
+              (blockchain == "xch") ? netspace : farm.netSpace,
               args.contains("full"),
               args.contains("workers"),
-              price.rates[harvester.currency]));
+              //doesnt load Price for blockchains other than chia
+              (blockchain == "xch")
+                  ? price.rates[harvester.currency]
+                  : Price().rates[harvester.currency]));
 
           if (harvester != harvesters.last) print(';;');
         }
@@ -184,10 +189,14 @@ Future<void> main(List<String> args) async {
             farm,
             harvestersCount,
             farmersCount,
-            netspace,
+            //for other blockchains loads local value for netspace
+            (blockchain == "xch") ? netspace : farm.netSpace,
             args.contains("full"),
             args.contains("workers"),
-            price.rates[farm.currency]));
+            //doesnt load Price for blockchains other than chia
+            (blockchain == "xch")
+                ? price.rates[farm.currency]
+                : Price().rates[farm.currency]));
       }
     } catch (Exception) {
       if (farmersCount == 0) print("Error: Farmer not found.");
