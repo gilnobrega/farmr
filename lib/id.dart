@@ -63,7 +63,9 @@ class ID {
 
       for (String id in ids) idsWithBlockchains.add(id + idExtension);
     }
-    String line = "";
+    print("");
+
+    String line = "============================================";
 
     print(line);
 
@@ -91,7 +93,7 @@ class ID {
     print("""You can interact with farmrbot in Swar's Chia Community
 Open the following link to join the server: https://discord.gg/swar""");
 
-    print(line);
     print("");
+    print(line);
   }
 }
