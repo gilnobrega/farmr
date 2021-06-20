@@ -120,6 +120,9 @@ main(List<String> args) async {
   int counter = 0;
 
   while (true) {
+    counter += 1;
+    log.info("Generating new report #$counter");
+
     for (Blockchain blockchain in blockchains) {
       String lastPlotID = "";
       String balance = "";
@@ -131,9 +134,6 @@ main(List<String> args) async {
       //PARSES DATA
       try {
         clearLog(); //clears log
-
-        counter += 1;
-        log.info("Generating new report #$counter");
 
         // TODO: Split this apart so duplicate isn't necessary
         blockchain.cache.init();
@@ -172,6 +172,8 @@ main(List<String> args) async {
 
         status = client.status;
 
+        if (blockchains.length > 1)
+          "\nStats for ${blockchain.binaryName} farm:";
         //shows stats in client
         print(Stats.showHarvester(
             client,

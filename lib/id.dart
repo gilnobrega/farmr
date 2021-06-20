@@ -45,7 +45,7 @@ class ID {
 
   void save() {
     try {
-      _idFile.writeAsStringSync(this.toJson());
+      _idFile.writeAsStringSync(jsonEncode(this));
     } catch (error) {
       log.warning("Failed to save id.json file");
     }
@@ -71,6 +71,7 @@ class ID {
 
     String instructions =
         "visit https://farmr.net to add it to your account.\nAlternatively, you can also link it through farmrbot (a discord bot) by running the following command:";
+    print("");
 
     if (idsWithBlockchains.length > 1)
       log.warning(
