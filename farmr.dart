@@ -252,12 +252,9 @@ main(List<String> args) async {
                 : "harvester";
 
             for (String id in blockchain.id.ids) {
-              //Appends blockchain symbol to id if there is more than one blockchain
-              String idExtension =
-                  (blockchains.length == 1) ? "" : blockchain.fileExtension;
-
-              post.putIfAbsent("id", () => id + idExtension);
-              post.update("id", (value) => id + idExtension);
+              //Appends blockchain symbol to id
+              post.putIfAbsent("id", () => id + blockchain.fileExtension);
+              post.update("id", (value) => id + blockchain.fileExtension);
 
               http.post(Uri.parse(url), body: post).then((_) {
                 String idText =

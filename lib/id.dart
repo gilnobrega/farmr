@@ -57,11 +57,9 @@ class ID {
     List<String> idsWithBlockchains = [];
 
     for (Blockchain blockchain in blockchains) {
-      //Appends blockchain symbol to id if there is more than one blockchain
-      String idExtension =
-          (blockchains.length == 1) ? "" : blockchain.fileExtension;
-
-      for (String id in ids) idsWithBlockchains.add(id + idExtension);
+      //Appends blockchain symbol to id
+      for (String id in ids)
+        idsWithBlockchains.add(id + blockchain.fileExtension);
     }
     print("");
 
