@@ -13,6 +13,8 @@ class ID {
 
   late io.File _idFile;
 
+  Map toJson() => {"ids": ids};
+
   ID(String rootPath) {
     //initializes array with 1 id
     ids = [Uuid().v4()];
@@ -50,8 +52,6 @@ class ID {
       log.warning("Failed to save id.json file");
     }
   }
-
-  toJson() => {"ids", ids};
 
   void info(List<Blockchain> blockchains) {
     List<String> idsWithBlockchains = [];
