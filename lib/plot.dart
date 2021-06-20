@@ -108,7 +108,7 @@ class Plot {
     if (json['id'] != null) {
       _id = json['id'];
 
-      if (!complete) log.warning("Warning: plot " + _id + " is incomplete!");
+      if (!complete) log.info("Plot " + _id + " is incomplete");
     } else
       //in the client plotid is a long hash, while in the server its based on timestamps
       _id = begin.millisecondsSinceEpoch.toString() +

@@ -61,7 +61,7 @@ class Blockchain {
       _logPath = json['Log Path'] ?? '';
       _configPath = json['Config Path'] ?? '';
       _blockRewards = json['Block Rewards'] ?? 2.0;
-      _blockRewards = json['Blocks Per 10 Minutes'] ?? 32.0;
+      _blocksPer10Mins = json['Blocks Per 10 Minutes'] ?? 32.0;
     }
 
     _os = detectOS();
