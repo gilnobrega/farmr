@@ -276,7 +276,7 @@ class Stats {
         : '';
 
     balanceText += (balance >= 0.0)
-        ? "\n\<:chia:833767070201151528> **${balance.toStringAsFixed(2)}** **${stats.crypto}**" +
+        ? "\n\<:chia:833767070201151528> **${balance.toStringAsFixed(2)}** **${stats.crypto.toUpperCase()}**" +
             priceText
         : ''; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
 
@@ -309,10 +309,10 @@ class Stats {
         ? "(${walletBalanceFiat.toStringAsFixed(2)} ${stats.currency}, $sign${walletBalanceFiatChange.abs().toStringAsFixed(2)}${Price.currencies[stats.currency]})"
         : '';
 
-    String walletBalanceText =
-        (walletBalance >= 0.0 && stats.walletBalance != stats.balance)
-            ? "\n:credit_card: $walletBalance ${stats.crypto} $walletPriceText"
-            : '';
+    String walletBalanceText = (walletBalance >= 0.0 &&
+            stats.walletBalance != stats.balance)
+        ? "\n:credit_card: $walletBalance ${stats.crypto.toUpperCase()} $walletPriceText"
+        : '';
 
     output += walletBalanceText;
 
@@ -330,7 +330,7 @@ class Stats {
 
     String undistributedBalanceText = (stats.undistributedBalance >= 0.0 &&
             stats.undistributedBalance != stats.balance)
-        ? "\n:grey_question: Unsettled: ${stats.undistributedBalance} ${stats.crypto} $undistributedPriceText"
+        ? "\n:grey_question: Unsettled: ${stats.undistributedBalance} ${stats.crypto.toUpperCase()} $undistributedPriceText"
         : '';
 
     output += undistributedBalanceText;
@@ -348,7 +348,7 @@ class Stats {
         : '';
 
     String pendingBalanceText = (stats.pendingBalance >= 0.0)
-        ? "\n:grey_question: Pending: ${stats.pendingBalance} ${stats.crypto} $pendingPriceText"
+        ? "\n:grey_question: Pending: ${stats.pendingBalance} ${stats.crypto.toUpperCase()} $pendingPriceText"
         : '';
 
     output += pendingBalanceText;
@@ -366,7 +366,7 @@ class Stats {
         : '';
 
     String collateralBalanceText = (stats.collateralBalance >= 0.0)
-        ? "\n:grey_question: Collateral: ${stats.collateralBalance} ${stats.crypto} $collateralPriceText"
+        ? "\n:grey_question: Collateral: ${stats.collateralBalance} ${stats.crypto.toUpperCase()} $collateralPriceText"
         : '';
 
     output += collateralBalanceText;
@@ -390,14 +390,14 @@ class Stats {
       if (stats.edv > 0) {
         String edvType = (!showWeeklyAndMonthly) ? "EDV" : "\nDaily";
         etwString +=
-            " $edvType: ${stats.edv.toStringAsPrecision(3)} ${stats.crypto} (${stats.edvFiat.toStringAsFixed(2)}${Price.currencies[stats.currency]})";
+            " $edvType: ${stats.edv.toStringAsPrecision(3)} ${stats.crypto.toUpperCase()} (${stats.edvFiat.toStringAsFixed(2)}${Price.currencies[stats.currency]})";
 
         if (showWeeklyAndMonthly) {
           etwString +=
-              "\nWeekly: ${stats.ewv.toStringAsPrecision(3)} ${stats.crypto} (${stats.ewvFiat.toStringAsFixed(2)}${Price.currencies[stats.currency]})";
+              "\nWeekly: ${stats.ewv.toStringAsPrecision(3)} ${stats.crypto.toUpperCase()} (${stats.ewvFiat.toStringAsFixed(2)}${Price.currencies[stats.currency]})";
 
           etwString +=
-              "\nMonthly: ${stats.emv.toStringAsPrecision(3)} ${stats.crypto} (${stats.emvFiat.toStringAsFixed(2)}${Price.currencies[stats.currency]})";
+              "\nMonthly: ${stats.emv.toStringAsPrecision(3)} ${stats.crypto.toUpperCase()} (${stats.emvFiat.toStringAsFixed(2)}${Price.currencies[stats.currency]})";
         }
       }
 
@@ -479,7 +479,7 @@ class Stats {
           ? "" //for some reason needs a new line here
           : "(" +
               chiaPerDay.toStringAsFixed(2) +
-              " ${stats.crypto} per day)"; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
+              " ${stats.crypto.toUpperCase()} per day)"; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
 
       output += "\n:clock10: Farmed for " +
           durationToTime(stats.farmedDuration) +
