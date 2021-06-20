@@ -9,10 +9,10 @@ import 'package:intl/intl.dart';
 import 'package:farmr_client/farmer/farmer.dart';
 import 'package:farmr_client/harvester/harvester.dart';
 import 'package:farmr_client/config.dart';
-import 'package:farmr_client/cache.dart';
-import 'package:farmr_client/debug.dart';
+import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/hpool/hpool.dart';
 import 'package:farmr_client/foxypool/foxypoolog.dart';
+import 'package:farmr_client/id.dart';
 
 import 'package:farmr_client/environment_config.dart';
 
@@ -23,25 +23,6 @@ import 'package:farmr_client/server/price.dart';
 final log = Logger('Client');
 
 final Duration delay = Duration(minutes: 10); //10 minutes delay between updates
-
-//test mode for github releases
-final String chiaConfigPath =
-    (io.File(".github/workflows/config.yaml").existsSync())
-        ? ".github/workflows"
-//Sets config file path according to platform
-        : (io.Platform.isLinux || io.Platform.isMacOS)
-            ? io.Platform.environment['HOME']! + "/.chia/mainnet/config"
-            : (io.Platform.isWindows)
-                ? io.Platform.environment['UserProfile']! +
-                    "\\.chia\\mainnet\\config"
-                : "";
-
-//Sets config file path according to platform
-final String chiaDebugPath = (io.Platform.isLinux || io.Platform.isMacOS)
-    ? io.Platform.environment['HOME']! + "/.chia/mainnet/log/"
-    : (io.Platform.isWindows)
-        ? io.Platform.environment['UserProfile']! + "\\.chia\\mainnet\\log\\"
-        : "";
 
 // '/home/user/.farmr' for package installs, '.' (project path) for the rest
 late String rootPath;
@@ -55,6 +36,54 @@ prepareRootPath(bool package) {
   //Creates /home/user/.farmr folder if that doesnt exist
   if (package && !io.Directory(rootPath).existsSync())
     io.Directory(rootPath).createSync();
+}
+
+createDirsAndportOldFiles(String rootPath) {
+  io.Directory configDir = io.Directory(rootPath + "config");
+  io.File configFile = io.File(rootPath + "config.json");
+
+  if (!configDir.existsSync()) {
+    configDir.createSync();
+    if (configFile.existsSync()) {
+      configFile.copySync(rootPath + "config/config-xch.json");
+      configFile.deleteSync();
+    }
+  }
+
+  io.Directory cacheDir = io.Directory(rootPath + "cache");
+  List<io.File> cacheFiles = [
+    io.File(rootPath + ".chiabot_cache.json"),
+    io.File(rootPath + ".farmr_cache.json")
+  ];
+
+  if (!cacheDir.existsSync()) {
+    cacheDir.createSync();
+    for (io.File cacheFile in cacheFiles) {
+      if (cacheFile.existsSync()) {
+        cacheFile.copySync(rootPath + "cache/cache-xch.json");
+        cacheFile.deleteSync();
+      }
+    }
+  }
+}
+
+List<Blockchain> readBlockchains(ID id, String rootPath, List<String> args) {
+  List<Blockchain> blockchains = [];
+
+  io.Directory blockchainDir = io.Directory("blockchain");
+
+  if (blockchainDir.existsSync()) {
+    for (var file in blockchainDir.listSync()) {
+      //only loads files ending in .json and not .json.template
+      if (file.path.endsWith(".json")) {
+        Blockchain blockchain = Blockchain(id, rootPath, args,
+            jsonDecode(io.File(file.path).readAsStringSync()));
+        blockchains.add(blockchain);
+      }
+    }
+  }
+
+  return blockchains;
 }
 
 main(List<String> args) async {
@@ -73,190 +102,193 @@ main(List<String> args) async {
   bool standalone =
       onetime || args.contains("standalone") || args.contains("offline");
 
-  //if running from .deb package then launches it in package mode
-  //which uses a different config path $HOME/.farmr
-  bool package = args.contains("package");
-  prepareRootPath(package);
+  bool packageMode = args.contains("package"); // alternative .deb config path
 
-  Cache cache = new Cache(chiaConfigPath, rootPath);
-  cache.init();
+  prepareRootPath(packageMode);
+  createDirsAndportOldFiles(rootPath);
 
-  //Initializes config, either creates a new one or loads a config file
-  Config config = new Config(
-      cache,
-      chiaConfigPath,
-      rootPath,
-      args.contains("harvester"),
-      args.contains("hpool"),
-      args.contains("foxypoolog")); //checks if is harvester (or hpool mode)
+  ID id = ID(rootPath);
+  id.init(); //creates id.json or loads ids from id.json
 
-  await config.init();
+  List<Blockchain> blockchains = readBlockchains(id, rootPath, args);
 
-  int counter = 1;
+  //shows info with ids to link
+  id.info(blockchains);
 
-  while (!onetime || counter == 1) {
-    String lastPlotID = "";
-    String balance = "";
-    String status = "";
-    String copyJson = "";
-    String name = "";
-    String drives = "";
+  for (Blockchain blockchain in blockchains) await blockchain.init();
 
-    //PARSES DATA
-    try {
-      clearLog(); //clears log
+  int counter = 0;
 
-      log.info("Generating new report #$counter");
+  while (true) {
+    counter += 1;
+    log.info("Generating new report #$counter");
 
-      cache.init();
-      Log chiaLog = new Log(chiaDebugPath, cache, config.parseLogs);
+    for (Blockchain blockchain in blockchains) {
+      String lastPlotID = "";
+      String balance = "";
+      String status = "";
+      String copyJson = "";
+      String name = "";
+      String drives = "";
 
-      var client = (config.type == ClientType.Farmer)
-          ? Farmer(
-              config: config, log: chiaLog, version: EnvironmentConfig.version)
-          : (config.type == ClientType.HPool)
-              ? HPool(
-                  config: config,
-                  log: chiaLog,
-                  version: EnvironmentConfig.version)
-              : (config.type == ClientType.FoxyPoolOG)
-                  ? FoxyPoolOG(
-                      config: config,
-                      log: chiaLog,
-                      version: EnvironmentConfig.version)
-                  : Harvester(config, chiaLog, EnvironmentConfig.version);
-      //hpool has a special config.yaml directory, as defined in farmr's config.json
-      await client.init((config.type == ClientType.HPool)
-          ? config.hpoolConfigPath
-          : chiaConfigPath);
+      //PARSES DATA
+      try {
+        clearLog(); //clears log
 
-      //Throws exception in case no plots were found
-      if (client.plots.length == 0)
-        log.warning(
-            "No plots have been found! Make sure your user has access to the folders where plots are stored.");
+        // TODO: Split this apart so duplicate isn't necessary
+        blockchain.cache.init();
 
-      //if plot notifications are off then it will default to 0
-      lastPlotID = (config.sendPlotNotifications) ? client.lastPlotID() : "0";
+        var client = (blockchain.config.type == ClientType.Farmer)
+            ? Farmer(blockchain: blockchain, version: EnvironmentConfig.version)
+            : (blockchain.config.type == ClientType.HPool)
+                ? HPool(
+                    blockchain: blockchain, version: EnvironmentConfig.version)
+                : (blockchain.config.type == ClientType.FoxyPoolOG)
+                    ? FoxyPoolOG(
+                        blockchain: blockchain,
+                        version: EnvironmentConfig.version)
+                    : Harvester(blockchain, EnvironmentConfig.version);
+        //hpool has a special config.yaml directory, as defined in farmr's config.json
+        await client.init();
 
-      //if hard drive notifications are disabled then it will default to 0
-      drives =
-          (config.sendDriveNotifications) ? client.drivesCount.toString() : "0";
+        //Throws exception in case no plots were found
+        if (client.plots.length == 0)
+          log.warning(
+              "No plots have been found! Make sure your user has access to the folders where plots are stored.");
 
-      if (client is Farmer) {
-        balance = client.balance.toString();
+        //if plot notifications are off then it will default to 0
+        lastPlotID = (blockchain.config.sendPlotNotifications)
+            ? client.lastPlotID()
+            : "0";
+
+        //if hard drive notifications are disabled then it will default to 0
+        drives = (blockchain.config.sendDriveNotifications)
+            ? client.drivesCount.toString()
+            : "0";
+
+        if (client is Farmer) {
+          balance = client.balance.toString();
+        }
+
+        status = client.status;
+
+        if (blockchains.length > 1)
+          print("\nStats for ${blockchain.binaryName} farm:");
+        //shows stats in client
+        print(Stats.showHarvester(
+            client,
+            0,
+            0,
+            //shows netspace is client is farmer or foxypoolOG since foxypoolOG uses same chia client and full node
+            (client is Farmer || client is FoxyPoolOG)
+                ? (client as Farmer).netSpace
+                : NetSpace(),
+            false,
+            true,
+            Rate(0, 0, 0),
+            false));
+
+        name = client.name;
+
+        //copies object to a json string
+        copyJson = jsonEncode(client);
+      } catch (exception) {
+        log.severe("Oh no! Something went wrong.");
+        log.severe(exception.toString());
+        log.info("Config:\n${blockchain.cache}\n");
+        log.info("Cache:\n${blockchain.cache}");
+        if (onetime) io.exit(1);
       }
 
-      status = client.status;
+      if (!standalone) {
+        Future.sync(() {
+          //SENDS DATA TO SERVER
+          try {
+            //clones farm so it can clear ids before sending them to server
+            //copy.clearIDs();
+            //deprecated
 
-      //shows stats in client
-      print(Stats.showHarvester(
-          client,
-          0,
-          0,
-          //shows netspace is client is farmer or foxypoolOG since foxypoolOG uses same chia client and full node
-          (client is Farmer || client is FoxyPoolOG)
-              ? (client as Farmer).netSpace
-              : NetSpace(),
-          false,
-          true,
-          Rate(0, 0, 0),
-          false));
+            //String that's actually sent to server
+            String sendJson = copyJson;
 
-      name = client.name;
+            String notifyOffline = (blockchain.config.sendOfflineNotifications)
+                ? '1'
+                : '0'; //whether user wants to be notified when rig goes offline
+            String isFarming = (status == "Farming" || status == "Harvesting")
+                ? '1' //1 means is farming/harvesting
+                : '0';
 
-      //copies object to a json string
-      copyJson = jsonEncode(client);
-    } catch (exception) {
-      log.severe("Oh no! Something went wrong.");
-      log.severe(exception.toString());
-      log.info("Config:\n$config\n");
-      log.info("Cache:\n$cache");
-      if (onetime) io.exit(1);
-    }
+            String publicAPI = (blockchain.config.publicAPI)
+                ? '1' //1 means client data can be seen from public api
+                : '0';
 
-    if (!standalone) {
-      Future.sync(() {
-        //SENDS DATA TO SERVER
-        try {
-          //clones farm so it can clear ids before sending them to server
-          //copy.clearIDs();
-          //deprecated
+            Map<String, String> post = {
+              "data": sendJson,
+              "notifyOffline": notifyOffline,
+              "name": name,
+              "publicAPI": publicAPI
+            };
 
-          //String that's actually sent to server
-          String sendJson = copyJson;
+            const String url = "https://farmr.net/send7.php";
 
-          String notifyOffline = (config.sendOfflineNotifications)
-              ? '1'
-              : '0'; //whether user wants to be notified when rig goes offline
-          String isFarming = (status == "Farming" || status == "Harvesting")
-              ? '1' //1 means is farming/harvesting
-              : '0';
+            if (blockchain.config.sendStatusNotifications)
+              post.putIfAbsent("isFarming", () => isFarming);
 
-          String publicAPI = (config.publicAPI)
-              ? '1' //1 means client data can be seen from public api
-              : '0';
+            //Adds the following if sendPlotNotifications is enabled then it will send plotID
+            if (blockchain.config.sendPlotNotifications)
+              post.putIfAbsent("lastPlot", () => lastPlotID);
 
-          Map<String, String> post = {
-            "data": sendJson,
-            "notifyOffline": notifyOffline,
-            "name": name,
-            "publicAPI": publicAPI
-          };
+            //Adds the following if hard drive notifications are enabled then it will send the number of drives connected to pc
+            if (blockchain.config.sendDriveNotifications)
+              post.putIfAbsent("drives", () => drives);
 
-          const String url = "https://farmr.net/send7.php";
+            //If the client is a farmer and it is farming and sendBalanceNotifications is enabled then it will send balance
+            if (blockchain.config.type == ClientType.Farmer &&
+                blockchain.config.sendBalanceNotifications &&
+                status == "Farming") post.putIfAbsent("balance", () => balance);
 
-          if (config.sendStatusNotifications)
-            post.putIfAbsent("isFarming", () => isFarming);
+            type = (blockchain.config.type == ClientType.Farmer)
+                ? "farmer"
+                : "harvester";
 
-          //Adds the following if sendPlotNotifications is enabled then it will send plotID
-          if (config.sendPlotNotifications)
-            post.putIfAbsent("lastPlot", () => lastPlotID);
+            for (String id in blockchain.id.ids) {
+              //Appends blockchain symbol to id
+              post.putIfAbsent("id", () => id + blockchain.fileExtension);
+              post.update("id", (value) => id + blockchain.fileExtension);
 
-          //Adds the following if hard drive notifications are enabled then it will send the number of drives connected to pc
-          if (config.sendDriveNotifications)
-            post.putIfAbsent("drives", () => drives);
+              http.post(Uri.parse(url), body: post).then((_) {
+                String idText =
+                    (blockchain.id.ids.length == 1) ? '' : "for id " + id;
+                String timestamp = DateFormat.Hms().format(DateTime.now());
+                log.warning(
+                    "\n$timestamp - Sent ${blockchain.binaryName} $type report to server $idText\nRetrying in ${delay.inMinutes} minutes");
+              }).catchError((error) {
+                log.warning("Server timeout.");
+                log.info(error.toString());
+              });
+            }
 
-          //If the client is a farmer and it is farming and sendBalanceNotifications is enabled then it will send balance
-          if (config.type == ClientType.Farmer &&
-              config.sendBalanceNotifications &&
-              status == "Farming") post.putIfAbsent("balance", () => balance);
+            log.info("url:$url");
+            log.info("data sent:\n$sendJson");
 
-          type = (config.type == ClientType.Farmer) ? "farmer" : "harvester";
-
-          for (String id in cache.ids) {
-            post.putIfAbsent("id", () => id);
-            post.update("id", (value) => id);
-
-            http.post(Uri.parse(url), body: post).then((_) {
-              String idText = (cache.ids.length == 1) ? '' : "for id " + id;
-              String timestamp = DateFormat.Hms().format(DateTime.now());
-              log.warning(
-                  "\n$timestamp - Sent $type report to server $idText\nRetrying in ${delay.inMinutes} minutes");
-            }).catchError((error) {
-              log.warning("Server timeout.");
-              log.info(error.toString());
-            });
+            if (io.Platform.isWindows) print("Do NOT close this window.");
+          } catch (exception) {
+            log.severe("Oh no, failed to connect to server!");
+            log.severe(exception.toString());
           }
-
-          log.info("url:$url");
-          log.info("data sent:\n$sendJson");
-
-          if (io.Platform.isWindows) print("Do NOT close this window.");
-        } catch (exception) {
-          log.severe("Oh no, failed to connect to server!");
-          log.severe(exception.toString());
-        }
-      }).catchError((error) {
-        log.info(error);
-      });
+        }).catchError((error) {
+          log.info(error);
+        });
+      }
     }
 
-    counter += 1;
+    if (onetime) io.exit(0);
 
-    if (!onetime) await Future.delayed(delay);
+    //shows info with ids to link
+    id.info(blockchains);
+
+    await Future.delayed(delay);
   }
-
-  io.exit(0);
 }
 
 void clearLog() {

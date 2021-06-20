@@ -1,6 +1,7 @@
 import 'dart:core';
 import 'dart:convert';
 
+import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/hardware.dart';
 import 'package:uuid/uuid.dart';
 import 'package:logging/logging.dart';
@@ -9,7 +10,6 @@ import 'package:farmr_client/plot.dart';
 import 'package:farmr_client/config.dart';
 import 'package:farmr_client/harvester/plots.dart';
 import 'package:farmr_client/harvester/diskspace.dart';
-import 'package:farmr_client/debug.dart' as Debug;
 import 'package:farmr_client/harvester/filters.dart';
 
 import 'package:farmr_client/extensions/swarpm.dart';
@@ -18,6 +18,7 @@ final log = Logger('Harvester');
 
 class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
   late Config _config;
+  late Blockchain blockchain; // TODO: Why is late necessary here?
 
   String _name = "Harvester";
   String get name => _name;
@@ -25,6 +26,8 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
   String _status = "Harvesting";
   String get status => _status;
 
+  String _crypto = "XCH";
+  String get crypto => _crypto;
   String _currency = 'USD';
   String get currency => _currency.toUpperCase();
 
@@ -56,6 +59,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     var initialMap = {
       'name': _name,
       'status': status,
+      'crypto': crypto,
       'currency': currency,
       'drivesCount': drivesCount,
       'plots': allPlots, //important
@@ -85,7 +89,9 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     return initialMap;
   }
 
-  Harvester(this._config, Debug.Log log, [String version = '']) {
+  Harvester(this.blockchain, [String version = '']) {
+    this._crypto = blockchain.currencySymbol;
+    this._config = this.blockchain.config;
     _version = version;
     _name = _config.name; //loads name from config
     _currency = _config.currency; // loads currency from config
@@ -95,7 +101,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     _lastUpdated = DateTime.now();
     _lastUpdatedString = dateToString(_lastUpdated);
 
-    loadFilters(log);
+    loadFilters(blockchain.log);
 
     _status = harvestingStatus(_config.parseLogs) ?? _status;
 
@@ -122,6 +128,8 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
 
     //loads currency from json file
     if (object['currency'] != null) _currency = object['currency'];
+    //loads crypto from json file
+    if (object['crypto'] != null) _crypto = object['crypto'];
 
     //loads version from json
     if (object['version'] != null) _version = object['version'];
@@ -157,9 +165,9 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
       _hardware = Hardware.fromJson(object['hardware']);
   }
 
-  Future<void> init(String chiaConfigPath) async {
+  Future<void> init() async {
     //LOADS CHIA CONFIG FILE AND PARSES PLOT DIRECTORIES
-    _plotDests = listPlotDest(chiaConfigPath);
+    _plotDests = listPlotDest(this.blockchain.configPath);
 
     await listPlots(_plotDests, _config);
 

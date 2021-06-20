@@ -1,3 +1,4 @@
+import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/farmer/wallet.dart';
 
 class FoxyPoolWallet extends Wallet {
@@ -10,6 +11,6 @@ class FoxyPoolWallet extends Wallet {
   double get collateralBalance => _collateralBalance;
 
   FoxyPoolWallet(double balance, double daysSinceLastBlock,
-      this._pendingBalance, this._collateralBalance)
-      : super(balance, daysSinceLastBlock);
+      this._pendingBalance, this._collateralBalance, Blockchain blockchain)
+      : super(balance, daysSinceLastBlock, blockchain);
 }

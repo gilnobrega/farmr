@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'package:farmr_client/blockchain.dart';
 import 'package:universal_io/io.dart' as io;
 import 'dart:convert';
 
@@ -11,6 +12,8 @@ final log = Logger('Config');
 
 class Config {
   Cache cache;
+
+  late Blockchain _blockchain;
 
   ClientType _type = ClientType.Harvester;
   ClientType get type => _type;
@@ -87,9 +90,10 @@ class Config {
   late String _rootPath;
   late io.File _config;
 
-  Config(this.cache, String chiaConfigPath, this._rootPath,
+  Config(this._blockchain, this.cache, this._rootPath,
       [isHarvester = false, isHPool = false, isFoxyPoolOG = false]) {
-    _config = io.File(_rootPath + "config.json");
+    _config =
+        io.File(_rootPath + "config/config${_blockchain.fileExtension}.json");
     //sets default name according to client type
     if (isHarvester) {
       _type = ClientType.Harvester;
@@ -120,20 +124,19 @@ class Config {
       await _askForBinPath();
 
     /** Generate Discord Id's */
-    if (cache.ids.length != userNumber) {
-      if (userNumber > cache.ids.length) {
+    if (_blockchain.id.ids.length != userNumber) {
+      if (userNumber > _blockchain.id.ids.length) {
         // More Id's (add)
-        int newIds = userNumber - cache.ids.length;
-        for (int i = 0; i < newIds; i++) cache.ids.add(Uuid().v4());
-      } else if (userNumber < cache.ids.length) {
+        int newIds = userNumber - _blockchain.id.ids.length;
+        for (int i = 0; i < newIds; i++) _blockchain.id.ids.add(Uuid().v4());
+      } else if (userNumber < _blockchain.id.ids.length) {
         // Less Id's (fresh list)
-        cache.ids = [];
-        for (int i = 0; i < userNumber; i++) cache.ids.add(Uuid().v4());
+        _blockchain.id.ids = [];
+        for (int i = 0; i < userNumber; i++)
+          _blockchain.id.ids.add(Uuid().v4());
       }
-      cache.save();
+      _blockchain.id.save();
     }
-
-    _info(); //shows first screen info with qr code, id, !chia, etc.
   }
 
   //Creates config file
@@ -141,7 +144,7 @@ class Config {
     Map<String, dynamic> configMap = {
       "Name": name,
       "Currency": currency,
-      "Show Farmed XCH": showBalance,
+      "Show Farmed ${_blockchain.currencySymbol}": showBalance,
       "Show Wallet Balance": showWalletBalance,
       "Show Hardware Info": showHardwareInfo,
       "Block Notifications": sendBalanceNotifications,
@@ -156,7 +159,8 @@ class Config {
     };
 
     //hides chiaPath from config.json if not defined (null)
-    if (chiaPath != '') configMap.putIfAbsent("chiaPath", () => chiaPath);
+    if (chiaPath != '')
+      configMap.putIfAbsent("${_blockchain.binaryName}Path", () => chiaPath);
 
     //hides ignoreDiskSpace from config.json if false (default)
     if (ignoreDiskSpace)
@@ -182,9 +186,9 @@ class Config {
 
   Future<void> _askForBinPath() async {
     String exampleDir = (io.Platform.isLinux || io.Platform.isMacOS)
-        ? "/home/user/chia-blockchain"
+        ? "/home/user/${_blockchain.binaryName}-blockchain"
         : (io.Platform.isWindows)
-            ? "C:\\Users\\user\\AppData\\Local\\chia-blockchain or C:\\Users\\user\\AppData\\Local\\chia-blockchain\\app-1.0.3\\resources\\app.asar.unpacked"
+            ? "C:\\Users\\user\\AppData\\Local\\${_blockchain.binaryName}-blockchain or C:\\Users\\user\\AppData\\Local\\${_blockchain.binaryName}-blockchain\\app-1.0.3\\resources\\app.asar.unpacked"
             : "";
 
     bool validDirectory = false;
@@ -192,21 +196,23 @@ class Config {
     validDirectory = await _tryDirectories();
 
     if (validDirectory)
-      log.info("Automatically found chia binary at: '${cache.binPath}'");
+      log.info(
+          "Automatically found ${_blockchain.binaryName} binary at: '${cache.binPath}'");
     else
       log.info("Could not automatically locate chia binary.");
 
     while (!validDirectory) {
-      log.warning("Specify your chia-blockchain directory below: (e.g.: " +
-          exampleDir +
-          ")");
+      log.warning(
+          "Specify your ${_blockchain.binaryName}-blockchain directory below: (e.g.: " +
+              exampleDir +
+              ")");
 
       _chiaPath = io.stdin.readLineSync() ?? '';
       log.info("Input chia path: '$_chiaPath'");
 
       cache.binPath = (io.Platform.isLinux || io.Platform.isMacOS)
-          ? _chiaPath + "/venv/bin/chia"
-          : _chiaPath + "\\daemon\\chia.exe";
+          ? _chiaPath + "/venv/bin/${_blockchain.binaryName}"
+          : _chiaPath + "\\daemon\\${_blockchain.binaryName}.exe";
 
       if (io.File(cache.binPath).existsSync())
         validDirectory = true;
@@ -234,9 +240,10 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     if (io.Platform.isWindows) {
       //Checks if binary exist in C:\User\AppData\Local\chia-blockchain\resources\app.asar.unpacked\daemon\chia.exe
       chiaRootDir = io.Directory(io.Platform.environment['UserProfile']! +
-          "/AppData/Local/chia-blockchain");
+          "/AppData/Local/${_blockchain.binaryName}-blockchain");
 
-      file = "/resources/app.asar.unpacked/daemon/chia.exe";
+      file =
+          "/resources/app.asar.unpacked/daemon/${_blockchain.binaryName}.exe";
 
       if (chiaRootDir.existsSync()) {
         await chiaRootDir.list(recursive: false).forEach((dir) {
@@ -251,11 +258,12 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
       List<String> possiblePaths = [];
 
       if (io.Platform.isLinux) {
-        chiaRootDir = io.Directory("/usr/lib/chia-blockchain");
-        file = "/resources/app.asar.unpacked/daemon/chia";
+        chiaRootDir =
+            io.Directory("/usr/lib/${_blockchain.binaryName}-blockchain");
+        file = "/resources/app.asar.unpacked/daemon/${_blockchain.binaryName}";
       } else if (io.Platform.isMacOS) {
         chiaRootDir = io.Directory("/Applications/Chia.app/Contents");
-        file = "/Resources/app.asar.unpacked/daemon/chia";
+        file = "/Resources/app.asar.unpacked/daemon/${_blockchain.binaryName}";
       }
 
       possiblePaths = [
@@ -265,7 +273,8 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
         // Checks if binary exists in /usr/package:farmr_client/chia-blockchain/resources/app.asar.unpacked/daemon/chia
         "/usr" + chiaRootDir.path + file,
         //checks if binary exists in /home/user/.local/bin/chia
-        io.Platform.environment['HOME']! + "/.local/bin/chia"
+        io.Platform.environment['HOME']! +
+            "/.local/bin/${_blockchain.binaryName}"
       ];
 
       for (int i = 0; i < possiblePaths.length; i++) {
@@ -294,7 +303,7 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
 
     //leave this here for compatibility with old versions,
     //old versions stored id in config file
-    if (contents[0]['id'] != null) cache.ids.add(contents[0]['id']);
+    if (contents[0]['id'] != null) _blockchain.id.ids.add(contents[0]['id']);
 
     //loads custom client name
     if (contents[0]['name'] != null) _name = contents[0]['name']; //old
@@ -318,8 +327,9 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
 
     if (contents[0]['showBalance'] != null)
       _showBalance = contents[0]['showBalance']; //old
-    if (contents[0]['Show Farmed XCH'] != null)
-      _showBalance = contents[0]['Show Farmed XCH']; //new
+    if (contents[0]['Show Farmed ${_blockchain.currencySymbol}'] != null)
+      _showBalance =
+          contents[0]['Show Farmed ${_blockchain.currencySymbol}']; //new
 
     if (contents[0]['showWalletBalance'] != null)
       _showWalletBalance = contents[0]['showWalletBalance']; //old
@@ -385,47 +395,6 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
       _showHardwareInfo = contents[0]["Show Hardware Info"];
 
     await saveConfig();
-  }
-
-  void _info() {
-    /*try {
-      //If terminal is long enough to show a qr code
-      if (console.windowHeight > 2 * 29 && console.windowWidth > 2 * 29)
-        _showQR(console);
-    } catch (e) {}*/
-
-    String line = "";
-
-    /*try {
-      for (int i = 0; i < console.windowWidth; i++) line += "=";
-    } catch (e) {}*/
-
-    print(line);
-
-    String instructions =
-        "visit https://farmr.net to add it to your account.\nAlternatively, you can also link it through farmrbot (a discord bot) by running the following command:";
-
-    if (cache.ids.length > 1)
-      log.warning("Your ids are " + cache.ids.toString() + ", $instructions");
-    else
-      log.warning("Your id is " + cache.ids[0] + ", $instructions" "");
-
-    print("");
-
-    for (String id in cache.ids) print("!chia link " + id);
-
-    print("");
-
-    if (cache.ids.length > 1)
-      print("To link this client to each discord user (one id per user)");
-    else
-      print("to link this client to your discord user");
-
-    print("""You can interact with farmrbot in Swar's Chia Community
-Open the following link to join the server: https://discord.gg/fPjnWYYFmp""");
-
-    print(line);
-    print("");
   }
 
   /*void _showQR(Console console) {

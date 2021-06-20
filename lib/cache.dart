@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'package:farmr_client/blockchain.dart';
 import 'package:universal_io/io.dart' as io;
 import 'dart:convert';
 
@@ -14,7 +15,7 @@ import 'package:farmr_client/hardware.dart';
 final log = Logger('Cache');
 
 class Cache {
-  List<String> ids = [];
+  late Blockchain _blockchain;
 
   String binPath = '';
 
@@ -41,21 +42,12 @@ class Cache {
   int parseUntil =
       DateTime.now().subtract(Duration(days: 1)).millisecondsSinceEpoch;
 
-  Cache(String chiaConfigPath, this._rootPath) {
-    _cache = io.File(_rootPath + ".farmr_cache.json");
-
-    //ports old cache file to new cache file
-    try {
-      io.File _oldCache = io.File(".chiabot_cache.json");
-      if (!_cache.existsSync() && _oldCache.existsSync())
-        _oldCache.copySync(_cache.absolute.path);
-    } catch (Exception) {
-      print("Failed to port old cache file");
-    }
+  Cache(this._blockchain, this._rootPath) {
+    _cache =
+        io.File(_rootPath + "cache/cache${_blockchain.fileExtension}.json");
   }
 
   Map toJson() => {
-        "ids": ids,
         "binPath": binPath,
         "plots": plots,
         "filters": filters,
@@ -64,7 +56,7 @@ class Cache {
         "memories": memories,
       };
 
-  void init() {
+  Future<void> init() async {
     //Tells log parser when it should stop parsing
     parseUntil =
         DateTime.now().subtract(Duration(days: 1)).millisecondsSinceEpoch;
@@ -91,15 +83,18 @@ class Cache {
       var contents = jsonDecode(_cache.readAsStringSync());
       //print(contents);
 
-      //loads id from cache file //OLD
+      //LOADS IDS FROM CACHE FILE (backwards compatible)
+      //loads id from cache file
       if (contents[0]['id'] != null) {
-        ids = [];
-        ids.add(contents[0]['id']);
+        _blockchain.id.ids = [];
+        _blockchain.id.ids.add(contents[0]['id']);
+        _blockchain.id.save();
       }
-      //loads ids from cache file //new
+      //loads ids from cache file
       if (contents[0]['ids'] != null) {
-        ids = [];
-        for (String id in contents[0]['ids']) ids.add(id);
+        _blockchain.id.ids = [];
+        for (String id in contents[0]['ids']) _blockchain.id.ids.add(id);
+        _blockchain.id.save();
       }
 
       //loads plot list from cache file
@@ -159,7 +154,7 @@ class Cache {
       }
     } catch (Exception) {
       log.severe(
-          "ERROR: Failed to load .farmr_cache.json\nGenerating a new cache file.");
+          "ERROR: Failed to load .farmr_cache${_blockchain.fileExtension}.json\nGenerating a new cache file.");
     }
   }
 

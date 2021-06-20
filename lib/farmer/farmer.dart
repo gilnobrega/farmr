@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'package:farmr_client/blockchain.dart';
 import 'package:universal_io/io.dart' as io;
 import 'dart:convert';
 
@@ -21,7 +22,7 @@ class Farmer extends Harvester {
   @override
   String get status => _status;
 
-  Wallet _wallet = Wallet(-1.0, 0);
+  late Wallet _wallet;
   Wallet get wallet => _wallet;
 
   Connections? _connections;
@@ -75,15 +76,14 @@ class Farmer extends Harvester {
   }
 
   Farmer(
-      {required Config config,
-      required Debug.Log log,
-      String version = '',
-      bool hpool = false})
-      : super(config, log, version) {
+      {required Blockchain blockchain, String version = '', bool hpool = false})
+      : super(blockchain, version) {
+    _wallet = Wallet(-1.0, 0, this.blockchain);
+
     if (!hpool) {
       //runs chia farm summary if it is a farmer
-      var result =
-          io.Process.runSync(config.cache.binPath, const ["farm", "summary"]);
+      var result = io.Process.runSync(
+          blockchain.config.cache.binPath, const ["farm", "summary"]);
       List<String> lines =
           result.stdout.toString().replaceAll("\r", "").split('\n');
 
@@ -93,9 +93,10 @@ class Farmer extends Harvester {
         for (int i = 0; i < lines.length; i++) {
           String line = lines[i];
 
-          if (line.startsWith("Total chia farmed: "))
-            _balance = (config.showBalance)
-                ? double.parse(line.split('Total chia farmed: ')[1])
+          if (line.startsWith("Total ${this.blockchain.binaryName} farmed: "))
+            _balance = (blockchain.config.showBalance)
+                ? double.parse(line
+                    .split('Total ${this.blockchain.binaryName} farmed: ')[1])
                 : -1.0;
           else if (line.startsWith("Farming status: "))
             _status = line.split("Farming status: ")[1];
@@ -110,11 +111,11 @@ class Farmer extends Harvester {
       }
 
       //parses chia wallet show for block height
-      _wallet.parseWalletBalance(
-          config.cache.binPath, lastBlockFarmed, config.showWalletBalance);
+      _wallet.parseWalletBalance(blockchain.config.cache.binPath,
+          lastBlockFarmed, blockchain.config.showWalletBalance);
 
       //initializes connections and counts peers
-      _connections = Connections(config.cache.binPath);
+      _connections = Connections(blockchain.config.cache.binPath);
 
       _fullNodesConnected = _connections?.connections
               .where((connection) => connection.type == ConnectionType.FullNode)
@@ -122,15 +123,15 @@ class Farmer extends Harvester {
           0; //whats wrong with this vs code formatting lmao
 
       //Parses logs for sub slots info
-      if (config.parseLogs) {
-        calculateSubSlots(log);
+      if (blockchain.config.parseLogs) {
+        calculateSubSlots(blockchain.log);
       }
 
-      shortSyncs = log.shortSyncs; //loads short sync events
+      shortSyncs = blockchain.log.shortSyncs; //loads short sync events
 
       //harvesting status
       String harvestingStatusString =
-          harvestingStatus(config.parseLogs) ?? "Harvesting";
+          harvestingStatus(blockchain.config.parseLogs) ?? "Harvesting";
 
       if (harvestingStatusString != "Harvesting")
         _status = "$_status, $harvestingStatusString";
@@ -154,7 +155,7 @@ class Farmer extends Harvester {
       daysSinceLastBlock =
           double.parse(object['daysSinceLastBlock'].toString());
 
-    _wallet = Wallet(walletBalance, daysSinceLastBlock);
+    _wallet = Wallet(walletBalance, daysSinceLastBlock, this.blockchain);
 
     if (object['completeSubSlots'] != null)
       _completeSubSlots = object['completeSubSlots'];
