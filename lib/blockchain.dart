@@ -95,6 +95,11 @@ class Blockchain {
     await this.cache.init();
     await this.config.init();
 
+    logUpdate();
+  }
+
+  //reparses log and adds new filters/shortsyncs/signagepoints
+  void logUpdate() {
     this.log = new Log(
         this.logPath, this.cache, this.config.parseLogs, this.binaryName);
   }

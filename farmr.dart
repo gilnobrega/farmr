@@ -137,6 +137,7 @@ main(List<String> args) async {
 
         // TODO: Split this apart so duplicate isn't necessary
         await blockchain.cache.init();
+        blockchain.logUpdate();
 
         var client = (blockchain.config.type == ClientType.Farmer)
             ? Farmer(blockchain: blockchain, version: EnvironmentConfig.version)
