@@ -28,10 +28,10 @@ class Stats {
   String get currency => _client.currency;
   double get balance =>
       (_client is Farmer) ? (_client as Farmer).balance : -1.0;
-  double get balanceFiat => calculateFiat(balance, _price);
+  double get balanceFiat => calculateFiat(balance, _price, crypto);
 
-  static double calculateFiat(double balance, Rate? price) =>
-      balance * (price?.rate ?? 0.0);
+  static double calculateFiat(double balance, Rate? price, String crypto) =>
+      (crypto == "xch") ? balance * (price?.rate ?? 0.0) : 0.0;
 
   static double calculateFiatChange(double balanceFiat, Rate? price) =>
       balanceFiat * (price?.change ?? 0.0);
@@ -39,7 +39,7 @@ class Stats {
   // WALLET BALANCE
   double get walletBalance =>
       (_client is Farmer) ? (_client as Farmer).wallet.balance : -1.0;
-  double get walletBalanceFiat => calculateFiat(walletBalance, _price);
+  double get walletBalanceFiat => calculateFiat(walletBalance, _price, crypto);
   double get walletBalanceFiatChange =>
       calculateFiatChange(walletBalanceFiat, _price);
 
@@ -48,7 +48,7 @@ class Stats {
       ? ((_client as HPool).wallet as HPoolWallet).undistributedBalance
       : -1.0;
   double get undistributedBalanceFiat =>
-      calculateFiat(undistributedBalance, _price);
+      calculateFiat(undistributedBalance, _price, crypto);
   double get undistributedBalanceFiatChange =>
       calculateFiatChange(undistributedBalanceFiat, _price);
 
@@ -56,14 +56,16 @@ class Stats {
   double get pendingBalance => (_client is FoxyPoolOG)
       ? ((_client as FoxyPoolOG).wallet as FoxyPoolWallet).pendingBalance
       : -1.0;
-  double get pendingBalanceFiat => calculateFiat(pendingBalance, _price);
+  double get pendingBalanceFiat =>
+      calculateFiat(pendingBalance, _price, crypto);
   double get pendingBalanceFiatChange =>
       calculateFiatChange(pendingBalanceFiat, _price);
 
   double get collateralBalance => (_client is FoxyPoolOG)
       ? ((_client as FoxyPoolOG).wallet as FoxyPoolWallet).collateralBalance
       : -1.0;
-  double get collateralBalanceFiat => calculateFiat(collateralBalance, _price);
+  double get collateralBalanceFiat =>
+      calculateFiat(collateralBalance, _price, crypto);
   double get collateralBalanceFiatChange =>
       calculateFiatChange(collateralBalanceFiat, _price);
 
@@ -105,11 +107,11 @@ class Stats {
   double get etw => estimateETW(_client, _netSpace);
   final double blockSize = 2.0;
   double get edv => blockSize / etw; //daily
-  double get edvFiat => calculateFiat(edv, _price);
+  double get edvFiat => calculateFiat(edv, _price, crypto);
   double get ewv => edv * 7; //weekly
-  double get ewvFiat => calculateFiat(ewv, _price);
+  double get ewvFiat => calculateFiat(ewv, _price, crypto);
   double get emv => edv * 30; //monthly
-  double get emvFiat => calculateFiat(emv, _price);
+  double get emvFiat => calculateFiat(emv, _price, crypto);
 
   //EFFORT
   Duration get farmedDuration {
