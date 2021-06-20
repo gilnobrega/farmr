@@ -173,7 +173,7 @@ main(List<String> args) async {
         status = client.status;
 
         if (blockchains.length > 1)
-          "\nStats for ${blockchain.binaryName} farm:";
+          print("\nStats for ${blockchain.binaryName} farm:");
         //shows stats in client
         print(Stats.showHarvester(
             client,
