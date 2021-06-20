@@ -108,6 +108,7 @@ main(List<String> args) async {
   createDirsAndportOldFiles(rootPath);
 
   ID id = ID(rootPath);
+  id.init(); //creates id.json or loads ids from id.json
 
   List<Blockchain> blockchains = readBlockchains(id, rootPath, args);
 
