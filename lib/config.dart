@@ -144,7 +144,7 @@ class Config {
     Map<String, dynamic> configMap = {
       "Name": name,
       "Currency": currency,
-      "Show Farmed ${_blockchain.currencySymbol}": showBalance,
+      "Show Farmed ${_blockchain.currencySymbol.toUpperCase()}": showBalance,
       "Show Wallet Balance": showWalletBalance,
       "Show Hardware Info": showHardwareInfo,
       "Block Notifications": sendBalanceNotifications,
@@ -327,9 +327,11 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
 
     if (contents[0]['showBalance'] != null)
       _showBalance = contents[0]['showBalance']; //old
-    if (contents[0]['Show Farmed ${_blockchain.currencySymbol}'] != null)
-      _showBalance =
-          contents[0]['Show Farmed ${_blockchain.currencySymbol}']; //new
+    if (contents[0]
+            ['Show Farmed ${_blockchain.currencySymbol.toUpperCase()}'] !=
+        null)
+      _showBalance = contents[0]
+          ['Show Farmed ${_blockchain.currencySymbol.toUpperCase()}']; //new
 
     if (contents[0]['showWalletBalance'] != null)
       _showWalletBalance = contents[0]['showWalletBalance']; //old
