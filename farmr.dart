@@ -231,6 +231,7 @@ main(List<String> args) async {
             };
 
             const String url = "https://farmr.net/send7.php";
+            const String urlBackup = "https://chiabot.znc.sh/send7.php";
 
             if (blockchain.config.sendStatusNotifications)
               post.putIfAbsent("isFarming", () => isFarming);
@@ -263,10 +264,25 @@ main(List<String> args) async {
                     : "for id " + id + blockchain.fileExtension;
                 String timestamp = DateFormat.Hms().format(DateTime.now());
                 log.warning(
-                    "\n$timestamp - Sent ${blockchain.binaryName} $type report to server $idText\nRetrying in ${delay.inMinutes} minutes");
+                    "\n$timestamp - Sent ${blockchain.binaryName} $type report to server $idText\nResending it in ${delay.inMinutes} minutes");
               }).catchError((error) {
-                log.warning("Server timeout.");
+                log.warning(
+                    "Server timeout, could not access farmr.net.\nRetrying with backup domain.");
                 log.info(error.toString());
+
+                http.post(Uri.parse(urlBackup), body: post).then((_) {
+                  String idText = (blockchain.id.ids.length == 1)
+                      ? ''
+                      : "for id " + id + blockchain.fileExtension;
+                  String timestamp = DateFormat.Hms().format(DateTime.now());
+                  log.warning(
+                      "\n$timestamp - Sent ${blockchain.binaryName} $type report to server $idText\nResending it in ${delay.inMinutes} minutes");
+                }).catchError((error) {
+                  log.warning(
+                      "Server timeout. Could not send report to server!");
+
+                  log.info(error.toString());
+                });
               });
             }
 
