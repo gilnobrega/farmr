@@ -204,7 +204,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           # Pack files WINDOWS
-          7z a -tzip "farmr-${{ env.version }}-windows-${{ matrix.architecture }}.zip" "./*.exe" "./config ./blockchain"
+          7z a -tzip "farmr-${{ env.version }}-windows-${{ matrix.architecture }}.zip" "./*.exe" "./config" "./blockchain"
 
       - name: Release
         uses: softprops/action-gh-release@v1
