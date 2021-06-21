@@ -1,5 +1,5 @@
-#### Compile from source (every platform/architecture)
-1. Download ``source.tar.gz`` or ``source.zip`` from the [latest release](https://github.com/joaquimguimaraes/chiabot/releases/latest) and extract it to a folder.
+# Compile from source (every platform/architecture)
+1. Download ``source.tar.gz`` or ``source.zip`` from the [latest release](https://github.com/joaquimguimaraes/farmr/releases/latest) and extract it to a folder.
 2. Download and install [dart sdk](https://dart.dev/get-dart)
 3. Open the terminal in the folder you just extracted and run:
    - If you're setting up a **farmer**:
