@@ -6,5 +6,5 @@ class HPoolWallet extends Wallet {
   double get undistributedBalance => _undistributedBalance;
 
   HPoolWallet(double balance, this._undistributedBalance, Blockchain blockchain)
-      : super(balance, 0, blockchain);
+      : super(balance, -1.0, blockchain);
 }

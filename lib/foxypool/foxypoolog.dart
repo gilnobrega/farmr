@@ -11,7 +11,8 @@ class FoxyPoolOG extends Farmer {
   //public pool key
   String _publicKey = '';
 
-  late FoxyPoolWallet _wallet;
+  FoxyPoolWallet _wallet =
+      FoxyPoolWallet(-1.0, -1.0, -1.0, -1.0, Blockchain.fromSymbol("xch"));
   @override
   Wallet get wallet => _wallet;
 

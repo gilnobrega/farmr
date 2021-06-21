@@ -18,7 +18,7 @@ class HPool extends Farmer {
   @override
   double get balance => _balance; //hides balance
 
-  late HPoolWallet _wallet;
+  HPoolWallet _wallet = HPoolWallet(-1.0, -1.0, Blockchain.fromSymbol("xch"));
   @override
   Wallet get wallet => _wallet;
 

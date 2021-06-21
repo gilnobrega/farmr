@@ -22,7 +22,7 @@ class Farmer extends Harvester {
   @override
   String get status => _status;
 
-  late Wallet _wallet;
+  Wallet _wallet = Wallet(-1.0, -1.0, Blockchain.fromSymbol("xch"));
   Wallet get wallet => _wallet;
 
   Connections? _connections;
