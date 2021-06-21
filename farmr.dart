@@ -38,12 +38,15 @@ prepareRootPath(bool package) {
   if (package && !io.Directory(rootPath).existsSync()) {
     //creates .farmr
     io.Directory(rootPath).createSync();
+  }
 
-    io.Directory defaultFolder = io.Directory("/etc/farmr/blockchain");
+  io.Directory defaultFolder = io.Directory("/etc/farmr/blockchain");
 
-    //copies blockchain templates to .farmr
-    if (defaultFolder.existsSync()) {
-      String blockchainDir = rootPath + "/.farmr/blockchain/";
+  //copies blockchain templates to .farmr
+  if (package && defaultFolder.existsSync()) {
+    String blockchainDir = rootPath + "blockchain/";
+
+    if (!io.Directory(blockchainDir).existsSync()) {
       io.Directory(blockchainDir).createSync();
       for (var path in defaultFolder.listSync()) {
         io.File file = io.File(path.path);
