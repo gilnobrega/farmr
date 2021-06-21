@@ -28,6 +28,21 @@ files:
     mode: "0644"
     user: "root"
     keep: true
+  "/etc/farmr/blockchain/xch.json":
+    file: blockchain/xch.json
+    mode: "0644"
+    user: "root"
+    keep: true
+  "/etc/farmr/blockchain/xfx.json.template":
+    file: blockchain/xfx.json.template
+    mode: "0644"
+    user: "root"
+    keep: true
+  "/etc/farmr/blockchain/cgn.json.template":
+    file: blockchain/cgn.json.template
+    mode: "0644"
+    user: "root"
+    keep: true
 units:
   #- .github/workflows/farmr.service
 scripts:

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:path/path.dart';
 import 'package:universal_io/io.dart' as io;
 import 'dart:core';
 
@@ -34,8 +35,25 @@ prepareRootPath(bool package) {
       : "";
 
   //Creates /home/user/.farmr folder if that doesnt exist
-  if (package && !io.Directory(rootPath).existsSync())
+  if (package && !io.Directory(rootPath).existsSync()) {
+    //creates .farmr
     io.Directory(rootPath).createSync();
+
+    io.Directory defaultFolder = io.Directory("/etc/farmr/blockchain");
+
+    //copies blockchain templates to .farmr
+    if (defaultFolder.existsSync()) {
+      String blockchainDir = rootPath + "/.farmr/blockchain/";
+      io.Directory(blockchainDir).createSync();
+      for (var path in defaultFolder.listSync()) {
+        io.File file = io.File(path.path);
+
+        if (file.existsSync()) {
+          file.copySync(blockchainDir + basename(file.path));
+        }
+      }
+    }
+  }
 }
 
 createDirsAndportOldFiles(String rootPath) {
