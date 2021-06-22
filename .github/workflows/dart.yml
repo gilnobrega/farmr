@@ -95,7 +95,7 @@ jobs:
         uses: xom9ikk/dotenv@v1.0.2
 
       - name: Compressing ${{ matrix.architecture }} .tar.gz
-        run: tar -czvf ./farmr-${{ env.version }}-linux-${{ matrix.architecture }}.tar.gz ./farmr ./config ./blockchain ./farmer.sh ./harvester.sh ./hpool.sh ./foxypoolog.sh
+        run: tar -czvf ./farmr-linux-${{ matrix.architecture }}.tar.gz ./farmr ./config ./blockchain ./farmer.sh ./harvester.sh ./hpool.sh ./foxypoolog.sh
 
       - name: Build .deb file for ${{ matrix.architecture }}
         uses: kentik/pkg@v1.0.0-rc7
@@ -134,6 +134,7 @@ jobs:
           release_name: v${{ env.version }}
           draft: true
           files: |
+            ./farmr-linux-${{ matrix.architecture }}.tar.gz
             ./farmr-ubuntu-${{ matrix.architecture }}.deb
             ./farmr-fedora-${{ matrix.architecture }}.rpm 
         env:
