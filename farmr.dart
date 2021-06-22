@@ -160,16 +160,32 @@ main(List<String> args) async {
         await blockchain.cache.init();
         blockchain.logUpdate();
 
-        var client = (blockchain.config.type == ClientType.Farmer)
-            ? Farmer(blockchain: blockchain, version: EnvironmentConfig.version)
-            : (blockchain.config.type == ClientType.HPool)
-                ? HPool(
-                    blockchain: blockchain, version: EnvironmentConfig.version)
-                : (blockchain.config.type == ClientType.FoxyPoolOG)
-                    ? FoxyPoolOG(
-                        blockchain: blockchain,
-                        version: EnvironmentConfig.version)
-                    : Harvester(blockchain, EnvironmentConfig.version);
+        var client;
+
+        //if its xch
+        if (blockchain.currencySymbol == "xch") {
+          if (blockchain.config.type == ClientType.Farmer)
+            client = Farmer(
+                blockchain: blockchain, version: EnvironmentConfig.version);
+          else if (blockchain.config.type == ClientType.HPool)
+            client = HPool(
+                blockchain: blockchain, version: EnvironmentConfig.version);
+          else if (blockchain.config.type == ClientType.FoxyPoolOG)
+            client = FoxyPoolOG(
+                blockchain: blockchain, version: EnvironmentConfig.version);
+          else
+            client = Harvester(blockchain, EnvironmentConfig.version);
+        }
+        //if its not xch then it wont start foxypool or hpool mode
+        //will default to farmer mode unless harvester domain is specific in addition to hpool
+        else {
+          if (args.contains("harvester"))
+            client = Harvester(blockchain, EnvironmentConfig.version);
+          else
+            client = Farmer(
+                blockchain: blockchain, version: EnvironmentConfig.version);
+        }
+
         //hpool has a special config.yaml directory, as defined in farmr's config.json
         await client.init();
 
