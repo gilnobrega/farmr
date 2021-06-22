@@ -95,10 +95,10 @@ class Config {
     _config =
         io.File(_rootPath + "config/config${_blockchain.fileExtension}.json");
     //sets default name according to client type
-    if (isHPool) {
+    if (isHPool && _blockchain.currencySymbol == "xch") {
       _type = ClientType.HPool;
       _name = "HPool";
-    } else if (isFoxyPoolOG) {
+    } else if (isFoxyPoolOG && _blockchain.currencySymbol == "xch") {
       _type = ClientType.FoxyPoolOG;
       _name = "FoxyPool";
     } else if (isHarvester) {
