@@ -115,17 +115,27 @@ jobs:
           format: rpm
           package: .github/package.yaml
 
+      - name: Renaming amd64 .deb
+        run: mv farmr_${{ env.version }}-1_amd64.deb farmr-ubuntu-${{ matrix.architecture }}.deb 2>/dev/null
+        continue-on-error: true
+
+      - name: Renaming arm64 .deb
+        run: mv farmr_${{ env.version }}-1_arm64.deb farmr-ubuntu-${{ matrix.architecture }}.deb 2>/dev/null
+        continue-on-error: true
+
+      - name: Renaming .rpm
+        run: mv farmr-${{ env.version }}-1.${{ matrix.architecture }}.rpm farmr-fedora-${{ matrix.architecture }}.rpm 2>/dev/null
+        continue-on-error: true
+
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ env.version }}
-          release_name: ${{ env.version }}
+          tag_name: v${{ env.version }}
+          release_name: v${{ env.version }}
           draft: true
           files: |
-            ./farmr_${{ env.version }}-1_amd64.deb
-            ./farmr_${{ env.version }}-1_arm64.deb
-            ./farmr-${{ env.version }}-1.${{ matrix.architecture }}.rpm
-            ./farmr-${{ env.version }}-linux-${{ matrix.architecture }}.tar.gz
+            ./farmr-ubuntu-${{ matrix.architecture }}.deb
+            ./farmr-fedora-${{ matrix.architecture }}.rpm 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
 
@@ -183,7 +193,7 @@ jobs:
              chmod +x farmr.exe
              ./farmr.exe harvester onetime
              mv farmr.exe farmr
-             tar -czvf ./farmr-${{ env.version }}-macOS-${{ matrix.architecture }}.tar.gz ./farmr ./config ./blockchain ./farmer.sh ./harvester.sh ./hpool.sh ./foxypoolog.sh
+             tar -czvf ./farmr-macOS-${{ matrix.architecture }}.tar.gz ./farmr ./config ./blockchain ./farmer.sh ./harvester.sh ./hpool.sh ./foxypoolog.sh
              
       - name: Building Windows release
         if: matrix.os == 'windows-latest'
@@ -204,17 +214,17 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           # Pack files WINDOWS
-          7z a -tzip "farmr-${{ env.version }}-windows-${{ matrix.architecture }}.zip" "./*.exe" "./config" "./blockchain"
+          7z a -tzip "farmr-windows-${{ matrix.architecture }}.zip" "./*.exe" "./config" "./blockchain"
 
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ env.version }}
-          release_name: ${{ env.version }}
+          tag_name: v${{ env.version }}
+          release_name: v${{ env.version }}
           draft: true
           files: |
-            ./farmr-${{ env.version }}-windows-${{ matrix.architecture }}.zip
-            ./farmr-${{ env.version }}-macOS-${{ matrix.architecture }}.tar.gz
+            ./farmr-windows-${{ matrix.architecture }}.zip
+            ./farmr-macOS-${{ matrix.architecture }}.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # You don't need to add this in secrets it's by default.
           

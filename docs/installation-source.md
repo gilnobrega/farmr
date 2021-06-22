@@ -17,4 +17,4 @@ dart compile exe farmr_harvester.dart;
 mv farmr_harvester.exe farmr;
 ```
 4. Run ``./farmr`` once you see the main screen with your id and farmer/harvester stats you're good to go.
-5. Link your device to your discord account as shown in [First Time](#first-time)
+5. Link your device to your discord account as shown in [First Time](./usage.md#First-time)
