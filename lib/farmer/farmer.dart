@@ -1,5 +1,6 @@
 import 'dart:core';
 import 'package:farmr_client/blockchain.dart';
+import 'package:farmr_client/farmer/coldwallet.dart';
 import 'package:universal_io/io.dart' as io;
 import 'dart:convert';
 
@@ -24,6 +25,8 @@ class Farmer extends Harvester {
 
   Wallet _wallet = Wallet(-1.0, -1.0, Blockchain.fromSymbol("xch"));
   Wallet get wallet => _wallet;
+  ColdWallet _coldWallet = ColdWallet();
+  ColdWallet get coldWallet => _coldWallet;
 
   Connections? _connections;
 
@@ -71,6 +74,9 @@ class Farmer extends Harvester {
       "shortSyncs": shortSyncs,
       "netSpace": netSpace.size,
     }.entries);
+
+    if (coldWallet.grossBalance != -1.0 || coldWallet.netBalance != -1.0)
+      harvesterMap.putIfAbsent("codWallet", () => coldWallet);
 
     //returns complete map with both farmer's + harvester's entries
     return harvesterMap;
@@ -139,6 +145,14 @@ class Farmer extends Harvester {
     }
   }
 
+  @override
+  Future<void> init() async {
+    if (blockchain.config.coldWalletAddress != "")
+      await _coldWallet.init(blockchain.config.coldWalletAddress);
+
+    await super.init();
+  }
+
   //Server side function to read farm from json file
   Farmer.fromJson(String json) : super.fromJson(json) {
     var object = jsonDecode(json)[0];
@@ -176,6 +190,9 @@ class Farmer extends Harvester {
       _netSpace =
           NetSpace.fromBytes(double.parse(object['netSpace'].toString()));
     }
+
+    if (object['coldWallet'] != null)
+      _coldWallet = ColdWallet.fromJson(object['coldWallet']);
 
     calculateFilterRatio(this);
   }

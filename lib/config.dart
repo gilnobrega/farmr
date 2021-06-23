@@ -85,6 +85,10 @@ class Config {
   String _poolPublicKey = "";
   String get poolPublicKey => _poolPublicKey;
 
+  //chiaexplorer cold wallet
+  String _coldWalletAddress = "";
+  String get coldWalletAddress => _coldWalletAddress;
+
   // '/home/user/.farmr' for package installs, '' (project path) for the rest
   late String _rootPath;
   late io.File _config;
@@ -141,6 +145,9 @@ class Config {
       "Public API": publicAPI,
       "Swar's Chia Plot Manager Path": swarPath
     };
+
+    if (_blockchain.currencySymbol == "xch" && type != ClientType.Harvester)
+      configMap.putIfAbsent("Cold Wallet Address", () => coldWalletAddress);
 
     //hides chiaPath from config.json if not defined (null)
     if (chiaPath != '')
@@ -379,6 +386,9 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
 
     if (contents[0]["Show Hardware Info"] != null)
       _showHardwareInfo = contents[0]["Show Hardware Info"];
+
+    if (contents[0]['Cold Wallet Address'] != null)
+      _coldWalletAddress = contents[0]['Cold Wallet Address'];
 
     await saveConfig();
   }
