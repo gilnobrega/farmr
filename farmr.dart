@@ -175,6 +175,7 @@ main(List<String> args) async {
       String copyJson = "";
       String name = "";
       String drives = "";
+      String coldBalance = "";
 
       //PARSES DATA
       try {
@@ -228,8 +229,12 @@ main(List<String> args) async {
             ? client.drivesCount.toString()
             : "0";
 
+        //sends notifications about cold wallet if that is enabled
         if (client is Farmer) {
-          balance = client.balance.toString();
+          if (client.coldWallet.grossBalance >= 0)
+            coldBalance = client.coldWallet.grossBalance.toString();
+
+          if (client.balance >= 0) balance = client.balance.toString();
         }
 
         status = client.status;
@@ -292,8 +297,8 @@ main(List<String> args) async {
               "publicAPI": publicAPI
             };
 
-            const String url = "https://farmr.net/send7.php";
-            const String urlBackup = "https://chiabot.znc.sh/send7.php";
+            const String url = "https://farmr.net/send8.php";
+            const String urlBackup = "https://chiabot.znc.sh/send8.php";
 
             if (blockchain.config.sendStatusNotifications)
               post.putIfAbsent("isFarming", () => isFarming);
@@ -310,6 +315,11 @@ main(List<String> args) async {
             if (blockchain.config.type == ClientType.Farmer &&
                 blockchain.config.sendBalanceNotifications &&
                 status == "Farming") post.putIfAbsent("balance", () => balance);
+            //if cold balance has been read and cold balance notifications are enabled then it will send coldBalance to server
+            if (blockchain.config.type == ClientType.Farmer &&
+                blockchain.config.sendColdWalletBalanceNotifications &&
+                coldBalance != "")
+              post.putIfAbsent("coldBalance", () => coldBalance);
 
             type = (blockchain.config.type == ClientType.Farmer)
                 ? "farmer"

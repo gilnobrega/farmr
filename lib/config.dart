@@ -88,6 +88,9 @@ class Config {
   //chiaexplorer cold wallet
   String _coldWalletAddress = "";
   String get coldWalletAddress => _coldWalletAddress;
+  bool _sendColdWalletBalanceNotifications = true;
+  bool get sendColdWalletBalanceNotifications =>
+      _sendColdWalletBalanceNotifications;
 
   // '/home/user/.farmr' for package installs, '' (project path) for the rest
   late String _rootPath;
@@ -146,8 +149,11 @@ class Config {
       "Swar's Chia Plot Manager Path": swarPath
     };
 
-    if (_blockchain.currencySymbol == "xch" && type != ClientType.Harvester)
+    if (_blockchain.currencySymbol == "xch" && type != ClientType.Harvester) {
       configMap.putIfAbsent("Cold Wallet Address", () => coldWalletAddress);
+      configMap.putIfAbsent("Send Cold Wallet Balance Notifications",
+          () => sendColdWalletBalanceNotifications);
+    }
 
     //hides chiaPath from config.json if not defined (null)
     if (chiaPath != '')
@@ -389,6 +395,10 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
 
     if (contents[0]['Cold Wallet Address'] != null)
       _coldWalletAddress = contents[0]['Cold Wallet Address'];
+
+    if (contents[0]['Send Cold Wallet Balance Notifications'] != null)
+      _sendColdWalletBalanceNotifications =
+          contents[0]['Send Cold Wallet Balance Notifications'];
 
     await saveConfig();
   }
