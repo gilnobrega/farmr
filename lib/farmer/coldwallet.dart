@@ -29,16 +29,25 @@ class ColdWallet {
 
   Future<void> init(String publicAddress) async {
     const String chiaExplorerURL = "https://api2.chiaexplorer.com/balance/";
-    try {
-      String contents =
-          await http.read(Uri.parse(chiaExplorerURL + publicAddress));
+    if (publicAddress.startsWith("xch") && publicAddress.length == 62) {
+      try {
+        String contents =
+            await http.read(Uri.parse(chiaExplorerURL + publicAddress));
 
-      var object = jsonDecode(contents);
+        var object = jsonDecode(contents);
 
-      _grossBalance = object['grossBalance'] * 1e-12;
-      _netBalance = object['netBalance'] * 1e-12;
-    } catch (error) {
-      log.warning("Failed to get info about cold wallet");
+        _grossBalance = object['grossBalance'] * 1e-12;
+        _netBalance = object['netBalance'] * 1e-12;
+      } catch (error) {
+        //404 error means wallet is empty
+        if (error is http.ClientException && error.toString().contains("404")) {
+          _grossBalance = 0;
+          _netBalance = 0;
+        }
+        log.warning("Failed to get info about cold wallet");
+      }
+    } else {
+      log.warning("Invalid cold wallet address");
     }
   }
 }
