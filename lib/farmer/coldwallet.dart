@@ -43,8 +43,8 @@ class ColdWallet {
         if (error is http.ClientException && error.toString().contains("404")) {
           _grossBalance = 0;
           _netBalance = 0;
-        }
-        log.warning("Failed to get info about cold wallet");
+        } else
+          log.warning("Failed to get info about cold wallet");
       }
     } else {
       log.warning("Invalid cold wallet address");
