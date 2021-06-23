@@ -76,7 +76,7 @@ class Farmer extends Harvester {
     }.entries);
 
     if (coldWallet.grossBalance != -1.0 || coldWallet.netBalance != -1.0)
-      harvesterMap.putIfAbsent("codWallet", () => coldWallet);
+      harvesterMap.putIfAbsent("coldWallet", () => coldWallet);
 
     //returns complete map with both farmer's + harvester's entries
     return harvesterMap;
