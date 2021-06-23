@@ -186,13 +186,13 @@ class Rate {
   double _change = 0;
   double get change => _change;
 
-  String get _sign => (_change >= 0) ? '+' : '-';
+  String get _sign => (change >= 0) ? '+' : '-';
   //returns change in usd, eur, etc.
   String get changeAbsolute =>
-      "$_sign${(_rate * _change).abs().toStringAsFixed(1)}";
+      "$_sign${(rate - (rate / (1 + change))).abs().toStringAsFixed(1)}";
   //returns change in %
   String get changeRelative =>
-      "$_sign${(_change * 100).abs().toStringAsFixed(1)}";
+      "$_sign${(change * 100).abs().toStringAsFixed(1)}";
 
   //24h volume in xch
   double _volume = 0;

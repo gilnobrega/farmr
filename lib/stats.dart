@@ -38,7 +38,7 @@ class Stats {
       (crypto == "xch") ? balance * (price?.rate ?? 0.0) : 0.0;
 
   static double calculateFiatChange(double balanceFiat, Rate? price) =>
-      balanceFiat * (price?.change ?? 0.0);
+      balanceFiat - (balanceFiat / (1 + (price?.change ?? 0.0)));
 
   // WALLET BALANCE
   double get walletBalance =>
@@ -208,9 +208,22 @@ class Stats {
   String get cpuName => ((_client.hardware?.cpus.length ?? 0) > 0)
       ? _client.hardware?.cpus[0].name ?? ""
       : "";
-  int get cpuThreads => ((_client.hardware?.cpus.length ?? 0) > 0)
-      ? _client.hardware?.cpus[0].threads ?? 0
-      : 0;
+  int get cpuThreads {
+    try {
+      if ((_client.hardware?.cpus.length ?? 0) > 0) {
+        //windows counts cores and not threads
+        //so in the end core count is multiplied by 2
+        //linux counts threads per cpu
+        int multiplier = (_client.hardware?.cpus[0].threads == 1) ? 2 : 1;
+        return (_client.hardware?.cpus
+                    .map((cpu) => cpu.threads)
+                    .reduce((t1, t2) => t1 + t2) ??
+                0) *
+            multiplier;
+      }
+    } catch (error) {}
+    return 0;
+  }
 
   int get totalMemory => _client.hardware?.recentMemory.totalMemory ?? 0;
   int get freeMemory => _client.hardware?.recentMemory.freeMemory ?? 0;
@@ -303,12 +316,14 @@ class Stats {
 
     String balanceText = '';
 
+    String sign = (stats.coldNetBalanceFiatChange >= 0) ? '+' : '-';
+
     String priceText = (stats.coldNetBalanceFiat > 0)
-        ? " (${stats.coldNetBalanceFiat.toStringAsFixed(2)} ${stats.currency})"
+        ? " (${stats.coldNetBalanceFiat.toStringAsFixed(2)} ${stats.currency}, $sign${stats.coldNetBalanceFiatChange.abs().toStringAsFixed(2)}${Price.currencies[stats.currency]}))"
         : '';
 
     balanceText += (stats.coldNetBalance >= 0.0)
-        ? "\n:cold_face: **${stats.coldNetBalance.toStringAsFixed(2)}** **${stats.crypto.toUpperCase()}**" +
+        ? "\n:cold_face: **${stats.coldNetBalance}** **${stats.crypto.toUpperCase()}**" +
             priceText
         : ''; //HIDES BALANCE IF NEGATIVE (MEANS USER DOES NOT HAVE COLD BALANCE)
 
@@ -987,8 +1002,8 @@ class Stats {
       String main = name +
           Stats.showStatus(stats) +
           Stats.showBalance(stats, !(isFull || isWorkers)) +
-          Stats.showColdBalance(stats) +
           Stats.showWalletBalance(stats, !(isFull || isWorkers)) +
+          Stats.showColdBalance(stats) +
           ((harvester is HPool && (isFull || isWorkers))
               ? Stats.showUndistributedBalance(stats)
               : '') +
