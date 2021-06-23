@@ -18,10 +18,11 @@ The dashboard can be found in [farmr.net](https://farmr.net). Alternatively, you
   - [Compile from source](./docs/installation-source.md)
 - [First Time](./docs/usage.md#First-time)
 - [Usage](./docs/usage.md#Usage)
-- [Updating](#Updating)
+- [Forks](./docs/forks.md) (flax, chaingreen, etc.)
+- [Updating](#updating)
 - [Discord Commands](./docs/commands.md)
 - [FAQ](./docs/faq.md)
-- [Donate](#Donate)
+- [Donate](#donate)
 
 ---
 
@@ -32,6 +33,7 @@ To update, repeat [Installation](#contents) instructions again with the [latest 
 @joaquimguimaraes wallet addresses:
 ```
 XCH: xch1z9wes90p356aqn9svvmr7du8yrr03payla02nkfpmfrtpeh23s4qmhx9q9
+XFX: xfx1z9wes90p356aqn9svvmr7du8yrr03payla02nkfpmfrtpeh23s4qz5ppr8
 ETH: 0x340281CbAd30702aF6dCA467e4f2524916bb9D61
 LTC: LWPkaD4P7bKpU28RTV4sP41jnrQ3NMDs5y
 ADA: addr1q8uw5jh3q0eujj6gqngrdgvr7r6gvqj5qv6tsp77d6usgcv6jehyxjelvffwv53r0avad874vk6snsq3tmmj7z27w73s9kxdkv
@@ -42,7 +44,6 @@ BNB: 0x340281cbad30702af6dca467e4f2524916bb9d61
 BTC: 1Gdzsx6VjZrDxP43y1pgkNMZGsyL357odS
 BTC (BEP20): 0x340281cbad30702af6dca467e4f2524916bb9d61
 ```
-
 
 ## Acknowledgements
 Dashboard's structure based on the work by Abu Anwar MD Abdullah [@abuanwar072/Flutter-Responsive-Admin-Panel-or-Dashboard](https://github.com/abuanwar072/Flutter-Responsive-Admin-Panel-or-Dashboard), licensed under MIT license.
