@@ -47,6 +47,19 @@ class Stats {
   double get walletBalanceFiatChange =>
       calculateFiatChange(walletBalanceFiat, _price);
 
+  // COLD BALANCE
+  double get coldGrossBalance =>
+      (_client is Farmer) ? (_client as Farmer).coldWallet.grossBalance : -1.0;
+  double get coldGrossBalanceFiat =>
+      calculateFiat(coldGrossBalance, _price, crypto);
+
+  double get coldNetBalance =>
+      (_client is Farmer) ? (_client as Farmer).coldWallet.netBalance : -1.0;
+  double get coldNetBalanceFiat =>
+      calculateFiat(coldNetBalance, _price, crypto);
+  double get coldNetBalanceFiatChange =>
+      calculateFiatChange(coldNetBalanceFiat, _price);
+
   //HPool Wallet
   double get undistributedBalance => (_client is HPool)
       ? ((_client as HPool).wallet as HPoolWallet).undistributedBalance
@@ -279,6 +292,25 @@ class Stats {
         ? "\n\<:chia:833767070201151528> **${balance.toStringAsFixed(2)}** **${stats.crypto.toUpperCase()}**" +
             priceText
         : ''; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
+
+    output += balanceText;
+
+    return output;
+  }
+
+  static String showColdBalance(Stats stats) {
+    String output = '';
+
+    String balanceText = '';
+
+    String priceText = (stats.coldNetBalanceFiat > 0)
+        ? " (${stats.coldNetBalanceFiat.toStringAsFixed(2)} ${stats.currency})"
+        : '';
+
+    balanceText += (stats.coldNetBalance >= 0.0)
+        ? "\n:cold_face: **${stats.coldNetBalance.toStringAsFixed(2)}** **${stats.crypto.toUpperCase()}**" +
+            priceText
+        : ''; //HIDES BALANCE IF NEGATIVE (MEANS USER DOES NOT HAVE COLD BALANCE)
 
     output += balanceText;
 
@@ -955,6 +987,7 @@ class Stats {
       String main = name +
           Stats.showStatus(stats) +
           Stats.showBalance(stats, !(isFull || isWorkers)) +
+          Stats.showColdBalance(stats) +
           Stats.showWalletBalance(stats, !(isFull || isWorkers)) +
           ((harvester is HPool && (isFull || isWorkers))
               ? Stats.showUndistributedBalance(stats)
