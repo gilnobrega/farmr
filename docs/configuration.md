@@ -17,6 +17,9 @@ Set ``Show Farmed XCH`` to ``false`` if you do not want your farmed balance to b
 #### Sharing Wallet Balance
 Set ``Show Wallet Balance`` to ``true`` if you want your wallet balance to be displayed.
 
+#### Cold Wallet Balance and Notifications
+Set ``Cold Wallet Address`` to some public address (e.g.: ``"xch1z9wes90p356aqn9svvmr7du8yrr03payla02nkfpmfrtpeh23s4qmhx9q9"``) if you want your cold wallet balance to be displayed. Set ``"Send Cold Wallet Balance Notifications"`` to ``false`` if you do not wish to be notified about incoming xch (such as block rewards).
+
 #### Block Notifications
 Set ``Block Notifications`` to ``false`` if you do not wish to be notified when your farmer finds a block.
 
