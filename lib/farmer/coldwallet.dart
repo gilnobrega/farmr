@@ -2,6 +2,10 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import 'package:logging/logging.dart';
+
+Logger log = Logger("Cold Wallet");
+
 //Wallet that uses chiaexplorer
 class ColdWallet {
   //gross balance
@@ -33,6 +37,8 @@ class ColdWallet {
 
       _grossBalance = object['grossBalance'] * 1e-12;
       _netBalance = object['netBalance'] * 1e-12;
-    } catch (error) {}
+    } catch (error) {
+      log.warning("Failed to get info about cold wallet");
+    }
   }
 }
