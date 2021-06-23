@@ -16,7 +16,7 @@ The dashboard can be found in [farmr.net](https://farmr.net). Alternatively, you
   - [Other Linux distributions](./docs/installation-linux.md)
   - [macOS](./docs/installation-macOS.md)
   - [Compile from source](./docs/installation-source.md)
-- [First Time](#./docs/usage.md#First-time)
+- [First Time](./docs/usage.md#First-time)
 - [Usage](./docs/usage.md#Usage)
 - [Updating](#Updating)
 - [Discord Commands](./docs/commands.md)
