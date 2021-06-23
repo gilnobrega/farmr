@@ -4,7 +4,6 @@ import 'package:universal_io/io.dart' as io;
 import 'dart:convert';
 
 import 'package:logging/logging.dart';
-import 'package:uuid/uuid.dart';
 
 import 'package:farmr_client/cache.dart';
 
@@ -122,21 +121,6 @@ class Config {
     if ((type == ClientType.Farmer || type == ClientType.FoxyPoolOG) &&
         (cache.binPath == '' || !io.File(cache.binPath).existsSync()))
       await _askForBinPath();
-
-    /** Generate Discord Id's */
-    if (_blockchain.id.ids.length != userNumber) {
-      if (userNumber > _blockchain.id.ids.length) {
-        // More Id's (add)
-        int newIds = userNumber - _blockchain.id.ids.length;
-        for (int i = 0; i < newIds; i++) _blockchain.id.ids.add(Uuid().v4());
-      } else if (userNumber < _blockchain.id.ids.length) {
-        // Less Id's (fresh list)
-        _blockchain.id.ids = [];
-        for (int i = 0; i < userNumber; i++)
-          _blockchain.id.ids.add(Uuid().v4());
-      }
-      _blockchain.id.save();
-    }
   }
 
   //Creates config file

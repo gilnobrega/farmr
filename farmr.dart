@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:path/path.dart';
 import 'package:universal_io/io.dart' as io;
 import 'dart:core';
+import 'dart:math' as Math;
 
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
@@ -20,6 +21,7 @@ import 'package:farmr_client/environment_config.dart';
 import 'package:farmr_client/stats.dart';
 import 'package:farmr_client/server/netspace.dart';
 import 'package:farmr_client/server/price.dart';
+import 'package:uuid/uuid.dart';
 
 final log = Logger('Client');
 
@@ -107,6 +109,22 @@ List<Blockchain> readBlockchains(ID id, String rootPath, List<String> args) {
   return blockchains;
 }
 
+void updateIDs(ID id, int userNumber) {
+  /** Generate Discord Id's */
+  if (id.ids.length != userNumber) {
+    if (userNumber > id.ids.length) {
+      // More Id's (add)
+      int newIds = userNumber - id.ids.length;
+      for (int i = 0; i < newIds; i++) id.ids.add(Uuid().v4());
+    } else if (userNumber < id.ids.length) {
+      // Less Id's (fresh list)
+      id.ids = [];
+      for (int i = 0; i < userNumber; i++) id.ids.add(Uuid().v4());
+    }
+    id.save();
+  }
+}
+
 main(List<String> args) async {
   initLogger(); //initializes logger
 
@@ -133,10 +151,16 @@ main(List<String> args) async {
 
   List<Blockchain> blockchains = readBlockchains(id, rootPath, args);
 
+  for (Blockchain blockchain in blockchains) await blockchain.init();
+
+  int maxUsers = blockchains
+      .map((e) => e.config.userNumber)
+      .reduce((n1, n2) => Math.max(n1, n2));
+
+  updateIDs(id, maxUsers);
+
   //shows info with ids to link
   id.info(blockchains);
-
-  for (Blockchain blockchain in blockchains) await blockchain.init();
 
   int counter = 0;
 
