@@ -62,6 +62,9 @@ class ColdWallet {
           log.warning("Failed to get info about chia cold wallet");
       }
     } else if (publicAddress.startsWith("xfx") && publicAddress.length == 62) {
+      _farmedBalance = 0;
+      _netBalance = 0;
+
       try {
         String contents =
             await http.read(Uri.parse(flaxExplorerURL + publicAddress));
