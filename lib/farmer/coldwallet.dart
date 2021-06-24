@@ -76,7 +76,7 @@ class ColdWallet {
           if (matches.length == 2) {
             _netBalance = double.parse(matches.elementAt(0).group(1) ?? "-1.0");
             _farmedBalance =
-                double.parse(matches.elementAt(0).group(1) ?? "-1.0");
+                double.parse(matches.elementAt(1).group(1) ?? "-1.0");
           }
         } catch (error) {
           log.warning("Failed to get info about flax cold wallet balance");
