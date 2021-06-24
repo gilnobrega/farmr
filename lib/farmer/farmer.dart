@@ -37,7 +37,7 @@ class Farmer extends Harvester {
   int get fullNodesConnected => _fullNodesConnected;
 
   //Farmed balance
-  double _balance = 0;
+  double _balance = -1.0;
   double get balance => _balance; //hides balance if string
 
   @override
