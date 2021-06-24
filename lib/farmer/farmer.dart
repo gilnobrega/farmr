@@ -102,18 +102,34 @@ class Farmer extends Harvester {
         for (int i = 0; i < lines.length; i++) {
           String line = lines[i];
 
-          if (line.startsWith("Total ${this.blockchain.binaryName} farmed: "))
-            _balance = (blockchain.config.showBalance)
-                ? double.parse(line
-                    .split('Total ${this.blockchain.binaryName} farmed: ')[1])
-                : -1.0;
-          else if (line.startsWith("Farming status: "))
+          if (line.startsWith("Farming status: "))
             _status = line.split("Farming status: ")[1];
-          else if (line.startsWith("Last height farmed: "))
-            lastBlockFarmed =
-                int.tryParse(line.split("Last height farmed: ")[1]) ?? 0;
-          else if (line.startsWith("Estimated network space: "))
-            _netSpace = NetSpace(line.split("Estimated network space: ")[1]);
+
+          try {
+            if (line.startsWith("Total ${this.blockchain.binaryName} farmed: "))
+              _balance = (blockchain.config.showBalance)
+                  ? double.parse(line
+                      .split('Total ${this.blockchain.binaryName} farmed: ')[1])
+                  : -1.0;
+          } catch (error) {
+            log.warning(
+                "Unable to parse farmed ${this.blockchain.currencySymbol.toUpperCase()}. Is wallet service running?");
+          }
+
+          try {
+            if (line.startsWith("Last height farmed: "))
+              lastBlockFarmed =
+                  int.tryParse(line.split("Last height farmed: ")[1]) ?? 0;
+          } catch (error) {
+            log.warning(
+                "Unable to parse last height farmed for ${this.blockchain.currencySymbol.toUpperCase()}. Is wallet service running?");
+          }
+          try {
+            if (line.startsWith("Estimated network space: "))
+              _netSpace = NetSpace(line.split("Estimated network space: ")[1]);
+          } catch (error) {
+            log.warning("Unable to parse Netspace.");
+          }
         }
       } catch (exception) {
         print("Error parsing Farm info.");
