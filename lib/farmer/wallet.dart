@@ -81,5 +81,6 @@ class Wallet {
 
   void setLastBlockFarmed(int lastBlockFarmed) {
     _lastBlockFarmed = lastBlockFarmed;
+    _daysSinceLastBlock = _estimateLastFarmedTime();
   }
 }
