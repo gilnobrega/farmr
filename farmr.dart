@@ -232,7 +232,9 @@ main(List<String> args) async {
         //sends notifications about cold wallet if that is enabled
         if (client is Farmer) {
           if (client.coldWallet.grossBalance >= 0)
-            coldBalance = client.coldWallet.grossBalance.toString();
+            coldBalance = (client.coldWallet.farmedBalance >= 0)
+                ? client.coldWallet.farmedBalance.toString() //flax
+                : client.coldWallet.grossBalance.toString(); //chia
 
           if (client.balance >= 0) balance = client.balance.toString();
         }
