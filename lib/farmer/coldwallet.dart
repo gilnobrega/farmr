@@ -9,8 +9,6 @@ Logger log = Logger("Cold Wallet");
 
 //Wallet that uses chiaexplorer
 class ColdWallet {
-  Wallet _mainWallet;
-
   //gross balance
   //CHIAEXPLORER ONLY
   double _grossBalance = -1.0;
@@ -31,9 +29,9 @@ class ColdWallet {
         "farmedBalance": farmedBalance
       };
 
-  ColdWallet(this._mainWallet);
+  ColdWallet();
 
-  ColdWallet.fromJson(dynamic json, this._mainWallet) {
+  ColdWallet.fromJson(dynamic json) {
     if (json['grossBalance'] != null)
       _grossBalance = double.parse(json['grossBalance'].toString());
     if (json['netBalance'] != null)
@@ -42,7 +40,7 @@ class ColdWallet {
       _farmedBalance = double.parse(json['farmedBalance'].toString());
   }
 
-  Future<void> init(String publicAddress) async {
+  Future<void> init(String publicAddress, Wallet mainWallet) async {
     const String chiaExplorerURL = "https://api2.chiaexplorer.com/balance/";
     const String flaxExplorerURL =
         "https://flaxexplorer.org/blockchain/address/";
@@ -91,7 +89,7 @@ class ColdWallet {
           var blockHeightMatches =
               blockHeightExp.allMatches(contents.toLowerCase());
           if (blockHeightMatches.length > 0)
-            _mainWallet.setLastBlockFarmed(
+            mainWallet.setLastBlockFarmed(
                 int.parse(blockHeightMatches.first.group(1) ?? "-1"));
         } catch (error) {
           log.warning(

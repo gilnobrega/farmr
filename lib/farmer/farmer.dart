@@ -27,7 +27,7 @@ class Farmer extends Harvester {
   static Wallet _emptyWallet = Wallet(-1.0, -1.0, Blockchain.fromSymbol("xch"));
   Wallet _wallet = _emptyWallet;
   Wallet get wallet => _wallet;
-  ColdWallet _coldWallet = ColdWallet(_emptyWallet);
+  ColdWallet _coldWallet = ColdWallet();
   ColdWallet get coldWallet => _coldWallet;
 
   Connections? _connections;
@@ -150,7 +150,7 @@ class Farmer extends Harvester {
   @override
   Future<void> init() async {
     if (blockchain.config.coldWalletAddress != "")
-      await _coldWallet.init(blockchain.config.coldWalletAddress);
+      await _coldWallet.init(blockchain.config.coldWalletAddress, _wallet);
 
     await super.init();
   }
@@ -194,7 +194,7 @@ class Farmer extends Harvester {
     }
 
     if (object['coldWallet'] != null)
-      _coldWallet = ColdWallet.fromJson(object['coldWallet'], _wallet);
+      _coldWallet = ColdWallet.fromJson(object['coldWallet']);
 
     calculateFilterRatio(this);
   }
