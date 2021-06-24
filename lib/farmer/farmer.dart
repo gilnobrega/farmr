@@ -23,9 +23,11 @@ class Farmer extends Harvester {
   @override
   String get status => _status;
 
-  Wallet _wallet = Wallet(-1.0, -1.0, Blockchain.fromSymbol("xch"));
+  //default empty wallet
+  static Wallet _emptyWallet = Wallet(-1.0, -1.0, Blockchain.fromSymbol("xch"));
+  Wallet _wallet = _emptyWallet;
   Wallet get wallet => _wallet;
-  ColdWallet _coldWallet = ColdWallet();
+  ColdWallet _coldWallet = ColdWallet(_emptyWallet);
   ColdWallet get coldWallet => _coldWallet;
 
   Connections? _connections;
@@ -192,7 +194,7 @@ class Farmer extends Harvester {
     }
 
     if (object['coldWallet'] != null)
-      _coldWallet = ColdWallet.fromJson(object['coldWallet']);
+      _coldWallet = ColdWallet.fromJson(object['coldWallet'], _wallet);
 
     calculateFilterRatio(this);
   }

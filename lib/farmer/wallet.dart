@@ -78,4 +78,8 @@ class Wallet {
 
     return numberOfDays;
   }
+
+  void setLastBlockFarmed(int lastBlockFarmed) {
+    _lastBlockFarmed = lastBlockFarmed;
+  }
 }

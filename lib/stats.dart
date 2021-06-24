@@ -30,8 +30,12 @@ class Stats {
   double get blockRewards => _client.blockRewards;
   double get blocksPer10Mins => _client.blocksPer10Mins;
 
-  double get balance =>
-      (_client is Farmer) ? (_client as Farmer).balance : -1.0;
+  //uses cold wallet farmed balance (for flax) if cold wallet is enabled
+  double get balance => (_client is Farmer)
+      ? ((_client as Farmer).coldWallet.farmedBalance >= 0)
+          ? (_client as Farmer).coldWallet.farmedBalance
+          : (_client as Farmer).balance
+      : -1.0;
   double get balanceFiat => calculateFiat(balance, _price, crypto);
 
   static double calculateFiat(double balance, Rate? price, String crypto) =>
