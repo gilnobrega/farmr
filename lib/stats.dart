@@ -31,11 +31,8 @@ class Stats {
   double get blocksPer10Mins => _client.blocksPer10Mins;
 
   //uses cold wallet farmed balance (for flax) if cold wallet is enabled
-  double get balance => (_client is Farmer)
-      ? (((_client as Farmer).coldWallet.farmedBalance >= 0)
-          ? (_client as Farmer).coldWallet.farmedBalance
-          : (_client as Farmer).balance)
-      : -1.0;
+  double get balance =>
+      (_client is Farmer) ? (_client as Farmer).balance : -1.0;
   double get balanceFiat => calculateFiat(balance, _price, crypto);
 
   static double calculateFiat(double balance, Rate? price, String crypto) =>
@@ -56,6 +53,11 @@ class Stats {
       (_client is Farmer) ? (_client as Farmer).coldWallet.grossBalance : -1.0;
   double get coldGrossBalanceFiat =>
       calculateFiat(coldGrossBalance, _price, crypto);
+
+  double get coldFarmedBalance =>
+      (_client is Farmer) ? (_client as Farmer).coldWallet.farmedBalance : -1.0;
+  double get coldFarmedBalanceFiat =>
+      calculateFiat(coldFarmedBalance, _price, crypto);
 
   double get coldNetBalance =>
       (_client is Farmer) ? (_client as Farmer).coldWallet.netBalance : -1.0;
@@ -332,6 +334,17 @@ class Stats {
         : ''; //HIDES BALANCE IF NEGATIVE (MEANS USER DOES NOT HAVE COLD BALANCE)
 
     output += balanceText;
+
+    String farmedPriceText = (stats.coldFarmedBalanceFiat > 0)
+        ? " (${stats.coldFarmedBalance.toStringAsFixed(2)} ${stats.currency}"
+        : '';
+
+    String farmedBalanceText = (stats.coldFarmedBalance >= 0.0)
+        ? "\n:ice_cube: **${stats.coldFarmedBalance}** **${stats.crypto.toUpperCase()}**" +
+            farmedPriceText
+        : ''; //HIDES BALANCE IF NEGATIVE (MEANS USER DOES NOT HAVE COLD BALANCE)
+
+    output += farmedBalanceText;
 
     return output;
   }
