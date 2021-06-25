@@ -108,7 +108,9 @@ class Config {
     if (isHPool && _blockchain.currencySymbol == "xch") {
       _type = ClientType.HPool;
       _name = "HPool";
-    } else if (isFoxyPoolOG && _blockchain.currencySymbol == "xch") {
+    } else if (isFoxyPoolOG &&
+        (_blockchain.currencySymbol == "xch" ||
+            _blockchain.currencySymbol == "xfx")) {
       _type = ClientType.FoxyPoolOG;
       _name = "FoxyPool";
     } else if (isHarvester) {
