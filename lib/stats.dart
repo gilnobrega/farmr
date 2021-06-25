@@ -317,7 +317,7 @@ class Stats {
     return output;
   }
 
-  static String showColdBalance(Stats stats) {
+  static String showColdBalance(Stats stats, bool full) {
     String output = '';
 
     String balanceText = '';
@@ -344,7 +344,7 @@ class Stats {
             farmedPriceText
         : ''; //HIDES BALANCE IF NEGATIVE (MEANS USER DOES NOT HAVE COLD BALANCE)
 
-    output += farmedBalanceText;
+    if (full) output += farmedBalanceText;
 
     return output;
   }
@@ -1020,7 +1020,7 @@ class Stats {
           Stats.showStatus(stats) +
           Stats.showBalance(stats, !(isFull || isWorkers)) +
           Stats.showWalletBalance(stats, !(isFull || isWorkers)) +
-          Stats.showColdBalance(stats) +
+          Stats.showColdBalance(stats, (isFull || isWorkers)) +
           ((harvester is HPool && (isFull || isWorkers))
               ? Stats.showUndistributedBalance(stats)
               : '') +
