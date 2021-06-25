@@ -57,7 +57,6 @@ class FoxyPoolOG extends Farmer {
   }
 
   Future<void> init() async {
-    super.init();
     FoxyPoolApi api = FoxyPoolApi();
 
     //parses foxypool api if that option is enabled
