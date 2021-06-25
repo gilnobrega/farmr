@@ -79,8 +79,11 @@ class Wallet {
     return numberOfDays;
   }
 
+  //only updates last block farmed if it is a higher block than what's in local wallet
   void setLastBlockFarmed(int lastBlockFarmed) {
-    _lastBlockFarmed = lastBlockFarmed;
-    _daysSinceLastBlock = _estimateLastFarmedTime();
+    if (lastBlockFarmed > _lastBlockFarmed) {
+      _lastBlockFarmed = lastBlockFarmed;
+      _daysSinceLastBlock = _estimateLastFarmedTime();
+    }
   }
 }

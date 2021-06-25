@@ -45,9 +45,6 @@ class FoxyPoolOG extends Farmer {
     Map farmerMap = (super.toJson());
 
     farmerMap.update("walletBalance", (value) => _wallet.balance);
-    farmerMap.update(
-        "daysSinceLastBlock", (value) => _wallet.daysSinceLastBlock);
-
     farmerMap.addEntries({
       'pendingBalance': _wallet.pendingBalance, //pending balance
       'collateralBalance': _wallet.collateralBalance //collateral balance
