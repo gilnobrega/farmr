@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/server/netspace.dart';
 import 'package:logging/logging.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -28,14 +29,14 @@ class FoxyPoolApi {
 
   FoxyPoolApi();
 
-  Future<void> init(String publicKey) async {
+  Future<void> init(String publicKey, Blockchain blockchain) async {
     if (publicKey != "") {
       Stopwatch stopwatch = Stopwatch();
 
       stopwatch.start();
 
       try {
-        _getBalance(publicKey);
+        _getBalance(publicKey, blockchain);
       } catch (e) {
         log.warning(
             "Failed to get FoxyPool Info, make sure your pool public key is correct.");
@@ -57,10 +58,10 @@ class FoxyPoolApi {
     }
   }
 
-  void _getBalance(String poolPublicKey) {
+  void _getBalance(String poolPublicKey, Blockchain blockchain) {
     // Dart client
     _socket = IO.io(
-      'https://api.chia-og.foxypool.io/stats',
+      'https://api.${blockchain.binaryName}-og.foxypool.io/stats',
       <String, dynamic>{
         'transports': ['websocket'],
       },
@@ -80,7 +81,7 @@ class FoxyPoolApi {
     });*/
 
       _socket?.emitWithAck('get-account', {
-        'chia-og',
+        '${blockchain.binaryName}-og',
         {'poolPublicKey': poolPublicKey}
       }, ack: (data) {
         //print('ack $data');

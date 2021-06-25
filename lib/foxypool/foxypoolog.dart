@@ -58,12 +58,14 @@ class FoxyPoolOG extends Farmer {
 
   Future<void> init() async {
     super.init();
-
-    //tries to parse hpool api
     FoxyPoolApi api = FoxyPoolApi();
-    await api.init(_publicKey);
 
-    //normal wallet + foxypool pening income + foxypool collateral balance
+    //parses foxypool api if that option is enabled
+    if (blockchain.config.foxyPoolOverride)
+      //tries to parse foxypool api
+      await api.init(_publicKey, blockchain);
+
+    //normal wallet + foxypool pending income + foxypool collateral balance
     _wallet = FoxyPoolWallet(
         super.wallet.balance,
         super.wallet.daysSinceLastBlock,

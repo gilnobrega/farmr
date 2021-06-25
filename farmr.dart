@@ -188,15 +188,17 @@ main(List<String> args) async {
         var client;
 
         //if its xch
-        if (blockchain.currencySymbol == "xch") {
-          if (blockchain.config.type == ClientType.Farmer)
-            client = Farmer(
-                blockchain: blockchain, version: EnvironmentConfig.version);
-          else if (blockchain.config.type == ClientType.HPool)
+        if (blockchain.currencySymbol == "xch" ||
+            blockchain.currencySymbol == "xfx") {
+          if (blockchain.config.type == ClientType.HPool &&
+              blockchain.currencySymbol == "xch")
             client = HPool(
                 blockchain: blockchain, version: EnvironmentConfig.version);
           else if (blockchain.config.type == ClientType.FoxyPoolOG)
             client = FoxyPoolOG(
+                blockchain: blockchain, version: EnvironmentConfig.version);
+          else if (blockchain.config.type == ClientType.Farmer)
+            client = Farmer(
                 blockchain: blockchain, version: EnvironmentConfig.version);
           else
             client = Harvester(blockchain, EnvironmentConfig.version);

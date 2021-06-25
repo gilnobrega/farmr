@@ -92,6 +92,10 @@ class Config {
   bool get sendColdWalletBalanceNotifications =>
       _sendColdWalletBalanceNotifications;
 
+  //overrides foxypool mode
+  bool _foxyPoolOverride = true;
+  bool get foxyPoolOverride => _foxyPoolOverride;
+
   // '/home/user/.farmr' for package installs, '' (project path) for the rest
   late String _rootPath;
   late io.File _config;
@@ -174,8 +178,10 @@ class Config {
       configMap.putIfAbsent("HPool Auth Token", () => hpoolAuthToken);
 
     //poolPublicKey used in FoxyPool's chia-og
-    if (type == ClientType.FoxyPoolOG || poolPublicKey != "")
+    if (type == ClientType.FoxyPoolOG || poolPublicKey != "") {
       configMap.putIfAbsent("Pool Public Key", () => poolPublicKey);
+      configMap.putIfAbsent("Use FoxyPool API", () => foxyPoolOverride);
+    }
 
     var encoder = new JsonEncoder.withIndent("    ");
     String contents = encoder.convert([configMap]);
@@ -391,6 +397,9 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
       if (_poolPublicKey.length == 96 && !_poolPublicKey.startsWith("0x"))
         _poolPublicKey = "0x" + poolPublicKey;
     }
+
+    if (contents[0]['Use FoxyPool API'] != null)
+      _foxyPoolOverride = contents[0]['Use FoxyPool API'];
 
     if (contents[0]["Show Hardware Info"] != null)
       _showHardwareInfo = contents[0]["Show Hardware Info"];
