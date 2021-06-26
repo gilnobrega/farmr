@@ -9,19 +9,21 @@ In the event that your coin is not listed here, you will need to create a templa
 
 1. Create the file with the proper name
 1. Place the boilerplate inside of this file
-```
-{
-    "Binary Name": "",
-    "Currency Symbol": "",
-    "Minor Currency Symbol": "",
-    "Net": "mainnet",
-    "Block Rewards": 0,
-    "Blocks Per 10 Minutes": 0,
-    "Config Path": "/home/user/.goji-blockchain/mainnet/config",
-    "Log Path": "/home/user/.goji-blockchain/mainnet/log"
-}
-```
+    ```
+    {
+        "Binary Name": "",
+        "Currency Symbol": "",
+        "Minor Currency Symbol": "",
+        "Net": "mainnet",
+        "Block Rewards": 0,
+        "Blocks Per 10 Minutes": 0,
+        "Config Path": "/home/user/.goji-blockchain/mainnet/config",
+        "Log Path": "/home/user/.goji-blockchain/mainnet/log"
+    }
+    ```
 1. Edit the values as shown below. All defaults below are the `Chia-Network/chia-blockchain` values 
+1. Ensure it is working in [farmr](https://farmr.net/#/)
+    - If you are feeling adventurous and want to help the community grow, submit a PR to [farmr's Github](https://github.com/joaquimguimaraes/farmr/pulls)
 
 #### Binary Name
 Command used to execute from the CLI.
