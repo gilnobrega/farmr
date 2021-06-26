@@ -25,43 +25,39 @@ In the event that your coin is not listed here, you will need to create a templa
 
 #### Binary Name
 Command used to execute from the CLI.
-
-Chia Example: `chia`
+- Chia Example: `chia`
 
 #### Currency Symbol
 Symbol to use to recognize the coin.
-
-Chia Example: `XCH`
+- Chia Example: `XCH`
 
 #### Minor Currency Symbol
 Symbol to use to recognize smaller parts of the coin.
-
-Chia Example: `mojo`
+- Chia Example: `mojo`
 
 #### Net
-Defaulted to `mainnet`, but if you are on a `testnet#` change this value.
-
+What net to retrieve data from.
+- Default: `mainnet`
 #### Block Rewards
 How much is won per block?
-
-Chia Example: `2.0`
+- Chia Example: `2.0`
 
 #### Blocks Per 10 Minutes
 How many Blocks occur per 10 Minutes?
-
-Chia Example: `32.0`
+- Chia Example: `32.0`
 
 #### Config Path
 Path to the config files.
-
-Chia Example:
-Linux: `/home/user/.chia/mainnet/config`
-Windows: `C:\\Users\\USER\\.chia\\mainnet\\config`
-
+- Chia Example:
+    ```
+    Linux: `/home/user/.chia/mainnet/config`
+    Windows: `C:\\Users\\USER\\.chia\\mainnet\\config`
+    ```
 
 #### Log Path
 Path to the log files.
-
-Chia Example:
-Linux: `/home/user/.chia/mainnet/log`
-Windows: `C:\\Users\\USER\\.chia\\mainnet\\log`
+- Chia Example:
+    ```
+    Linux: `/home/user/.chia/mainnet/log`
+    Windows: `C:\\Users\\USER\\.chia\\mainnet\\log`
+    ```
