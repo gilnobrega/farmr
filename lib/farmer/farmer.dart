@@ -119,7 +119,7 @@ class Farmer extends Harvester {
           try {
             if (line.startsWith("Last height farmed: "))
               lastBlockFarmed =
-                  int.tryParse(line.split("Last height farmed: ")[1]) ?? 0;
+                  int.parse(line.split("Last height farmed: ")[1]);
           } catch (error) {
             log.warning(
                 "Unable to parse last height farmed for ${this.blockchain.currencySymbol.toUpperCase()}. Is wallet service running?");

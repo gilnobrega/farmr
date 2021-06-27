@@ -319,7 +319,8 @@ main(List<String> args) async {
             if ((blockchain.config.type == ClientType.Farmer ||
                     blockchain.config.type == ClientType.FoxyPoolOG) &&
                 blockchain.config.sendBalanceNotifications &&
-                status == "Farming") post.putIfAbsent("balance", () => balance);
+                status == "Farming" &&
+                balance != "") post.putIfAbsent("balance", () => balance);
             //if cold balance has been read and cold balance notifications are enabled then it will send coldBalance to server
             if ((blockchain.config.type == ClientType.Farmer ||
                     blockchain.config.type == ClientType.FoxyPoolOG) &&
