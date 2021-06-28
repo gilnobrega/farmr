@@ -11,14 +11,15 @@ In the event that your coin is not listed here, you will need to create a templa
 1. Place the boilerplate inside of this file
     ```
     {
-        "Binary Name": "",
-        "Currency Symbol": "",
-        "Minor Currency Symbol": "",
+        "Binary Name": "chia",
+        "Folder Name": ".chia",
+        "Currency Symbol": "XCH",
+        "Minor Currency Symbol": "mojo",
         "Net": "mainnet",
-        "Block Rewards": 0,
-        "Blocks Per 10 Minutes": 0,
-        "Config Path": "/home/user/.goji-blockchain/mainnet/config",
-        "Log Path": "/home/user/.goji-blockchain/mainnet/log"
+        "Block Rewards": 2.0,
+        "Blocks Per 10 Minutes": 32.0,
+        "Config Path": "/home/user/.chia/mainnet/config",
+        "Log Path": "/home/user/.chia/mainnet/log"
     }
     ```
 1. Edit the values as shown below. All defaults below are the `Chia-Network/chia-blockchain` values 
@@ -28,6 +29,10 @@ In the event that your coin is not listed here, you will need to create a templa
 #### Binary Name
 Command used to execute from the CLI.
 - Chia Example: `chia`
+
+#### Folder Name
+OPTIONAL: Name of the root folder of configuration/log files
+- Chia Example: `.chia`
 
 #### Currency Symbol
 Symbol to use to recognize the coin.
@@ -40,6 +45,7 @@ Symbol to use to recognize smaller parts of the coin.
 #### Net
 What net to retrieve data from.
 - Default: `mainnet`
+
 #### Block Rewards
 How much is won per block?
 - Chia Example: `2.0`
@@ -49,7 +55,7 @@ How many Blocks occur per 10 Minutes?
 - Chia Example: `32.0`
 
 #### Config Path
-Path to the config files.
+OPTIONAL: Path to the config files.
 - Chia Example:
     ```
     Linux: `/home/user/.chia/mainnet/config`
@@ -57,7 +63,7 @@ Path to the config files.
     ```
 
 #### Log Path
-Path to the log files.
+OPTIONAL: to the log files.
 - Chia Example:
     ```
     Linux: `/home/user/.chia/mainnet/log`

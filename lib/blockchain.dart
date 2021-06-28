@@ -124,7 +124,7 @@ class Blockchain {
       OS.Linux:
           "${io.Platform.environment['HOME']}/$folderName/$net/$finalFolder",
       OS.MacOS:
-          "${io.Platform.environment['HOME']}/$folderName/$net}/$finalFolder",
+          "${io.Platform.environment['HOME']}/$folderName/$net/$finalFolder",
       OS.Windows:
           "${io.Platform.environment['UserProfile']}\\$folderName\\$net\\$finalFolder",
       //test mode for github releases
