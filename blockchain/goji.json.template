@@ -1,0 +1,9 @@
+{
+    "Binary Name": "goji",
+    "Folder Name": ".goji-blockchain",
+    "Currency Symbol": "XGJ",
+    "Minor Currency Symbol": "moji",
+    "Net": "mainnet",
+    "Block Rewards": 2.0,
+    "Blocks Per 10 Minutes": 32.0
+}

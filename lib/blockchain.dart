@@ -14,6 +14,9 @@ class Blockchain {
   String _binaryName = '';
   String get binaryName => _binaryName.toLowerCase();
 
+  String _folderName = '';
+  String get folderName => _folderName;
+
   String _currencySymbol = '';
   String get currencySymbol => _currencySymbol.toLowerCase();
   String _minorCurrencySymbol = '';
@@ -55,6 +58,7 @@ class Blockchain {
     if (json != null) {
       //defaults to chia config
       _binaryName = json['Binary Name'] ?? 'chia';
+      _folderName = json['Folder Name'] ?? '.$binaryName';
       _currencySymbol = json['Currency Symbol'] ?? 'xch';
       _minorCurrencySymbol = json['Minor Currency Symbol'] ?? 'mojo';
       _net = json['Net'] ?? 'mainnet';
@@ -118,11 +122,11 @@ class Blockchain {
     Map<OS, String> configPathMap = {
       //Sets config file path according to platform
       OS.Linux:
-          "${io.Platform.environment['HOME']}/.${binaryName}/${net}/${finalFolder}",
+          "${io.Platform.environment['HOME']}/$folderName/$net/$finalFolder",
       OS.MacOS:
-          "${io.Platform.environment['HOME']}/.${binaryName}/${net}/${finalFolder}",
+          "${io.Platform.environment['HOME']}/$folderName/$net}/$finalFolder",
       OS.Windows:
-          "${io.Platform.environment['UserProfile']}\\.${binaryName}\\${net}\\${finalFolder}",
+          "${io.Platform.environment['UserProfile']}\\$folderName\\$net\\$finalFolder",
       //test mode for github releases
       OS.GitHub: ".github/workflows",
     };
