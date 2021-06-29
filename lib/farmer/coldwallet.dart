@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/farmer/wallet.dart';
 import 'package:http/http.dart' as http;
 
