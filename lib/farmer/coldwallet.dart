@@ -47,7 +47,7 @@ class ColdWallet {
 
     //multiple cold wallet addresses
     List<String> publicAddresses = [publicAddressesString];
-    if (publicAddresses.contains(","))
+    if (publicAddressesString.contains(","))
       publicAddresses = publicAddressesString.split(",");
 
     List<double> grossBalances = [];

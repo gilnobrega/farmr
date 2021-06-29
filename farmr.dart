@@ -273,7 +273,7 @@ main(List<String> args) async {
       }
 
       if (!standalone) {
-        Future.sync(() {
+        await Future.sync(() {
           //SENDS DATA TO SERVER
           try {
             //clones farm so it can clear ids before sending them to server
