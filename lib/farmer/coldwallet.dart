@@ -40,69 +40,99 @@ class ColdWallet {
       _farmedBalance = double.parse(json['farmedBalance'].toString());
   }
 
-  Future<void> init(String publicAddress, Wallet mainWallet) async {
+  Future<void> init(String publicAddressesString, Wallet mainWallet) async {
     const String chiaExplorerURL = "https://api2.chiaexplorer.com/balance/";
     const String flaxExplorerURL =
         "https://flaxexplorer.org/blockchain/address/";
-    if (publicAddress.startsWith("xch") && publicAddress.length == 62) {
-      try {
-        String contents =
-            await http.read(Uri.parse(chiaExplorerURL + publicAddress));
 
-        var object = jsonDecode(contents);
+    //multiple cold wallet addresses
+    List<String> publicAddresses = [publicAddressesString];
+    if (publicAddresses.contains(","))
+      publicAddresses = publicAddressesString.split(",");
 
-        _grossBalance = object['grossBalance'] * 1e-12;
-        _netBalance = object['netBalance'] * 1e-12;
-      } catch (error) {
-        //404 error means wallet is empty
-        if (error is http.ClientException && error.toString().contains("404")) {
-          _grossBalance = 0;
-          _netBalance = 0;
-        } else
-          log.warning("Failed to get info about chia cold wallet");
-      }
-    } else if (publicAddress.startsWith("xfx") && publicAddress.length == 62) {
-      _farmedBalance = 0;
-      _netBalance = 0;
+    List<double> grossBalances = [];
+    List<double> netBalances = [];
+    List<double> farmedBalances = [];
 
-      try {
-        String contents =
-            await http.read(Uri.parse(flaxExplorerURL + publicAddress));
-
-        RegExp regex = RegExp(r"([0-9]+\.[0-9]+) XFX</span>", multiLine: true);
-
+    for (String publicAddress in publicAddresses) {
+      if (publicAddress.startsWith("xch") && publicAddress.length == 62) {
         try {
-          var matches = regex.allMatches(contents);
+          String contents =
+              await http.read(Uri.parse(chiaExplorerURL + publicAddress));
 
-          if (matches.length == 2) {
-            _netBalance = double.parse(matches.elementAt(0).group(1) ?? "-1.0");
-            _farmedBalance =
-                double.parse(matches.elementAt(1).group(1) ?? "-1.0");
+          var object = jsonDecode(contents);
+
+          grossBalances
+              .add(double.parse(object['grossBalance'].toString()) * 1e-12);
+          netBalances
+              .add(double.parse(object['netBalance'].toString()) * 1e-12);
+        } catch (error) {
+          //404 error means wallet is empty
+          if (error is http.ClientException &&
+              error.toString().contains("404")) {
+          } else {
+            log.warning("Failed to get info about chia cold wallet");
+          }
+        }
+      } else if (publicAddress.startsWith("xfx") &&
+          publicAddress.length == 62) {
+        try {
+          String contents =
+              await http.read(Uri.parse(flaxExplorerURL + publicAddress));
+
+          RegExp regex =
+              RegExp(r"([0-9]+\.[0-9]+) XFX</span>", multiLine: true);
+
+          try {
+            var matches = regex.allMatches(contents);
+
+            if (matches.length == 2) {
+              netBalances
+                  .add(double.parse(matches.elementAt(0).group(1) ?? "-1.0"));
+              farmedBalances
+                  .add(double.parse(matches.elementAt(1).group(1) ?? "-1.0"));
+            }
+          } catch (error) {
+            log.warning("Failed to get info about flax cold wallet balance");
+          }
+
+          //tries to parse last farmed  reward
+          RegExp blockHeightExp = RegExp(
+              r'farmer reward<\/td>[\s]+<td><a href="\/blockchain\/coin\/[\w]+">[\w]+<\/a><\/td>[\s]+<td>[0-9\.]+ xfx<\/td>[\s]+<td>([0-9]+)',
+              multiLine: true);
+
+          try {
+            var blockHeightMatches =
+                blockHeightExp.allMatches(contents.toLowerCase());
+            if (blockHeightMatches.length > 0)
+              mainWallet.setLastBlockFarmed(
+                  int.parse(blockHeightMatches.first.group(1) ?? "-1"));
+          } catch (error) {
+            log.warning(
+                "Failed to get info about cold wallet last farmed reward");
           }
         } catch (error) {
-          log.warning("Failed to get info about flax cold wallet balance");
+          log.warning("Failed to get info about flax cold wallet");
         }
-
-        //tries to parse last farmed  reward
-        RegExp blockHeightExp = RegExp(
-            r'farmer reward<\/td>[\s]+<td><a href="\/blockchain\/coin\/[\w]+">[\w]+<\/a><\/td>[\s]+<td>[0-9\.]+ xfx<\/td>[\s]+<td>([0-9]+)',
-            multiLine: true);
-
-        try {
-          var blockHeightMatches =
-              blockHeightExp.allMatches(contents.toLowerCase());
-          if (blockHeightMatches.length > 0)
-            mainWallet.setLastBlockFarmed(
-                int.parse(blockHeightMatches.first.group(1) ?? "-1"));
-        } catch (error) {
-          log.warning(
-              "Failed to get info about cold wallet last farmed reward");
-        }
-      } catch (error) {
-        log.warning("Failed to get info about flax cold wallet");
+      } else {
+        log.warning("Invalid cold wallet address");
       }
-    } else {
-      log.warning("Invalid cold wallet address");
+    }
+
+    if (netBalances.length > 0) _netBalance = 0;
+    for (double netBalance in netBalances) _netBalance += netBalance;
+
+    if (mainWallet.blockchain.currencySymbol == "xfx") {
+      if (farmedBalances.length > 0) _farmedBalance = 0;
+
+      for (double farmedBalance in farmedBalances)
+        _farmedBalance += farmedBalance;
+    }
+
+    if (mainWallet.blockchain.currencySymbol == "xch") {
+      if (grossBalances.length > 0) _grossBalance = 0;
+
+      for (double grossBalance in grossBalances) _grossBalance += grossBalance;
     }
   }
 }
