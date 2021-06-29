@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/farmer/wallet.dart';
 import 'package:http/http.dart' as http;
 
@@ -12,16 +13,16 @@ class ColdWallet {
   //gross balance
   //CHIAEXPLORER ONLY
   double _grossBalance = -1.0;
-  double get grossBalance => _grossBalance;
+  double get grossBalance => roundTo12Decimals(_grossBalance);
 
   //net balance
   double _netBalance = -1.0;
-  double get netBalance => _netBalance;
+  double get netBalance => roundTo12Decimals(_netBalance);
 
   //farmed balance
   //FLAX EXPLORER ONLY
   double _farmedBalance = -1.0;
-  double get farmedBalance => _farmedBalance;
+  double get farmedBalance => roundTo12Decimals(_farmedBalance);
 
   Map toJson() => {
         "grossBalance": grossBalance,
@@ -63,7 +64,7 @@ class ColdWallet {
           var object = jsonDecode(contents);
 
           grossBalances
-              .add(double.parse(object['grossBalance'].toString()) * 1e-12);
+              .add((double.parse(object['grossBalance'].toString()) * 1e-12));
           netBalances
               .add(double.parse(object['netBalance'].toString()) * 1e-12);
         } catch (error) {
@@ -135,4 +136,7 @@ class ColdWallet {
       for (double grossBalance in grossBalances) _grossBalance += grossBalance;
     }
   }
+
+  static double roundTo12Decimals(double input) =>
+      double.parse(input.toStringAsFixed(12));
 }
