@@ -78,7 +78,7 @@ class Wallet {
     //estimate of number of days ago, it tends to exaggerate
     double numberOfDays = (blockDiff / blocksPerDay);
 
-    log.info("Days since last block: " + _lastBlockFarmed.toString());
+    log.info("Days since last block: " + numberOfDays.toString());
 
     return numberOfDays;
   }
@@ -98,9 +98,10 @@ class Wallet {
             .inHours /
         24.0;
 
-    log.info("Days since last block: " + daysSinceBlock.toString());
+    if (daysSinceBlock < _daysSinceLastBlock) {
+      log.info("Days since last block: " + daysSinceBlock.toString());
 
-    if (daysSinceBlock < _daysSinceLastBlock)
       _daysSinceLastBlock = daysSinceBlock;
+    }
   }
 }

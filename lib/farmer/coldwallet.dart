@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/farmer/wallet.dart';
 import 'package:http/http.dart' as http;
 
@@ -76,8 +77,9 @@ class ColdWallet {
               coinsObject['coins'] != null && i < coinsObject['coins'].length;
               i++) {
             var coin = coinsObject['coins'][i];
-            if (coin['coinbase'])
-              mainWallet.setDaysAgoWithTimestamp(coin['timestamp'] * 1000);
+            if (coin['coinbase'] && int.tryParse(coin['timestamp']) != null)
+              mainWallet
+                  .setDaysAgoWithTimestamp(int.parse(coin['timestamp']) * 1000);
           }
         } catch (error) {
           //404 error means wallet is empty
