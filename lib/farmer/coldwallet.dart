@@ -71,19 +71,14 @@ class ColdWallet {
               Uri.parse(chiaExplorerURL + "coinsForAddress/" + publicAddress));
 
           var coinsObject = jsonDecode(coins);
-          int? lastFarmedHeight;
 
           for (int i = 0;
-              coinsObject['coins'] != null &&
-                  i < coinsObject['coins'].length &&
-                  lastFarmedHeight == null;
+              coinsObject['coins'] != null && i < coinsObject['coins'].length;
               i++) {
             var coin = coinsObject['coins'][i];
-            if (coin['coinbase']) lastFarmedHeight = coin['block_height'];
+            if (coin['coinbase'])
+              mainWallet.setLastBlockFarmed(coin['block_height']);
           }
-
-          if (lastFarmedHeight != null)
-            mainWallet.setLastBlockFarmed(lastFarmedHeight);
         } catch (error) {
           //404 error means wallet is empty
           if (error is http.ClientException &&

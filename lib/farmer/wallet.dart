@@ -71,10 +71,14 @@ class Wallet {
   double _estimateLastFarmedTime() {
     int blockDiff = _syncedBlockHeight - _lastBlockFarmed;
 
+    log.info("Last block farmed: " + _lastBlockFarmed.toString());
+
     int blocksPerDay = (blockchain.blocksPer10Mins * 6 * 24).round();
 
     //estimate of number of days ago, it tends to exaggerate
     double numberOfDays = (blockDiff / blocksPerDay);
+
+    log.info("Block days ago: " + _lastBlockFarmed.toString());
 
     return numberOfDays;
   }
