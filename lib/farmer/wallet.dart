@@ -78,7 +78,7 @@ class Wallet {
     //estimate of number of days ago, it tends to exaggerate
     double numberOfDays = (blockDiff / blocksPerDay);
 
-    log.info("Block days ago: " + _lastBlockFarmed.toString());
+    log.info("Days since last block: " + _lastBlockFarmed.toString());
 
     return numberOfDays;
   }
@@ -97,6 +97,8 @@ class Wallet {
             .difference(DateTime.fromMillisecondsSinceEpoch(blockTimestamp))
             .inHours /
         24.0;
+
+    log.info("Days since last block: " + daysSinceBlock.toString());
 
     if (daysSinceBlock < _daysSinceLastBlock)
       _daysSinceLastBlock = daysSinceBlock;
