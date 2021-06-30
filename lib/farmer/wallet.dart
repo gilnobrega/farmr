@@ -98,10 +98,7 @@ class Wallet {
             .inHours /
         24.0;
 
-    log.info(daysSinceBlock);
-    log.info(_daysSinceLastBlock);
-
-    if (daysSinceBlock < _daysSinceLastBlock) {
+    if (daysSinceBlock < daysSinceLastBlock) {
       log.info("Days since last block: " + daysSinceBlock.toString());
 
       _daysSinceLastBlock = daysSinceBlock;
