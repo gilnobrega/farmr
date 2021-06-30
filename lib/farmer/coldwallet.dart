@@ -41,7 +41,7 @@ class ColdWallet {
   }
 
   Future<void> init(String publicAddressesString, Wallet mainWallet) async {
-    const String chiaExplorerURL = "https://api2.chiaexplorer.com/balance/";
+    const String chiaExplorerURL = "https://api2.chiaexplorer.com/";
     const String flaxExplorerURL =
         "https://flaxexplorer.org/blockchain/address/";
 
@@ -57,8 +57,8 @@ class ColdWallet {
     for (String publicAddress in publicAddresses) {
       if (publicAddress.startsWith("xch") && publicAddress.length == 62) {
         try {
-          String contents =
-              await http.read(Uri.parse(chiaExplorerURL + publicAddress));
+          String contents = await http
+              .read(Uri.parse(chiaExplorerURL + "balance/" + publicAddress));
 
           var object = jsonDecode(contents);
 
@@ -66,6 +66,24 @@ class ColdWallet {
               .add((double.parse(object['grossBalance'].toString()) * 1e-12));
           netBalances
               .add(double.parse(object['netBalance'].toString()) * 1e-12);
+
+          String coins = await http.read(
+              Uri.parse(chiaExplorerURL + "coinsForAddress/" + publicAddress));
+
+          var coinsObject = jsonDecode(coins);
+          int? lastFarmedHeight;
+
+          for (int i = 0;
+              coinsObject['coins'] != null &&
+                  i < coinsObject['coins'].length &&
+                  lastFarmedHeight == null;
+              i++) {
+            var coin = coinsObject['coins'][i];
+            if (coin['coinbase']) lastFarmedHeight = coin['block_height'];
+          }
+
+          if (lastFarmedHeight != null)
+            mainWallet.setLastBlockFarmed(lastFarmedHeight);
         } catch (error) {
           //404 error means wallet is empty
           if (error is http.ClientException &&
