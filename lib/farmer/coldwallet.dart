@@ -77,7 +77,7 @@ class ColdWallet {
               i++) {
             var coin = coinsObject['coins'][i];
             if (coin['coinbase'])
-              mainWallet.setLastBlockFarmed(coin['block_height']);
+              mainWallet.setDaysAgoWithTimestamp(coin['timestamp'] * 1000);
           }
         } catch (error) {
           //404 error means wallet is empty

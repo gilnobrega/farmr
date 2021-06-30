@@ -392,7 +392,7 @@ void clearLog() {
   //logging on windows is disabled
   if (!io.Platform.isWindows) {
     try {
-      io.File logFile = io.File("log.txt");
+      io.File logFile = io.File(rootPath + "log.txt");
 
       //Deletes log file if it already exists
       if (logFile.existsSync()) {

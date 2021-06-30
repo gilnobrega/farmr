@@ -90,4 +90,15 @@ class Wallet {
       _daysSinceLastBlock = _estimateLastFarmedTime();
     }
   }
+
+  //updates block n Days ago with a unix timestamp
+  void setDaysAgoWithTimestamp(int blockTimestamp) {
+    double daysSinceBlock = DateTime.now()
+            .difference(DateTime.fromMillisecondsSinceEpoch(blockTimestamp))
+            .inHours /
+        24.0;
+
+    if (daysSinceBlock < _daysSinceLastBlock)
+      _daysSinceLastBlock = daysSinceBlock;
+  }
 }
