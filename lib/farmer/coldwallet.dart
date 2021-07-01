@@ -84,12 +84,20 @@ class ColdWallet {
           //404 error means wallet is empty
           if (error is http.ClientException &&
               error.toString().contains("404")) {
+            //if wallet is empty then assumes both gross balance and net balance are 0
+            grossBalances.add(0.0);
+            netBalances.add(0.0);
           } else {
             log.warning("Failed to get info about chia cold wallet");
           }
         }
       } else if (publicAddress.startsWith("xfx") &&
           publicAddress.length == 62) {
+        //flaxexplorer has no way to know if wallet is empty or address invalid
+        // always start with net balance and farm balances 0
+        netBalances.add(0.0);
+        farmedBalances.add(0.0);
+
         try {
           String contents =
               await http.read(Uri.parse(flaxExplorerURL + publicAddress));
