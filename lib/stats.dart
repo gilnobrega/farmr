@@ -243,6 +243,8 @@ class Stats {
   String get freeMemoryString => fileSize(freeMemory);
   String get usedMemoryString => fileSize(usedMemory);
 
+  String get version => _client.version;
+
   Stats(this._client, this._price, this._netSpace);
 
   static String showName(Harvester harvester, [int count = 0]) {

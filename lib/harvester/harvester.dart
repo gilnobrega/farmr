@@ -240,6 +240,8 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     //shows harvesters status if theyre not harvesting
     if (harvester.status != "Harvesting" && harvester.status != "Farming")
       _status = "$_status,\n${harvester.name} is ${harvester.status}";
+
+    if (_version != harvester.version) _version = "";
   }
 
   //clears plots ids before sending info to server
