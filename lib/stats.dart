@@ -311,7 +311,7 @@ class Stats {
         : '';
 
     balanceText += (balance >= 0.0)
-        ? "\n\<:chia:833767070201151528> **${balance.toStringAsFixed(2)}** **${stats.crypto.toUpperCase()}**" +
+        ? "\n\<:farmr:860528105307635722> **${balance.toStringAsFixed(2)}** **${stats.crypto.toUpperCase()}**" +
             priceText
         : ''; //HIDES BALANCE IF NEGATIVE (MEANS USER DECIDED TO HIDE BALANCE)
 
