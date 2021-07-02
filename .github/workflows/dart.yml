@@ -74,7 +74,7 @@ jobs:
                ./dart-aarch64/dart-sdk/bin/dart run environment_config:generate
                ./dart-aarch64/dart-sdk/bin/dart compile exe farmr.dart
                ./dart-aarch64/dart-sdk/bin/dart compile exe farmr_package.dart
-               ./farmr.exe harvester onetime
+               ./farmr.exe harvester onetime standalone
 
       - name: Compile x86_64
         if: matrix.architecture == 'x86_64'
@@ -83,7 +83,7 @@ jobs:
              ./dart-x86_64/dart-sdk/bin/dart run environment_config:generate
              ./dart-x86_64/dart-sdk/bin/dart compile exe farmr.dart
              ./dart-x86_64/dart-sdk/bin/dart compile exe farmr_package.dart
-             ./farmr.exe harvester onetime
+             ./farmr.exe harvester onetime standalone
 
       - name: Renames farmr binary
         run: |
@@ -192,7 +192,7 @@ jobs:
              chmod +x ./foxypoolog.sh
              dart compile exe farmr.dart
              chmod +x farmr.exe
-             ./farmr.exe harvester onetime
+             ./farmr.exe harvester onetime standalone
              mv farmr.exe farmr
              tar -czvf ./farmr-macOS-${{ matrix.architecture }}.tar.gz ./farmr ./config ./blockchain ./farmer.sh ./harvester.sh ./hpool.sh ./foxypoolog.sh
              
@@ -204,7 +204,7 @@ jobs:
              dart compile exe farmr_harvester.dart
              dart compile exe farmr_hpool.dart
              dart compile exe farmr_foxypoolog.dart
-             ./farmr.exe harvester onetime
+             ./farmr.exe harvester onetime standalone
              move ./farmr.exe ./farmer.exe
              move ./farmr_hpool.exe ./hpool.exe
              move ./farmr_harvester.exe ./harvester.exe

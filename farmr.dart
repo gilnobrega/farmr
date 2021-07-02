@@ -381,6 +381,8 @@ main(List<String> args) async {
     //shows info with ids to link
     id.info(blockchains);
 
+    if (standalone) io.exit(0);
+
     await Future.delayed(delay);
 
     if (onetime) io.exit(0);
