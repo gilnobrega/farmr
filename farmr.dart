@@ -138,8 +138,7 @@ main(List<String> args) async {
   //launches client in onetime mode, where it runs one time and doesnt loop
   bool onetime = args.contains("onetime");
   //launches client in standalone mode where it doesnt send info to server
-  bool standalone =
-      onetime || args.contains("standalone") || args.contains("offline");
+  bool standalone = args.contains("standalone") || args.contains("offline");
 
   bool packageMode = args.contains("package"); // alternative .deb config path
 
@@ -382,9 +381,9 @@ main(List<String> args) async {
     //shows info with ids to link
     id.info(blockchains);
 
-    await Future.delayed(delay);
-
     if (onetime) io.exit(0);
+
+    await Future.delayed(delay);
   }
 }
 
