@@ -379,12 +379,12 @@ main(List<String> args) async {
       }
     }
 
-    if (onetime) io.exit(0);
-
     //shows info with ids to link
     id.info(blockchains);
 
     await Future.delayed(delay);
+
+    if (onetime) io.exit(0);
   }
 }
 
