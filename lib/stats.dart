@@ -156,6 +156,7 @@ class Stats {
       : 0;
 
   String get netSpace => _netSpace.humanReadableSize;
+  double get netSpaceSize => _netSpace.size;
   String get netSpaceGrowth => _netSpace.dayDifference;
 
   DateTime get currentDay => stringToDate(_client.lastUpdatedString);
