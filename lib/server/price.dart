@@ -27,6 +27,7 @@ class Price {
     'NZD': '\$',
     'TRY': '₺',
     'THB': '฿',
+    'TWD': 'NT\$',
     'ETH': 'ETH',
     'BTC': '₿',
     'ETC': 'ETC'
