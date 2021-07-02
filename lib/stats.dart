@@ -328,7 +328,7 @@ class Stats {
     String sign = (stats.coldNetBalanceFiatChange >= 0) ? '+' : '-';
 
     String priceText = (stats.coldNetBalanceFiat > 0)
-        ? " (${stats.coldNetBalanceFiat.toStringAsFixed(2)} ${stats.currency}, $sign${stats.coldNetBalanceFiatChange.abs().toStringAsFixed(2)}${Price.currencies[stats.currency]}))"
+        ? " (${stats.coldNetBalanceFiat.toStringAsFixed(2)} ${stats.currency}, $sign${stats.coldNetBalanceFiatChange.abs().toStringAsFixed(2)}${Price.currencies[stats.currency]})"
         : '';
 
     balanceText += (stats.coldNetBalance >= 0.0)
