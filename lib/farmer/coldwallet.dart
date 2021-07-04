@@ -157,7 +157,7 @@ class ColdWallet {
               multiLine: true);
 
           try {
-            var matches = regex.allMatches(contents);
+            var matches = regex.allMatches(contents.replaceAll(",", ""));
 
             if (matches.length > 0) {
               netBalances
