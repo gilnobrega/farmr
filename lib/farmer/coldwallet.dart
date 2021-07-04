@@ -53,9 +53,14 @@ class ColdWallet {
     List<double> netBalances = [];
     List<double> farmedBalances = [];
 
+    const int addressWithoutPrefixLength = 59;
+
     for (String publicAddress in publicAddresses) {
       if (publicAddress.startsWith("xch") &&
-          publicAddress.length == 62 &&
+          publicAddress
+                  .replaceFirst(mainWallet.blockchain.currencySymbol, "")
+                  .length ==
+              addressWithoutPrefixLength &&
           mainWallet.blockchain.currencySymbol == "xch") {
         try {
           String contents = await http
@@ -93,7 +98,10 @@ class ColdWallet {
           }
         }
       } else if (publicAddress.startsWith("xfx") &&
-          publicAddress.length == 62 &&
+          publicAddress
+                  .replaceFirst(mainWallet.blockchain.currencySymbol, "")
+                  .length ==
+              addressWithoutPrefixLength &&
           mainWallet.blockchain.currencySymbol == "xfx") {
         //flaxexplorer has no way to know if wallet is empty or address invalid
         // always start with net balance and farm balances 0
@@ -140,7 +148,10 @@ class ColdWallet {
         }
       }
       //if not flax or chia then try posat.io
-      else if (publicAddress.length == 62 &&
+      else if (publicAddress
+                  .replaceFirst(mainWallet.blockchain.currencySymbol, "")
+                  .length ==
+              addressWithoutPrefixLength &&
           publicAddress.startsWith(mainWallet.blockchain.currencySymbol)) {
         String posatExplorerURL =
             "https://${mainWallet.blockchain.binaryName}.posat.io/address/";
