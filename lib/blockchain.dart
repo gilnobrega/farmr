@@ -85,7 +85,7 @@ class Blockchain {
 
   //this is used on server side
   //since blockchain objects cant be initialized as null
-  Blockchain.fromSymbol(this._currencySymbol);
+  Blockchain.fromSymbol(this._currencySymbol, [this._binaryName = '']);
 
   static OS? detectOS() {
     OS? os;

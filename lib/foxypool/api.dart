@@ -80,7 +80,7 @@ class FoxyPoolApi {
       }
     });*/
 
-      _socket?.emitWithAck('get-account', {
+      _socket?.emitWithAck('account:fetch', {
         '${blockchain.binaryName}-og',
         {'poolPublicKey': poolPublicKey}
       }, ack: (data) {
