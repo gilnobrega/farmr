@@ -96,6 +96,23 @@ class Stats {
   //total number of plots (complete plots)
   int get numberOfPlots => _client.plots.length;
   Duration get averagePlotLength => averagePlotDuration(_client.plots);
+  int get numberOfPlotsToKeepUpWithNetspaceGrowth {
+    int plotsPerDay = 0;
+    if (_netSpace.pastSizes.entries.length > 7) {
+      var entries = _netSpace.pastSizes.entries.toList();
+      entries.sort((entry1, entry2) =>
+          int.parse(entry2.key).compareTo(int.parse(entry1.key)));
+
+      double ratio = (entries.first.value / entries[6].value - 1);
+
+      //shows number of plots client needs to plot to keep up with netspace growth
+      if (ratio > 0) {
+        plotsPerDay = (ratio * _client.plots.length / 7).ceil();
+      }
+    }
+
+    return plotsPerDay;
+  }
 
   //DRIVES
   int get drivesCount => (_client.drivesCount);
@@ -599,7 +616,7 @@ class Stats {
   }
 
   static String showLastNDaysPlots(
-      Harvester client, int daysAgo, NetSpace netSpace) {
+      Harvester client, int daysAgo, NetSpace netSpace, Stats stats) {
     String text = "";
 
     for (int k = 0; k < daysAgo; k++) {
@@ -640,19 +657,9 @@ class Stats {
       }
     }
 
-    if (netSpace.pastSizes.entries.length > 7) {
-      var entries = netSpace.pastSizes.entries.toList();
-      entries.sort((entry1, entry2) =>
-          int.parse(entry2.key).compareTo(int.parse(entry1.key)));
-
-      double ratio = (entries.first.value / entries[6].value - 1);
-
-      //shows number of plots client needs to plot to keep up with netspace growth
-      if (ratio > 0) {
-        int plotsPerDay = (ratio * client.plots.length / 7).ceil();
-        text +=
-            "\nNeed $plotsPerDay plots per day to keep up with Netspace growth";
-      }
+    if (stats.numberOfPlotsToKeepUpWithNetspaceGrowth > 0) {
+      text +=
+          "\nNeed ${stats.numberOfPlotsToKeepUpWithNetspaceGrowth} plots per day to keep up with Netspace growth";
     }
 
     return text;
@@ -1041,7 +1048,7 @@ class Stats {
               Stats.showHardware(stats) +
               Stats.showPlotTypes(harvester) +
               Stats.showLastPlotInfo(harvester) +
-              Stats.showLastNDaysPlots(harvester, 8, netSpace) +
+              Stats.showLastNDaysPlots(harvester, 8, netSpace, stats) +
               Stats.showWeekPlots(stats) +
               Stats.showIncompletePlotsWarning(harvester) +
               Stats.showFilters(harvester, stats)
