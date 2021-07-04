@@ -55,7 +55,9 @@ class ColdWallet {
     List<double> farmedBalances = [];
 
     for (String publicAddress in publicAddresses) {
-      if (publicAddress.startsWith("xch") && publicAddress.length == 62) {
+      if (publicAddress.startsWith("xch") &&
+          publicAddress.length == 62 &&
+          mainWallet.blockchain.currencySymbol == "xch") {
         try {
           String contents = await http
               .read(Uri.parse(chiaExplorerURL + "balance/" + publicAddress));
@@ -92,7 +94,8 @@ class ColdWallet {
           }
         }
       } else if (publicAddress.startsWith("xfx") &&
-          publicAddress.length == 62) {
+          publicAddress.length == 62 &&
+          mainWallet.blockchain.currencySymbol == "xfx") {
         //flaxexplorer has no way to know if wallet is empty or address invalid
         // always start with net balance and farm balances 0
         netBalances.add(0.0);
