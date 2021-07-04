@@ -7,7 +7,7 @@ import 'package:logging/logging.dart';
 
 Logger log = Logger("Cold Wallet");
 
-//Wallet that uses chiaexplorer
+//Wallet that uses chiaexplorer/flaxexplorer/posat.io
 class ColdWallet {
   //gross balance
   //CHIAEXPLORER ONLY
