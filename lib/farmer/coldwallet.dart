@@ -44,7 +44,6 @@ class ColdWallet {
     const String chiaExplorerURL = "https://api2.chiaexplorer.com/";
     const String flaxExplorerURL =
         "https://flaxexplorer.org/blockchain/address/";
-
     //multiple cold wallet addresses
     List<String> publicAddresses = [publicAddressesString];
     if (publicAddressesString.contains(","))
@@ -138,6 +137,57 @@ class ColdWallet {
           }
         } catch (error) {
           log.warning("Failed to get info about flax cold wallet");
+        }
+      }
+      //if not flax or chia then try posat.io
+      else if (publicAddress.length == 62 &&
+          publicAddress.startsWith(mainWallet.blockchain.currencySymbol)) {
+        String posatExplorerURL =
+            "https://${mainWallet.blockchain.binaryName}.posat.io/address/";
+
+        netBalances.add(0.0);
+
+        try {
+          String contents =
+              await http.read(Uri.parse(posatExplorerURL + publicAddress));
+
+          RegExp regex = RegExp(
+              r"balance: <strong>([0-9]+\.[0-9]+) " +
+                  mainWallet.blockchain.currencySymbol.toUpperCase(),
+              multiLine: true);
+
+          try {
+            var matches = regex.allMatches(contents);
+
+            if (matches.length > 0) {
+              netBalances
+                  .add(double.parse(matches.elementAt(0).group(1) ?? "-1.0"));
+            }
+          } catch (error) {
+            log.warning(
+                "Failed to get info about ${mainWallet.blockchain.binaryName} cold wallet balance");
+          }
+
+          //tries to parse last farmed  reward
+          RegExp blockHeightExp = RegExp(
+              r'([0-9]+)<\/a><\/td>[\s]+<td><a href="\/coin\/[\w]+">[\w]+<\/a><\/td>[\s]+<td>farmer reward<\/td>[\s]+<td class="right">[0-9\.]+ ' +
+                  mainWallet.blockchain.currencySymbol.toLowerCase() +
+                  r'<\/td>',
+              multiLine: true);
+
+          try {
+            var blockHeightMatches =
+                blockHeightExp.allMatches(contents.toLowerCase());
+            if (blockHeightMatches.length > 0)
+              mainWallet.setLastBlockFarmed(
+                  int.parse(blockHeightMatches.first.group(1) ?? "-1"));
+          } catch (error) {
+            log.warning(
+                "Failed to get info about cold wallet last farmed reward");
+          }
+        } catch (error) {
+          log.warning(
+              "Failed to get info about ${mainWallet.blockchain.binaryName} cold wallet");
         }
       } else {
         log.warning("Invalid cold wallet address");

@@ -236,6 +236,9 @@ main(List<String> args) async {
             coldBalance = client.coldWallet.farmedBalance.toString(); //flax
           else if (client.coldWallet.grossBalance >= 0)
             coldBalance = client.coldWallet.grossBalance.toString(); //chia
+          else if (client.coldWallet.netBalance >= 0)
+            coldBalance = client.coldWallet.netBalance
+                .toString(); //every other fork through posat.io
 
           if (client.balance >= 0) balance = client.balance.toString();
         }

@@ -155,9 +155,7 @@ class Config {
       "Swar's Chia Plot Manager Path": swarPath
     };
 
-    if ((_blockchain.currencySymbol == "xch" ||
-            _blockchain.currencySymbol == "xfx") &&
-        type != ClientType.Harvester) {
+    if (type != ClientType.Harvester) {
       configMap.putIfAbsent("Cold Wallet Address", () => coldWalletAddress);
       configMap.putIfAbsent("Send Cold Wallet Balance Notifications",
           () => sendColdWalletBalanceNotifications);
