@@ -18,83 +18,59 @@ class Config {
   ClientType get type => _type;
 
   //Optional, custom, user defined name
-  late String _name;
-  String get name => _name;
+  late String name;
 
   //Optional, custom 3 letter currency
-  String _currency = 'USD';
-  String get currency => _currency.toUpperCase();
+  String currency = 'USD';
 
   String _chiaPath = '';
   String get chiaPath => _chiaPath;
 
   //farmed balance
-  bool _showBalance = true;
-  bool get showBalance => _showBalance;
+  bool showBalance = true;
 
   //wallet balance
-  bool _showWalletBalance = false;
-  bool get showWalletBalance => _showWalletBalance;
+  bool showWalletBalance = false;
 
-  bool _sendPlotNotifications = false; //plot notifications
-  bool get sendPlotNotifications => _sendPlotNotifications;
+  bool sendPlotNotifications = false; //plot notifications
 
-  bool _sendDriveNotifications = true; //drive notifications
-  bool get sendDriveNotifications => _sendDriveNotifications;
+  bool sendDriveNotifications = true; //drive notifications
 
-  bool _sendBalanceNotifications = true; //balance notifications
-  bool get sendBalanceNotifications => _sendBalanceNotifications;
+  bool sendBalanceNotifications = true; //balance notifications
 
-  bool _sendOfflineNotifications = false; //status notifications
-  bool get sendOfflineNotifications => _sendOfflineNotifications;
+  bool sendOfflineNotifications = false; //status notifications
 
-  bool _sendStatusNotifications = true; //status notifications
-  bool get sendStatusNotifications => _sendStatusNotifications;
+  bool sendStatusNotifications = true; //status notifications
 
-  bool _parseLogs = false;
-  bool get parseLogs => _parseLogs;
+  bool parseLogs = false;
 
   //number of users that can link this machine
-  int _userNumber = 1;
-  //Sets maximum of 10 users
-  int get userNumber => (_userNumber <= 10) ? _userNumber : 10;
+  int userNumber = 1;
 
-  String _swarPath = "";
-  String get swarPath => _swarPath;
+  String swarPath = "";
 
   //if this is set to true then client's data will be available on public api
-  bool _publicAPI = false;
-  bool get publicAPI => _publicAPI;
+  bool publicAPI = false;
 
   //allows parsing RAM content and CPU
-  bool _showHardwareInfo = true;
-  bool get showHardwareInfo => _showHardwareInfo;
+  bool showHardwareInfo = true;
 
   //Nahvan requested for a disk space override for computers in shared networks
-  bool _ignoreDiskSpace = false;
-  bool get ignoreDiskSpace => _ignoreDiskSpace;
+  bool ignoreDiskSpace = false;
 
   //HPOOL MODE
-  String _hpoolConfigPath = "";
-  String get hpoolConfigPath => _hpoolConfigPath;
-
-  String _hpoolAuthToken = "";
-  String get hpoolAuthToken => _hpoolAuthToken;
+  String hpoolConfigPath = "";
+  String hpoolAuthToken = "";
 
   //FOXYPOOL MODE
-  String _poolPublicKey = "";
-  String get poolPublicKey => _poolPublicKey;
+  String poolPublicKey = "";
 
   //chiaexplorer cold wallet
-  String _coldWalletAddress = "";
-  String get coldWalletAddress => _coldWalletAddress;
-  bool _sendColdWalletBalanceNotifications = true;
-  bool get sendColdWalletBalanceNotifications =>
-      _sendColdWalletBalanceNotifications;
+  String coldWalletAddress = "";
+  bool sendColdWalletBalanceNotifications = true;
 
   //overrides foxypool mode
-  bool _foxyPoolOverride = true;
-  bool get foxyPoolOverride => _foxyPoolOverride;
+  bool foxyPoolOverride = true;
 
   // '/home/user/.farmr' for package installs, '' (project path) for the rest
   late String _rootPath;
@@ -107,18 +83,18 @@ class Config {
     //sets default name according to client type
     if (isHPool && _blockchain.currencySymbol == "xch") {
       _type = ClientType.HPool;
-      _name = "HPool";
+      name = "HPool";
     } else if (isFoxyPoolOG &&
         (_blockchain.currencySymbol == "xch" ||
             _blockchain.currencySymbol == "xfx")) {
       _type = ClientType.FoxyPoolOG;
-      _name = "FoxyPool";
+      name = "FoxyPool";
     } else if (isHarvester) {
       _type = ClientType.Harvester;
-      _name = "Harvester";
+      name = "Harvester";
     } else {
       _type = ClientType.Farmer;
-      _name = "Farmer";
+      name = "Farmer";
     }
   }
 
@@ -311,18 +287,18 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     if (contents[0]['id'] != null) _blockchain.id.ids.add(contents[0]['id']);
 
     //loads custom client name
-    if (contents[0]['name'] != null) _name = contents[0]['name']; //old
+    if (contents[0]['name'] != null) name = contents[0]['name']; //old
     if (contents[0]['Name'] != null &&
         contents[0]['Name'] != "Farmer" &&
         contents[0]['Name'] != "Harvester" &&
         contents[0]['Name'] != "HPool" &&
-        contents[0]['Name'] != "FoxyPool") _name = contents[0]['Name']; //new
+        contents[0]['Name'] != "FoxyPool") name = contents[0]['Name']; //new
 
     //loads custom currency
     if (contents[0]['currency'] != null)
-      _currency = contents[0]['currency']; //old
+      currency = contents[0]['currency']; //old
     if (contents[0]['Currency'] != null)
-      _currency = contents[0]['Currency']; //new
+      currency = contents[0]['Currency']; //new
 
     _chiaPath = contents[0]['${_blockchain.binaryName}Path'] ?? "";
 
@@ -331,110 +307,88 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     if (contents[0]['binPath'] != null) cache.binPath = contents[0]['binPath'];
 
     if (contents[0]['showBalance'] != null)
-      _showBalance = contents[0]['showBalance']; //old
+      showBalance = contents[0]['showBalance']; //old
     if (contents[0]
             ['Show Farmed ${_blockchain.currencySymbol.toUpperCase()}'] !=
         null)
-      _showBalance = contents[0]
+      showBalance = contents[0]
           ['Show Farmed ${_blockchain.currencySymbol.toUpperCase()}']; //new
 
     if (contents[0]['showWalletBalance'] != null)
-      _showWalletBalance = contents[0]['showWalletBalance']; //old
+      showWalletBalance = contents[0]['showWalletBalance']; //old
     if (contents[0]['Show Wallet Balance'] != null)
-      _showWalletBalance = contents[0]['Show Wallet Balance']; //new
+      showWalletBalance = contents[0]['Show Wallet Balance']; //new
 
     if (contents[0]['sendPlotNotifications'] != null)
-      _sendPlotNotifications = contents[0]['sendPlotNotifications']; //old
+      sendPlotNotifications = contents[0]['sendPlotNotifications']; //old
     if (contents[0]['Plot Notifications'] != null)
-      _sendPlotNotifications = contents[0]['Plot Notifications']; //new
+      sendPlotNotifications = contents[0]['Plot Notifications']; //new
 
     if (contents[0]['sendBalanceNotifications'] != null)
-      _sendBalanceNotifications = contents[0]['sendBalanceNotifications']; //old
+      sendBalanceNotifications = contents[0]['sendBalanceNotifications']; //old
     if (contents[0]['Block Notifications'] != null)
-      _sendBalanceNotifications = contents[0]['Block Notifications']; //new
+      sendBalanceNotifications = contents[0]['Block Notifications']; //new
 
     if (contents[0]['sendOfflineNotifications'] != null)
-      _sendOfflineNotifications = contents[0]['sendOfflineNotifications']; //old
+      sendOfflineNotifications = contents[0]['sendOfflineNotifications']; //old
     if (contents[0]['Offline Notifications'] != null)
-      _sendOfflineNotifications = contents[0]['Offline Notifications']; //new
+      sendOfflineNotifications = contents[0]['Offline Notifications']; //new
 
     if (contents[0]['sendStatusNotifications'] != null)
-      _sendStatusNotifications = contents[0]['sendStatusNotifications']; //old
+      sendStatusNotifications = contents[0]['sendStatusNotifications']; //old
     if (contents[0]['Farm Status Notifications'] != null)
-      _sendStatusNotifications = contents[0]['Farm Status Notifications']; //new
+      sendStatusNotifications = contents[0]['Farm Status Notifications']; //new
 
     if (contents[0]['parseLogs'] != null)
-      _parseLogs = contents[0]['parseLogs']; //old
+      parseLogs = contents[0]['parseLogs']; //old
     if (contents[0]['Parse Logs'] != null)
-      _parseLogs = contents[0]['Parse Logs']; //new
+      parseLogs = contents[0]['Parse Logs']; //new
 
     if (contents[0]['Number of Discord Users'] != null)
-      _userNumber = contents[0]['Number of Discord Users'];
+      userNumber = contents[0]['Number of Discord Users'];
 
     if (contents[0]["Swar's Chia Plot Manager Path"] != null)
-      _swarPath = contents[0]["Swar's Chia Plot Manager Path"];
+      swarPath = contents[0]["Swar's Chia Plot Manager Path"];
 
     if (contents[0]["Public API"] != null)
-      _publicAPI = contents[0]["Public API"];
+      publicAPI = contents[0]["Public API"];
 
     if (contents[0]["Ignore Disk Space"] != null)
-      _ignoreDiskSpace = contents[0]["Ignore Disk Space"];
+      ignoreDiskSpace = contents[0]["Ignore Disk Space"];
 
     if (contents[0]['Hard Drive Notifications'] != null)
-      _sendDriveNotifications = contents[0]['Hard Drive Notifications']; //new
+      sendDriveNotifications = contents[0]['Hard Drive Notifications']; //new
 
     if (contents[0]['HPool Directory'] != null)
-      _hpoolConfigPath = contents[0]['HPool Directory']; //new
+      hpoolConfigPath = contents[0]['HPool Directory']; //new
 
     if (contents[0]['HPool Auth Token'] != null)
-      _hpoolAuthToken = contents[0]['HPool Auth Token']; //new
+      hpoolAuthToken = contents[0]['HPool Auth Token']; //new
 
     //loads pool public key used by foxypool mode
     if (contents[0]['Pool Public Key'] != null) {
-      _poolPublicKey = contents[0]['Pool Public Key'];
+      poolPublicKey = contents[0]['Pool Public Key'];
 
       //appends 0x to pool public key if it doesnt start with 0x
-      if (_poolPublicKey.length == 96 && !_poolPublicKey.startsWith("0x"))
-        _poolPublicKey = "0x" + poolPublicKey;
+      if (poolPublicKey.length == 96 && !poolPublicKey.startsWith("0x"))
+        poolPublicKey = "0x" + poolPublicKey;
     }
 
     if (contents[0]['Use FoxyPool API'] != null)
-      _foxyPoolOverride = contents[0]['Use FoxyPool API'];
+      foxyPoolOverride = contents[0]['Use FoxyPool API'];
 
     if (contents[0]["Show Hardware Info"] != null)
-      _showHardwareInfo = contents[0]["Show Hardware Info"];
+      showHardwareInfo = contents[0]["Show Hardware Info"];
 
     if (contents[0]['Cold Wallet Address'] != null)
-      _coldWalletAddress = contents[0]['Cold Wallet Address'];
+      coldWalletAddress = contents[0]['Cold Wallet Address'];
 
     if (contents[0]['Send Cold Wallet Balance Notifications'] != null)
-      _sendColdWalletBalanceNotifications =
+      sendColdWalletBalanceNotifications =
           contents[0]['Send Cold Wallet Balance Notifications'];
 
     await saveConfig();
   }
-
-  /*void _showQR(Console console) {
-    final qrCode = new QrCode(3, QrErrorCorrectLevel.L);
-    qrCode.addData(cache.ids[0]);
-    qrCode.make();
-
-    for (int x = 0; x < qrCode.moduleCount; x++) {
-      for (int y = 0; y < qrCode.moduleCount; y++) {
-        if (qrCode.isDark(y, x)) {
-          console.setBackgroundColor(ConsoleColor.black);
-          console.setForegroundColor(ConsoleColor.white);
-          console.write("  ");
-        } else {
-          console.setBackgroundColor(ConsoleColor.white);
-          console.setForegroundColor(ConsoleColor.black);
-          console.write("  ");
-        }
-      }
-      console.resetColorAttributes();
-      console.write("\n");
-    }
-  }*/
 }
 
 //Tells if client is harvester or not
