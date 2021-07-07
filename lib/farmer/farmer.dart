@@ -92,7 +92,7 @@ class Farmer extends Harvester {
     if (!hpool) {
       //runs chia farm summary if it is a farmer
       var result = io.Process.runSync(
-          blockchain.config.cache.binPath, const ["farm", "summary"]);
+          blockchain.config.cache!.binPath, const ["farm", "summary"]);
       List<String> lines =
           result.stdout.toString().replaceAll("\r", "").split('\n');
 
@@ -136,11 +136,11 @@ class Farmer extends Harvester {
       }
 
       //parses chia wallet show for block height
-      _wallet.parseWalletBalance(blockchain.config.cache.binPath,
+      _wallet.parseWalletBalance(blockchain.config.cache!.binPath,
           lastBlockFarmed, blockchain.config.showWalletBalance);
 
       //initializes connections and counts peers
-      _connections = Connections(blockchain.config.cache.binPath);
+      _connections = Connections(blockchain.config.cache!.binPath);
 
       _fullNodesConnected = _connections?.connections
               .where((connection) => connection.type == ConnectionType.FullNode)

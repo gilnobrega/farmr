@@ -10,7 +10,7 @@ import 'package:farmr_client/cache.dart';
 final log = Logger('Config');
 
 class Config {
-  Cache cache;
+  Cache? cache;
 
   late Blockchain _blockchain;
 
@@ -18,7 +18,7 @@ class Config {
   ClientType get type => _type;
 
   //Optional, custom, user defined name
-  late String name;
+  String name = '';
 
   //Optional, custom 3 letter currency
   String currency = 'USD';
@@ -108,12 +108,11 @@ class Config {
 
     //and asks for bin path if path is not defined/not found and is Farmer
     if ((type == ClientType.Farmer || type == ClientType.FoxyPoolOG) &&
-        (cache.binPath == '' || !io.File(cache.binPath).existsSync()))
+        (cache!.binPath == '' || !io.File(cache!.binPath).existsSync()))
       await _askForBinPath();
   }
 
-  //Creates config file
-  Future<void> saveConfig() async {
+  Map<String, dynamic> genConfigMap() {
     Map<String, dynamic> configMap = {
       "Name": name,
       "Currency": currency,
@@ -158,9 +157,13 @@ class Config {
       configMap.putIfAbsent("Pool Public Key", () => poolPublicKey);
       configMap.putIfAbsent("Use FoxyPool API", () => foxyPoolOverride);
     }
+    return configMap;
+  }
 
+  //Creates config file
+  Future<void> saveConfig() async {
     var encoder = new JsonEncoder.withIndent("    ");
-    String contents = encoder.convert([configMap]);
+    String contents = encoder.convert([genConfigMap()]);
 
     _config.writeAsStringSync(contents);
   }
@@ -178,7 +181,7 @@ class Config {
 
     if (validDirectory)
       log.info(
-          "Automatically found ${_blockchain.binaryName} binary at: '${cache.binPath}'");
+          "Automatically found ${_blockchain.binaryName} binary at: '${cache!.binPath}'");
     else
       log.info("Could not automatically locate chia binary.");
 
@@ -191,15 +194,15 @@ class Config {
       _chiaPath = io.stdin.readLineSync() ?? '';
       log.info("Input chia path: '$_chiaPath'");
 
-      cache.binPath = (io.Platform.isLinux || io.Platform.isMacOS)
+      cache!.binPath = (io.Platform.isLinux || io.Platform.isMacOS)
           ? _chiaPath + "/venv/bin/${_blockchain.binaryName}"
           : _chiaPath + "\\daemon\\${_blockchain.binaryName}.exe";
 
-      if (io.File(cache.binPath).existsSync())
+      if (io.File(cache!.binPath).existsSync())
         validDirectory = true;
       else if (io.Directory(chiaPath).existsSync())
         log.warning("""Could not locate chia binary in your directory.
-(${cache.binPath} not found)
+(${cache!.binPath} not found)
 Please try again.
 Make sure this folder has the same structure as Chia's GitHub repo.""");
       else
@@ -208,7 +211,7 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     }
 
     await saveConfig(); //saves path input by user to config
-    cache.save(); //saves bin path to cache
+    cache!.save(); //saves bin path to cache
   }
 
   //If in windows, tries a bunch of directories
@@ -230,7 +233,7 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
         await chiaRootDir.list(recursive: false).forEach((dir) {
           io.File trypath = io.File(dir.path + file);
           if (trypath.existsSync()) {
-            cache.binPath = trypath.path;
+            cache!.binPath = trypath.path;
             valid = true;
           }
         });
@@ -262,13 +265,112 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
         io.File possibleFile = io.File(possiblePaths[i]);
 
         if (possibleFile.existsSync()) {
-          cache.binPath = possibleFile.path;
+          cache!.binPath = possibleFile.path;
           valid = true;
         }
       }
     }
 
     return valid;
+  }
+
+  Config.fromJson(dynamic json, this._blockchain) {
+    loadfromJson(json);
+  }
+
+  loadfromJson(dynamic json) {
+    //leave this here for compatibility with old versions,
+    //old versions stored id in config file
+    if (json['id'] != null) _blockchain.id.ids.add(json['id']);
+
+    //loads custom client name
+    if (json['name'] != null) name = json['name']; //old
+    if (json['Name'] != null &&
+        json['Name'] != "Farmer" &&
+        json['Name'] != "Harvester" &&
+        json['Name'] != "HPool" &&
+        json['Name'] != "FoxyPool") name = json['Name']; //new
+
+    //loads custom currency
+    if (json['currency'] != null) currency = json['currency']; //old
+    if (json['Currency'] != null) currency = json['Currency']; //new
+
+    _chiaPath = json['${_blockchain.binaryName}Path'] ?? "";
+
+    if (json['showBalance'] != null) showBalance = json['showBalance']; //old
+    if (json['Show Farmed ${_blockchain.currencySymbol.toUpperCase()}'] != null)
+      showBalance =
+          json['Show Farmed ${_blockchain.currencySymbol.toUpperCase()}']; //new
+
+    if (json['showWalletBalance'] != null)
+      showWalletBalance = json['showWalletBalance']; //old
+    if (json['Show Wallet Balance'] != null)
+      showWalletBalance = json['Show Wallet Balance']; //new
+
+    if (json['sendPlotNotifications'] != null)
+      sendPlotNotifications = json['sendPlotNotifications']; //old
+    if (json['Plot Notifications'] != null)
+      sendPlotNotifications = json['Plot Notifications']; //new
+
+    if (json['sendBalanceNotifications'] != null)
+      sendBalanceNotifications = json['sendBalanceNotifications']; //old
+    if (json['Block Notifications'] != null)
+      sendBalanceNotifications = json['Block Notifications']; //new
+
+    if (json['sendOfflineNotifications'] != null)
+      sendOfflineNotifications = json['sendOfflineNotifications']; //old
+    if (json['Offline Notifications'] != null)
+      sendOfflineNotifications = json['Offline Notifications']; //new
+
+    if (json['sendStatusNotifications'] != null)
+      sendStatusNotifications = json['sendStatusNotifications']; //old
+    if (json['Farm Status Notifications'] != null)
+      sendStatusNotifications = json['Farm Status Notifications']; //new
+
+    if (json['parseLogs'] != null) parseLogs = json['parseLogs']; //old
+    if (json['Parse Logs'] != null) parseLogs = json['Parse Logs']; //new
+
+    if (json['Number of Discord Users'] != null)
+      userNumber = json['Number of Discord Users'];
+
+    if (json["Swar's Chia Plot Manager Path"] != null)
+      swarPath = json["Swar's Chia Plot Manager Path"];
+
+    if (json["Public API"] != null) publicAPI = json["Public API"];
+
+    if (json["Ignore Disk Space"] != null)
+      ignoreDiskSpace = json["Ignore Disk Space"];
+
+    if (json['Hard Drive Notifications'] != null)
+      sendDriveNotifications = json['Hard Drive Notifications']; //new
+
+    if (json['HPool Directory'] != null)
+      hpoolConfigPath = json['HPool Directory']; //new
+
+    if (json['HPool Auth Token'] != null)
+      hpoolAuthToken = json['HPool Auth Token']; //new
+
+    //loads pool public key used by foxypool mode
+    if (json['Pool Public Key'] != null) {
+      poolPublicKey = json['Pool Public Key'];
+
+      //appends 0x to pool public key if it doesnt start with 0x
+      if (poolPublicKey.length == 96 && !poolPublicKey.startsWith("0x"))
+        poolPublicKey = "0x" + poolPublicKey;
+    }
+
+    if (json['Use FoxyPool API'] != null)
+      foxyPoolOverride = json['Use FoxyPool API'];
+
+    if (json["Show Hardware Info"] != null)
+      showHardwareInfo = json["Show Hardware Info"];
+
+    if (json['Cold Wallet Address'] != null)
+      coldWalletAddress = json['Cold Wallet Address'];
+
+    if (json['Send Cold Wallet Balance Notifications'] != null)
+      sendColdWalletBalanceNotifications =
+          json['Send Cold Wallet Balance Notifications'];
   }
 
   Future<void> _loadConfig() async {
@@ -282,110 +384,7 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
           jsonDecode(_config.readAsStringSync().replaceAll("\\", "\\\\"));
     }
 
-    //leave this here for compatibility with old versions,
-    //old versions stored id in config file
-    if (contents[0]['id'] != null) _blockchain.id.ids.add(contents[0]['id']);
-
-    //loads custom client name
-    if (contents[0]['name'] != null) name = contents[0]['name']; //old
-    if (contents[0]['Name'] != null &&
-        contents[0]['Name'] != "Farmer" &&
-        contents[0]['Name'] != "Harvester" &&
-        contents[0]['Name'] != "HPool" &&
-        contents[0]['Name'] != "FoxyPool") name = contents[0]['Name']; //new
-
-    //loads custom currency
-    if (contents[0]['currency'] != null)
-      currency = contents[0]['currency']; //old
-    if (contents[0]['Currency'] != null)
-      currency = contents[0]['Currency']; //new
-
-    _chiaPath = contents[0]['${_blockchain.binaryName}Path'] ?? "";
-
-    //this used to be in the config file in earlier versions
-    //do not remove this
-    if (contents[0]['binPath'] != null) cache.binPath = contents[0]['binPath'];
-
-    if (contents[0]['showBalance'] != null)
-      showBalance = contents[0]['showBalance']; //old
-    if (contents[0]
-            ['Show Farmed ${_blockchain.currencySymbol.toUpperCase()}'] !=
-        null)
-      showBalance = contents[0]
-          ['Show Farmed ${_blockchain.currencySymbol.toUpperCase()}']; //new
-
-    if (contents[0]['showWalletBalance'] != null)
-      showWalletBalance = contents[0]['showWalletBalance']; //old
-    if (contents[0]['Show Wallet Balance'] != null)
-      showWalletBalance = contents[0]['Show Wallet Balance']; //new
-
-    if (contents[0]['sendPlotNotifications'] != null)
-      sendPlotNotifications = contents[0]['sendPlotNotifications']; //old
-    if (contents[0]['Plot Notifications'] != null)
-      sendPlotNotifications = contents[0]['Plot Notifications']; //new
-
-    if (contents[0]['sendBalanceNotifications'] != null)
-      sendBalanceNotifications = contents[0]['sendBalanceNotifications']; //old
-    if (contents[0]['Block Notifications'] != null)
-      sendBalanceNotifications = contents[0]['Block Notifications']; //new
-
-    if (contents[0]['sendOfflineNotifications'] != null)
-      sendOfflineNotifications = contents[0]['sendOfflineNotifications']; //old
-    if (contents[0]['Offline Notifications'] != null)
-      sendOfflineNotifications = contents[0]['Offline Notifications']; //new
-
-    if (contents[0]['sendStatusNotifications'] != null)
-      sendStatusNotifications = contents[0]['sendStatusNotifications']; //old
-    if (contents[0]['Farm Status Notifications'] != null)
-      sendStatusNotifications = contents[0]['Farm Status Notifications']; //new
-
-    if (contents[0]['parseLogs'] != null)
-      parseLogs = contents[0]['parseLogs']; //old
-    if (contents[0]['Parse Logs'] != null)
-      parseLogs = contents[0]['Parse Logs']; //new
-
-    if (contents[0]['Number of Discord Users'] != null)
-      userNumber = contents[0]['Number of Discord Users'];
-
-    if (contents[0]["Swar's Chia Plot Manager Path"] != null)
-      swarPath = contents[0]["Swar's Chia Plot Manager Path"];
-
-    if (contents[0]["Public API"] != null)
-      publicAPI = contents[0]["Public API"];
-
-    if (contents[0]["Ignore Disk Space"] != null)
-      ignoreDiskSpace = contents[0]["Ignore Disk Space"];
-
-    if (contents[0]['Hard Drive Notifications'] != null)
-      sendDriveNotifications = contents[0]['Hard Drive Notifications']; //new
-
-    if (contents[0]['HPool Directory'] != null)
-      hpoolConfigPath = contents[0]['HPool Directory']; //new
-
-    if (contents[0]['HPool Auth Token'] != null)
-      hpoolAuthToken = contents[0]['HPool Auth Token']; //new
-
-    //loads pool public key used by foxypool mode
-    if (contents[0]['Pool Public Key'] != null) {
-      poolPublicKey = contents[0]['Pool Public Key'];
-
-      //appends 0x to pool public key if it doesnt start with 0x
-      if (poolPublicKey.length == 96 && !poolPublicKey.startsWith("0x"))
-        poolPublicKey = "0x" + poolPublicKey;
-    }
-
-    if (contents[0]['Use FoxyPool API'] != null)
-      foxyPoolOverride = contents[0]['Use FoxyPool API'];
-
-    if (contents[0]["Show Hardware Info"] != null)
-      showHardwareInfo = contents[0]["Show Hardware Info"];
-
-    if (contents[0]['Cold Wallet Address'] != null)
-      coldWalletAddress = contents[0]['Cold Wallet Address'];
-
-    if (contents[0]['Send Cold Wallet Balance Notifications'] != null)
-      sendColdWalletBalanceNotifications =
-          contents[0]['Send Cold Wallet Balance Notifications'];
+    loadfromJson(contents[0]);
 
     await saveConfig();
   }

@@ -108,7 +108,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     _name = _config.name; //loads name from config
     _currency = _config.currency; // loads currency from config
 
-    allPlots = _config.cache.plots; //loads plots from cache
+    allPlots = _config.cache!.plots; //loads plots from cache
 
     _lastUpdated = DateTime.now();
     _lastUpdatedString = dateToString(_lastUpdated);
@@ -122,8 +122,8 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
 
     //gets memory/cpu info and loads past memory info
     if (_config.showHardwareInfo) {
-      _hardware = Hardware(_config.cache.memories);
-      _config.cache.saveMemories(_hardware?.memories ?? []);
+      _hardware = Hardware(_config.cache!.memories);
+      _config.cache!.saveMemories(_hardware?.memories ?? []);
     }
   }
 

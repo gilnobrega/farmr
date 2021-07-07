@@ -123,7 +123,7 @@ class HarvesterPlots {
 
     allPlots = newplots;
 
-    config.cache.savePlots(allPlots);
+    config.cache!.savePlots(allPlots);
   }
 
   void filterDuplicates([bool client = true]) {
