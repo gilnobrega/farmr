@@ -20,6 +20,10 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
   late Config _config;
   late Blockchain blockchain; // TODO: Why is late necessary here?
 
+  //if there are multiple harvesters associated to this device a.k.a. if it is the head farmer/harvester of farm
+  bool _isAggregate = false;
+  bool get isAggregate => _isAggregate;
+
   String _name = "Harvester";
   String get name => _name;
 
@@ -206,6 +210,8 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
 
   //Merges another harvester with this harvester
   void addHarvester(Harvester harvester) {
+    _isAggregate = true;
+
     allPlots.addAll(harvester.allPlots);
 
     addHarversterFilters(harvester);
