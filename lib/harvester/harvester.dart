@@ -28,8 +28,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
 
   String _crypto = "xch";
   String get crypto => _crypto;
-  String _currency = 'USD';
-  String get currency => _currency.toUpperCase();
+  String currency = 'USD';
 
   double _blockRewards = 2.0;
   double get blockRewards => _blockRewards;
@@ -106,7 +105,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     this._config = this.blockchain.config;
     _version = version;
     _name = _config.name; //loads name from config
-    _currency = _config.currency; // loads currency from config
+    currency = _config.currency; // loads currency from config
 
     allPlots = _config.cache!.plots; //loads plots from cache
 
@@ -139,7 +138,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     if (object['name'] != null) _name = object['name'];
 
     //loads currency from json file
-    if (object['currency'] != null) _currency = object['currency'];
+    if (object['currency'] != null) currency = object['currency'];
     //loads crypto from json file and makes sure it is lowercase
     if (object['crypto'] != null) {
       _crypto = object['crypto'].toString().toLowerCase();
