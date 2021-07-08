@@ -48,6 +48,9 @@ class Blockchain {
   double _blocksPer10Mins = 32.0;
   double get blocksPer10Mins => _blocksPer10Mins;
 
+  bool _onlineConfig = true;
+  bool get onlineConfig => _onlineConfig;
+
   late Cache cache;
   late Config config;
   late Log log;
@@ -66,6 +69,7 @@ class Blockchain {
       _configPath = json['Config Path'] ?? '';
       _blockRewards = json['Block Rewards'] ?? 2.0;
       _blocksPer10Mins = json['Blocks Per 10 Minutes'] ?? 32.0;
+      _onlineConfig = json['Online Config'] ?? true;
     }
 
     _os = detectOS();

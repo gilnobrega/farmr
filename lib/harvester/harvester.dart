@@ -64,6 +64,10 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
   Hardware? _hardware;
   Hardware? get hardware => _hardware;
 
+  //whether user has opted in for online config managed by farmr.net
+  bool _onlineConfig = false;
+  bool get onlineConfig => _onlineConfig;
+
   Map toJson() {
     var initialMap = {
       'name': _name,
@@ -91,7 +95,8 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
       'stdDeviation': stdDeviation,
       'filterCategories': filterCategories,
       "swarPM": swarPM,
-      'version': version
+      'version': version,
+      'onlineConfig': onlineConfig
     };
 
     if (_config.showHardwareInfo && hardware != null)
@@ -105,6 +110,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     this._crypto = blockchain.currencySymbol;
     this._blockRewards = blockchain.blockRewards;
     this._blocksPer10Mins = blockchain.blocksPer10Mins;
+    this._onlineConfig = blockchain.onlineConfig;
 
     this._config = this.blockchain.config;
     _version = version;
@@ -188,6 +194,8 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
 
     if (object['hardware'] != null)
       _hardware = Hardware.fromJson(object['hardware']);
+
+    if (object['onlineConfig'] != null) _onlineConfig = object['onlineConfig'];
   }
 
   Future<void> init() async {
