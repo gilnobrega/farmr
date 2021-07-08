@@ -263,6 +263,8 @@ class Stats {
 
   String get version => _client.version;
 
+  DateTime get lastUpdated => _client.lastUpdated;
+
   Stats(this._client, this._price, this._netSpace);
 
   static String showName(Harvester harvester, [int count = 0]) {
