@@ -132,7 +132,7 @@ class Config {
 
     if (type != ClientType.Harvester) {
       configMap.putIfAbsent("Cold Wallet Address", () => coldWalletAddress);
-      configMap.putIfAbsent("Send Cold Wallet Balance Notifications",
+      configMap.putIfAbsent("Cold Wallet Notifications",
           () => sendColdWalletBalanceNotifications);
     }
 
@@ -274,7 +274,7 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     return valid;
   }
 
-  Config.fromJson(dynamic json, this._blockchain) {
+  Config.fromJson(dynamic json, this._blockchain, this._type) {
     loadfromJson(json);
   }
 
@@ -371,6 +371,9 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     if (json['Send Cold Wallet Balance Notifications'] != null)
       sendColdWalletBalanceNotifications =
           json['Send Cold Wallet Balance Notifications'];
+
+    if (json['Cold Wallet Notifications'] != null)
+      sendColdWalletBalanceNotifications = json['Cold Wallet Notifications'];
   }
 
   Future<void> _loadConfig() async {
