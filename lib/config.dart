@@ -7,6 +7,8 @@ import 'package:logging/logging.dart';
 
 import 'package:farmr_client/cache.dart';
 
+import 'package:http/http.dart' as http;
+
 final log = Logger('Config');
 
 class Config {
@@ -22,9 +24,6 @@ class Config {
 
   //Optional, custom 3 letter currency
   String currency = 'USD';
-
-  String _chiaPath = '';
-  String get chiaPath => _chiaPath;
 
   //farmed balance
   bool showBalance = true;
@@ -98,18 +97,41 @@ class Config {
     }
   }
 
-  Future<void> init() async {
-    //If file doesnt exist then create new config
-    if (!_config.existsSync())
-      await saveConfig(); //creates config file if doesnt exist
-    //If file exists then loads config
-    else
-      _loadConfig(); //config.json
+  Future<void> init(bool onlineConfig) async {
+    if (onlineConfig)
+      await loadOnlineConfig();
+    else {
+      //If file doesnt exist then create new config
+      if (!_config.existsSync())
+        await saveConfig(); //creates config file if doesnt exist
+      //If file exists then loads config
+      else
+        _loadConfig(); //config.json
+    }
 
     //and asks for bin path if path is not defined/not found and is Farmer
     if ((type == ClientType.Farmer || type == ClientType.FoxyPoolOG) &&
         (cache!.binPath == '' || !io.File(cache!.binPath).existsSync()))
       await _askForBinPath();
+  }
+
+  Future<void> loadOnlineConfig() async {
+    String contents = "{}";
+
+    try {
+      String url = "https://dev.farmr.net/login.php?action=readconfig&id=" +
+          _blockchain.id.ids.first;
+
+      contents = (await http.read(Uri.parse(url))).trim();
+    } catch (error) {
+      log.warning("Failed to read online config");
+    }
+
+    try {
+      loadfromJson(jsonDecode(contents));
+    } catch (error) {
+      log.warning("Failed to decode online config");
+    }
   }
 
   Map<String, dynamic> genConfigMap() {
@@ -135,10 +157,6 @@ class Config {
       configMap.putIfAbsent("Cold Wallet Notifications",
           () => sendColdWalletBalanceNotifications);
     }
-
-    //hides chiaPath from config.json if not defined (null)
-    if (chiaPath != '')
-      configMap.putIfAbsent("${_blockchain.binaryName}Path", () => chiaPath);
 
     //hides ignoreDiskSpace from config.json if false (default)
     if (ignoreDiskSpace)
@@ -191,16 +209,17 @@ class Config {
               exampleDir +
               ")");
 
-      _chiaPath = io.stdin.readLineSync() ?? '';
-      log.info("Input chia path: '$_chiaPath'");
+      _blockchain.cache.chiaPath = io.stdin.readLineSync() ?? '';
+      log.info("Input chia path: '${_blockchain.cache.chiaPath}'");
 
       cache!.binPath = (io.Platform.isLinux || io.Platform.isMacOS)
-          ? _chiaPath + "/venv/bin/${_blockchain.binaryName}"
-          : _chiaPath + "\\daemon\\${_blockchain.binaryName}.exe";
+          ? _blockchain.cache.chiaPath + "/venv/bin/${_blockchain.binaryName}"
+          : _blockchain.cache.chiaPath +
+              "\\daemon\\${_blockchain.binaryName}.exe";
 
       if (io.File(cache!.binPath).existsSync())
         validDirectory = true;
-      else if (io.Directory(chiaPath).existsSync())
+      else if (io.Directory(_blockchain.cache.chiaPath).existsSync())
         log.warning("""Could not locate chia binary in your directory.
 (${cache!.binPath} not found)
 Please try again.
@@ -295,7 +314,7 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     if (json['currency'] != null) currency = json['currency']; //old
     if (json['Currency'] != null) currency = json['Currency']; //new
 
-    _chiaPath = json['${_blockchain.binaryName}Path'] ?? "";
+    _blockchain.cache.chiaPath = json['${_blockchain.binaryName}Path'] ?? "";
 
     if (json['showBalance'] != null) showBalance = json['showBalance']; //old
     if (json['Show Farmed ${_blockchain.currencySymbol.toUpperCase()}'] != null)

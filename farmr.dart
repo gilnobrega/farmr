@@ -303,8 +303,8 @@ main(List<String> args) async {
               "publicAPI": publicAPI
             };
 
-            const String url = "https://farmr.net/send9.php";
-            const String urlBackup = "https://chiabot.znc.sh/send9.php";
+            const String url = "https://farmr.net/send10.php";
+            const String urlBackup = "https://chiabot.znc.sh/send10.php";
 
             if (blockchain.config.sendStatusNotifications)
               post.putIfAbsent("isFarming", () => isFarming);

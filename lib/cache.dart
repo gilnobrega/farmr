@@ -17,6 +17,7 @@ final log = Logger('Cache');
 class Cache {
   late Blockchain _blockchain;
 
+  String chiaPath = '';
   String binPath = '';
 
   List<Plot> _plots = []; //cached plots
@@ -54,6 +55,7 @@ class Cache {
         "signagePoints": signagePoints,
         "shortSyncs": shortSyncs,
         "memories": memories,
+        "${_blockchain.binaryName}Path": chiaPath
       };
 
   Future<void> init() async {
@@ -90,6 +92,9 @@ class Cache {
         _blockchain.id.ids.add(contents[0]['id']);
         _blockchain.id.save();
       }
+
+      chiaPath = contents[0]['${_blockchain.binaryName}Path'] ?? "";
+
       //loads ids from cache file
       if (contents[0]['ids'] != null) {
         _blockchain.id.ids = [];

@@ -109,7 +109,7 @@ class Blockchain {
 
   Future<void> init() async {
     await this.cache.init();
-    await this.config.init();
+    await this.config.init(this.onlineConfig);
 
     //TODO: find a way to not have to run this logUpdate command twice (in blockchain.init and every 10 minutes)
     logUpdate();
