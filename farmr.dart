@@ -183,9 +183,9 @@ main(List<String> args) async {
       try {
         clearLog(); //clears log
 
-        // TODO: Split this apart so duplicate isn't necessary
-        await blockchain.cache.init();
-        blockchain.logUpdate();
+        //loads and updates cache every 10 minutes
+        //loads config every 10 minutes
+        await blockchain.init();
 
         var client;
 
