@@ -72,6 +72,9 @@ class Blockchain {
       _onlineConfig = json['Online Config'] ?? true;
     }
 
+    //doesnt load online config if standalone argument is provided
+    if (args.contains("standalone")) _onlineConfig = false;
+
     _os = detectOS();
 
     // Setup
