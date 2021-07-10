@@ -30,6 +30,9 @@ final Duration delay = Duration(minutes: 10); //10 minutes delay between updates
 // '/home/user/.farmr' for package installs, '.' (project path) for the rest
 late String rootPath;
 
+const String url = "https://farmr.net/send10.php";
+const String urlBackup = "https://chiabot.znc.sh/send10.php";
+
 //prepares rootPath
 prepareRootPath(bool package) {
   rootPath = (io.Platform.isLinux && package)
@@ -303,9 +306,6 @@ main(List<String> args) async {
               "publicAPI": publicAPI
             };
 
-            const String url = "https://farmr.net/send10.php";
-            const String urlBackup = "https://chiabot.znc.sh/send10.php";
-
             if (blockchain.config.sendStatusNotifications)
               post.putIfAbsent("isFarming", () => isFarming);
 
@@ -339,32 +339,7 @@ main(List<String> args) async {
               post.putIfAbsent("id", () => id + blockchain.fileExtension);
               post.update("id", (value) => id + blockchain.fileExtension);
 
-              http.post(Uri.parse(url), body: post).then((_) {
-                String idText = (blockchain.id.ids.length == 1)
-                    ? ''
-                    : "for id " + id + blockchain.fileExtension;
-                String timestamp = DateFormat.Hms().format(DateTime.now());
-                log.warning(
-                    "\n$timestamp - Sent ${blockchain.binaryName} $type report to server $idText\nResending it in ${delay.inMinutes} minutes");
-              }).catchError((error) {
-                log.warning(
-                    "Server timeout, could not access farmr.net.\nRetrying with backup domain.");
-                log.info(error.toString());
-
-                http.post(Uri.parse(urlBackup), body: post).then((_) {
-                  String idText = (blockchain.id.ids.length == 1)
-                      ? ''
-                      : "for id " + id + blockchain.fileExtension;
-                  String timestamp = DateFormat.Hms().format(DateTime.now());
-                  log.warning(
-                      "\n$timestamp - Sent ${blockchain.binaryName} $type report to server $idText\nResending it in ${delay.inMinutes} minutes");
-                }).catchError((error) {
-                  log.warning(
-                      "Server timeout. Could not send report to server!");
-
-                  log.info(error.toString());
-                });
-              });
+              sendReport(id, post, blockchain, type);
             }
 
             log.info("url:$url");
@@ -389,6 +364,39 @@ main(List<String> args) async {
     await Future.delayed(delay);
 
     if (onetime) io.exit(0);
+  }
+}
+
+Future<void> sendReport(
+    String id, Object? post, Blockchain blockchain, String type,
+    [bool retry = true]) async {
+  String contents = "";
+  //sends report to farmr.net
+  await http.post(Uri.parse(url), body: post).then((_) {
+    contents = _.body;
+    String idText = (blockchain.id.ids.length == 1)
+        ? ''
+        : "for id " + id + blockchain.fileExtension;
+    String timestamp = DateFormat.Hms().format(DateTime.now());
+    log.warning(
+        "\n$timestamp - Sent ${blockchain.binaryName} $type report to server $idText\nResending it in ${delay.inMinutes} minutes");
+  }).catchError((error) {
+    log.warning(
+        "Server timeout, could not access farmr.net.\nRetrying with backup domain.");
+    log.info(error.toString());
+
+    //sends report to chiabot.znc.sh (legacy/backup domain)
+    if (retry) sendReport(id, post, blockchain, type, false);
+  });
+
+  checkIfLinked(contents);
+}
+
+void checkIfLinked(String output) {
+  if (output.trim().contains("Not linked")) {
+    log.warning("""This device is not linked to an account.
+Link it in farmr.net or through farmrbot and then start this program again""");
+    io.exit(1);
   }
 }
 
