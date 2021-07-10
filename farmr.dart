@@ -389,13 +389,14 @@ Future<void> sendReport(
     if (retry) sendReport(id, post, blockchain, type, false);
   });
 
-  checkIfLinked(contents);
+  await checkIfLinked(contents);
 }
 
-void checkIfLinked(String output) {
+Future<void> checkIfLinked(String output) async {
   if (output.trim().contains("Not linked")) {
     log.warning("""This device is not linked to an account.
 Link it in farmr.net or through farmrbot and then start this program again""");
+    await Future.delayed(Duration(minutes: 1));
     io.exit(1);
   }
 }
