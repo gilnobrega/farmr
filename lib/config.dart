@@ -315,8 +315,6 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     if (json['currency'] != null) currency = json['currency']; //old
     if (json['Currency'] != null) currency = json['Currency']; //new
 
-    _blockchain.cache.chiaPath = json['${_blockchain.binaryName}Path'] ?? "";
-
     if (json['showBalance'] != null) showBalance = json['showBalance']; //old
     if (json['Show Farmed ${_blockchain.currencySymbol.toUpperCase()}'] != null)
       showBalance =
@@ -408,6 +406,8 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     }
 
     loadfromJson(contents[0]);
+    _blockchain.cache.chiaPath =
+        contents[0]['${_blockchain.binaryName}Path'] ?? "";
 
     await saveConfig();
   }
