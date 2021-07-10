@@ -123,6 +123,9 @@ class Config {
           _blockchain.id.ids.first;
 
       contents = (await http.read(Uri.parse(url))).trim();
+
+      print(contents);
+      io.stdin.readLineSync(); //comment this
     } catch (error) {
       log.warning("Failed to read online config");
     }
