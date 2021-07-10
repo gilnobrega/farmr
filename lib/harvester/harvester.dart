@@ -24,8 +24,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
   bool _isAggregate = false;
   bool get isAggregate => _isAggregate;
 
-  String _name = "Harvester";
-  String get name => _name;
+  String name = "Harvester";
 
   String _status = "Harvesting";
   String get status => _status;
@@ -70,7 +69,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
 
   Map toJson() {
     var initialMap = {
-      'name': _name,
+      'name': name,
       'status': status,
       'crypto': crypto,
       'blockRewards': blockRewards,
@@ -114,7 +113,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
 
     this._config = this.blockchain.config;
     _version = version;
-    _name = _config.name; //loads name from config
+    name = _config.name; //loads name from config
     currency = _config.currency; // loads currency from config
 
     allPlots = _config.cache!.plots; //loads plots from cache
@@ -145,7 +144,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     if (object['status'] != null) _status = object['status'];
 
     //loads name from json file
-    if (object['name'] != null) _name = object['name'];
+    if (object['name'] != null) name = object['name'];
 
     //loads currency from json file
     if (object['currency'] != null) currency = object['currency'];

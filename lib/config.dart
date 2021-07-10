@@ -124,9 +124,6 @@ class Config {
           _blockchain.fileExtension;
 
       contents = (await http.read(Uri.parse(url))).trim();
-
-      print(contents);
-      io.stdin.readLineSync(); //comment this
     } catch (error) {
       log.warning("Failed to read online config");
     }
