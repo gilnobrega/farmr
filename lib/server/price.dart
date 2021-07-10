@@ -28,6 +28,7 @@ class Price {
     'TRY': '₺',
     'THB': '฿',
     'TWD': 'NT\$',
+    'WON': '₩',
     'ETH': 'ETH',
     'BTC': '₿',
     'ETC': 'ETC'
@@ -137,7 +138,8 @@ class Price {
           //since the api only stores values up to 0.01 usd
           if (object['base'] == otherCurrency &&
               object['base'] != "JPY" &&
-              object['base'] != "INR") {
+              object['base'] != "INR" &&
+              object['base'] != "WON") {
             rate = 1 / double.parse(object['amount']);
           }
         }
