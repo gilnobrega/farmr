@@ -79,23 +79,28 @@ class Config {
       [isHarvester = false, isHPool = false, isFoxyPoolOG = false]) {
     _config =
         io.File(_rootPath + "config/config${_blockchain.fileExtension}.json");
-    //sets default name according to client type
     if (isHPool && _blockchain.currencySymbol == "xch") {
       _type = ClientType.HPool;
-      name = "HPool";
     } else if (isFoxyPoolOG &&
         (_blockchain.currencySymbol == "xch" ||
             _blockchain.currencySymbol == "xfx")) {
       _type = ClientType.FoxyPoolOG;
-      name = "FoxyPool";
     } else if (isHarvester) {
       _type = ClientType.Harvester;
-      name = "Harvester";
     } else {
       _type = ClientType.Farmer;
-      name = "Farmer";
     }
+
+    //sets default name according to client type
+    name = defaultNames[type] ?? "Harvester";
   }
+
+  static const Map<ClientType, String> defaultNames = {
+    ClientType.HPool: "HPool",
+    ClientType.FoxyPoolOG: "FoxyPool",
+    ClientType.Harvester: "Harvester",
+    ClientType.Farmer: "Farmer"
+  };
 
   Future<void> init(bool onlineConfig) async {
     if (onlineConfig)
@@ -299,17 +304,17 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
   }
 
   loadfromJson(dynamic json) {
+    //sets default name according to client type
+    name = defaultNames[type] ?? "Harvester";
+
     //leave this here for compatibility with old versions,
     //old versions stored id in config file
     if (json['id'] != null) _blockchain.id.ids.add(json['id']);
 
     //loads custom client name
     if (json['name'] != null) name = json['name']; //old
-    if (json['Name'] != null &&
-        json['Name'] != "Farmer" &&
-        json['Name'] != "Harvester" &&
-        json['Name'] != "HPool" &&
-        json['Name'] != "FoxyPool") name = json['Name']; //new
+    if (json['Name'] != null && !defaultNames.values.contains(json['Name']))
+      name = json['Name']; //new
 
     //loads custom currency
     if (json['currency'] != null) currency = json['currency']; //old
