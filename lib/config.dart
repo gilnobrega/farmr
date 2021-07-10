@@ -120,7 +120,8 @@ class Config {
 
     try {
       String url = "https://dev.farmr.net/login.php?action=readconfig&id=" +
-          _blockchain.id.ids.first;
+          _blockchain.id.ids.first +
+          _blockchain.fileExtension;
 
       contents = (await http.read(Uri.parse(url))).trim();
 
