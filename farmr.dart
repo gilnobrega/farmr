@@ -396,7 +396,12 @@ Future<void> checkIfLinked(String output) async {
   if (output.trim().contains("Not linked")) {
     log.warning("""This device is not linked to an account.
 Link it in farmr.net or through farmrbot and then start this program again
-Press any key to quit""");
+Press enter to quit""");
+
+    Future.delayed(Duration(minutes: 10)).then((value) {
+      io.exit(1);
+    });
+
     io.stdin.readByteSync();
     io.exit(1);
   }
