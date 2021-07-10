@@ -58,6 +58,11 @@ files:
     mode: "0644"
     user: "root"
     keep: true
+  "/etc/farmr/blockchain/xfl.json.template":
+    file: blockchain/xfl.json.template
+    mode: "0644"
+    user: "root"
+    keep: true
 units:
   #- .github/workflows/farmr.service
 scripts:
