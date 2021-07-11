@@ -178,7 +178,7 @@ class Farmer extends Harvester {
           .stdout
           .toString();
 
-      RegExp regExp = RegExp(r"Height:[\s+]([0-9]+)");
+      RegExp regExp = RegExp(r"Height:[\s]+([0-9]+)");
 
       _syncedBlockHeight =
           int.tryParse(regExp.firstMatch(nodeOutput)?.group(1) ?? "-1") ?? -1;
