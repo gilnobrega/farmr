@@ -236,15 +236,13 @@ class Farmer extends Harvester {
           double.parse(object['daysSinceLastBlock'].toString());
 
     if (object['syncedBlockHeight'] != null)
-      _syncedBlockHeight =
-          int.tryParse(object['syncedBlockHeight'] ?? "-1") ?? -1;
+      _syncedBlockHeight = object['syncedBlockHeight'];
 
     if (object['peakBlockHeight'] != null)
-      _peakBlockHeight = int.tryParse(object['peakBlockHeight'] ?? "-1") ?? -1;
+      _peakBlockHeight = object['peakBlockHeight'];
 
     int walletHeight = -1;
-    if (object['walletHeight'] != null)
-      walletHeight = int.tryParse(object['walletHeight'] ?? "-1") ?? -1;
+    if (object['walletHeight'] != null) walletHeight = object['walletHeight'];
 
     _wallet = Wallet(walletBalance, daysSinceLastBlock, this.blockchain,
         _syncedBlockHeight, walletHeight);
