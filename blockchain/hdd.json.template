@@ -1,0 +1,8 @@
+{
+    "Binary Name": "hddcoin",
+    "Currency Symbol": "HDD",
+    "Minor Currency Symbol": "mojo",
+    "Net": "mainnet",
+    "Block Rewards": 2.0,
+    "Blocks Per 10 Minutes": 32.0
+}
