@@ -124,7 +124,7 @@ class Config {
     String contents = "{}";
 
     try {
-      String url = "https://dev.farmr.net/login.php?action=readconfig&id=" +
+      String url = "https://farmr.net/login.php?action=readconfig&id=" +
           _blockchain.id.ids.first +
           _blockchain.fileExtension;
 
