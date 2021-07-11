@@ -216,6 +216,8 @@ class Stats {
   String get orderedPercentage => (orderedRatio * 100).toStringAsFixed(1);
   int get syncedBlockHeight =>
       (_client is Farmer) ? (_client as Farmer).syncedBlockHeight : -1;
+  int get peakBlockHeight =>
+      (_client is Farmer) ? (_client as Farmer).peakBlockHeight : -1;
 
   int get shortSyncNumber =>
       (_client is Farmer) ? (_client as Farmer).shortSyncs.length : 0;
