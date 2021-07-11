@@ -45,6 +45,8 @@ class Log {
     debugPath = logPath + "/debug.log";
     _debugFile = io.File(debugPath);
 
+    setLogLevelToInfo(configPath);
+
     if (parseLogs) {
       loadLogItems();
 
