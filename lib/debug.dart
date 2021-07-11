@@ -1,5 +1,4 @@
 import 'dart:core';
-import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/config.dart';
 import 'package:universal_io/io.dart' as io;
 import 'dart:convert';
@@ -138,7 +137,7 @@ class Log {
                 keepParsingFilters = _parseFilters(content, _parseUntil);
               } catch (e) {
                 log.warning(
-                    "Warning: could not parse filters in debug.log$ext, make sure ${_binaryName} log level is set to INFO");
+                    "Warning: could not parse filters in debug.log$ext, make sure $_binaryName log level is set to INFO");
               }
               log.info(
                   "Finished parsing filters in debug.log$ext - keepParsingFilters: $keepParsingFilters");
@@ -153,7 +152,7 @@ class Log {
                     _parseSignagePoints(content, _parseUntil);
               } catch (e) {
                 log.info(
-                    "Warning: could not parse SubSlots in debug.log$ext, make sure ${_binaryName} log level is set to INFO");
+                    "Warning: could not parse SubSlots in debug.log$ext, make sure $_binaryName log level is set to INFO");
               }
 
               log.info(
@@ -168,7 +167,7 @@ class Log {
                 keepParsingShortSyncs = _parseShortSyncs(content, _parseUntil);
               } catch (e) {
                 log.info(
-                    "Warning: could not parse Short Sync events in debug.log$ext, make sure ${_binaryName} log level is set to INFO");
+                    "Warning: could not parse Short Sync events in debug.log$ext, make sure $_binaryName log level is set to INFO");
               }
 
               log.info(
@@ -177,7 +176,7 @@ class Log {
           }
         } catch (Exception) {
           log.warning(
-              "Warning: could not parse debug.log$ext, make sure ${_binaryName} log level is set to INFO");
+              "Warning: could not parse debug.log$ext, make sure $_binaryName log level is set to INFO");
         }
 
         //stops loading more files when all of the logging items stop parsing
@@ -203,7 +202,7 @@ class Log {
 
     try {
       RegExp filtersRegex = RegExp(
-          "([0-9-]+)T([0-9:]+)\\.([0-9]+) harvester ${_binaryName}\\.harvester\\.harvester:\\s+INFO\\s+([0-9]+) plots were eligible for farming \\S+ Found ([0-9]+) proofs\\. Time: ([0-9\\.]+) s\\. Total ([0-9]+) plots",
+          "([0-9-]+)T([0-9:]+)\\.([0-9]+) harvester $_binaryName\\.harvester\\.harvester:\\s+INFO\\s+([0-9]+) plots were eligible for farming \\S+ Found ([0-9]+) proofs\\. Time: ([0-9\\.]+) s\\. Total ([0-9]+) plots",
           multiLine: true);
 
       var matches = filtersRegex.allMatches(contents).toList();
@@ -245,7 +244,7 @@ class Log {
       }
     } catch (e) {
       log.warning(
-          "Warning: could not parse filters, make sure ${_binaryName} log level is set to INFO");
+          "Warning: could not parse filters, make sure $_binaryName log level is set to INFO");
     }
 
     return keepParsing & !inCache;
@@ -257,7 +256,7 @@ class Log {
 
     try {
       RegExp signagePointsRegex = RegExp(
-          "([0-9-]+)T([0-9:]+)\\.([0-9]+) full_node ${_binaryName}\\.full\\_node\\.full\\_node:\\s+INFO\\W+Finished[\\S ]+ ([0-9]+)\\/64",
+          "([0-9-]+)T([0-9:]+)\\.([0-9]+) full_node $_binaryName\\.full\\_node\\.full\\_node:\\s+INFO\\W+Finished[\\S ]+ ([0-9]+)\\/64",
           multiLine: true);
 
       var matches = signagePointsRegex.allMatches(contents).toList();
@@ -330,7 +329,7 @@ class Log {
 
     try {
       RegExp shortSyncsRegex = RegExp(
-          "([0-9-]+)T([0-9:]+)\\.([0-9]+) full_node ${_binaryName}\\.full\\_node\\.full\\_node:\\s+INFO\\W+Starting batch short sync from ([0-9]+) to height ([0-9]+)",
+          "([0-9-]+)T([0-9:]+)\\.([0-9]+) full_node $_binaryName\\.full\\_node\\.full\\_node:\\s+INFO\\W+Starting batch short sync from ([0-9]+) to height ([0-9]+)",
           multiLine: true);
 
       var matches = shortSyncsRegex.allMatches(contents).toList();
