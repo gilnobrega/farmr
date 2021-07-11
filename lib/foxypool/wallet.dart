@@ -10,7 +10,14 @@ class FoxyPoolWallet extends Wallet {
   double _collateralBalance = -1.0;
   double get collateralBalance => _collateralBalance;
 
-  FoxyPoolWallet(double balance, double daysSinceLastBlock,
-      this._pendingBalance, this._collateralBalance, Blockchain blockchain)
-      : super(balance, daysSinceLastBlock, blockchain);
+  FoxyPoolWallet(
+      double balance,
+      double daysSinceLastBlock,
+      this._pendingBalance,
+      this._collateralBalance,
+      Blockchain blockchain,
+      int syncedBlockHeight,
+      int walletHeight)
+      : super(balance, daysSinceLastBlock, blockchain, syncedBlockHeight,
+            walletHeight);
 }

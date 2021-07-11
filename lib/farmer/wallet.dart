@@ -12,7 +12,9 @@ class Wallet {
   double _balance = -1.0; //-1.0 is default value if disabled
   double get balance => _balance; //hides balance if string
 
-  //final DateTime currentTime = DateTime.now();
+  int _walletHeight = 0;
+  int get walletHeight => _walletHeight;
+
   int _syncedBlockHeight = 0;
 
   int _lastBlockFarmed = 0;
@@ -22,16 +24,18 @@ class Wallet {
       ? _estimateLastFarmedTime()
       : _daysSinceLastBlock;
 
-  Wallet(this._balance, this._daysSinceLastBlock, this.blockchain);
+  Wallet(this._balance, this._daysSinceLastBlock, this.blockchain,
+      this._syncedBlockHeight, this._walletHeight);
 
   void parseWalletBalance(
       String binPath, int lastBlockFarmed, bool showWalletBalance) {
     _lastBlockFarmed = lastBlockFarmed;
 
-    var walletOutput =
-        io.Process.runSync(binPath, const ["wallet", "show"]).stdout.toString();
-
     if (showWalletBalance) {
+      var walletOutput = io.Process.runSync(binPath, const ["wallet", "show"])
+          .stdout
+          .toString();
+
       try {
         //If user enabled showWalletBalance then parses ``chia wallet show``
         RegExp walletRegex = RegExp(
@@ -44,16 +48,17 @@ class Wallet {
       } catch (e) {
         log.warning("Error: could not parse wallet balance.");
       }
-    }
 
-    //tries to get synced wallet height
-    try {
-      RegExp walletHeightRegex =
-          RegExp("Wallet height: ([0-9]+)", multiLine: false);
-      _syncedBlockHeight = int.parse(
-          walletHeightRegex.firstMatch(walletOutput)?.group(1) ?? '-1');
-    } catch (e) {
-      log.warning("Error: could not parse wallet height");
+      //tries to get synced wallet height
+      try {
+        RegExp walletHeightRegex =
+            RegExp("Wallet height: ([0-9]+)", multiLine: false);
+        _walletHeight = int.tryParse(
+                walletHeightRegex.firstMatch(walletOutput)?.group(1) ?? '-1') ??
+            -1;
+      } catch (e) {
+        log.warning("Error: could not parse wallet height");
+      }
     }
   }
 

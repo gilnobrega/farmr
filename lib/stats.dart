@@ -47,6 +47,8 @@ class Stats {
   double get walletBalanceFiat => calculateFiat(walletBalance, _price, crypto);
   double get walletBalanceFiatChange =>
       calculateFiatChange(walletBalanceFiat, _price);
+  int get walletHeight =>
+      (_client is Farmer) ? (_client as Farmer).wallet.walletHeight : -1;
 
   // COLD BALANCE
   double get coldGrossBalance =>
@@ -212,6 +214,8 @@ class Stats {
   double get orderedRatio => 1 - looseRatio;
   String get loosePercentage => (looseRatio * 100).toStringAsFixed(1);
   String get orderedPercentage => (orderedRatio * 100).toStringAsFixed(1);
+  int get syncedBlockHeight =>
+      (_client is Farmer) ? (_client as Farmer).syncedBlockHeight : -1;
 
   int get shortSyncNumber =>
       (_client is Farmer) ? (_client as Farmer).shortSyncs.length : 0;

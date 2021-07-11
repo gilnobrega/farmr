@@ -11,8 +11,8 @@ class FoxyPoolOG extends Farmer {
   //public pool key
   String _publicKey = '';
 
-  FoxyPoolWallet _wallet =
-      FoxyPoolWallet(-1.0, -1.0, -1.0, -1.0, Blockchain.fromSymbol("xch"));
+  FoxyPoolWallet _wallet = FoxyPoolWallet(
+      -1.0, -1.0, -1.0, -1.0, Blockchain.fromSymbol("xch"), -1, -1);
   @override
   Wallet get wallet => _wallet;
 
@@ -21,7 +21,7 @@ class FoxyPoolOG extends Farmer {
 
   FoxyPoolOG({required Blockchain blockchain, String version = ''})
       : super(blockchain: blockchain, version: version, hpool: false) {
-    _wallet = FoxyPoolWallet(-1.0, 0, -1.0, -1.0, this.blockchain);
+    _wallet = FoxyPoolWallet(-1.0, 0, -1.0, -1.0, this.blockchain, -1, -1);
     _publicKey = this.blockchain.config.poolPublicKey;
   }
 
@@ -37,7 +37,9 @@ class FoxyPoolOG extends Farmer {
           double.parse(object['daysSinceLastBlock'].toString()),
           double.parse(object['pendingBalance'].toString()),
           double.parse(object['collateralBalance'].toString()),
-          this.blockchain);
+          this.blockchain,
+          -1,
+          -1);
   }
 
   @override
@@ -67,7 +69,9 @@ class FoxyPoolOG extends Farmer {
         super.wallet.daysSinceLastBlock,
         api.pendingBalance,
         api.collateralBalance,
-        this.blockchain);
+        this.blockchain,
+        -1,
+        -1);
 
     await super.init();
   }

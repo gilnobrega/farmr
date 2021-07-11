@@ -24,7 +24,8 @@ class Farmer extends Harvester {
   String get status => _status;
 
   //default empty wallet
-  static Wallet _emptyWallet = Wallet(-1.0, -1.0, Blockchain.fromSymbol("xch"));
+  static Wallet _emptyWallet =
+      Wallet(-1.0, -1.0, Blockchain.fromSymbol("xch"), -1, -1);
   Wallet _wallet = _emptyWallet;
   Wallet get wallet => _wallet;
   ColdWallet _coldWallet = ColdWallet();
@@ -56,6 +57,10 @@ class Farmer extends Harvester {
 
   List<ShortSync> shortSyncs = [];
 
+  //final DateTime currentTime = DateTime.now();
+  int _syncedBlockHeight = -1;
+  int get syncedBlockHeight => _syncedBlockHeight;
+
   @override
   Map toJson() {
     //loads harvester's map (since farmer is an extension of it)
@@ -75,6 +80,8 @@ class Farmer extends Harvester {
       'fullNodesConnected': fullNodesConnected,
       "shortSyncs": shortSyncs,
       "netSpace": netSpace.size,
+      "syncedBlockHeight": syncedBlockHeight,
+      "walletHeight": _wallet.walletHeight
     }.entries);
 
     if (coldWallet.grossBalance != -1.0 || coldWallet.netBalance != -1.0)
@@ -87,8 +94,6 @@ class Farmer extends Harvester {
   Farmer(
       {required Blockchain blockchain, String version = '', bool hpool = false})
       : super(blockchain, version) {
-    _wallet = Wallet(-1.0, 0, this.blockchain);
-
     if (!hpool) {
       //runs chia farm summary if it is a farmer
       var result = io.Process.runSync(
@@ -135,6 +140,9 @@ class Farmer extends Harvester {
         print("Error parsing Farm info.");
       }
 
+      getNodeHeight(); //sets _syncedBlockHeight
+      _wallet = Wallet(-1.0, -1.0, this.blockchain, _syncedBlockHeight, -1);
+
       //parses chia wallet show for block height
       _wallet.parseWalletBalance(blockchain.config.cache!.binPath,
           lastBlockFarmed, blockchain.config.showWalletBalance);
@@ -163,6 +171,22 @@ class Farmer extends Harvester {
     }
   }
 
+  void getNodeHeight() {
+    try {
+      var nodeOutput = io.Process.runSync(
+              blockchain.config.cache!.binPath, const ["show", "-s"])
+          .stdout
+          .toString();
+
+      RegExp regExp = RegExp(r"Height:[\s+]([0-9]+)");
+
+      _syncedBlockHeight =
+          int.tryParse(regExp.firstMatch(nodeOutput)?.group(1) ?? "-1") ?? -1;
+    } catch (error) {
+      log.warning("Failed to get synced height");
+    }
+  }
+
   @override
   Future<void> init() async {
     if (blockchain.config.coldWalletAddress != "")
@@ -188,7 +212,16 @@ class Farmer extends Harvester {
       daysSinceLastBlock =
           double.parse(object['daysSinceLastBlock'].toString());
 
-    _wallet = Wallet(walletBalance, daysSinceLastBlock, this.blockchain);
+    if (object['syncedBlockHeight'])
+      _syncedBlockHeight =
+          int.tryParse(object['syncedBlockHeight'] ?? "-1") ?? -1;
+
+    int walletHeight = -1;
+    if (object['walletHeight'])
+      walletHeight = int.tryParse(object['walletHeight'] ?? "-1") ?? -1;
+
+    _wallet = Wallet(walletBalance, daysSinceLastBlock, this.blockchain,
+        _syncedBlockHeight, walletHeight);
 
     if (object['completeSubSlots'] != null)
       _completeSubSlots = object['completeSubSlots'];
