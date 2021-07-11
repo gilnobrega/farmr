@@ -829,6 +829,14 @@ class Stats {
       output += "\nConnected to ${stats.fullNodesConnected} peers";
     }
 
+    if (stats.syncedBlockHeight > 0) {
+      output += "\nSynced to block height ${stats.syncedBlockHeight}";
+      if (stats.peakBlockHeight > 0) {
+        output +=
+            ", peak block height ${stats.peakBlockHeight} (chiaexplorer.com)";
+      }
+    }
+
     return output;
   }
 
