@@ -1,4 +1,6 @@
 import 'dart:core';
+import 'package:farmr_client/blockchain.dart';
+import 'package:farmr_client/config.dart';
 import 'package:universal_io/io.dart' as io;
 import 'dart:convert';
 
@@ -10,10 +12,12 @@ import 'package:farmr_client/log/subslot.dart';
 import 'package:farmr_client/log/logitem.dart';
 import 'package:farmr_client/log/signagepoint.dart';
 import 'package:farmr_client/log/shortsync.dart';
+import 'package:yaml/yaml.dart';
 
 final log = Logger('LOG');
 
 class Log {
+  ClientType _type;
   Cache _cache;
   String _binaryName;
 
@@ -31,7 +35,8 @@ class Log {
 
   List<ShortSync> shortSyncs = [];
 
-  Log(String logPath, this._cache, bool parseLogs, this._binaryName) {
+  Log(String logPath, this._cache, bool parseLogs, this._binaryName, this._type,
+      String configPath) {
     _parseUntil = _cache.parseUntil;
     _filters = _cache.filters; //loads cached filters
     signagePoints = _cache.signagePoints; //loads cached subslots
@@ -42,9 +47,53 @@ class Log {
 
     if (parseLogs) {
       loadLogItems();
+
+      //if nothing was found then it
+      //assumes log level is not set to info
+      if (filters.length == 0 &&
+          signagePoints.length == 0 &&
+          shortSyncs.length == 0 &&
+          _type != ClientType.HPool) {
+        setLogLevelToInfo(configPath);
+      }
       _cache.saveFilters(filters);
       _cache.saveSignagePoints(signagePoints); //saves signagePoints to cache
       _cache.saveShortSyncs(shortSyncs);
+    }
+  }
+
+  void setLogLevelToInfo(String configPath) {
+    String configFile = configPath + io.Platform.pathSeparator + "config.yaml";
+
+    var configYaml = loadYaml(
+        io.File(configFile).readAsStringSync().replaceAll("!!set", ""));
+
+    String logLevel = configYaml['farmer']['logging']['log_level'];
+
+    if (logLevel == "WARNING") {
+      log.warning(
+          "Log Parsing is enabled but $_binaryName's log level is set to $logLevel");
+      log.warning("Attempting to set $_binaryName's log level to INFO");
+
+      io.Process.runSync(
+          _cache.binPath, const ["configure", "--set-log-level", "INFO"]);
+
+      configYaml = loadYaml(
+          io.File(configFile).readAsStringSync().replaceAll("!!set", ""));
+
+      logLevel = configYaml['farmer']['logging']['log_level'];
+
+      if (logLevel == "INFO") {
+        log.warning("$_binaryName's log level has been set to INFO");
+        log.warning("Restarting $_binaryName's services");
+        if (_type == ClientType.Farmer || _type == ClientType.FoxyPoolOG)
+          io.Process.runSync(_cache.binPath, const ["start", "-r", "farmer"]);
+        else if (_type == ClientType.Harvester)
+          io.Process.runSync(
+              _cache.binPath, const ["start", "-r", "harvester"]);
+
+        loadLogItems();
+      }
     }
   }
 

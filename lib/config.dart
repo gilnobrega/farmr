@@ -37,11 +37,11 @@ class Config {
 
   bool sendBalanceNotifications = true; //balance notifications
 
-  bool sendOfflineNotifications = false; //status notifications
+  bool sendOfflineNotifications = true; //status notifications
 
   bool sendStatusNotifications = true; //status notifications
 
-  bool parseLogs = false;
+  bool parseLogs = true;
 
   //number of users that can link this machine
   int userNumber = 1;

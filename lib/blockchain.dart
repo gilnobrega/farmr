@@ -120,8 +120,8 @@ class Blockchain {
 
   //reparses log and adds new filters/shortsyncs/signagepoints
   void logUpdate() {
-    this.log = new Log(
-        this.logPath, this.cache, this.config.parseLogs, this.binaryName);
+    this.log = new Log(this.logPath, this.cache, this.config.parseLogs,
+        this.binaryName, this.config.type, configPath);
   }
 
   /** Returns configPath & logPath for the coin based on platform */
