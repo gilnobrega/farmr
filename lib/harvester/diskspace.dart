@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'package:universal_disk_space/universal_disk_space.dart';
 import 'package:universal_io/io.dart' as io;
 
 import 'package:universal_disk_space/universal_disk_space.dart' as uds;
@@ -16,10 +17,12 @@ class HarvesterDiskSpace {
   //sets this to false if the farmer or one of the harvesters didnt report disk space
   bool supportDiskSpace = true;
 
-  List<uds.Disk> _drives = [];
+  List<uds.Disk> drives = [];
   int _drivesCount = 0;
   //counts drives in _drives if it had not done so
-  int get drivesCount => (_drivesCount == 0) ? _drives.length : _drivesCount;
+  int get drivesCount => (drives.isNotEmpty && _drivesCount <= drives.length)
+      ? drives.length
+      : _drivesCount;
   set drivesCount(int value) {
     _drivesCount = value;
   } //setter is used in case it's from a serialized harvester
@@ -37,8 +40,8 @@ class HarvesterDiskSpace {
           uds.Disk currentdrive = diskspace.getDisk(plotDests[i]);
 
           //only adds disk sizes/space if it has not been added before
-          if (!_drives.contains(currentdrive)) {
-            _drives.add(currentdrive);
+          if (!drives.contains(currentdrive)) {
+            drives.add(currentdrive);
             totalDiskSpace += currentdrive.totalSize;
             freeDiskSpace += currentdrive.availableSpace;
           }
@@ -71,13 +74,20 @@ class HarvesterDiskSpace {
                       .replaceAll(",", "") ??
                   '-1');
 
-              totalDiskSpace += folderUsedSpace + folderFreeSpace;
-              freeDiskSpace += folderFreeSpace;
+              int totalFolderSpace = folderUsedSpace + folderFreeSpace;
+
+              Disk currentDrive = Disk("N/A", plotDests[i], totalFolderSpace,
+                  folderUsedSpace, folderFreeSpace);
+              if (!drives.contains("currentDrive")) {
+                drives.add(currentDrive);
+                totalDiskSpace += currentDrive.totalSize;
+                freeDiskSpace += currentDrive.availableSpace;
+              }
             }
           } catch (e) {
             log.warning(
                 "Failed to get information about drive ${plotDests[i]}");
-            log.info("Disks:\n{diskspace}");
+            log.info("Drives:\n${drives.toString()}");
           }
         }
       }
@@ -87,11 +97,24 @@ class HarvesterDiskSpace {
       freeDiskSpace = 0;
       totalDiskSpace = 0;
       log.warning("Can't get disk information about one of your drives.");
-      log.info("Disks:\n{diskspace}");
+      log.info("Drives:\n${drives.toString()}");
       log.info(e.toString());
     }
 
     //If it can't get one of those values then it will not show disk space
     if (totalDiskSpace == 0 || freeDiskSpace == 0) supportDiskSpace = false;
+  }
+
+  loadDisksFromJson(dynamic object) {
+    //loads number of drives from json
+    if (object['drivesCount'] != null) drivesCount = object['drivesCount'];
+
+    if (object['drives'] != null) {
+      for (var drive in object['drives']) {
+        try {
+          drives.add(Disk.fromJson(drive));
+        } catch (error) {}
+      }
+    }
   }
 }

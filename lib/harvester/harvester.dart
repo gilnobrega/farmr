@@ -75,7 +75,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
       'blockRewards': blockRewards,
       'blocksPer10Mins': blocksPer10Mins,
       'currency': currency,
-      'drivesCount': drivesCount,
+      'drives': drives,
       'plots': allPlots, //important
       'totalDiskSpace': totalDiskSpace,
       'freeDiskSpace': freeDiskSpace,
@@ -164,8 +164,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     //loads version from json
     if (object['version'] != null) _version = object['version'];
 
-    //loads number of drives from json
-    if (object['drivesCount'] != null) drivesCount = object['drivesCount'];
+    loadDisksFromJson(object);
 
     for (int i = 0; i < object['plots'].length; i++) {
       allPlots.add(Plot.fromJson(object['plots'][i]));
@@ -220,6 +219,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     _isAggregate = true;
 
     allPlots.addAll(harvester.allPlots);
+    drives.addAll(harvester.drives);
 
     addHarversterFilters(harvester);
 
