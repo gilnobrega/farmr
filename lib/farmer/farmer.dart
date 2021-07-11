@@ -12,6 +12,7 @@ import 'package:farmr_client/debug.dart' as Debug;
 import 'package:farmr_client/farmer/wallet.dart';
 import 'package:farmr_client/farmer/connections.dart';
 import 'package:farmr_client/log/shortsync.dart';
+import 'package:http/http.dart' as http;
 
 import 'package:farmr_client/server/netspace.dart';
 
@@ -61,6 +62,9 @@ class Farmer extends Harvester {
   int _syncedBlockHeight = -1;
   int get syncedBlockHeight => _syncedBlockHeight;
 
+  int _peakBlockHeight = -1;
+  int get peakBlockHeight => _peakBlockHeight;
+
   @override
   Map toJson() {
     //loads harvester's map (since farmer is an extension of it)
@@ -81,6 +85,7 @@ class Farmer extends Harvester {
       "shortSyncs": shortSyncs,
       "netSpace": netSpace.size,
       "syncedBlockHeight": syncedBlockHeight,
+      "peakBlockHeight": peakBlockHeight,
       "walletHeight": _wallet.walletHeight
     }.entries);
 
@@ -187,10 +192,28 @@ class Farmer extends Harvester {
     }
   }
 
+  Future<void> getPeakHeight() async {
+    //tries to get peak block height from chiaexplorer.com
+    try {
+      const String url = "https://api2.chiaexplorer.com/blocks";
+
+      String contents = await http.read(Uri.parse(url));
+
+      dynamic object = jsonDecode(contents);
+
+      _peakBlockHeight =
+          int.tryParse((object[0]['height'] ?? -1).toString()) ?? -1;
+    } catch (error) {
+      log.warning("Failed to get peak height");
+    }
+  }
+
   @override
   Future<void> init() async {
     if (blockchain.config.coldWalletAddress != "")
       await _coldWallet.init(blockchain.config.coldWalletAddress, _wallet);
+
+    if (blockchain.currencySymbol == "xch") await getPeakHeight();
 
     await super.init();
   }
@@ -215,6 +238,9 @@ class Farmer extends Harvester {
     if (object['syncedBlockHeight'])
       _syncedBlockHeight =
           int.tryParse(object['syncedBlockHeight'] ?? "-1") ?? -1;
+
+    if (object['peakBlockHeight'])
+      _peakBlockHeight = int.tryParse(object['peakBlockHeight'] ?? "-1") ?? -1;
 
     int walletHeight = -1;
     if (object['walletHeight'])
