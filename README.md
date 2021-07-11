@@ -18,6 +18,7 @@ The dashboard can be found in [farmr.net](https://farmr.net). Alternatively, you
   - [Compile from source](./docs/installation-source.md)
 - [First Time](./docs/usage.md#First-time)
 - [Usage](./docs/usage.md#Usage)
+- [Configuration](./docs/configuration.md)
 - [Forks](./docs/forks.md) (flax, chaingreen, etc.)
 - [Updating](#updating)
 - [Discord Commands](./docs/commands.md)
