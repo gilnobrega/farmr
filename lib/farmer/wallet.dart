@@ -19,8 +19,8 @@ class Wallet {
 
   int _lastBlockFarmed = 0;
 
-  double _daysSinceLastBlock = 0;
-  double get daysSinceLastBlock => (_daysSinceLastBlock == 0)
+  double _daysSinceLastBlock;
+  double get daysSinceLastBlock => (_daysSinceLastBlock == -1)
       ? _estimateLastFarmedTime()
       : _daysSinceLastBlock;
 
