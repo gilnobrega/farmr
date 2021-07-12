@@ -1,8 +1,10 @@
 # Configuration
 You can configure each device by pressing the settings button (on the top right corner) when that device is selected.
+
 ![settings-button](https://i.imgur.com/tANnBeT.png)
 
 Then its settings menu will appear as follows:
+
 ![image](https://i.imgur.com/AqPoFwA.png)
 
 These settings will be applied with the next report (may take up to 10 minutes)
