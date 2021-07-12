@@ -12,10 +12,10 @@ class Wallet {
   double _balance = -1.0; //-1.0 is default value if disabled
   double get balance => _balance; //hides balance if string
 
-  int _walletHeight = 0;
+  int _walletHeight;
   int get walletHeight => _walletHeight;
 
-  int _syncedBlockHeight = 0;
+  int _syncedBlockHeight;
 
   int _lastBlockFarmed = 0;
 
