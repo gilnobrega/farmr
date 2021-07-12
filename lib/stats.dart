@@ -169,10 +169,10 @@ class Stats {
   double get farmedDays => (farmedDuration.inHours / 24.0);
   double get effort => (_client is Farmer)
       ? (_client as Farmer).wallet.getCurrentEffort(etw, farmedDays)
-      : 0.0;
+      : -1.0;
   double get daysSinceLastBlock => (_client is Farmer)
       ? (_client as Farmer).wallet.daysSinceLastBlock.roundToDouble()
-      : 0;
+      : -1;
 
   String get netSpace => _netSpace.humanReadableSize;
   double get netSpaceSize => _netSpace.size;
@@ -497,9 +497,10 @@ class Stats {
     }
 
     if (stats.numberOfPlots > 0 && showLastBlock) {
-      if (stats.effort > 0.0) {
+      if (stats.effort >= 0.0) {
         //doesnt show last block days ago if user has not found a block at all
-        String lastBlock = (stats.farmedDays > stats.daysSinceLastBlock)
+        String lastBlock = (stats.farmedDays > stats.daysSinceLastBlock &&
+                stats.daysSinceLastBlock > 0)
             ? "(last block ~${stats.daysSinceLastBlock.round()} days ago)"
             : '';
         output +=
