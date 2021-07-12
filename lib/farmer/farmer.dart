@@ -148,8 +148,6 @@ class Farmer extends Harvester {
       getNodeHeight(); //sets _syncedBlockHeight
       _wallet = Wallet(-1.0, -1.0, this.blockchain, _syncedBlockHeight, -1);
 
-      print(_syncedBlockHeight);
-      io.stdin.readLineSync();
       //parses chia wallet show for block height
       _wallet.parseWalletBalance(blockchain.config.cache!.binPath,
           lastBlockFarmed, blockchain.config.showWalletBalance);
@@ -189,9 +187,6 @@ class Farmer extends Harvester {
 
       _syncedBlockHeight =
           int.tryParse(regExp.firstMatch(nodeOutput)?.group(1) ?? "-1") ?? -1;
-
-      print(_syncedBlockHeight);
-      io.stdin.readLineSync();
     } catch (error) {
       log.warning("Failed to get synced height");
     }
