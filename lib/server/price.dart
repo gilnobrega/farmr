@@ -28,7 +28,7 @@ class Price {
     'TRY': '₺',
     'THB': '฿',
     'TWD': 'NT\$',
-    'WON': '₩',
+    'KRW': '₩',
     'ETH': 'ETH',
     'BTC': '₿',
     'ETC': 'ETC'
@@ -139,7 +139,7 @@ class Price {
           if (object['base'] == otherCurrency &&
               object['base'] != "JPY" &&
               object['base'] != "INR" &&
-              object['base'] != "WON") {
+              object['base'] != "KRW") {
             rate = 1 / double.parse(object['amount']);
           }
         }
