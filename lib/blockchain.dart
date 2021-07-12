@@ -73,7 +73,10 @@ class Blockchain {
     }
 
     //doesnt load online config if standalone argument is provided
-    if (args.contains("standalone")) _onlineConfig = false;
+    if (args.contains("standalone") ||
+        //online configuration is incompatible with hpool mode
+        (args.contains("hpool") && currencySymbol == "xch"))
+      _onlineConfig = false;
 
     _os = detectOS();
 
