@@ -26,6 +26,7 @@ import 'package:farmr_client/server/price.dart';
 import 'package:uuid/uuid.dart';
 
 import "package:console/console.dart";
+import 'package:dart_console/dart_console.dart' as dartconsole;
 
 final log = Logger('Client');
 
@@ -135,9 +136,6 @@ void updateIDs(ID id, int userNumber) {
 Map<String, String> outputs = {};
 
 main(List<String> args) async {
-  // Initialize the Console. Throws an exception if advanced terminal features are not supported.
-  Console.init();
-
   initLogger(); //initializes logger
 
   //Kills command on ctrl c
@@ -179,7 +177,10 @@ main(List<String> args) async {
   updateIDs(id, maxUsers);
 
   log.warning(info);
-  reportSelector();
+
+  //does not ask for user input in github workflow
+  if (!blockchains.first.configPath.contains(".github/workflows"))
+    reportSelector();
 
   int counter = 0;
 
@@ -219,13 +220,18 @@ main(List<String> args) async {
 
 bool firstTime = true;
 
+late dartconsole.Console console;
 Future<void> reportSelector() async {
   print("");
 
-  if (firstTime)
+  //initializes consoles if its the first time this function is running
+  if (firstTime) {
+    console = dartconsole.Console();
+    Console.init();
     firstTime = false;
-  else
-    Console.eraseDisplay();
+    //otherwise clears screen
+  } else
+    console.clearScreen();
 
   var chooser = Chooser<String>(
     outputs.entries.map((entry) => entry.key).toList(),

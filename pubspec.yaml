@@ -22,3 +22,4 @@ dependencies:
   collection: ^1.15.0
   socket_io_client: 2.0.0-beta.4-nullsafety.0
   console: ^4.1.0
+  dart_console: ^1.0.0
