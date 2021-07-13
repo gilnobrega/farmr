@@ -205,8 +205,7 @@ bool firstTime = true;
 
 late dartconsole.Console console;
 Future<void> reportSelector() async {
-  print("""
-farmr sends a report every 10 minutes.
+  print("""\nfarmr sends a report every 10 minutes.
 Do not close this window or these stats will not show up in farmr.net and farmrBot
 """);
 
