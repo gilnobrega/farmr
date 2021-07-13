@@ -135,6 +135,9 @@ void updateIDs(ID id, int userNumber) {
 Map<String, String> outputs = {};
 
 main(List<String> args) async {
+  // Initialize the Console. Throws an exception if advanced terminal features are not supported.
+  Console.init();
+
   initLogger(); //initializes logger
 
   //Kills command on ctrl c
@@ -214,18 +217,28 @@ main(List<String> args) async {
   }
 }
 
+bool firstTime = true;
+
 void reportSelector() {
   print("");
+
+  if (firstTime)
+    firstTime = false;
+  else
+    Console.eraseDisplay();
+
   var chooser = Chooser<String>(
     outputs.entries.map((entry) => entry.key).toList(),
     message: 'Select action: ',
   );
 
   chooser.choose().then((value) {
-    if (outputs[value] != "quit")
-      print(outputs[value]);
-    else
-      io.exit(0);
+    if (value != null) {
+      if (outputs[value] != "quit")
+        print(outputs[value]);
+      else
+        io.exit(0);
+    }
 
     reportSelector();
   });
