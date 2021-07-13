@@ -161,7 +161,9 @@ main(List<String> args) async {
   updateIDs(id, maxUsers);
 
   //shows info with ids to link
-  id.info(blockchains);
+  final String info = id.info(blockchains);
+
+  log.warning(info);
 
   int counter = 0;
 
@@ -181,12 +183,7 @@ main(List<String> args) async {
           onetime,
           standalone,
           args.contains("harvester"),
-          () {
-            //shows info with ids to link
-            id.info(blockchains);
-
-            if (standalone) io.exit(0);
-          }
+          info
         ],
       );
 
@@ -194,6 +191,7 @@ main(List<String> args) async {
         print(message);
         receivePort.close();
         isolate.kill();
+        if (standalone) io.exit(0);
       });
     }
 
@@ -211,7 +209,7 @@ void handleBlockchainReport(List<Object> arguments) async {
   bool onetime = arguments[3] as bool;
   bool standalone = arguments[4] as bool;
   bool argsContainsHarvester = arguments[5] as bool;
-  Function() showInfo = arguments[6] as Function();
+  String info = arguments[6] as String;
 
   // ClientType type = arguments[5] as ClientType;
 
@@ -384,7 +382,7 @@ void handleBlockchainReport(List<Object> arguments) async {
           post.putIfAbsent("id", () => id + blockchain.fileExtension);
           post.update("id", (value) => id + blockchain.fileExtension);
 
-          sendReport(id, post, blockchain, type, sendPort, showInfo);
+          sendReport(id, post, blockchain, type, sendPort, info);
         }
 
         log.info("url:$url");
@@ -407,7 +405,7 @@ void handleBlockchainReport(List<Object> arguments) async {
 }
 
 Future<void> sendReport(String id, Object? post, Blockchain blockchain,
-    String type, SendPort sendPort, Function() showInfo,
+    String type, SendPort sendPort, String info,
     [bool retry = true]) async {
   String contents = "";
   //sends report to farmr.net
@@ -420,7 +418,7 @@ Future<void> sendReport(String id, Object? post, Blockchain blockchain,
     log.warning(
         "\n$timestamp - Sent ${blockchain.binaryName} $type report to server $idText\nResending it in ${delay.inMinutes} minutes");
 
-    showInfo(); //shows info containing ids to link
+    log.warning(info); //shows info containing ids to link
 
     sendPort.send(blockchain.currencySymbol + " success");
   }).catchError((error) {
@@ -430,7 +428,7 @@ Future<void> sendReport(String id, Object? post, Blockchain blockchain,
 
     //sends report to chiabot.znc.sh (legacy/backup domain)
     if (retry)
-      sendReport(id, post, blockchain, type, sendPort, showInfo, false);
+      sendReport(id, post, blockchain, type, sendPort, info, false);
     else
       sendPort.send(blockchain.currencySymbol + " timeout");
   });

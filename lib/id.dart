@@ -53,7 +53,8 @@ class ID {
     }
   }
 
-  void info(List<Blockchain> blockchains) {
+  String info(List<Blockchain> blockchains) {
+    String output = "";
     List<String> idsWithBlockchains = [];
 
     for (Blockchain blockchain in blockchains) {
@@ -61,38 +62,39 @@ class ID {
       for (String id in ids)
         idsWithBlockchains.add(id + blockchain.fileExtension);
     }
-    print("");
-
+    output += "\n";
     String line = "============================================";
 
-    print(line);
+    output += "\n$line";
 
     String instructions =
         "visit https://farmr.net to add it to your account.\nAlternatively, you can also link it through farmrbot (a discord bot) by running the following command:";
-    print("");
+    output += "\n";
 
     if (idsWithBlockchains.length > 1)
-      log.warning(
-          "Your ids are " + idsWithBlockchains.toString() + ", $instructions");
+      output +=
+          "\nYour ids are " + idsWithBlockchains.toString() + ", $instructions";
     else
-      log.warning("Your id is " + idsWithBlockchains[0] + ", $instructions" "");
+      output += "\nYour id is " + idsWithBlockchains[0] + ", $instructions";
 
-    print("");
+    output += "\n";
 
     for (String idWithBlockchain in idsWithBlockchains)
-      print("!chia link " + idWithBlockchain);
+      output += "\n!chia link " + idWithBlockchain;
 
-    print("");
+    output += "\n";
 
     if (idsWithBlockchains.length > 1)
-      print("To link this client to each discord user (one id per user)");
+      output += "\nTo link this client to each discord user (one id per user)";
     else
-      print("to link this client to your discord user");
+      output += "\nto link this client to your discord user";
 
-    print("""You can interact with farmrbot in Swar's Chia Community
-Open the following link to join the server: https://discord.gg/swar""");
+    output += """\nYou can interact with farmrbot in Swar's Chia Community
+Open the following link to join the server: https://discord.gg/swar""";
 
-    print("");
-    print(line);
+    output += "\n";
+    output += "\n$line";
+
+    return output;
   }
 }
