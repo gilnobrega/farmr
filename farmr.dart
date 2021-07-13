@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:html';
 import 'dart:isolate';
 import 'package:path/path.dart';
 import 'package:universal_io/io.dart' as io;
@@ -182,7 +183,13 @@ main(List<String> args) async {
           blockchains.length,
           onetime,
           standalone,
-          args.contains("harvester")
+          args.contains("harvester"),
+          () {
+            //shows info with ids to link
+            id.info(blockchains);
+
+            if (standalone) io.exit(0);
+          }
         ],
       );
 
@@ -192,11 +199,6 @@ main(List<String> args) async {
         isolate.kill();
       });
     }
-
-    //shows info with ids to link
-    id.info(blockchains);
-
-    if (standalone) io.exit(0);
 
     await Future.delayed(delay);
 
@@ -212,6 +214,7 @@ void handleBlockchainReport(List<Object> arguments) async {
   bool onetime = arguments[3] as bool;
   bool standalone = arguments[4] as bool;
   bool argsContainsHarvester = arguments[5] as bool;
+  VoidCallback showInfo = arguments[6] as VoidCallback;
 
   // ClientType type = arguments[5] as ClientType;
 
@@ -384,7 +387,7 @@ void handleBlockchainReport(List<Object> arguments) async {
           post.putIfAbsent("id", () => id + blockchain.fileExtension);
           post.update("id", (value) => id + blockchain.fileExtension);
 
-          sendReport(id, post, blockchain, type);
+          sendReport(id, post, blockchain, type, sendPort, showInfo);
         }
 
         log.info("url:$url");
@@ -400,13 +403,14 @@ void handleBlockchainReport(List<Object> arguments) async {
     });
   }
 
+  //kills isolate after 10 minutes
   Future.delayed(Duration(minutes: 5), () {
-    sendPort.send(blockchain.currencySymbol + " done");
+    sendPort.send(blockchain.currencySymbol + " killed");
   });
 }
 
-Future<void> sendReport(
-    String id, Object? post, Blockchain blockchain, String type,
+Future<void> sendReport(String id, Object? post, Blockchain blockchain,
+    String type, SendPort sendPort, VoidCallback showInfo,
     [bool retry = true]) async {
   String contents = "";
   //sends report to farmr.net
@@ -418,13 +422,20 @@ Future<void> sendReport(
     String timestamp = DateFormat.Hms().format(DateTime.now());
     log.warning(
         "\n$timestamp - Sent ${blockchain.binaryName} $type report to server $idText\nResending it in ${delay.inMinutes} minutes");
+
+    showInfo(); //shows info containing ids to link
+
+    sendPort.send(blockchain.currencySymbol + " success");
   }).catchError((error) {
     log.warning(
         "Server timeout, could not access farmr.net.\nRetrying with backup domain.");
     log.info(error.toString());
 
     //sends report to chiabot.znc.sh (legacy/backup domain)
-    if (retry) sendReport(id, post, blockchain, type, false);
+    if (retry)
+      sendReport(id, post, blockchain, type, sendPort, showInfo, false);
+    else
+      sendPort.send(blockchain.currencySymbol + " timeout");
   });
 
   await checkIfLinked(contents);
