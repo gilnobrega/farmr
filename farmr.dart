@@ -219,7 +219,7 @@ main(List<String> args) async {
 
 bool firstTime = true;
 
-void reportSelector() {
+Future<void> reportSelector() async {
   print("");
 
   if (firstTime)
