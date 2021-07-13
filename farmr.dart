@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
 import 'package:path/path.dart';
@@ -131,6 +132,8 @@ void updateIDs(ID id, int userNumber) {
   }
 }
 
+Map<String, String> outputs = {};
+
 main(List<String> args) async {
   initLogger(); //initializes logger
 
@@ -154,7 +157,17 @@ main(List<String> args) async {
 
   List<Blockchain> blockchains = readBlockchains(id, rootPath, args);
 
-  for (Blockchain blockchain in blockchains) await blockchain.init();
+  for (Blockchain blockchain in blockchains) {
+    await blockchain.init();
+    outputs.putIfAbsent("View ${blockchain.currencySymbol} report",
+        () => "Generating ${blockchain.currencySymbol} report");
+  }
+
+  //shows info with ids to link
+  final String info = id.info(blockchains);
+
+  outputs.putIfAbsent("View IDs list", () => info);
+  outputs.putIfAbsent("Quit", () => "quit");
 
   int maxUsers = blockchains
       .map((e) => e.config.userNumber)
@@ -162,14 +175,10 @@ main(List<String> args) async {
 
   updateIDs(id, maxUsers);
 
-  //shows info with ids to link
-  final String info = id.info(blockchains);
-
   log.warning(info);
+  reportSelector();
 
   int counter = 0;
-
-  Map<String, String> outputs = {};
 
   while (true) {
     counter += 1;
@@ -191,10 +200,8 @@ main(List<String> args) async {
       );
 
       receivePort.listen((message) {
-        Map<String, String> map = message as Map<String, String>;
-
-        outputs.putIfAbsent(
-            map.entries.first.key, () => map.entries.first.value);
+        outputs.update(
+            "View ${blockchain.currencySymbol} report", (value) => message);
 
         receivePort.close();
         isolate.kill();
@@ -202,20 +209,25 @@ main(List<String> args) async {
       });
     }
 
-    log.warning(info); //shows info containing ids to link
-
-    var chooser = Chooser<MapEntry<String, String>>(
-      outputs.entries.toList(),
-      message: 'Select a Number: ',
-    );
-
-    var letter = chooser.chooseSync();
-    print('You chose ${letter.value}.');
-
     await Future.delayed(delay);
-
     if (onetime) io.exit(0);
   }
+}
+
+void reportSelector() {
+  var chooser = Chooser<String>(
+    outputs.entries.map((entry) => entry.key).toList(),
+    message: 'Select action: ',
+  );
+
+  chooser.choose().then((value) {
+    if (outputs[value] != "quit")
+      print(outputs[value]);
+    else
+      io.exit(0);
+
+    reportSelector();
+  });
 }
 
 //blockchain isolate
@@ -226,6 +238,12 @@ void handleBlockchainReport(List<Object> arguments) async {
   bool onetime = arguments[3] as bool;
   bool standalone = arguments[4] as bool;
   bool argsContainsHarvester = arguments[5] as bool;
+
+  //kills isolate after 5 minutes
+  Future.delayed(Duration(minutes: 5), () {
+    sendPort.send(
+        "${blockchain.currencySymbol} report killed. Are ${blockchain.binaryName} services running?");
+  });
 
   // ClientType type = arguments[5] as ClientType;
 
@@ -414,14 +432,6 @@ void handleBlockchainReport(List<Object> arguments) async {
       log.info(error);
     });
   }
-
-  //kills isolate after 10 minutes
-  Future.delayed(Duration(minutes: 5), () {
-    sendPort.send({
-      blockchain.currencySymbol:
-          "${blockchain.currencySymbol} report killed. Are ${blockchain.binaryName} services running?"
-    });
-  });
 }
 
 Future<void> sendReport(String id, Object? post, Blockchain blockchain,
@@ -435,10 +445,8 @@ Future<void> sendReport(String id, Object? post, Blockchain blockchain,
         ? ''
         : "for id " + id + blockchain.fileExtension;
     String timestamp = DateFormat.Hms().format(DateTime.now());
-    sendPort.send({
-      blockchain.currencySymbol: previousOutput +=
-          "\n$timestamp - Sent ${blockchain.binaryName} $type report to server $idText\nResending it in ${delay.inMinutes} minutes"
-    });
+    sendPort.send(previousOutput +=
+        "\n$timestamp - Sent ${blockchain.binaryName} $type report to server $idText\nResending it in ${delay.inMinutes} minutes");
   }).catchError((error) {
     log.warning(
         "Server timeout, could not access farmr.net.\nRetrying with backup domain.");
@@ -448,10 +456,8 @@ Future<void> sendReport(String id, Object? post, Blockchain blockchain,
     if (retry)
       sendReport(id, post, blockchain, type, sendPort, previousOutput, false);
     else
-      sendPort.send({
-        blockchain.currencySymbol: previousOutput +=
-            "\nServer timeout, could not access farmr.net (or the backup domain chiabot.znc.sh)"
-      });
+      sendPort.send(
+          "\nServer timeout, could not access farmr.net (or the backup domain chiabot.znc.sh)");
   });
 
   await checkIfLinked(contents);
