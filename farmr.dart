@@ -178,51 +178,32 @@ main(List<String> args) async {
 
   log.warning(info);
 
+  final receivePort = ReceivePort();
+
+  final mainIsolate = await Isolate.spawn(
+    spawnBlokchains,
+    [
+      receivePort.sendPort,
+      blockchains,
+      onetime,
+      standalone,
+      args.contains("harvester")
+    ],
+  );
+
   //does not ask for user input in github workflow
   if (!blockchains.first.configPath.contains(".github/workflows"))
     reportSelector();
-
-  int counter = 0;
-
-  while (true) {
-    counter += 1;
-    log.info("Generating new report #$counter");
-
-    for (Blockchain blockchain in blockchains) {
-      final receivePort = ReceivePort();
-
-      final isolate = await Isolate.spawn(
-        handleBlockchainReport,
-        [
-          receivePort.sendPort,
-          blockchain,
-          blockchains.length,
-          onetime,
-          standalone,
-          args.contains("harvester")
-        ],
-      );
-
-      receivePort.listen((message) {
-        outputs.update(
-            "View ${blockchain.currencySymbol} report", (value) => message);
-
-        receivePort.close();
-        isolate.kill();
-        if (standalone) io.exit(0);
-      });
-    }
-
-    await Future.delayed(delay);
-    if (onetime) io.exit(0);
-  }
 }
 
 bool firstTime = true;
 
 late dartconsole.Console console;
 Future<void> reportSelector() async {
-  print("");
+  print("""
+farmr sends a report every 10 minutes.
+Do not close this window or these stats will not show up in farmr.net and farmrBot
+""");
 
   //initializes consoles if its the first time this function is running
   if (firstTime) {
@@ -249,6 +230,49 @@ Future<void> reportSelector() async {
 
     reportSelector();
   });
+}
+
+void spawnBlokchains(List<Object> arguments) async {
+  SendPort sendPort = arguments[0] as SendPort;
+  List<Blockchain> blockchains = arguments[1] as List<Blockchain>;
+  bool onetime = arguments[2] as bool;
+  bool standalone = arguments[3] as bool;
+  bool argsContainsHarvester = arguments[4] as bool;
+
+  int counter = 0;
+
+  while (true) {
+    counter += 1;
+    log.info("Generating new report #$counter");
+
+    for (Blockchain blockchain in blockchains) {
+      final receivePort = ReceivePort();
+
+      final isolate = await Isolate.spawn(
+        handleBlockchainReport,
+        [
+          receivePort.sendPort,
+          blockchain,
+          blockchains.length,
+          onetime,
+          standalone,
+          argsContainsHarvester
+        ],
+      );
+
+      receivePort.listen((message) {
+        outputs.update(
+            "View ${blockchain.currencySymbol} report", (value) => message);
+
+        receivePort.close();
+        isolate.kill();
+        if (standalone) io.exit(0);
+      });
+    }
+
+    await Future.delayed(delay);
+    if (onetime) io.exit(0);
+  }
 }
 
 //blockchain isolate

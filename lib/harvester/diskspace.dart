@@ -20,9 +20,7 @@ class HarvesterDiskSpace {
   List<uds.Disk> drives = [];
   int _drivesCount = 0;
   //counts drives in _drives if it had not done so
-  int get drivesCount => (drives.isNotEmpty && _drivesCount <= drives.length)
-      ? drives.length
-      : _drivesCount;
+  int get drivesCount => (drives.isNotEmpty) ? drives.length : _drivesCount;
   set drivesCount(int value) {
     _drivesCount = value;
   } //setter is used in case it's from a serialized harvester
