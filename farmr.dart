@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:html';
 import 'dart:isolate';
 import 'package:path/path.dart';
 import 'package:universal_io/io.dart' as io;
@@ -138,8 +137,6 @@ main(List<String> args) async {
     io.exit(0);
   });
 
-  String type = '';
-
   //launches client in onetime mode, where it runs one time and doesnt loop
   bool onetime = args.contains("onetime");
   //launches client in standalone mode where it doesnt send info to server
@@ -214,7 +211,7 @@ void handleBlockchainReport(List<Object> arguments) async {
   bool onetime = arguments[3] as bool;
   bool standalone = arguments[4] as bool;
   bool argsContainsHarvester = arguments[5] as bool;
-  VoidCallback showInfo = arguments[6] as VoidCallback;
+  Function() showInfo = arguments[6] as Function();
 
   // ClientType type = arguments[5] as ClientType;
 
@@ -410,7 +407,7 @@ void handleBlockchainReport(List<Object> arguments) async {
 }
 
 Future<void> sendReport(String id, Object? post, Blockchain blockchain,
-    String type, SendPort sendPort, VoidCallback showInfo,
+    String type, SendPort sendPort, Function() showInfo,
     [bool retry = true]) async {
   String contents = "";
   //sends report to farmr.net
