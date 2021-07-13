@@ -215,6 +215,7 @@ main(List<String> args) async {
 }
 
 void reportSelector() {
+  print("");
   var chooser = Chooser<String>(
     outputs.entries.map((entry) => entry.key).toList(),
     message: 'Select action: ',
@@ -448,8 +449,8 @@ Future<void> sendReport(String id, Object? post, Blockchain blockchain,
     sendPort.send(previousOutput +=
         "\n$timestamp - Sent ${blockchain.binaryName} $type report to server $idText\nResending it in ${delay.inMinutes} minutes");
   }).catchError((error) {
-    log.warning(
-        "Server timeout, could not access farmr.net.\nRetrying with backup domain.");
+    previousOutput +=
+        "Server timeout, could not access farmr.net.\nRetrying with backup domain.";
     log.info(error.toString());
 
     //sends report to chiabot.znc.sh (legacy/backup domain)
