@@ -191,6 +191,10 @@ main(List<String> args) async {
     ],
   );
 
+  receivePort.listen((message) {
+    outputs = message;
+  });
+
   //does not ask for user input in github workflow
   if (!blockchains.first.configPath.contains(".github/workflows"))
     reportSelector();
@@ -263,6 +267,8 @@ void spawnBlokchains(List<Object> arguments) async {
       receivePort.listen((message) {
         outputs.update(
             "View ${blockchain.currencySymbol} report", (value) => message);
+
+        sendPort.send(outputs);
 
         receivePort.close();
         isolate.kill();
