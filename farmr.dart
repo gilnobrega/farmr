@@ -400,7 +400,8 @@ void handleBlockchainReport(List<Object> arguments) async {
 
   //kills isolate after 10 minutes
   Future.delayed(Duration(minutes: 5), () {
-    sendPort.send(blockchain.currencySymbol + " killed");
+    sendPort.send(
+        "${blockchain.currencySymbol} report killed. Are ${blockchain.binaryName} services running?");
   });
 }
 
