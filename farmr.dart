@@ -192,7 +192,8 @@ main(List<String> args) async {
   );
 
   receivePort.listen((message) {
-    outputs = message;
+    outputs.update((message as Map<String, String>).entries.first.key,
+        (value) => message.entries.first.value);
   });
 
   //does not ask for user input in github workflow
@@ -265,10 +266,8 @@ void spawnBlokchains(List<Object> arguments) async {
       );
 
       receivePort.listen((message) {
-        outputs.update(
-            "View ${blockchain.currencySymbol} report", (value) => message);
-
-        sendPort.send(outputs);
+        sendPort.send(
+            {"View ${blockchain.currencySymbol} report": (message as String)});
 
         receivePort.close();
         isolate.kill();
