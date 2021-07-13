@@ -229,9 +229,7 @@ Future<void> reportSelector() async {
     console = dartconsole.Console();
     Console.init();
     firstTime = false;
-    //otherwise clears screen
-  } else
-    console.clearScreen();
+  }
 
   var chooser = Chooser<String>(
     outputs.entries.map((entry) => entry.key).toList(),
@@ -240,6 +238,9 @@ Future<void> reportSelector() async {
 
   chooser.choose().then((value) {
     if (value != null) {
+      //otherwise clears screen
+      console.clearScreen();
+
       if (outputs[value] != "quit")
         print(outputs[value]);
       else
@@ -476,7 +477,7 @@ Future<void> sendReport(String id, Object? post, Blockchain blockchain,
     if (retry)
       sendReport(id, post, blockchain, type, sendPort, previousOutput, false);
     else
-      sendPort.send(
+      sendPort.send(previousOutput +=
           "\nServer timeout, could not access farmr.net (or the backup domain chiabot.znc.sh)");
   });
 
