@@ -1,6 +1,7 @@
 import 'dart:core';
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/farmer/coldwallet.dart';
+import 'package:farmr_client/poolWallets/foxyPoolWallet.dart';
 import 'package:universal_io/io.dart' as io;
 import 'dart:convert';
 
@@ -43,7 +44,7 @@ class Farmer extends Harvester {
   double get balance => _balance; //hides balance if string
 
   @override
-  final ClientType type = ClientType.Farmer;
+  late ClientType type;
 
   NetSpace _netSpace = NetSpace("1 B");
   NetSpace get netSpace => _netSpace;
@@ -89,6 +90,14 @@ class Farmer extends Harvester {
       "walletHeight": _wallet.walletHeight
     }.entries);
 
+    if (_wallet is FoxyPoolWallet)
+      harvesterMap.addEntries({
+        'pendingBalance':
+            (_wallet as FoxyPoolWallet).pendingBalance, //pending balance
+        'collateralBalance':
+            (_wallet as FoxyPoolWallet).collateralBalance //collateral balance
+      }.entries);
+
     if (coldWallet.grossBalance != -1.0 || coldWallet.netBalance != -1.0)
       harvesterMap.putIfAbsent("coldWallet", () => coldWallet);
 
@@ -97,7 +106,10 @@ class Farmer extends Harvester {
   }
 
   Farmer(
-      {required Blockchain blockchain, String version = '', bool hpool = false})
+      {required Blockchain blockchain,
+      String version = '',
+      bool hpool = false,
+      required this.type})
       : super(blockchain, version) {
     if (!hpool) {
       //runs chia farm summary if it is a farmer
@@ -146,7 +158,12 @@ class Farmer extends Harvester {
       }
 
       getNodeHeight(); //sets _syncedBlockHeight
-      _wallet = Wallet(-1.0, -1.0, this.blockchain, _syncedBlockHeight, -1);
+
+      if (type == ClientType.Farmer)
+        _wallet = Wallet(-1.0, -1.0, this.blockchain, _syncedBlockHeight, -1);
+      else if (type == ClientType.FoxyPoolOG)
+        _wallet = FoxyPoolWallet(
+            -1.0, -1.0, -1.0, -1.0, this.blockchain, _syncedBlockHeight, -1);
 
       //parses chia wallet show for block height
       _wallet.parseWalletBalance(blockchain.config.cache!.binPath,
@@ -215,6 +232,15 @@ class Farmer extends Harvester {
 
     if (blockchain.currencySymbol == "xch") await getPeakHeight();
 
+    if (_wallet is FoxyPoolWallet) {
+      //parses foxypool api if that option is enabled
+      if (blockchain.config.foxyPoolOverride)
+        //tries to parse foxypool api
+
+        //normal wallet + foxypool pending income + foxypool collateral balance
+        await (_wallet as FoxyPoolWallet).init(blockchain);
+    }
+
     await super.init();
   }
 
@@ -244,8 +270,19 @@ class Farmer extends Harvester {
     int walletHeight = -1;
     if (object['walletHeight'] != null) walletHeight = object['walletHeight'];
 
-    _wallet = Wallet(walletBalance, daysSinceLastBlock, this.blockchain,
-        _syncedBlockHeight, walletHeight);
+    //pool wallet
+    if (object['pendingBalance'] != null && object['collateralBalance'] != null)
+      _wallet = FoxyPoolWallet(
+          walletBalance,
+          daysSinceLastBlock,
+          double.parse(object['pendingBalance'].toString()),
+          double.parse(object['collateralBalance'].toString()),
+          this.blockchain,
+          _syncedBlockHeight,
+          walletHeight);
+    else
+      _wallet = Wallet(walletBalance, daysSinceLastBlock, this.blockchain,
+          _syncedBlockHeight, walletHeight);
 
     if (object['completeSubSlots'] != null)
       _completeSubSlots = object['completeSubSlots'];

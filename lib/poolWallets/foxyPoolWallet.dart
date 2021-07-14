@@ -1,16 +1,26 @@
+import 'package:farmr_client/blockchain.dart';
+import 'package:farmr_client/farmer/wallet.dart';
+
 import 'dart:async';
 
-import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/server/netspace.dart';
 import 'package:logging/logging.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 Logger log = Logger("FoxyPool API");
 
-class FoxyPoolApi {
+class FoxyPoolWallet extends Wallet {
   IO.Socket? _socket;
 
   bool _queryComplete = false;
+
+  //pending balance
+  double _pendingBalance = -1.0;
+  double get pendingBalance => _pendingBalance;
+
+  //collateral balance
+  double _collateralBalance = -1.0;
+  double get collateralBalance => _collateralBalance;
 
   int _shares = 0;
   int get shares => _shares;
@@ -18,25 +28,25 @@ class FoxyPoolApi {
   int _effectiveCapacity = 0;
   int get effectiveCapacity => _effectiveCapacity;
 
-  double _pendingBalance = -1.0; //balance in hpool wallet
-  double get pendingBalance => _pendingBalance;
+  FoxyPoolWallet(
+      double balance,
+      double daysSinceLastBlock,
+      this._pendingBalance,
+      this._collateralBalance,
+      Blockchain blockchain,
+      int syncedBlockHeight,
+      int walletHeight)
+      : super(balance, daysSinceLastBlock, blockchain, syncedBlockHeight,
+            walletHeight);
 
-  double _collateralBalance = -1.0; //unsettled income
-  double get collateralBalance => _collateralBalance;
-
-  static String stringifyCookies(Map<String, String> cookies) =>
-      cookies.entries.map((e) => '${e.key}=${e.value}').join('; ');
-
-  FoxyPoolApi();
-
-  Future<void> init(String publicKey, Blockchain blockchain) async {
-    if (publicKey != "") {
+  Future<void> init(Blockchain blockchain) async {
+    if (blockchain.config.poolPublicKey != "") {
       Stopwatch stopwatch = Stopwatch();
 
       stopwatch.start();
 
       try {
-        _getBalance(publicKey, blockchain);
+        _getBalance(blockchain.config.poolPublicKey, blockchain);
       } catch (e) {
         log.warning(
             "Failed to get FoxyPool Info, make sure your pool public key is correct.");
@@ -67,19 +77,6 @@ class FoxyPoolApi {
       },
     );
     _socket?.onConnect((_) {
-      //print('connect');
-
-      //Pool stats, not important right now!
-      /*socket.emitWithAck('init', 'chia-og',
-        ack: ([poolConfig, poolStats, roundStats, liveStats]) {
-      //print('ack $poolConfig');
-      if (poolConfig != null) {
-        print('from server $poolConfig');
-      } else {
-        print("Null");
-      }
-    });*/
-
       _socket?.emitWithAck('account:fetch', {
         '${blockchain.binaryName}-og',
         {'poolPublicKey': poolPublicKey}
@@ -106,7 +103,5 @@ class FoxyPoolApi {
         _socket?.dispose();
       });
     });
-
-    //_socket?.connect();
   }
 }

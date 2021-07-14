@@ -15,7 +15,6 @@ import 'package:farmr_client/harvester/harvester.dart';
 import 'package:farmr_client/config.dart';
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/hpool/hpool.dart';
-import 'package:farmr_client/foxypool/foxypoolog.dart';
 import 'package:farmr_client/id.dart';
 
 import 'package:farmr_client/environment_config.dart';
@@ -328,12 +327,11 @@ void handleBlockchainReport(List<Object> arguments) async {
           blockchain.currencySymbol == "xch")
         client =
             HPool(blockchain: blockchain, version: EnvironmentConfig.version);
-      else if (blockchain.config.type == ClientType.FoxyPoolOG)
-        client = FoxyPoolOG(
-            blockchain: blockchain, version: EnvironmentConfig.version);
       else if (blockchain.config.type == ClientType.Farmer)
-        client =
-            Farmer(blockchain: blockchain, version: EnvironmentConfig.version);
+        client = Farmer(
+            blockchain: blockchain,
+            version: EnvironmentConfig.version,
+            type: blockchain.config.type);
       else
         client = Harvester(blockchain, EnvironmentConfig.version);
     }
@@ -343,8 +341,10 @@ void handleBlockchainReport(List<Object> arguments) async {
       if (argsContainsHarvester)
         client = Harvester(blockchain, EnvironmentConfig.version);
       else
-        client =
-            Farmer(blockchain: blockchain, version: EnvironmentConfig.version);
+        client = Farmer(
+            blockchain: blockchain,
+            version: EnvironmentConfig.version,
+            type: blockchain.config.type);
     }
 
     //hpool has a special config.yaml directory, as defined in farmr's config.json
@@ -387,9 +387,7 @@ void handleBlockchainReport(List<Object> arguments) async {
         0,
         0,
         //shows netspace is client is farmer or foxypoolOG since foxypoolOG uses same chia client and full node
-        (client is Farmer || client is FoxyPoolOG)
-            ? (client as Farmer).netSpace
-            : NetSpace(),
+        (client is Farmer) ? (client as Farmer).netSpace : NetSpace(),
         false,
         true,
         Rate(0, 0, 0),

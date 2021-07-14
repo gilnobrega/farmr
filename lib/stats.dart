@@ -1,11 +1,10 @@
-import 'package:farmr_client/foxypool/foxypoolog.dart';
-import 'package:farmr_client/foxypool/wallet.dart';
 import 'package:farmr_client/harvester/harvester.dart';
 import 'package:farmr_client/harvester/plots.dart';
 import 'package:farmr_client/farmer/farmer.dart';
 import 'package:farmr_client/hpool/hpool.dart';
 import 'package:farmr_client/hpool/wallet.dart';
 import 'package:farmr_client/plot.dart';
+import 'package:farmr_client/poolWallets/foxyPoolWallet.dart';
 import 'package:farmr_client/server/price.dart';
 import 'package:farmr_client/server/netspace.dart';
 import 'package:farmr_client/log/shortsync.dart';
@@ -78,17 +77,19 @@ class Stats {
       calculateFiatChange(undistributedBalanceFiat, _price);
 
   //FoxyPool Wallet
-  double get pendingBalance => (_client is FoxyPoolOG)
-      ? ((_client as FoxyPoolOG).wallet as FoxyPoolWallet).pendingBalance
-      : -1.0;
+  double get pendingBalance =>
+      (_client is Farmer && (_client as Farmer).wallet is FoxyPoolWallet)
+          ? ((_client as Farmer).wallet as FoxyPoolWallet).pendingBalance
+          : -1.0;
   double get pendingBalanceFiat =>
       calculateFiat(pendingBalance, _price, crypto);
   double get pendingBalanceFiatChange =>
       calculateFiatChange(pendingBalanceFiat, _price);
 
-  double get collateralBalance => (_client is FoxyPoolOG)
-      ? ((_client as FoxyPoolOG).wallet as FoxyPoolWallet).collateralBalance
-      : -1.0;
+  double get collateralBalance =>
+      (_client is Farmer && (_client as Farmer).wallet is FoxyPoolWallet)
+          ? ((_client as Farmer).wallet as FoxyPoolWallet).collateralBalance
+          : -1.0;
   double get collateralBalanceFiat =>
       calculateFiat(collateralBalance, _price, crypto);
   double get collateralBalanceFiatChange =>
@@ -1051,7 +1052,7 @@ class Stats {
           ((harvester is HPool && (isFull || isWorkers))
               ? Stats.showUndistributedBalance(stats)
               : '') +
-          ((harvester is FoxyPoolOG && (isFull || isWorkers))
+          ((isFull || isWorkers)
               ? Stats.showPendingBalance(stats) +
                   Stats.showCollateralBalance(stats)
               : '') +
