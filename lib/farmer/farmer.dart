@@ -92,9 +92,6 @@ class Farmer extends Harvester {
       "walletHeight": _wallet.walletHeight
     }.entries);
 
-    //sets type to farmer
-    harvesterMap.update("type", (value) => 0);
-
     if (_wallet is GenericPoolWallet)
       harvesterMap.addEntries({
         'pendingBalance':
@@ -257,9 +254,12 @@ class Farmer extends Harvester {
 
   //Server side function to read farm from json file
   Farmer.fromJson(String json) : super.fromJson(json) {
+    var object = jsonDecode(json)[0];
+
     type = ClientType.Farmer;
 
-    var object = jsonDecode(json)[0];
+    if (object['type'] != null && object['type'] is int)
+      type = ClientType.values[object['type']];
 
     _status = object['status'];
     _balance = double.parse(object['balance'].toString());
