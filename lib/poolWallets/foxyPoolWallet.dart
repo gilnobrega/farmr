@@ -1,5 +1,5 @@
 import 'package:farmr_client/blockchain.dart';
-import 'package:farmr_client/farmer/wallet.dart';
+import 'package:farmr_client/poolWallets/genericPoolWallet.dart';
 
 import 'dart:async';
 
@@ -9,18 +9,10 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 Logger log = Logger("FoxyPool API");
 
-class FoxyPoolWallet extends Wallet {
+class FoxyPoolWallet extends GenericPoolWallet {
   IO.Socket? _socket;
 
   bool _queryComplete = false;
-
-  //pending balance
-  double _pendingBalance = -1.0;
-  double get pendingBalance => _pendingBalance;
-
-  //collateral balance
-  double _collateralBalance = -1.0;
-  double get collateralBalance => _collateralBalance;
 
   int _shares = 0;
   int get shares => _shares;
@@ -31,15 +23,15 @@ class FoxyPoolWallet extends Wallet {
   FoxyPoolWallet(
       double balance,
       double daysSinceLastBlock,
-      this._pendingBalance,
-      this._collateralBalance,
+      double pendingBalance,
+      double collateralBalance,
       Blockchain blockchain,
       int syncedBlockHeight,
       int walletHeight)
-      : super(balance, daysSinceLastBlock, blockchain, syncedBlockHeight,
-            walletHeight);
+      : super(balance, daysSinceLastBlock, pendingBalance, collateralBalance,
+            blockchain, syncedBlockHeight, walletHeight);
 
-  Future<void> init(Blockchain blockchain) async {
+  Future<void> init() async {
     if (blockchain.config.poolPublicKey != "") {
       Stopwatch stopwatch = Stopwatch();
 
@@ -85,8 +77,8 @@ class FoxyPoolWallet extends Wallet {
         if (data != null) {
           //print(data);
           try {
-            _pendingBalance = double.parse(data['pending'].toString());
-            _collateralBalance = double.parse(data['collateral'].toString());
+            pendingBalance = double.parse(data['pending'].toString());
+            collateralBalance = double.parse(data['collateral'].toString());
             _shares = double.parse(data['shares'].toString()).round();
             _effectiveCapacity =
                 NetSpace.sizeStringToInt("${data['ec']} GiB").round();

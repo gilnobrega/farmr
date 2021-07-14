@@ -11,6 +11,9 @@ import 'package:http/http.dart' as http;
 
 final log = Logger('Config');
 
+//Tells if client is harvester or not
+enum ClientType { Farmer, Harvester, HPool, FoxyPoolOG, Flexpool }
+
 class Config {
   Cache? cache;
 
@@ -64,6 +67,9 @@ class Config {
   //FOXYPOOL MODE
   String poolPublicKey = "";
 
+  //Flexpool Mode
+  String flexPoolAddress = "";
+
   //chiaexplorer cold wallet
   String coldWalletAddress = "";
   bool sendColdWalletBalanceNotifications = true;
@@ -76,7 +82,10 @@ class Config {
   late io.File _config;
 
   Config(this._blockchain, this.cache, this._rootPath,
-      [isHarvester = false, isHPool = false, isFoxyPoolOG = false]) {
+      [isHarvester = false,
+      isHPool = false,
+      isFoxyPoolOG = false,
+      isFlexpool = false]) {
     _config =
         io.File(_rootPath + "config/config${_blockchain.fileExtension}.json");
     if (isHPool && _blockchain.currencySymbol == "xch") {
@@ -85,6 +94,8 @@ class Config {
         (_blockchain.currencySymbol == "xch" ||
             _blockchain.currencySymbol == "xfx")) {
       _type = ClientType.FoxyPoolOG;
+    } else if (isFlexpool && _blockchain.currencySymbol == "xch") {
+      _type = ClientType.Flexpool;
     } else if (isHarvester) {
       _type = ClientType.Harvester;
     } else {
@@ -115,7 +126,9 @@ class Config {
     }
 
     //and asks for bin path if path is not defined/not found and is Farmer
-    if ((type == ClientType.Farmer || type == ClientType.FoxyPoolOG) &&
+    if ((type == ClientType.Farmer ||
+            type == ClientType.FoxyPoolOG ||
+            type == ClientType.Flexpool) &&
         (cache!.binPath == '' || !io.File(cache!.binPath).existsSync()))
       await _askForBinPath();
   }
@@ -181,6 +194,11 @@ class Config {
       configMap.putIfAbsent("Pool Public Key", () => poolPublicKey);
       configMap.putIfAbsent("Use FoxyPool API", () => foxyPoolOverride);
     }
+
+    //flexpooladdress used in flexpool api
+    if (type == ClientType.Flexpool || flexPoolAddress != "")
+      configMap.putIfAbsent("Flexpool Address", () => flexPoolAddress);
+
     return configMap;
   }
 
@@ -385,6 +403,10 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     if (json['Use FoxyPool API'] != null)
       foxyPoolOverride = json['Use FoxyPool API'];
 
+    //loads flexpool address used by flexpool mode
+    if (json['Flexpool Address'] != null)
+      flexPoolAddress = json['Flexpool Address'];
+
     if (json["Show Hardware Info"] != null)
       showHardwareInfo = json["Show Hardware Info"];
 
@@ -417,6 +439,3 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     await saveConfig();
   }
 }
-
-//Tells if client is harvester or not
-enum ClientType { Farmer, Harvester, HPool, FoxyPoolOG }

@@ -4,7 +4,7 @@ import 'package:farmr_client/farmer/farmer.dart';
 import 'package:farmr_client/hpool/hpool.dart';
 import 'package:farmr_client/hpool/wallet.dart';
 import 'package:farmr_client/plot.dart';
-import 'package:farmr_client/poolWallets/foxyPoolWallet.dart';
+import 'package:farmr_client/poolWallets/genericPoolWallet.dart';
 import 'package:farmr_client/server/price.dart';
 import 'package:farmr_client/server/netspace.dart';
 import 'package:farmr_client/log/shortsync.dart';
@@ -78,8 +78,8 @@ class Stats {
 
   //FoxyPool Wallet
   double get pendingBalance =>
-      (_client is Farmer && (_client as Farmer).wallet is FoxyPoolWallet)
-          ? ((_client as Farmer).wallet as FoxyPoolWallet).pendingBalance
+      (_client is Farmer && (_client as Farmer).wallet is GenericPoolWallet)
+          ? ((_client as Farmer).wallet as GenericPoolWallet).pendingBalance
           : -1.0;
   double get pendingBalanceFiat =>
       calculateFiat(pendingBalance, _price, crypto);
@@ -87,8 +87,8 @@ class Stats {
       calculateFiatChange(pendingBalanceFiat, _price);
 
   double get collateralBalance =>
-      (_client is Farmer && (_client as Farmer).wallet is FoxyPoolWallet)
-          ? ((_client as Farmer).wallet as FoxyPoolWallet).collateralBalance
+      (_client is Farmer && (_client as Farmer).wallet is GenericPoolWallet)
+          ? ((_client as Farmer).wallet as GenericPoolWallet).collateralBalance
           : -1.0;
   double get collateralBalanceFiat =>
       calculateFiat(collateralBalance, _price, crypto);

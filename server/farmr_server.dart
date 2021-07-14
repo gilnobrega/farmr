@@ -235,7 +235,9 @@ Future<List<Harvester>> _getUserData(String userID, String blockchain) async {
       if (result[0].toString().contains('"type"')) {
         String data = "[" + result[0].toString() + "]";
 
-        if (data.contains('"type":0') || data.contains('"type":3'))
+        if (data.contains('"type":0') ||
+            data.contains('"type":3') ||
+            data.contains('"type":4'))
           harvesters.add(Farmer.fromJson(data));
         else if (data.contains('"type":1'))
           harvesters.add(Harvester.fromJson(data));
@@ -267,7 +269,8 @@ Future<List<Harvester>> _getUserData(String userID, String blockchain) async {
 
       //If this object is a farmer then adds it to farmers list, if not adds it to harvesters list
       if (clientSerial.contains('"type":0') ||
-          clientSerial.contains('"type":3')) {
+          clientSerial.contains('"type":3') ||
+          clientSerial.contains('"type":4')) {
         client = Farmer.fromJson(clientSerial);
         harvesters.add(client);
       } else if (clientSerial.contains('"type":1')) {

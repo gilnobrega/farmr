@@ -1,7 +1,9 @@
 import 'dart:core';
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/farmer/coldwallet.dart';
+import 'package:farmr_client/poolWallets/flexPoolWallet.dart';
 import 'package:farmr_client/poolWallets/foxyPoolWallet.dart';
+import 'package:farmr_client/poolWallets/genericPoolWallet.dart';
 import 'package:universal_io/io.dart' as io;
 import 'dart:convert';
 
@@ -90,12 +92,12 @@ class Farmer extends Harvester {
       "walletHeight": _wallet.walletHeight
     }.entries);
 
-    if (_wallet is FoxyPoolWallet)
+    if (_wallet is GenericPoolWallet)
       harvesterMap.addEntries({
         'pendingBalance':
-            (_wallet as FoxyPoolWallet).pendingBalance, //pending balance
-        'collateralBalance':
-            (_wallet as FoxyPoolWallet).collateralBalance //collateral balance
+            (_wallet as GenericPoolWallet).pendingBalance, //pending balance
+        'collateralBalance': (_wallet as GenericPoolWallet)
+            .collateralBalance //collateral balance
       }.entries);
 
     if (coldWallet.grossBalance != -1.0 || coldWallet.netBalance != -1.0)
@@ -164,6 +166,9 @@ class Farmer extends Harvester {
       else if (type == ClientType.FoxyPoolOG)
         _wallet = FoxyPoolWallet(
             -1.0, -1.0, -1.0, -1.0, this.blockchain, _syncedBlockHeight, -1);
+      else if (type == ClientType.Flexpool)
+        _wallet = FlexpoolWallet(
+            -1.0, -1.0, -1.0, this.blockchain, _syncedBlockHeight, -1);
 
       //parses chia wallet show for block height
       _wallet.parseWalletBalance(blockchain.config.cache!.binPath,
@@ -236,9 +241,12 @@ class Farmer extends Harvester {
       //parses foxypool api if that option is enabled
       if (blockchain.config.foxyPoolOverride)
         //tries to parse foxypool api
-
         //normal wallet + foxypool pending income + foxypool collateral balance
-        await (_wallet as FoxyPoolWallet).init(blockchain);
+        await (_wallet as FoxyPoolWallet).init();
+    } else if (_wallet is FlexpoolWallet) {
+      //normal wallet + flexpool pending income
+      //tries to parse flexpool api
+      await (_wallet as FlexpoolWallet).init();
     }
 
     await super.init();
@@ -272,7 +280,7 @@ class Farmer extends Harvester {
 
     //pool wallet
     if (object['pendingBalance'] != null && object['collateralBalance'] != null)
-      _wallet = FoxyPoolWallet(
+      _wallet = GenericPoolWallet(
           walletBalance,
           daysSinceLastBlock,
           double.parse(object['pendingBalance'].toString()),
