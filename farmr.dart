@@ -218,31 +218,34 @@ Future<void> reportSelector() async {
 Do not close this window or these stats will not show up in farmr.net and farmrBot
 """);
 
-  //initializes consoles if its the first time this function is running
-  if (firstTime) {
-    console = dartconsole.Console();
-    Console.init();
-    firstTime = false;
-  }
-
-  var chooser = Chooser<String>(
-    outputs.entries.map((entry) => entry.key).toList(),
-    message: 'Select action: ',
-  );
-
-  chooser.choose().then((value) {
-    if (value != null) {
-      //otherwise clears screen
-      console.clearScreen();
-
-      if (outputs[value] != "quit")
-        print(outputs[value]);
-      else
-        io.exit(0);
+  try {
+    //initializes consoles if its the first time this function is running
+    if (firstTime) {
+      console = dartconsole.Console();
+      Console.init();
+      firstTime = false;
     }
 
-    reportSelector();
-  });
+    var chooser = Chooser<String>(
+      outputs.entries.map((entry) => entry.key).toList(),
+      message: 'Select action: ',
+    );
+
+    chooser.choose().then((value) {
+      if (value != null) {
+        //otherwise clears screen
+        console.clearScreen();
+
+        if (outputs[value] != "quit")
+          print(outputs[value]);
+        else
+          io.exit(0);
+      }
+
+      reportSelector();
+    });
+    //catches error in case one of the console library crashes, e.g.: if requires user input
+  } catch (error) {}
 }
 
 void spawnBlokchains(List<Object> arguments) async {
