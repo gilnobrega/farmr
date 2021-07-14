@@ -257,6 +257,8 @@ class Farmer extends Harvester {
 
   //Server side function to read farm from json file
   Farmer.fromJson(String json) : super.fromJson(json) {
+    type = ClientType.Farmer;
+
     var object = jsonDecode(json)[0];
 
     _status = object['status'];
