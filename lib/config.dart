@@ -111,7 +111,8 @@ class Config {
     ClientType.HPool: "HPool",
     ClientType.FoxyPoolOG: "FoxyPool",
     ClientType.Harvester: "Harvester",
-    ClientType.Farmer: "Farmer"
+    ClientType.Farmer: "Farmer",
+    ClientType.Flexpool: "Flexpool"
   };
 
   Future<void> init(bool onlineConfig) async {
