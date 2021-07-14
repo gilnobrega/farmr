@@ -225,6 +225,7 @@ class Stats {
   int get shortSyncSkippedBlocks => (_client is Farmer)
       ? ShortSync.skippedBlocks((_client as Farmer).shortSyncs)
       : 0;
+
   String get shortSyncDescription {
     String output = '';
     if (_client is Farmer) {
@@ -238,6 +239,9 @@ class Stats {
   //counts pool errors events
   int get poolErrors =>
       (_client is Farmer) ? (_client as Farmer).poolErrors : -1;
+
+  String get blockchainVersion =>
+      (_client is Farmer) ? (_client as Farmer).blockchainVersion : "";
 
   //Hardware
   String get cpuName => ((_client.hardware?.cpus.length ?? 0) > 0)
@@ -845,6 +849,10 @@ class Stats {
 
     if (stats.poolErrors > 0) {
       output += "\n${stats.poolErrors} 'Error sending partial' errors";
+    }
+
+    if (stats.blockchainVersion != "") {
+      output += "\nLocal blockchain version ${stats.blockchainVersion}";
     }
 
     return output;

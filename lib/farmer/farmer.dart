@@ -72,6 +72,10 @@ class Farmer extends Harvester {
   int _poolErrors = -1; // -1 means client doesnt support
   int get poolErrors => _poolErrors;
 
+  //local chia client version, e.g. 1.2.0
+  String _blockchainVersion = "";
+  String get blockchainVersion => _blockchainVersion;
+
   @override
   Map toJson() {
     //loads harvester's map (since farmer is an extension of it)
@@ -94,7 +98,8 @@ class Farmer extends Harvester {
       "syncedBlockHeight": syncedBlockHeight,
       "peakBlockHeight": peakBlockHeight,
       "walletHeight": _wallet.walletHeight,
-      "poolErrors": poolErrors
+      "poolErrors": poolErrors,
+      "blockchainVersion": blockchainVersion
     }.entries);
 
     if (_wallet is GenericPoolWallet)
@@ -162,6 +167,16 @@ class Farmer extends Harvester {
         }
       } catch (exception) {
         print("Error parsing Farm info.");
+      }
+
+      try {
+        _blockchainVersion = io.Process.runSync(
+                blockchain.config.cache!.binPath, const ["version"])
+            .stdout
+            .toString()
+            .trim();
+      } catch (error) {
+        log.warning("Failed to get ${blockchain.binaryName} version");
       }
 
       getNodeHeight(); //sets _syncedBlockHeight
@@ -319,6 +334,9 @@ class Farmer extends Harvester {
 
     if (object['poolErrors'] != null) _poolErrors = object['poolErrors'];
 
+    if (object['blockchainVersion'] != null)
+      _blockchainVersion = object['blockchainVersion'];
+
     //reads netspace from json
     if (object['netSpace'] != null) {
       _netSpace =
@@ -340,6 +358,11 @@ class Farmer extends Harvester {
       _looseSignagePoints += harvester._looseSignagePoints;
 
       shortSyncs.addAll(harvester.shortSyncs);
+    }
+
+    if (harvester is Farmer &&
+        harvester.blockchainVersion != this.blockchainVersion) {
+      _blockchainVersion = "";
     }
   }
 
