@@ -90,7 +90,8 @@ class Blockchain {
         rootPath,
         args.contains("harvester"),
         args.contains("hpool"),
-        args.contains("foxypoolog"));
+        args.contains("foxypoolog"),
+        args.contains("flexpool"));
   }
 
   //this is used on server side

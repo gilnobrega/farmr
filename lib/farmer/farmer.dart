@@ -92,6 +92,9 @@ class Farmer extends Harvester {
       "walletHeight": _wallet.walletHeight
     }.entries);
 
+    //sets type to farmer
+    harvesterMap.update("type", (value) => 0);
+
     if (_wallet is GenericPoolWallet)
       harvesterMap.addEntries({
         'pendingBalance':

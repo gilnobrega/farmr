@@ -496,8 +496,8 @@ Future<void> sendReport(String id, Object? post, Blockchain blockchain,
         ? ''
         : "for id " + id + blockchain.fileExtension;
     String timestamp = DateFormat.Hms().format(DateTime.now());
-    sendPort.send(previousOutput +=
-        "\n$timestamp - Sent ${blockchain.binaryName} $type report to server $idText\nResending it in ${delay.inMinutes} minutes");
+    previousOutput +=
+        "\n$timestamp - Sent ${blockchain.binaryName} $type report to server $idText\nResending it in ${delay.inMinutes} minutes";
   }).catchError((error) {
     previousOutput +=
         "Server timeout, could not access farmr.net.\nRetrying with backup domain.";
@@ -507,16 +507,17 @@ Future<void> sendReport(String id, Object? post, Blockchain blockchain,
     if (retry)
       sendReport(id, post, blockchain, type, sendPort, previousOutput, false);
     else
-      sendPort.send(previousOutput +=
-          "\nServer timeout, could not access farmr.net (or the backup domain chiabot.znc.sh)");
+      previousOutput +=
+          "\nServer timeout, could not access farmr.net (or the backup domain chiabot.znc.sh)";
   });
 
-  await checkIfLinked(contents);
+  await checkIfLinked(contents, previousOutput, sendPort);
 }
 
-Future<void> checkIfLinked(String output) async {
-  if (output.trim().contains("Not linked")) {
-    log.warning("""This device is not linked to an account.
+Future<void> checkIfLinked(
+    String response, String previousOutput, SendPort sendPort) async {
+  if (response.trim().contains("Not linked")) {
+    print("""This device is not linked to an account.
 Link it in farmr.net or through farmrbot and then start this program again
 Press enter to quit""");
 
@@ -526,7 +527,8 @@ Press enter to quit""");
 
     io.stdin.readByteSync();
     io.exit(1);
-  }
+  } else
+    sendPort.send(previousOutput);
 }
 
 void clearLog() {

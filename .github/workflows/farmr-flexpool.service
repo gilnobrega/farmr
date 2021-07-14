@@ -1,0 +1,10 @@
+[Unit]
+Description=farmr
+
+[Service]
+Type=simple
+WorkingDirectory=/etc/farmr/
+ExecStart=/usr/bin/farmr flexpool headless
+
+[Install]
+WantedBy=default.target
