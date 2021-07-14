@@ -254,6 +254,11 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
       _status = "$_status,\n${harvester.name} is ${harvester.status}";
 
     if (_version != harvester.version) _version = "";
+
+    //sets farm's last updated time to latest worker to get updated
+    if (harvester.lastUpdated.millisecondsSinceEpoch >
+        _lastUpdated.millisecondsSinceEpoch)
+      _lastUpdated = harvester.lastUpdated;
   }
 
   //clears plots ids before sending info to server
