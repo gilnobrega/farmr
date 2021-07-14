@@ -4,7 +4,7 @@ Description=farmr
 [Service]
 Type=simple
 WorkingDirectory=/etc/farmr/
-ExecStart=/usr/bin/farmr harvester
+ExecStart=/usr/bin/farmr harvester headless
 
 [Install]
 WantedBy=default.target

@@ -150,6 +150,9 @@ main(List<String> args) async {
 
   bool packageMode = args.contains("package"); // alternative .deb config path
 
+  //runs farmr in headless mode (doesnt ask for user input)
+  bool headless = args.contains("headless");
+
   prepareRootPath(packageMode);
   createDirsAndportOldFiles(rootPath);
 
@@ -197,8 +200,9 @@ main(List<String> args) async {
   });
 
   //does not ask for user input in github workflow
-  if (!blockchains.first.configPath.contains(".github/workflows"))
+  if (!blockchains.first.configPath.contains(".github/workflows") && !headless)
     reportSelector();
+  else if (headless) log.warning("Running in headless mode");
 }
 
 bool firstTime = true;

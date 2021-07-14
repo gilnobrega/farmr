@@ -4,7 +4,7 @@ Description=farmr
 [Service]
 Type=simple
 WorkingDirectory=/etc/farmr/
-ExecStart=/usr/bin/farmr
+ExecStart=/usr/bin/farmr headless
 
 [Install]
 WantedBy=default.target

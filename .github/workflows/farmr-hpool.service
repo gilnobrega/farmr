@@ -4,7 +4,7 @@ Description=farmr
 [Service]
 Type=simple
 WorkingDirectory=/etc/farmr/
-ExecStart=/usr/bin/farmr hpool
+ExecStart=/usr/bin/farmr hpool headless
 
 [Install]
 WantedBy=default.target
