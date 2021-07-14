@@ -195,7 +195,7 @@ main(List<String> args) async {
 
   receivePort.listen((message) {
     outputs.update((message as Map<String, String>).entries.first.key,
-        (value) => message.entries.first.value);
+        (value) => value + "\n\n" + message.entries.first.value);
 
     if ((message).entries.first.value.contains("not linked")) {
       receivePort.close();

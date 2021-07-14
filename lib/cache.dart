@@ -1,5 +1,6 @@
 import 'dart:core';
 import 'package:farmr_client/blockchain.dart';
+import 'package:farmr_client/log/logitem.dart';
 import 'package:universal_io/io.dart' as io;
 import 'dart:convert';
 
@@ -32,6 +33,9 @@ class Cache {
   List<ShortSync> _shortSyncs = [];
   List<ShortSync> get shortSyncs => _shortSyncs;
 
+  List<LogItem> _poolErrors = [];
+  List<LogItem> get poolErrors => _poolErrors;
+
   //past values for memory (24 hour)
   List<Memory> _memories = [];
   List<Memory> get memories => _memories;
@@ -55,6 +59,7 @@ class Cache {
         "signagePoints": signagePoints,
         "shortSyncs": shortSyncs,
         "memories": memories,
+        "poolErrors": poolErrors,
         "${_blockchain.binaryName}Path": chiaPath
       };
 
@@ -147,6 +152,18 @@ class Cache {
         }
       }
 
+      //loads pool errors list from cache file
+      if (contents[0]['poolErrors'] != null) {
+        _shortSyncs = [];
+        var poolErrorsJson = contents[0]['poolErrors'];
+
+        for (var poolErrorJson in poolErrorsJson) {
+          LogItem poolError =
+              LogItem.fromJson(poolErrorJson, LogItemType.Farmer);
+          if (poolError.timestamp > parseUntil) _poolErrors.add(poolError);
+        }
+      }
+
       //loads memories list from cache file
       if (contents[0]['memories'] != null) {
         _memories = [];
@@ -180,6 +197,11 @@ class Cache {
 
   void saveShortSyncs(List<ShortSync> shortSyncs) {
     _shortSyncs = shortSyncs;
+    save();
+  }
+
+  void savePoolErrors(List<LogItem> poolErrors) {
+    _poolErrors = poolErrors;
     save();
   }
 

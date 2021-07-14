@@ -23,4 +23,4 @@ int parseTimestamp(
       int.parse(milliseconds);
 }
 
-enum LogItemType { Harvester, FullNode }
+enum LogItemType { Harvester, FullNode, Farmer }

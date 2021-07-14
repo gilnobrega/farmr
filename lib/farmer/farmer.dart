@@ -68,6 +68,10 @@ class Farmer extends Harvester {
   int _peakBlockHeight = -1;
   int get peakBlockHeight => _peakBlockHeight;
 
+  //number of poolErrors events
+  int _poolErrors = -1; // -1 means client doesnt support
+  int get poolErrors => _poolErrors;
+
   @override
   Map toJson() {
     //loads harvester's map (since farmer is an extension of it)
@@ -89,7 +93,8 @@ class Farmer extends Harvester {
       "netSpace": netSpace.size,
       "syncedBlockHeight": syncedBlockHeight,
       "peakBlockHeight": peakBlockHeight,
-      "walletHeight": _wallet.walletHeight
+      "walletHeight": _wallet.walletHeight,
+      "poolErrors": poolErrors
     }.entries);
 
     if (_wallet is GenericPoolWallet)
@@ -195,6 +200,8 @@ class Farmer extends Harvester {
 
       if (harvestingStatusString != "Harvesting")
         _status = "$_status, $harvestingStatusString";
+
+      _poolErrors = blockchain.cache.poolErrors.length;
     }
   }
 
@@ -309,6 +316,8 @@ class Farmer extends Harvester {
       for (var shortSync in object['shortSyncs'])
         shortSyncs.add(ShortSync.fromJson(shortSync));
     }
+
+    if (object['poolErrors'] != null) _poolErrors = object['poolErrors'];
 
     //reads netspace from json
     if (object['netSpace'] != null) {

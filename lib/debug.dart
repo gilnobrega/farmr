@@ -34,6 +34,8 @@ class Log {
 
   List<ShortSync> shortSyncs = [];
 
+  List<LogItem> poolErrors = [];
+
   Log(String logPath, this._cache, bool parseLogs, this._binaryName, this._type,
       String configPath) {
     _parseUntil = _cache.parseUntil;
@@ -58,6 +60,7 @@ class Log {
       _cache.saveFilters(filters);
       _cache.saveSignagePoints(signagePoints); //saves signagePoints to cache
       _cache.saveShortSyncs(shortSyncs);
+      _cache.savePoolErrors(poolErrors);
     }
   }
 
@@ -106,6 +109,7 @@ class Log {
     bool keepParsingFilters = true;
     bool keepParsingSignagePoints = true;
     bool keepParsingShortSyncs = true;
+    bool keepParsingPoolErrors = true;
 
     log.info("Started parsing logs");
     //parses debug.log, debug.log.1, debug.log.2, ...
@@ -173,6 +177,21 @@ class Log {
               log.info(
                   "Finished Short Sync events in debug.log$ext - keepParsingShortSyncs: $keepParsingShortSyncs");
             }
+
+            //parses signage points
+            if (keepParsingPoolErrors) {
+              log.info("Started parsing PoolErrors events in debug.log$ext");
+
+              try {
+                keepParsingPoolErrors = _parsePoolErrors(content, _parseUntil);
+              } catch (e) {
+                log.info(
+                    "Warning: could not parse Pool Error events in debug.log$ext, make sure $_binaryName log level is set to INFO");
+              }
+
+              log.info(
+                  "Finished pool error events in debug.log$ext - keepParsingPoolErrors: $keepParsingPoolErrors");
+            }
           }
         } catch (Exception) {
           log.warning(
@@ -182,7 +201,8 @@ class Log {
         //stops loading more files when all of the logging items stop parsing
         keepParsing = keepParsingFilters &&
             keepParsingSignagePoints &&
-            keepParsingShortSyncs;
+            keepParsingShortSyncs &&
+            keepParsingPoolErrors;
 
         log.info("Finished parsing debug.log$ext - keepParsing: $keepParsing");
       }
@@ -193,6 +213,8 @@ class Log {
 
     filterDuplicateSignagePoints();
     _genSubSlots();
+
+    filterDuplicatePoolErrors();
   }
 
   //Parses debug file and looks for filters
@@ -364,6 +386,57 @@ class Log {
     return keepParsing && !inCache;
   }
 
+  //Parses debug file and looks for pool errors
+  bool _parsePoolErrors(String contents, int parseUntil) {
+    bool keepParsing = true;
+    bool inCache = false;
+
+    try {
+      RegExp poolErrorsRegex = RegExp(
+          "([0-9-]+)T([0-9:]+)\\.([0-9]+) farmer $_binaryName\\.farmer\\.farmer:\\s+ERROR\\s+Error sending partial to",
+          multiLine: true);
+
+      var matches = poolErrorsRegex.allMatches(contents).toList();
+
+      int timestamp = DateTime.now().millisecondsSinceEpoch;
+
+      for (int i = matches.length - 1; i >= 0; i--) {
+        try {
+          if (keepParsing && !inCache) {
+            RegExpMatch match = matches[i];
+
+            //Parses date from debug.log
+            timestamp = parseTimestamp(match.group(1) ?? '1971-01-01',
+                match.group(2) ?? '00:00:00', match.group(3) ?? '0000');
+
+            //if filter's timestamp is outside parsing date rang
+            keepParsing = timestamp > parseUntil;
+
+            //if filter is in cache
+            inCache = poolErrors.any((cached) => cached.timestamp == timestamp);
+
+            if (!inCache && keepParsing) {
+              //print(timestamp);
+
+              LogItem poolError = LogItem(timestamp, LogItemType.Farmer);
+
+              poolErrors.add(poolError);
+            }
+          }
+        } catch (Exception) {
+          log.warning("""Error parsing pool errors!
+Ignore this warning if you are not farming in a pool.""");
+        }
+      }
+    } catch (e) {
+      log.warning(
+          """Warning: could not parse pool errors, make sure $_binaryName log level is set to INFO
+Ignore this warning if you are not farming in a pool.""");
+    }
+
+    return keepParsing & !inCache;
+  }
+
   void filterDuplicateFilters() {
 //Removes filters with same timestamps!
     final ids = _filters.map((filter) => filter.timestamp).toSet();
@@ -376,5 +449,11 @@ class Log {
         signagePoints.map((signagePoint) => signagePoint.timestamp).toSet();
     signagePoints
         .retainWhere((signagePoint) => ids.remove(signagePoint.timestamp));
+  }
+
+  void filterDuplicatePoolErrors() {
+//Removes pool errors with same timestamps!
+    final ids = poolErrors.map((error) => error.timestamp).toSet();
+    poolErrors.retainWhere((error) => ids.remove(error.timestamp));
   }
 }

@@ -235,6 +235,10 @@ class Stats {
     return output;
   }
 
+  //counts pool errors events
+  int get poolErrors =>
+      (_client is Farmer) ? (_client as Farmer).poolErrors : -1;
+
   //Hardware
   String get cpuName => ((_client.hardware?.cpus.length ?? 0) > 0)
       ? _client.hardware?.cpus[0].name ?? ""
@@ -837,6 +841,10 @@ class Stats {
         output +=
             "\nPeak block height ~${stats.peakBlockHeight} (according to chiaexplorer.com)";
       }
+    }
+
+    if (stats.poolErrors > 0) {
+      output += "\n${stats.poolErrors} 'Error sending partial' errors";
     }
 
     return output;
