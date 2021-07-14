@@ -333,13 +333,13 @@ void handleBlockchainReport(List<Object> arguments) async {
           blockchain.currencySymbol == "xch")
         client =
             HPool(blockchain: blockchain, version: EnvironmentConfig.version);
-      else if (blockchain.config.type == ClientType.Farmer)
+      else if (blockchain.config.type == ClientType.Harvester)
+        client = Harvester(blockchain, EnvironmentConfig.version);
+      else
         client = Farmer(
             blockchain: blockchain,
             version: EnvironmentConfig.version,
             type: blockchain.config.type);
-      else
-        client = Harvester(blockchain, EnvironmentConfig.version);
     }
     //if its not xch then it wont start foxypool or hpool mode
     //will default to farmer mode unless harvester domain is specific in addition to hpool

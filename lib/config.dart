@@ -88,6 +88,7 @@ class Config {
       isFlexpool = false]) {
     _config =
         io.File(_rootPath + "config/config${_blockchain.fileExtension}.json");
+
     if (isHPool && _blockchain.currencySymbol == "xch") {
       _type = ClientType.HPool;
     } else if (isFoxyPoolOG &&
