@@ -291,7 +291,13 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
             io.Directory("/usr/lib/${_blockchain.binaryName}-blockchain");
         file = "/resources/app.asar.unpacked/daemon/${_blockchain.binaryName}";
       } else if (io.Platform.isMacOS) {
-        chiaRootDir = io.Directory("/Applications/Chia.app/Contents");
+        //capitalizes first letter of a string
+        String capitalize(String input) {
+          return "${input[0].toUpperCase()}${input.substring(1)}";
+        }
+
+        chiaRootDir = io.Directory(
+            "/Applications/${capitalize(_blockchain.binaryName)}.app/Contents");
         file = "/Resources/app.asar.unpacked/daemon/${_blockchain.binaryName}";
       }
 
