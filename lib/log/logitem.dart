@@ -7,6 +7,10 @@ class LogItem {
   LogItemType _type;
   LogItemType get type => _type;
 
+  Map toJson() => {
+        "timestamp": timestamp,
+      };
+
   LogItem(this._timestamp, this._type);
 
   LogItem.fromJson(dynamic json, this._type) {
