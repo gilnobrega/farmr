@@ -34,8 +34,8 @@ final Duration delay = Duration(minutes: 10); //10 minutes delay between updates
 // '/home/user/.farmr' for package installs, '.' (project path) for the rest
 late String rootPath;
 
-const String url = "https://farmr.net/send10.php";
-const String urlBackup = "https://chiabot.znc.sh/send10.php";
+const String url = "https://farmr.net/send11.php";
+const String urlBackup = "https://chiabot.znc.sh/send11.php";
 
 //prepares rootPath
 prepareRootPath(bool package) {
@@ -196,6 +196,12 @@ main(List<String> args) async {
   receivePort.listen((message) {
     outputs.update((message as Map<String, String>).entries.first.key,
         (value) => message.entries.first.value);
+
+    if ((message).entries.first.value.contains("not linked")) {
+      receivePort.close();
+      mainIsolate.kill();
+      io.exit(1);
+    }
   });
 
   //does not ask for user input in github workflow
@@ -498,6 +504,9 @@ Future<void> sendReport(String id, Object? post, Blockchain blockchain,
     String timestamp = DateFormat.Hms().format(DateTime.now());
     previousOutput +=
         "\n$timestamp - Sent ${blockchain.binaryName} $type report to server $idText\nResending it in ${delay.inMinutes} minutes";
+
+    checkIfLinked(
+        contents, previousOutput, sendPort, id + blockchain.fileExtension);
   }).catchError((error) {
     previousOutput +=
         "Server timeout, could not access farmr.net.\nRetrying with backup domain.";
@@ -507,19 +516,19 @@ Future<void> sendReport(String id, Object? post, Blockchain blockchain,
     if (retry)
       sendReport(id, post, blockchain, type, sendPort, previousOutput, false);
     else
-      previousOutput +=
-          "\nServer timeout, could not access farmr.net (or the backup domain chiabot.znc.sh)";
+      sendPort.send(previousOutput +=
+          "\nServer timeout, could not access farmr.net (or the backup domain chiabot.znc.sh)");
   });
-
-  await checkIfLinked(contents, previousOutput, sendPort);
 }
 
-Future<void> checkIfLinked(
-    String response, String previousOutput, SendPort sendPort) async {
+Future<void> checkIfLinked(String response, String previousOutput,
+    SendPort sendPort, String id) async {
   if (response.trim().contains("Not linked")) {
-    print("""This device is not linked to an account.
+    final errorString = """\n\nID $id is not linked to an account.
 Link it in farmr.net or through farmrbot and then start this program again
-Press enter to quit""");
+Press enter to quit""";
+    print(errorString);
+    sendPort.send("not linked");
 
     Future.delayed(Duration(minutes: 10)).then((value) {
       io.exit(1);
