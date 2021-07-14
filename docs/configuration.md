@@ -61,6 +61,9 @@ Notice that if you run it in a python venv then you must launch the farmr client
 #### Showing FoxyPool balance
 Set ``"Pool Public Key"`` to your pool public key if you want FoxyPool's pending and collateral balances to be displayed.
 
+#### Showing Flexpool balance
+Set ``"Flexpool Address"`` to your chia public address (starts with ``xch``) if you want Flexpool's balance to be displayed.
+
 #### Showing HPool Balance
 
 You need to set ``HPool Auth Token`` to the ``auth_key`` string in your hpool.com cookies. To see this token, open your browser and login to hpool.com, then right-click anywhere on the page and click on ``Inspect Element``, you should see a panel appear with a "Storage" tab. Right click on the string next to "auth_key" and copy that string string in ``value`` column. That's the string you should use as ``HPool Auth Token`` in farmr's ``config.json``. You should only need to update this value once every 3 months or when you logout from that device.
