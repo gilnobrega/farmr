@@ -393,7 +393,7 @@ class Log {
 
     try {
       RegExp poolErrorsRegex = RegExp(
-          "([0-9-]+)T([0-9:]+)\\.([0-9]+) farmer $_binaryName\\.farmer\\.farmer:\\s+ERROR\\s+Error sending partial to",
+          "([0-9-]+)T([0-9:]+)\\.([0-9]+) farmer $_binaryName\\.farmer\\.farmer\\s+:\\s+ERROR\\s+Error sending partial to",
           multiLine: true);
 
       var matches = poolErrorsRegex.allMatches(contents).toList();
