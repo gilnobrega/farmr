@@ -76,14 +76,15 @@ class Blockchain {
     //initializes default rpc ports
     if (json['Ports'] != null) {
       if (currencySymbol == "xch") {
-        rpcPorts = RPCPorts.fromJson(const {
+        const defaultMap = const {
           "harvester": 8560,
           "farmer": 8559,
           "fullNode": 8555,
           "wallet": 9256,
           "daemon": 55400
-        });
-        rpcPorts = RPCPorts.fromJson(json['Ports']);
+        };
+        rpcPorts = RPCPorts.fromJson(defaultMap);
+        rpcPorts = RPCPorts.fromJson(json['Ports'] ?? defaultMap);
       } else
         rpcPorts = RPCPorts.fromJson(json['Ports']);
     }

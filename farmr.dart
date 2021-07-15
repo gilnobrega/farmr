@@ -455,22 +455,21 @@ void handleBlockchainReport(List<Object> arguments) async {
         if (blockchain.config.sendDriveNotifications)
           post.putIfAbsent("drives", () => drives);
 
+        bool isFarmerLike = (blockchain.config.type == ClientType.Farmer ||
+            blockchain.config.type == ClientType.FoxyPoolOG ||
+            blockchain.config.type == ClientType.Flexpool);
         //If the client is a farmer and it is farming and sendBalanceNotifications is enabled then it will send balance
-        if ((blockchain.config.type == ClientType.Farmer ||
-                blockchain.config.type == ClientType.FoxyPoolOG) &&
+        if (isFarmerLike &&
             blockchain.config.sendBalanceNotifications &&
             status == "Farming" &&
             balance != "") post.putIfAbsent("balance", () => balance);
         //if cold balance has been read and cold balance notifications are enabled then it will send coldBalance to server
-        if ((blockchain.config.type == ClientType.Farmer ||
-                blockchain.config.type == ClientType.FoxyPoolOG) &&
+        if (isFarmerLike &&
             blockchain.config.sendColdWalletBalanceNotifications &&
             coldBalance != "")
           post.putIfAbsent("coldBalance", () => coldBalance);
 
-        String type = (blockchain.config.type == ClientType.Farmer)
-            ? "farmer"
-            : "harvester";
+        String type = isFarmerLike ? "farmer" : "harvester";
 
         for (String id in blockchain.id.ids) {
           //Appends blockchain symbol to id
