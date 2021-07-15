@@ -16,27 +16,84 @@ class MyHttpOverrides extends HttpOverrides {
   }
 }
 
+class RPCPorts {
+  late Map<RPCService, int?> _servicePorts;
+
+  int? harvesterPort;
+  int? walletPort;
+  int? farmerPort;
+  int? daemonPort;
+  int? fullNodePort;
+
+  Map toJson() => {
+        "harvester": harvesterPort,
+        "farmer": farmerPort,
+        "wallet": walletPort,
+        "full_node": fullNodePort,
+        "daemon": daemonPort
+      };
+
+  RPCPorts(
+      {required this.harvesterPort,
+      required this.farmerPort,
+      required this.walletPort,
+      required this.fullNodePort,
+      required this.daemonPort}) {
+    _servicePorts = {
+      RPCService.Daemon: daemonPort,
+      RPCService.Farmer: farmerPort,
+      RPCService.Harvester: harvesterPort,
+      RPCService.Wallet: walletPort,
+      RPCService.Full_Node: fullNodePort
+    };
+  }
+
+  RPCPorts.fromJson(dynamic json) {
+    harvesterPort = json['harvester'];
+    farmerPort = json['farmer'];
+    walletPort = json['wallet'];
+    fullNodePort = json['fullNode'];
+    daemonPort = json['daemon'];
+  }
+
+  int getServicePort(RPCService service) {
+    return _servicePorts[service] ?? -1;
+  }
+}
+
 main() async {
-  print(await RPC.getEndpoint(RPCService.Wallet, "get_wallet_balance",
-      {"wallet_id": 1}, 9256, Blockchain(ID(""), "", [], {})));
+  Blockchain blockchain = Blockchain(ID(""), "", [], {});
+  RPC rpc = RPC(blockchain);
+
+  print(await rpc
+      .getEndpoint(RPCService.Wallet, "get_wallet_balance", {"wallet_id": 1}));
+  print(await rpc.getEndpoint(
+    RPCService.Wallet,
+    "get_plots",
+    {},
+  ));
 }
 
 class RPC {
+  Blockchain _blockchain;
+
+  RPC(this._blockchain);
+
   static String getServiceName(RPCService service) {
     return service.toString().split('.')[1].toLowerCase();
   }
 
-  static Future<dynamic> getEndpoint(RPCService service, String endpoint,
-      dynamic dataToSend, int port, Blockchain blockchain) async {
+  Future<dynamic> getEndpoint(
+      RPCService service, String endpoint, dynamic dataToSend) async {
     HttpOverrides.global = MyHttpOverrides();
 
     String serviceName = getServiceName(service);
     print(serviceName);
     String certFile =
-        blockchain.configPath + "/ssl/$serviceName/private_$serviceName.crt";
+        _blockchain.configPath + "/ssl/$serviceName/private_$serviceName.crt";
     print(certFile);
     String privateKey =
-        blockchain.configPath + "/ssl/$serviceName/private_$serviceName.key";
+        _blockchain.configPath + "/ssl/$serviceName/private_$serviceName.key";
     print(privateKey);
 
     var context = SecurityContext.defaultContext;
@@ -44,6 +101,8 @@ class RPC {
     context.usePrivateKey(privateKey);
     HttpClient client = new HttpClient(context: context);
 
+    //reads service port
+    int port = _blockchain.rpcPorts!.getServicePort(service);
     // The rest of this code comes from your question.
     var uri = "https://localhost:$port/$endpoint";
     print(uri);

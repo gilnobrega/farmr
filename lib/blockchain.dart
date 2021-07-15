@@ -1,6 +1,7 @@
 import 'dart:core';
 import 'package:farmr_client/config.dart';
 import 'package:farmr_client/debug.dart';
+import 'package:farmr_client/rpc.dart';
 import 'package:universal_io/io.dart' as io;
 import 'package:farmr_client/id.dart';
 
@@ -55,6 +56,8 @@ class Blockchain {
   late Config config;
   late Log log;
 
+  RPCPorts? rpcPorts;
+
   Blockchain(this.id, String rootPath, List<String> args,
       [dynamic json = null]) {
     //loads blockchain file from json file if that object is defined
@@ -70,6 +73,16 @@ class Blockchain {
       _blockRewards = json['Block Rewards'] ?? 2.0;
       _blocksPer10Mins = json['Blocks Per 10 Minutes'] ?? 32.0;
       _onlineConfig = json['Online Config'] ?? true;
+
+      //initializes default rpc ports
+      rpcPorts = RPCPorts.fromJson(json['Ports'] ??
+          {
+            "harvester": 8560,
+            "farmer": 8559,
+            "fullNode": 8555,
+            "wallet": 9256,
+            "daemon": 55400
+          });
     }
 
     //doesnt load online config if standalone argument is provided
