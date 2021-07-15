@@ -151,7 +151,9 @@ class HarvesterPlots {
     List<String> loadedIDs = [];
     List<String> nftIDs = [];
 
-    if (rpcOutput['plots'] != null && rpcOutput['plots'] != null)
+    if (rpcOutput != null &&
+        rpcOutput['plots'] != null &&
+        rpcOutput['plots'] != null)
       for (var plot in rpcOutput['plots']) {
         if (plot['filename'] is String) {
           String id = (plot['filename'] as String)
