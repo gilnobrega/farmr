@@ -146,40 +146,49 @@ class HarvesterPlots {
   }
 
   Future<void> readRPCPlotList(Blockchain blockchain) async {
-    RPCConfiguration rpcConfig = RPCConfiguration(
-        blockchain: blockchain,
-        service: RPCService.Harvester,
-        endpoint: "get_plots",
-        dataToSend: {});
+    try {
+      RPCConfiguration rpcConfig = RPCConfiguration(
+          blockchain: blockchain,
+          service: RPCService.Harvester,
+          endpoint: "get_plots",
+          dataToSend: {});
 
-    var rpcOutput = await RPCConnection.getEndpoint(rpcConfig);
+      var rpcOutput = await RPCConnection.getEndpoint(rpcConfig);
 
-    List<String> loadedIDs = [];
-    List<String> nftIDs = [];
+      List<String> loadedIDs = [];
+      List<String> nftIDs = [];
 
-    if (rpcOutput != null &&
-        rpcOutput['plots'] != null &&
-        rpcOutput['plots'] != null)
-      for (var plot in rpcOutput['plots']) {
-        if (plot['filename'] is String) {
-          String id = (plot['filename'] as String)
-              .split("-")
-              .last
-              .replaceFirst(".plot", "");
+      if (rpcOutput != null &&
+          rpcOutput['plots'] != null &&
+          rpcOutput['plots'] != null)
+        for (var plot in rpcOutput['plots']) {
+          if (plot['filename'] is String) {
+            try {
+              String id = (plot['filename'] as String)
+                  .split("-")
+                  .last
+                  .replaceFirst(".plot", "");
 
-          loadedIDs.add(id);
+              loadedIDs.add(id);
 
-          //nft plot if pool_public_key is defined
-          if (plot['pool_contract_puzzle_hash'] != null) {
-            nftIDs.add(id);
+              //nft plot if pool_public_key is defined
+              if (plot['pool_contract_puzzle_hash'] != null) {
+                nftIDs.add(id);
+              }
+            } catch (error) {
+              log.info("Failed to get RPC info about plot ${plot['filename']}");
+            }
           }
         }
-      }
 
-    for (Plot plot in allPlots) {
-      if (loadedIDs.length > 0 && !loadedIDs.contains(plot.id))
-        plot.loaded = false;
-      if (nftIDs.contains(plot.id)) plot.isNFT = true;
+      for (Plot plot in allPlots) {
+        if (loadedIDs.length > 0 && !loadedIDs.contains(plot.id))
+          plot.loaded = false;
+        if (nftIDs.contains(plot.id)) plot.isNFT = true;
+      }
+    } catch (error) {
+      log.warning(
+          "Failed to load RPC list of ${blockchain.currencySymbol} plots");
     }
   }
 
