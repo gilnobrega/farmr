@@ -179,7 +179,7 @@ class HarvesterPlots {
     for (Plot plot in allPlots) {
       if (loadedIDs.length > 0 && !loadedIDs.contains(plot.id))
         plot.loaded = false;
-      if (nftIDs.contains(nftIDs)) plot.isNFT = true;
+      if (nftIDs.contains(plot.id)) plot.isNFT = true;
     }
   }
 
