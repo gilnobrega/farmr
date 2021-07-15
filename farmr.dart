@@ -135,6 +135,7 @@ void updateIDs(ID id, int userNumber) {
 Map<String, String> outputs = {};
 
 main(List<String> args) async {
+  clearLog();
   initLogger(); //initializes logger
 
   //Kills command on ctrl c
@@ -255,9 +256,13 @@ void spawnBlokchains(List<Object> arguments) async {
   bool standalone = arguments[3] as bool;
   bool argsContainsHarvester = arguments[4] as bool;
 
+  initLogger(); //initializes logger
+
   int counter = 0;
 
   while (true) {
+    clearLog(); //clears log
+
     counter += 1;
     log.info("Generating new report #$counter");
 
@@ -306,6 +311,9 @@ void handleBlockchainReport(List<Object> arguments) async {
         "${blockchain.currencySymbol} report killed. Are ${blockchain.binaryName} services running?");
   });
 
+  clearLog(blockchain.fileExtension); //clears log
+  initLogger(blockchain.fileExtension); //initializes logger
+
   // ClientType type = arguments[5] as ClientType;
 
   //sendPort.send(42 + number);
@@ -321,8 +329,6 @@ void handleBlockchainReport(List<Object> arguments) async {
 
   //PARSES DATA
   try {
-    clearLog(); //clears log
-
     //loads and updates cache every 10 minutes
     //loads config every 10 minutes
     await blockchain.init();
@@ -542,11 +548,11 @@ Press enter to quit""";
     sendPort.send(previousOutput);
 }
 
-void clearLog() {
+void clearLog([String blockchainExtension = ""]) {
   //logging on windows is disabled
   if (!io.Platform.isWindows) {
     try {
-      io.File logFile = io.File(rootPath + "log.txt");
+      io.File logFile = io.File(rootPath + "log$blockchainExtension.txt");
 
       //Deletes log file if it already exists
       if (logFile.existsSync()) {
@@ -560,9 +566,8 @@ void clearLog() {
   }
 }
 
-void initLogger() {
-  //logging on windows is disabled. Temporary, needs fixing
-  clearLog();
+void initLogger([String blockchainExtension = ""]) {
+  //TODO fix logging on windows
 
   //Initializes logger
   Logger.root.level = Level.ALL; // defaults to Level.INFO
@@ -576,7 +581,7 @@ void initLogger() {
     //logs on windows is disabled
     if (!io.Platform.isWindows) {
       try {
-        io.File logFile = io.File("log.txt");
+        io.File logFile = io.File("log$blockchainExtension.txt");
 
         logFile.writeAsStringSync(
             '\n${record.time} ${record.loggerName}: ' + output,
