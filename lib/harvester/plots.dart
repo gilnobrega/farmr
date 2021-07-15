@@ -170,7 +170,7 @@ class HarvesterPlots {
           loadedIDs.add(id);
 
           //nft plot if pool_public_key is defined
-          if (plot['pool_public_key'] != null) {
+          if (plot['pool_contract_puzzle_hash'] != null) {
             nftIDs.add(id);
           }
         }
