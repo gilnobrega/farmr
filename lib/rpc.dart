@@ -68,37 +68,45 @@ class RPCPorts {
 
 main() async {
   Blockchain blockchain = Blockchain(ID(""), "", [], {});
-  RPC rpc = RPC(blockchain);
 
-  print(await rpc
-      .getEndpoint(RPCService.Wallet, "get_wallet_balance", {"wallet_id": 1}));
-  print(await rpc.getEndpoint(
-    RPCService.Wallet,
-    "get_plots",
-    {},
-  ));
+  RPCConfiguration rpcConfig = RPCConfiguration(
+      blockchain: blockchain,
+      service: RPCService.Wallet,
+      endpoint: "get_wallet_balance",
+      dataToSend: {"wallet_id": 1});
+
+  print(await RPCConnection.getEndpoint(rpcConfig: rpcConfig));
 }
 
-class RPC {
-  Blockchain _blockchain;
+class RPCConfiguration {
+  RPCService service;
+  String endpoint;
+  dynamic dataToSend;
+  Blockchain blockchain;
 
-  RPC(this._blockchain);
+  RPCConfiguration(
+      {required this.blockchain,
+      required this.service,
+      required this.endpoint,
+      required this.dataToSend});
+}
 
+class RPCConnection {
   static String getServiceName(RPCService service) {
     return service.toString().split('.')[1].toLowerCase();
   }
 
-  Future<dynamic> getEndpoint(
-      RPCService service, String endpoint, dynamic dataToSend) async {
+  static Future<dynamic> getEndpoint(
+      {required RPCConfiguration rpcConfig}) async {
     HttpOverrides.global = MyHttpOverrides();
 
-    String serviceName = getServiceName(service);
+    String serviceName = getServiceName(rpcConfig.service);
     print(serviceName);
-    String certFile =
-        _blockchain.configPath + "/ssl/$serviceName/private_$serviceName.crt";
+    String certFile = rpcConfig.blockchain.configPath +
+        "/ssl/$serviceName/private_$serviceName.crt";
     print(certFile);
-    String privateKey =
-        _blockchain.configPath + "/ssl/$serviceName/private_$serviceName.key";
+    String privateKey = rpcConfig.blockchain.configPath +
+        "/ssl/$serviceName/private_$serviceName.key";
     print(privateKey);
 
     var context = SecurityContext.defaultContext;
@@ -107,11 +115,11 @@ class RPC {
     HttpClient client = new HttpClient(context: context);
 
     //reads service port
-    int port = _blockchain.rpcPorts!.getServicePort(service);
+    int port = rpcConfig.blockchain.rpcPorts!.getServicePort(rpcConfig.service);
     // The rest of this code comes from your question.
     var uri = "https://localhost:$port/$endpoint";
     print(uri);
-    var data = jsonEncode(dataToSend);
+    var data = jsonEncode(rpcConfig.dataToSend);
     print(data);
     var method = 'POST';
 
