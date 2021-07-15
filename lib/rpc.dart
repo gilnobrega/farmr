@@ -33,12 +33,7 @@ class RPCPorts {
         "daemon": daemonPort
       };
 
-  RPCPorts(
-      {required this.harvesterPort,
-      required this.farmerPort,
-      required this.walletPort,
-      required this.fullNodePort,
-      required this.daemonPort}) {
+  _initializeServicePorts() {
     _servicePorts = {
       RPCService.Daemon: daemonPort,
       RPCService.Farmer: farmerPort,
@@ -48,12 +43,22 @@ class RPCPorts {
     };
   }
 
+  RPCPorts(
+      {required this.harvesterPort,
+      required this.farmerPort,
+      required this.walletPort,
+      required this.fullNodePort,
+      required this.daemonPort}) {
+    _initializeServicePorts();
+  }
+
   RPCPorts.fromJson(dynamic json) {
     harvesterPort = json['harvester'];
     farmerPort = json['farmer'];
     walletPort = json['wallet'];
     fullNodePort = json['fullNode'];
     daemonPort = json['daemon'];
+    _initializeServicePorts();
   }
 
   int getServicePort(RPCService service) {
