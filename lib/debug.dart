@@ -75,9 +75,10 @@ class Log {
       String logLevel = configYaml['farmer']['logging']['log_level'];
 
       if (logLevel == "WARNING") {
-        log.warning(
+        //TODO: RENAME ALL THESE PRINTS TO LOG.WARNING
+        print(
             "Log Parsing is enabled but $_binaryName's log level is set to $logLevel");
-        log.warning("Attempting to set $_binaryName's log level to INFO");
+        print("Attempting to set $_binaryName's log level to INFO");
 
         io.Process.runSync(
             _cache.binPath, const ["configure", "--set-log-level", "INFO"]);
@@ -88,15 +89,17 @@ class Log {
         logLevel = configYaml['farmer']['logging']['log_level'];
 
         if (logLevel == "INFO") {
-          log.warning("$_binaryName's log level has been set to INFO");
-          log.warning("Restarting $_binaryName's services");
-          if (_type == ClientType.Farmer || _type == ClientType.FoxyPoolOG)
+          print("$_binaryName's log level has been set to INFO");
+          print("Restarting $_binaryName's services");
+          if (_type == ClientType.Farmer ||
+              _type == ClientType.FoxyPoolOG ||
+              _type == ClientType.Flexpool)
             io.Process.runSync(_cache.binPath, const ["start", "-r", "farmer"]);
           else if (_type == ClientType.Harvester)
             io.Process.runSync(
                 _cache.binPath, const ["start", "-r", "harvester"]);
 
-          log.warning("Waiting for services to restart...");
+          print("Waiting for services to restart...");
           io.sleep(Duration(seconds: 60));
           loadLogItems();
         }

@@ -98,6 +98,10 @@ class Stats {
   //PLOTS
   //total number of plots (complete plots)
   int get numberOfPlots => _client.plots.length;
+  int get numberOfOGPlots => _client.ogPlots.length;
+  int get numberOfNFTPlots => _client.nftPlots.length;
+  int get numberOfFailedPlots => _client.failedPlots.length;
+
   Duration get averagePlotLength => averagePlotDuration(_client.plots);
   int get numberOfPlotsToKeepUpWithNetspaceGrowth {
     int plotsPerDay = 0;
@@ -123,9 +127,15 @@ class Stats {
   String get totalDriveSpace => fileSize(totalDriveSize);
 
   bool get supportDiskSpace => (_client.supportDiskSpace);
+
   //sums size occupied by plots
   int get plotsSize => plotSumSize(_client.plots);
   String get plottedSpace => fileSize(plotsSize);
+  int get ogPlotsSize => plotSumSize(_client.ogPlots);
+  String get ogPlottedSpace => fileSize(ogPlotsSize);
+  int get nftPlotsSize => plotSumSize(_client.nftPlots);
+  String get nftPlottedSpace => fileSize(nftPlotsSize);
+
   //free space
   int get freeSize => _client.freeDiskSpace;
   //total space (used + available)
@@ -167,7 +177,32 @@ class Stats {
     return duration;
   }
 
+  Duration get ogFarmedDuration {
+    late Duration duration;
+    try {
+      duration = farmedTime(_client.ogPlots);
+    } catch (err) {
+      duration = Duration(seconds: 0);
+    }
+
+    return duration;
+  }
+
+  Duration get nftFarmedDuration {
+    late Duration duration;
+    try {
+      duration = farmedTime(_client.nftPlots);
+    } catch (err) {
+      duration = Duration(seconds: 0);
+    }
+
+    return duration;
+  }
+
   double get farmedDays => (farmedDuration.inHours / 24.0);
+  double get ogFarmedDays => (ogFarmedDuration.inHours / 24.0);
+  double get nftFarmedDays => (nftFarmedDuration.inHours / 24.0);
+
   double get effort => (_client is Farmer)
       ? (_client as Farmer).wallet.getCurrentEffort(etw, farmedDays)
       : -1.0;
