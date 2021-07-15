@@ -88,38 +88,45 @@ class RPCConnection {
   }
 
   static Future<dynamic> getEndpoint(RPCConfiguration rpcConfig) async {
-    HttpOverrides.global = MyHttpOverrides();
+    try {
+      HttpOverrides.global = MyHttpOverrides();
 
-    String serviceName = getServiceName(rpcConfig.service);
-    String certFile = rpcConfig.blockchain.configPath +
-        "/ssl/$serviceName/private_$serviceName.crt";
-    String privateKey = rpcConfig.blockchain.configPath +
-        "/ssl/$serviceName/private_$serviceName.key";
+      String serviceName = getServiceName(rpcConfig.service);
+      String certFile = rpcConfig.blockchain.configPath +
+          "/ssl/$serviceName/private_$serviceName.crt";
+      String privateKey = rpcConfig.blockchain.configPath +
+          "/ssl/$serviceName/private_$serviceName.key";
 
-    var context = SecurityContext.defaultContext;
-    context.useCertificateChain(certFile);
-    context.usePrivateKey(privateKey);
-    HttpClient client = new HttpClient(context: context);
+      var context = SecurityContext.defaultContext;
+      context.useCertificateChain(certFile);
+      context.usePrivateKey(privateKey);
+      HttpClient client = new HttpClient(context: context);
 
-    //reads service port
-    int port =
-        rpcConfig.blockchain.rpcPorts?.getServicePort(rpcConfig.service) ?? -1;
-    if (port > 0) {
-      // The rest of this code comes from your question.
-      var uri = "https://localhost:$port/${rpcConfig.endpoint}";
-      var data = jsonEncode(rpcConfig.dataToSend);
-      var method = 'POST';
+      //reads service port
+      int port =
+          rpcConfig.blockchain.rpcPorts?.getServicePort(rpcConfig.service) ??
+              -1;
+      if (port > 0) {
+        // The rest of this code comes from your question.
+        var uri = "https://localhost:$port/${rpcConfig.endpoint}";
+        var data = jsonEncode(rpcConfig.dataToSend);
+        var method = 'POST';
 
-      var request = await client.openUrl(method, Uri.parse(uri));
-      request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
-      request.write(data);
-      var response = await request.close();
-
-      return jsonDecode(await response.transform(Utf8Decoder()).join(''));
-    } else {
-      log.info("Invalid port for ${rpcConfig.blockchain.currencySymbol}");
+        var request = await client.openUrl(method, Uri.parse(uri));
+        request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
+        request.write(data);
+        var response = await request.close();
+        // Process the response and returns dynamic array with contents
+        return jsonDecode(await response.transform(Utf8Decoder()).join(''));
+      } else {
+        log.info("Invalid port for ${rpcConfig.blockchain.currencySymbol}");
+        return null;
+      }
+    } catch (error) {
+      log.warning(
+          "Failed to load RPC info for ${rpcConfig.blockchain.currencySymbol}");
+      log.info(error);
       return null;
     }
-    // Process the response.
   }
 }
