@@ -201,6 +201,7 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     _plotDests = listPlotDest(this.blockchain.configPath);
 
     await listPlots(_plotDests, _config);
+    await readRPCPlotList(blockchain);
 
     filterDuplicates(); //removes plots with duplicate ids
 

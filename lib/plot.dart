@@ -49,6 +49,12 @@ class Plot {
   //assumes plot is complete (and not incomplete) if the size is over (minimum) expected size
   bool get complete => _size > _expectedSize;
 
+  //Plot properties from RPC server
+  bool loaded = true;
+  bool get failed => !loaded;
+  bool isNFT = false;
+  bool get isOG => !isNFT;
+
   Plot(io.File file) {
     log.info("Added plot: " + file.path);
 
@@ -118,6 +124,10 @@ class Plot {
     if (json['date'] != null) _date = json['date'];
 
     _duration = _end.difference(_begin);
+
+    //RPC properties
+    if (json['isNFT'] != null) isNFT = json['isNFT'];
+    if (json['loaded'] != null) loaded = json['loaded'];
   }
 
   //Convert plot into json
@@ -128,6 +138,8 @@ class Plot {
         'end': end.millisecondsSinceEpoch,
         'size': size,
         'date': date,
+        'isNFT': isNFT,
+        'loaded': loaded
       };
 
   //Replaces long hash with timestamp id before sending to server

@@ -61,20 +61,20 @@ class Blockchain {
   Blockchain(this.id, String rootPath, List<String> args,
       [dynamic json = null]) {
     //loads blockchain file from json file if that object is defined
-    if (json != null) {
-      //defaults to chia config
-      _binaryName = json['Binary Name'] ?? 'chia';
-      _folderName = json['Folder Name'] ?? '.$binaryName';
-      _currencySymbol = json['Currency Symbol'] ?? 'xch';
-      _minorCurrencySymbol = json['Minor Currency Symbol'] ?? 'mojo';
-      _net = json['Net'] ?? 'mainnet';
-      _logPath = json['Log Path'] ?? '';
-      _configPath = json['Config Path'] ?? '';
-      _blockRewards = json['Block Rewards'] ?? 2.0;
-      _blocksPer10Mins = json['Blocks Per 10 Minutes'] ?? 32.0;
-      _onlineConfig = json['Online Config'] ?? true;
+    //defaults to chia config
+    _binaryName = json['Binary Name'] ?? 'chia';
+    _folderName = json['Folder Name'] ?? '.$binaryName';
+    _currencySymbol = json['Currency Symbol'] ?? 'xch';
+    _minorCurrencySymbol = json['Minor Currency Symbol'] ?? 'mojo';
+    _net = json['Net'] ?? 'mainnet';
+    _logPath = json['Log Path'] ?? '';
+    _configPath = json['Config Path'] ?? '';
+    _blockRewards = json['Block Rewards'] ?? 2.0;
+    _blocksPer10Mins = json['Blocks Per 10 Minutes'] ?? 32.0;
+    _onlineConfig = json['Online Config'] ?? true;
 
-      //initializes default rpc ports
+    //initializes default rpc ports
+    if (currencySymbol == "xch")
       rpcPorts = RPCPorts.fromJson(json['Ports'] ??
           {
             "harvester": 8560,
@@ -83,7 +83,8 @@ class Blockchain {
             "wallet": 9256,
             "daemon": 55400
           });
-    }
+    else
+      rpcPorts = RPCPorts.fromJson(json['Ports']);
 
     //doesnt load online config if standalone argument is provided
     if (args.contains("standalone") ||

@@ -1,8 +1,11 @@
 import 'dart:convert';
 
 import 'package:farmr_client/blockchain.dart';
-import 'package:farmr_client/id.dart';
+
 import 'package:universal_io/io.dart';
+import 'package:logging/logging.dart';
+
+Logger log = Logger("RPC");
 
 enum RPCService { Daemon, Wallet, Farmer, Harvester, Full_Node }
 
@@ -19,11 +22,11 @@ class MyHttpOverrides extends HttpOverrides {
 class RPCPorts {
   late Map<RPCService, int?> _servicePorts;
 
-  int? harvesterPort;
-  int? walletPort;
-  int? farmerPort;
-  int? daemonPort;
-  int? fullNodePort;
+  late int harvesterPort;
+  late int walletPort;
+  late int farmerPort;
+  late int daemonPort;
+  late int fullNodePort;
 
   Map toJson() => {
         "harvester": harvesterPort,
@@ -53,29 +56,17 @@ class RPCPorts {
   }
 
   RPCPorts.fromJson(dynamic json) {
-    harvesterPort = json['harvester'];
-    farmerPort = json['farmer'];
-    walletPort = json['wallet'];
-    fullNodePort = json['fullNode'];
-    daemonPort = json['daemon'];
+    harvesterPort = json['harvester'] ?? -1;
+    farmerPort = json['farmer'] ?? -1;
+    walletPort = json['wallet'] ?? -1;
+    fullNodePort = json['fullNode'] ?? -1;
+    daemonPort = json['daemon'] ?? -1;
     _initializeServicePorts();
   }
 
   int getServicePort(RPCService service) {
     return _servicePorts[service] ?? -1;
   }
-}
-
-main() async {
-  Blockchain blockchain = Blockchain(ID(""), "", [], {});
-
-  RPCConfiguration rpcConfig = RPCConfiguration(
-      blockchain: blockchain,
-      service: RPCService.Wallet,
-      endpoint: "get_wallet_balance",
-      dataToSend: {"wallet_id": 1});
-
-  print(await RPCConnection.getEndpoint(rpcConfig: rpcConfig));
 }
 
 class RPCConfiguration {
@@ -96,18 +87,14 @@ class RPCConnection {
     return service.toString().split('.')[1].toLowerCase();
   }
 
-  static Future<dynamic> getEndpoint(
-      {required RPCConfiguration rpcConfig}) async {
+  static Future<dynamic> getEndpoint(RPCConfiguration rpcConfig) async {
     HttpOverrides.global = MyHttpOverrides();
 
     String serviceName = getServiceName(rpcConfig.service);
-    print(serviceName);
     String certFile = rpcConfig.blockchain.configPath +
         "/ssl/$serviceName/private_$serviceName.crt";
-    print(certFile);
     String privateKey = rpcConfig.blockchain.configPath +
         "/ssl/$serviceName/private_$serviceName.key";
-    print(privateKey);
 
     var context = SecurityContext.defaultContext;
     context.useCertificateChain(certFile);
@@ -115,20 +102,24 @@ class RPCConnection {
     HttpClient client = new HttpClient(context: context);
 
     //reads service port
+
     int port = rpcConfig.blockchain.rpcPorts!.getServicePort(rpcConfig.service);
-    // The rest of this code comes from your question.
-    var uri = "https://localhost:$port/$endpoint";
-    print(uri);
-    var data = jsonEncode(rpcConfig.dataToSend);
-    print(data);
-    var method = 'POST';
+    if (port > 0) {
+      // The rest of this code comes from your question.
+      var uri = "https://localhost:$port/${rpcConfig.endpoint}";
+      var data = jsonEncode(rpcConfig.dataToSend);
+      var method = 'POST';
 
-    var request = await client.openUrl(method, Uri.parse(uri));
-    request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
-    request.write(data);
-    var response = await request.close();
+      var request = await client.openUrl(method, Uri.parse(uri));
+      request.headers.set(HttpHeaders.contentTypeHeader, 'application/json');
+      request.write(data);
+      var response = await request.close();
 
-    return jsonDecode(await response.transform(Utf8Decoder()).join(''));
+      return jsonDecode(await response.transform(Utf8Decoder()).join(''));
+    } else {
+      log.info("Invalid port for ${rpcConfig.blockchain.currencySymbol}");
+      return null;
+    }
     // Process the response.
   }
 }

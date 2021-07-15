@@ -1,5 +1,7 @@
 import 'dart:core';
+import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/hpool/hpool.dart';
+import 'package:farmr_client/rpc.dart';
 import 'package:universal_io/io.dart' as io;
 
 import 'package:yaml/yaml.dart';
@@ -15,12 +17,23 @@ class HarvesterPlots {
   //Private list with complete and incomplete plots
   List<Plot> allPlots = [];
 
-  //Returns list of complete plots
-  List<Plot> get plots => allPlots.where((plot) => plot.complete).toList();
+  //Returns list of complete and loaded plots
+  List<Plot> get plots =>
+      allPlots.where((plot) => plot.complete && plot.loaded).toList();
 
   //Returns list of incomplete plots
   List<Plot> get incompletePlots =>
       allPlots.where((plot) => !plot.complete).toList();
+
+  //Returns list of og plots
+  List<Plot> get ogPlots => allPlots.where((plot) => plot.isOG).toList();
+
+  //Returns list of nft plots
+  List<Plot> get nftPlots => allPlots.where((plot) => plot.isNFT).toList();
+
+  //Returns list of plots which failed to load
+  List<Plot> get failedPlots =>
+      allPlots.where((plot) => plot.failed || !plot.complete).toList();
 
   //creates a map with the following structure { 'k32' : 3, 'k33' : 2 } etc.
   Map<String, int> get typeCount => genPlotTypes(plots);
@@ -124,6 +137,42 @@ class HarvesterPlots {
     allPlots = newplots;
 
     config.cache!.savePlots(allPlots);
+  }
+
+  Future<void> readRPCPlotList(Blockchain blockchain) async {
+    RPCConfiguration rpcConfig = RPCConfiguration(
+        blockchain: blockchain,
+        service: RPCService.Harvester,
+        endpoint: "get_plots",
+        dataToSend: {});
+
+    var rpcOutput = await RPCConnection.getEndpoint(rpcConfig);
+
+    List<String> loadedIDs = [];
+    List<String> nftIDs = [];
+
+    if (rpcOutput['plots'] != null && rpcOutput['plots'] != null)
+      for (var plot in rpcOutput['plots']) {
+        if (plot['filename'] is String) {
+          String id = (plot['filename'] as String)
+              .split("-")
+              .last
+              .replaceFirst(".plot", "");
+
+          loadedIDs.add(id);
+
+          //nft plot if pool_public_key is defined
+          if (plot['pool_public_key'] != null) {
+            nftIDs.add(id);
+          }
+        }
+      }
+
+    for (Plot plot in allPlots) {
+      if (loadedIDs.length > 0 && !loadedIDs.contains(plot.id))
+        plot.loaded = false;
+      if (nftIDs.contains(nftIDs)) plot.isNFT = true;
+    }
   }
 
   void filterDuplicates([bool client = true]) {
