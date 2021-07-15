@@ -73,20 +73,20 @@ class Blockchain {
     _blocksPer10Mins = json['Blocks Per 10 Minutes'] ?? 32.0;
     _onlineConfig = json['Online Config'] ?? true;
 
-    //initializes default rpc ports
+    //initializes default rpc ports for xch
+    if (currencySymbol == "xch") {
+      const defaultMap = const {
+        "harvester": 8560,
+        "farmer": 8559,
+        "fullNode": 8555,
+        "wallet": 9256,
+        "daemon": 55400
+      };
+      rpcPorts = RPCPorts.fromJson(defaultMap);
+    }
+    //overwrites default ports with ports from config
     if (json['Ports'] != null) {
-      if (currencySymbol == "xch") {
-        const defaultMap = const {
-          "harvester": 8560,
-          "farmer": 8559,
-          "fullNode": 8555,
-          "wallet": 9256,
-          "daemon": 55400
-        };
-        rpcPorts = RPCPorts.fromJson(defaultMap);
-        rpcPorts = RPCPorts.fromJson(json['Ports'] ?? defaultMap);
-      } else
-        rpcPorts = RPCPorts.fromJson(json['Ports']);
+      rpcPorts = RPCPorts.fromJson(json['Ports']);
     }
 
     //doesnt load online config if standalone argument is provided
