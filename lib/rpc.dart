@@ -93,9 +93,11 @@ class RPCConnection {
 
       String serviceName = getServiceName(rpcConfig.service);
       String certFile = rpcConfig.blockchain.configPath +
-          "/ssl/$serviceName/private_$serviceName.crt";
+          "/ssl/$serviceName/private_$serviceName.crt"
+              .replaceAll("/", Platform.pathSeparator);
       String privateKey = rpcConfig.blockchain.configPath +
-          "/ssl/$serviceName/private_$serviceName.key";
+          "/ssl/$serviceName/private_$serviceName.key"
+              .replaceAll("/", Platform.pathSeparator);
 
       var context = SecurityContext.defaultContext;
       context.useCertificateChain(certFile);

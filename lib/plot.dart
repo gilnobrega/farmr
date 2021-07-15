@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'package:intl/intl.dart';
 import 'package:universal_io/io.dart' as io;
 import 'dart:math' as Math;
 
@@ -37,7 +38,7 @@ class Plot {
   Duration get finishedAgo => DateTime.now().difference(end);
   String get humanReadableFinishedAgo =>
       (finishedAgo.inMilliseconds > Duration(days: 1).inMilliseconds)
-          ? end.toString()
+          ? DateFormat('y/MM/dd HH:mm:ss').format(end)
           : durationToTime(finishedAgo) + " ago";
 
   int _size = 0;
