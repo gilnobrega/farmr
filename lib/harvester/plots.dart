@@ -21,15 +21,21 @@ class HarvesterPlots {
   List<Plot> get plots =>
       allPlots.where((plot) => plot.complete && plot.loaded).toList();
 
+  //Returns list of complete
+  List<Plot> get completePlots =>
+      allPlots.where((plot) => plot.complete).toList();
+
   //Returns list of incomplete plots
   List<Plot> get incompletePlots =>
       allPlots.where((plot) => !plot.complete).toList();
 
   //Returns list of og plots
-  List<Plot> get ogPlots => allPlots.where((plot) => plot.isOG).toList();
+  List<Plot> get ogPlots =>
+      allPlots.where((plot) => plot.isOG && plot.loaded).toList();
 
   //Returns list of nft plots
-  List<Plot> get nftPlots => allPlots.where((plot) => plot.isNFT).toList();
+  List<Plot> get nftPlots =>
+      allPlots.where((plot) => plot.isNFT && plot.loaded).toList();
 
   //Returns list of plots which failed to load
   List<Plot> get failedPlots =>
@@ -199,8 +205,8 @@ class HarvesterPlots {
 
   //makes an id based on end and start timestamps for the last plot, necessary to call notifications webhook
   String lastPlotID() {
-    if (plots.length > 0) {
-      Plot last = lastPlot(plots); //last completed plot
+    if (completePlots.length > 0) {
+      Plot last = lastPlot(completePlots); //last completed plot
 
       return last.id;
     } else {
