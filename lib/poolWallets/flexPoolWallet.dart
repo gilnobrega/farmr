@@ -40,8 +40,13 @@ class FlexpoolWallet extends GenericPoolWallet {
 
         if (object['error'] == null) {
           if (object['result'] != null && object['result']['balance'] != null)
-            pendingBalance =
-                double.tryParse(object['result']['balance'].toString()) ?? -1.0;
+            //balance is in mojo, not xch, so it converts mojo to xch then makes sure its rounded to 12 decimals
+            pendingBalance = double.tryParse(
+                    ((int.tryParse(object['result']['balance'].toString()) ??
+                                -1) *
+                            1e-12)
+                        .toStringAsFixed(12)) ??
+                -1.0;
         } else if (object['error']) throw Exception(object['error']);
       }
     } catch (error) {
