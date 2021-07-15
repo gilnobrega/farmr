@@ -64,8 +64,8 @@ class RPCPorts {
     _initializeServicePorts();
   }
 
-  int getServicePort(RPCService service) {
-    return _servicePorts[service] ?? -1;
+  int? getServicePort(RPCService service) {
+    return _servicePorts[service];
   }
 }
 
@@ -102,8 +102,8 @@ class RPCConnection {
     HttpClient client = new HttpClient(context: context);
 
     //reads service port
-
-    int port = rpcConfig.blockchain.rpcPorts!.getServicePort(rpcConfig.service);
+    int port =
+        rpcConfig.blockchain.rpcPorts?.getServicePort(rpcConfig.service) ?? -1;
     if (port > 0) {
       // The rest of this code comes from your question.
       var uri = "https://localhost:$port/${rpcConfig.endpoint}";
