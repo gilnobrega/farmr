@@ -275,9 +275,6 @@ class Stats {
   int get poolErrors =>
       (_client is Farmer) ? (_client as Farmer).poolErrors : -1;
 
-  String get blockchainVersion =>
-      (_client is Farmer) ? (_client as Farmer).blockchainVersion : "";
-
   //Hardware
   String get cpuName => ((_client.hardware?.cpus.length ?? 0) > 0)
       ? _client.hardware?.cpus[0].name ?? ""
@@ -312,6 +309,7 @@ class Stats {
   String get usedMemoryString => fileSize(usedMemory);
 
   String get version => _client.version;
+  String get blockchainVersion => _client.blockchainVersion;
 
   DateTime get lastUpdated => _client.lastUpdated;
 

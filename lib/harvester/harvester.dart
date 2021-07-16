@@ -1,5 +1,6 @@
 import 'dart:core';
 import 'dart:convert';
+import 'dart:io' as io;
 
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/hardware.dart';
@@ -42,6 +43,10 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
   // pubspec.yaml version
   String _version = '';
   String get version => _version;
+
+  //local chia client version, e.g. 1.2.0
+  String _blockchainVersion = "";
+  String get blockchainVersion => _blockchainVersion;
 
   List<String> _plotDests = []; //plot destination paths
 
@@ -95,7 +100,8 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
       'filterCategories': filterCategories,
       "swarPM": swarPM,
       'version': version,
-      'onlineConfig': onlineConfig
+      'onlineConfig': onlineConfig,
+      "blockchainVersion": blockchainVersion
     };
 
     if (_config.showHardwareInfo && hardware != null)
@@ -133,6 +139,16 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
       _hardware = Hardware(_config.cache!.memories);
       _config.cache!.saveMemories(_hardware?.memories ?? []);
     }
+
+    try {
+      _blockchainVersion = io.Process.runSync(
+              blockchain.config.cache!.binPath, const ["version"])
+          .stdout
+          .toString()
+          .trim();
+    } catch (error) {
+      log.warning("Failed to get ${blockchain.binaryName} version");
+    }
   }
 
   Harvester.fromJson(String json) {
@@ -163,6 +179,9 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
 
     //loads version from json
     if (object['version'] != null) _version = object['version'];
+
+    if (object['blockchainVersion'] != null)
+      _blockchainVersion = object['blockchainVersion'];
 
     loadDisksFromJson(object);
 
@@ -255,6 +274,9 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
       _status = "$_status,\n${harvester.name} is ${harvester.status}";
 
     if (_version != harvester.version) _version = "";
+
+    if (harvester.blockchainVersion != this.blockchainVersion)
+      _blockchainVersion = "";
 
     //sets farm's last updated time to latest worker to get updated
     if (harvester.lastUpdated.millisecondsSinceEpoch >

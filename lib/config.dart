@@ -127,11 +127,8 @@ class Config {
         _loadConfig(); //config.json
     }
 
-    //and asks for bin path if path is not defined/not found and is Farmer
-    if ((type == ClientType.Farmer ||
-            type == ClientType.FoxyPoolOG ||
-            type == ClientType.Flexpool) &&
-        (cache!.binPath == '' || !io.File(cache!.binPath).existsSync()))
+    //and asks for bin path if path is not defined/not found
+    if (cache!.binPath == '' || !io.File(cache!.binPath).existsSync())
       await _askForBinPath();
   }
 
