@@ -115,7 +115,7 @@ class Config {
     ClientType.Flexpool: "Flexpool"
   };
 
-  Future<void> init(bool onlineConfig) async {
+  Future<void> init(bool onlineConfig, bool headless) async {
     if (onlineConfig)
       await loadOnlineConfig();
     else {
@@ -127,8 +127,10 @@ class Config {
         _loadConfig(); //config.json
     }
 
-    //and asks for bin path if path is not defined/not found
-    if (cache!.binPath == '' || !io.File(cache!.binPath).existsSync())
+    //and asks for bin path if path is not defined/not found and it is not in headless mode
+    //(means user input works)
+    if (!headless &&
+        (cache!.binPath == '' || !io.File(cache!.binPath).existsSync()))
       await _askForBinPath();
   }
 

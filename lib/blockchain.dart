@@ -8,6 +8,7 @@ import 'package:farmr_client/id.dart';
 import 'package:farmr_client/cache.dart';
 
 class Blockchain {
+  List<String> _args = [];
   late ID id;
 
   OS? _os;
@@ -58,8 +59,7 @@ class Blockchain {
 
   RPCPorts? rpcPorts;
 
-  Blockchain(this.id, String rootPath, List<String> args,
-      [dynamic json = null]) {
+  Blockchain(this.id, String rootPath, this._args, [dynamic json = null]) {
     //loads blockchain file from json file if that object is defined
     //defaults to chia config
     _binaryName = json['Binary Name'] ?? 'chia';
@@ -90,9 +90,9 @@ class Blockchain {
     }
 
     //doesnt load online config if standalone argument is provided
-    if (args.contains("standalone") ||
+    if (_args.contains("standalone") ||
         //online configuration is incompatible with hpool mode
-        (args.contains("hpool") && currencySymbol == "xch"))
+        (_args.contains("hpool") && currencySymbol == "xch"))
       _onlineConfig = false;
 
     _os = detectOS();
@@ -105,10 +105,10 @@ class Blockchain {
         this,
         this.cache,
         rootPath,
-        args.contains("harvester"),
-        args.contains("hpool"),
-        args.contains("foxypoolog"),
-        args.contains("flexpool"));
+        _args.contains("harvester"),
+        _args.contains("hpool"),
+        _args.contains("foxypoolog"),
+        _args.contains("flexpool"));
   }
 
   //this is used on server side
@@ -133,7 +133,7 @@ class Blockchain {
 
   Future<void> init() async {
     await this.cache.init();
-    await this.config.init(this.onlineConfig);
+    await this.config.init(this.onlineConfig, this._args.contains("headless"));
 
     //TODO: find a way to not have to run this logUpdate command twice (in blockchain.init and every 10 minutes)
     logUpdate();
