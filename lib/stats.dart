@@ -555,12 +555,12 @@ class Stats {
 
   static String showLastPlotInfo(Harvester client) {
     String output = '';
-
-    if (client.plots.length > 0) {
-      Plot plot = lastPlot(
-          client.plots.where((plot) => plot.duration.inMinutes > 0).toList());
-      Duration average = averagePlotDuration(
-          client.plots.where((plot) => plot.duration.inMinutes > 0).toList());
+    //only select plots with valid plot lengths
+    final List<Plot> validPlots =
+        client.plots.where((plot) => plot.duration.inSeconds > 10).toList();
+    if (validPlots.length > 0) {
+      Plot plot = lastPlot(validPlots);
+      Duration average = averagePlotDuration(validPlots);
 
       //relative difference in % of plot duration vs average plot duration
       double ratio =
@@ -575,8 +575,7 @@ class Stats {
           "(" +
           difference +
           ")";
-      Duration finishedAgo =
-          DateTime.now().difference(lastPlot(client.plots).end);
+      Duration finishedAgo = DateTime.now().difference(plot.end);
 
       //If the finished timestamp is less than 1 minute ago then it assumes it's still copying the plot to the destination
       String finishedAgoString = (finishedAgo.inMinutes == 0)
