@@ -1,5 +1,5 @@
 import 'package:farmr_client/blockchain.dart';
-import 'package:farmr_client/farmer/wallet.dart';
+import 'package:farmr_client/wallets/localWallets/wallet.dart';
 
 class HPoolWallet extends Wallet {
   double _undistributedBalance = -1.0;

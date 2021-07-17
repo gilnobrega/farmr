@@ -53,6 +53,9 @@ class Blockchain {
   bool _onlineConfig = true;
   bool get onlineConfig => _onlineConfig;
 
+  double _majorToMinorMultiplier = 1e12;
+  double get majorToMinorMultiplier => _majorToMinorMultiplier;
+
   late Cache cache;
   late Config config;
   late Log log;
@@ -72,6 +75,7 @@ class Blockchain {
     _blockRewards = json['Block Rewards'] ?? 2.0;
     _blocksPer10Mins = json['Blocks Per 10 Minutes'] ?? 32.0;
     _onlineConfig = json['Online Config'] ?? true;
+    _majorToMinorMultiplier = json['Major to Minor Multiplier'] ?? 1e12;
 
     //initializes default rpc ports for xch
     if (currencySymbol == "xch") {
@@ -113,7 +117,11 @@ class Blockchain {
 
   //this is used on server side
   //since blockchain objects cant be initialized as null
-  Blockchain.fromSymbol(this._currencySymbol, [this._binaryName = '']);
+  Blockchain.fromSymbol(this._currencySymbol,
+      {String binaryName = '', double majorToMinorMultiplier = 1e12}) {
+    _binaryName = binaryName;
+    _majorToMinorMultiplier = majorToMinorMultiplier;
+  }
 
   static OS? detectOS() {
     OS? os;

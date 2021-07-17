@@ -1,9 +1,9 @@
 import 'dart:core';
 import 'package:farmr_client/blockchain.dart';
-import 'package:farmr_client/farmer/coldwallet.dart';
-import 'package:farmr_client/poolWallets/flexPoolWallet.dart';
-import 'package:farmr_client/poolWallets/foxyPoolWallet.dart';
-import 'package:farmr_client/poolWallets/genericPoolWallet.dart';
+import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
+import 'package:farmr_client/wallets/poolWallets/flexPoolWallet.dart';
+import 'package:farmr_client/wallets/poolWallets/foxyPoolWallet.dart';
+import 'package:farmr_client/wallets/poolWallets/genericPoolWallet.dart';
 import 'package:universal_io/io.dart' as io;
 import 'dart:convert';
 
@@ -12,7 +12,7 @@ import 'package:logging/logging.dart';
 import 'package:farmr_client/config.dart';
 import 'package:farmr_client/harvester/harvester.dart';
 import 'package:farmr_client/debug.dart' as Debug;
-import 'package:farmr_client/farmer/wallet.dart';
+import 'package:farmr_client/wallets/localWallets/wallet.dart';
 import 'package:farmr_client/farmer/connections.dart';
 import 'package:farmr_client/log/shortsync.dart';
 import 'package:http/http.dart' as http;

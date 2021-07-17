@@ -1,5 +1,5 @@
 import 'package:farmr_client/blockchain.dart';
-import 'package:farmr_client/poolWallets/genericPoolWallet.dart';
+import 'package:farmr_client/wallets/poolWallets/genericPoolWallet.dart';
 
 import 'dart:async';
 
@@ -21,15 +21,13 @@ class FoxyPoolWallet extends GenericPoolWallet {
   int get effectiveCapacity => _effectiveCapacity;
 
   FoxyPoolWallet(
-      double balance,
-      double daysSinceLastBlock,
-      double pendingBalance,
-      double collateralBalance,
-      Blockchain blockchain,
-      int syncedBlockHeight,
-      int walletHeight)
-      : super(balance, daysSinceLastBlock, pendingBalance, collateralBalance,
-            blockchain, syncedBlockHeight, walletHeight);
+      {int pendingBalance = -1,
+      int collateralBalance = -1,
+      required Blockchain blockchain})
+      : super(
+            pendingBalance: pendingBalance,
+            collateralBalance: collateralBalance,
+            blockchain: blockchain);
 
   Future<void> init() async {
     if (blockchain.config.poolPublicKey != "") {
@@ -77,8 +75,12 @@ class FoxyPoolWallet extends GenericPoolWallet {
         if (data != null) {
           //print(data);
           try {
-            pendingBalance = double.parse(data['pending'].toString());
-            collateralBalance = double.parse(data['collateral'].toString());
+            pendingBalance = (double.parse(data['pending'].toString()) *
+                    blockchain.majorToMinorMultiplier)
+                .round();
+            collateralBalance = (double.parse(data['collateral'].toString()) *
+                    blockchain.majorToMinorMultiplier)
+                .round();
             _shares = double.parse(data['shares'].toString()).round();
             _effectiveCapacity =
                 NetSpace.sizeStringToInt("${data['ec']} GiB").round();
