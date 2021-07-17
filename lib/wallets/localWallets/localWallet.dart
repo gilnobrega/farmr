@@ -68,4 +68,22 @@ class LocalWallet extends Wallet {
     }
     return 0.0;
   }
+
+  @override
+  Wallet operator +(Wallet wallet2) {
+    if (wallet2 is LocalWallet) {
+      if (this.blockchain.currencySymbol == wallet2.blockchain.currencySymbol)
+        return LocalWallet(
+            blockchain: blockchain,
+            balance: (this.balance >= 0 && wallet2.balance >= 0)
+                ? this.balance + wallet2.balance
+                : 0,
+            daysSinceLastBlock: Wallet.compareDaysSinceBlock(
+                this.daysSinceLastBlock, wallet2.daysSinceLastBlock));
+      else
+        throw Exception(
+            "Cannot combine local wallets of different blockchains");
+    } else
+      return (this as Wallet) + wallet2;
+  }
 }

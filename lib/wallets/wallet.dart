@@ -1,4 +1,5 @@
 import 'package:farmr_client/blockchain.dart';
+import 'dart:math' as Math;
 
 enum WalletType { Local, Cold, Pool }
 
@@ -28,6 +29,18 @@ class Wallet {
     type = WalletType.values[json['type'] ?? 0];
     blockchain = Blockchain.fromSymbol(json['currency'] ?? "xch",
         majorToMinorMultiplier: json['majorToMinorMultiplier'] ?? 1e12);
+  }
+
+  Wallet operator +(Wallet wallet2) {
+    if (this.blockchain.currencySymbol == wallet2.blockchain.currencySymbol)
+      return Wallet(
+          type: type,
+          blockchain: blockchain,
+          syncedBlockHeight: -1,
+          daysSinceLastBlock: compareDaysSinceBlock(
+              this.daysSinceLastBlock, wallet2.daysSinceLastBlock));
+    else
+      throw Exception("Cannot combine wallets of different blockchains");
   }
 
   static double estimateLastFarmedTime(
@@ -61,5 +74,14 @@ class Wallet {
     if (daysSinceBlock < daysSinceLastBlock || daysSinceLastBlock < 0) {
       daysSinceLastBlock = daysSinceBlock;
     }
+  }
+
+  static double compareDaysSinceBlock(double day1, double day2) {
+    if (day1 < 0)
+      return day2;
+    else if (day2 < 0)
+      return day1;
+    else
+      return Math.min(day1, day2);
   }
 }

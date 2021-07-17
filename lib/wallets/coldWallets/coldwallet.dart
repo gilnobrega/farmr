@@ -41,12 +41,38 @@ class ColdWallet extends Wallet {
       {this.grossBalance = -1,
       this.netBalance = -1,
       this.farmedBalance = -1,
+      double daysSinceLastBlock = -1,
       required Blockchain blockchain})
-      : super(type: WalletType.Cold, blockchain: blockchain);
+      : super(
+            type: WalletType.Cold,
+            blockchain: blockchain,
+            daysSinceLastBlock: daysSinceLastBlock);
 
   ColdWallet.fromJson(dynamic json) : super.fromJson(json) {
     grossBalance = json['grossBalance'] ?? -1;
     netBalance = json['netBalance'] ?? -1;
     farmedBalance = json['farmedBalance'] ?? -1;
+  }
+
+  @override
+  Wallet operator +(Wallet wallet2) {
+    if (wallet2 is ColdWallet) {
+      if (this.blockchain.currencySymbol == wallet2.blockchain.currencySymbol)
+        return ColdWallet(
+            blockchain: blockchain,
+            netBalance: this.netBalance + wallet2.netBalance,
+            grossBalance: (this.grossBalance >= 0 && wallet2.grossBalance >= 0)
+                ? this.grossBalance + wallet2.grossBalance
+                : 0,
+            farmedBalance:
+                (this.farmedBalance >= 0 && wallet2.farmedBalance >= 0)
+                    ? this.farmedBalance + wallet2.farmedBalance
+                    : 0,
+            daysSinceLastBlock: Wallet.compareDaysSinceBlock(
+                this.daysSinceLastBlock, wallet2.daysSinceLastBlock));
+      else
+        throw Exception("Cannot combine cold wallets of different blockchains");
+    } else
+      return (this as Wallet) + wallet2;
   }
 }
