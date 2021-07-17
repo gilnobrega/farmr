@@ -66,5 +66,5 @@ Set ``"Flexpool Address"`` to your chia public address (starts with ``xch``) if 
 
 #### Showing HPool Balance
 
-You need to set ``HPool Auth Token`` to the ``auth_key`` string in your hpool.com cookies. To see this token, open your browser and login to hpool.com, then right-click anywhere on the page and click on ``Inspect Element``, you should see a panel appear with a "Storage" tab. Right click on the string next to "auth_key" and copy that string string in ``value`` column. That's the string you should use as ``HPool Auth Token`` in farmr's ``config.json``. You should only need to update this value once every 3 months or when you logout from that device.
+You need to set ``HPool Auth Token`` to the ``auth_key`` string in your ihpool.com cookies. To see this token, open your browser and login to ihpool.com, then right-click anywhere on the page and click on ``Inspect Element``, you should see a panel appear with a "Storage" tab. Right click on the string next to "auth_key" and copy that string string in ``value`` column. That's the string you should use as ``HPool Auth Token`` in farmr's ``config.json``. You should only need to update this value once every 3 months or when you logout from that device.
 ![image](https://user-images.githubusercontent.com/82336674/120874560-063c0200-c59f-11eb-8110-2be81469651b.png)

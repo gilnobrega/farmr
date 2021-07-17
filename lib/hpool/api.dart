@@ -19,7 +19,7 @@ class HPoolApi {
 
   HPoolApi();
 
-  static const String _baseUrl = r"https://hpool.co";
+  static const String _baseUrl = r"https://ihpool.com";
 
   init(String authToken) async {
     if (authToken != "") {
