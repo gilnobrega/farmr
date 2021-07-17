@@ -1,10 +1,10 @@
 import 'package:farmr_client/blockchain.dart';
-import 'package:farmr_client/wallets/localWallets/wallet.dart';
+import 'package:farmr_client/wallets/localWallets/localWallet.dart';
 
-class HPoolWallet extends Wallet {
+class HPoolWallet extends LocalWallet {
   double _undistributedBalance = -1.0;
   double get undistributedBalance => _undistributedBalance;
 
-  HPoolWallet(double balance, this._undistributedBalance, Blockchain blockchain)
-      : super(balance, -1.0, blockchain, -1, -1);
+  HPoolWallet(int balance, this._undistributedBalance, Blockchain blockchain)
+      : super(balance: balance, blockchain: blockchain);
 }

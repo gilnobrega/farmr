@@ -1,6 +1,6 @@
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
-import 'package:farmr_client/wallets/localWallets/wallet.dart';
+import 'package:farmr_client/wallets/localWallets/localWallet.dart';
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 
@@ -10,7 +10,7 @@ class PosatIOWallet extends ColdWallet {
   PosatIOWallet({int netBalance = -1, required Blockchain blockchain})
       : super(netBalance: netBalance, blockchain: blockchain);
 
-  Future<void> init(String publicAddress, Wallet mainWallet) async {
+  Future<void> init(String publicAddress, LocalWallet mainWallet) async {
     String posatExplorerURL =
         "https://${mainWallet.blockchain.binaryName}.posat.io/address/";
 

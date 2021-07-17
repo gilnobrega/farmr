@@ -4,6 +4,7 @@ import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
 import 'package:farmr_client/wallets/poolWallets/flexPoolWallet.dart';
 import 'package:farmr_client/wallets/poolWallets/foxyPoolWallet.dart';
 import 'package:farmr_client/wallets/poolWallets/genericPoolWallet.dart';
+import 'package:farmr_client/wallets/wallet.dart';
 import 'package:universal_io/io.dart' as io;
 import 'dart:convert';
 
@@ -12,7 +13,7 @@ import 'package:logging/logging.dart';
 import 'package:farmr_client/config.dart';
 import 'package:farmr_client/harvester/harvester.dart';
 import 'package:farmr_client/debug.dart' as Debug;
-import 'package:farmr_client/wallets/localWallets/wallet.dart';
+import 'package:farmr_client/wallets/localWallets/localWallet.dart';
 import 'package:farmr_client/farmer/connections.dart';
 import 'package:farmr_client/log/shortsync.dart';
 import 'package:http/http.dart' as http;
@@ -26,14 +27,6 @@ class Farmer extends Harvester {
   //shows not harvesting status if harvester class is not harvesting
   @override
   String get status => _status;
-
-  //default empty wallet
-  static Wallet _emptyWallet =
-      Wallet(-1.0, -1.0, Blockchain.fromSymbol("xch"), -1, -1);
-  Wallet _wallet = _emptyWallet;
-  Wallet get wallet => _wallet;
-  ColdWallet _coldWallet = ColdWallet();
-  ColdWallet get coldWallet => _coldWallet;
 
   Connections? _connections;
 
@@ -80,11 +73,9 @@ class Farmer extends Harvester {
     //adds extra farmer's entries
     harvesterMap.addEntries({
       'balance': balance, //farmed balance
-      'walletBalance': _wallet.balance, //wallet balance
       //rounds days since last blocks so its harder to track wallets
       //precision of 0.1 days means uncertainty of 140 minutes
-      'daysSinceLastBlock':
-          double.parse(_wallet.daysSinceLastBlock.toStringAsFixed(1)),
+
       'completeSubSlots': completeSubSlots,
       'looseSignagePoints': looseSignagePoints,
 
@@ -93,20 +84,8 @@ class Farmer extends Harvester {
       "netSpace": netSpace.size,
       "syncedBlockHeight": syncedBlockHeight,
       "peakBlockHeight": peakBlockHeight,
-      "walletHeight": _wallet.walletHeight,
       "poolErrors": poolErrors
     }.entries);
-
-    if (_wallet is GenericPoolWallet)
-      harvesterMap.addEntries({
-        'pendingBalance':
-            (_wallet as GenericPoolWallet).pendingBalance, //pending balance
-        'collateralBalance': (_wallet as GenericPoolWallet)
-            .collateralBalance //collateral balance
-      }.entries);
-
-    if (coldWallet.grossBalance != -1.0 || coldWallet.netBalance != -1.0)
-      harvesterMap.putIfAbsent("coldWallet", () => coldWallet);
 
     //returns complete map with both farmer's + harvester's entries
     return harvesterMap;
@@ -290,19 +269,20 @@ class Farmer extends Harvester {
     int walletHeight = -1;
     if (object['walletHeight'] != null) walletHeight = object['walletHeight'];
 
-    //pool wallet
+    //pool wallet LEGACY
     if (object['pendingBalance'] != null && object['collateralBalance'] != null)
-      _wallet = GenericPoolWallet(
-          walletBalance,
-          daysSinceLastBlock,
-          double.parse(object['pendingBalance'].toString()),
-          double.parse(object['collateralBalance'].toString()),
-          this.blockchain,
-          _syncedBlockHeight,
-          walletHeight);
-    else
-      _wallet = Wallet(walletBalance, daysSinceLastBlock, this.blockchain,
-          _syncedBlockHeight, walletHeight);
+      wallets.add(GenericPoolWallet(
+          pendingBalance: (double.parse(object['pendingBalance'].toString()) *
+                  blockchain.majorToMinorMultiplier)
+              .round(),
+          collateralBalance:
+              (double.parse(object['pendingBalance'].toString()) *
+                      blockchain.majorToMinorMultiplier)
+                  .round(),
+          blockchain: blockchain));
+    //local wallet LEGACY
+    wallets.add(LocalWallet(walletBalance, daysSinceLastBlock, this.blockchain,
+        _syncedBlockHeight, walletHeight));
 
     if (object['completeSubSlots'] != null)
       _completeSubSlots = object['completeSubSlots'];
@@ -326,7 +306,7 @@ class Farmer extends Harvester {
     }
 
     if (object['coldWallet'] != null)
-      _coldWallet = ColdWallet.fromJson(object['coldWallet']);
+      wallets.add(ColdWallet.fromJson(object['coldWallet']));
 
     calculateFilterRatio(this);
   }

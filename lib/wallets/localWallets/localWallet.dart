@@ -1,0 +1,71 @@
+import 'package:farmr_client/blockchain.dart';
+import 'package:farmr_client/wallets/wallet.dart';
+import 'package:universal_io/io.dart' as io;
+
+import 'package:logging/logging.dart';
+
+final log = Logger('FarmerWallet');
+
+class LocalWallet extends Wallet {
+  //wallet balance
+  int balance; //-1.0 is default value if disabled
+  double get balanceMajor => balance / blockchain.majorToMinorMultiplier;
+
+  late int walletHeight;
+
+  LocalWallet(
+      {this.balance = -1,
+      int syncedBlockHeight = -1,
+      required Blockchain blockchain,
+      double daysSinceLastBlock = -1})
+      : super(
+            type: WalletType.Local,
+            blockchain: blockchain,
+            daysSinceLastBlock: daysSinceLastBlock,
+            syncedBlockHeight: syncedBlockHeight);
+
+  void parseWalletBalance(
+      String binPath, int lastBlockFarmed, bool showWalletBalance) {
+    setLastBlockFarmed(lastBlockFarmed);
+
+    if (showWalletBalance) {
+      var walletOutput = io.Process.runSync(binPath, const ["wallet", "show"])
+          .stdout
+          .toString();
+
+      try {
+        //If user enabled showWalletBalance then parses ``chia wallet show``
+        RegExp walletRegex = RegExp(
+            "-Total Balance:(.*)${this.blockchain.currencySymbol.toLowerCase()} \\(([0-9]+) ${this.blockchain.minorCurrencySymbol.toLowerCase()}\\)",
+            multiLine: false);
+        //converts minor symbol to major symbol
+        balance =
+            int.parse(walletRegex.firstMatch(walletOutput)?.group(2) ?? '-1');
+      } catch (e) {
+        log.warning("Error: could not parse wallet balance.");
+      }
+
+      //tries to get synced wallet height
+      try {
+        RegExp walletHeightRegex =
+            RegExp("Wallet height: ([0-9]+)", multiLine: false);
+        walletHeight = int.tryParse(
+                walletHeightRegex.firstMatch(walletOutput)?.group(1) ?? '-1') ??
+            -1;
+      } catch (e) {
+        log.warning("Error: could not parse wallet height");
+      }
+    }
+  }
+
+  double getCurrentEffort(double etw, double farmedTimeDays) {
+    if (etw > 0 && daysSinceLastBlock > 0) {
+      //if user has not found a block then it will assume that effort starts counting from when it began farming
+      double percentage = (farmedTimeDays > daysSinceLastBlock)
+          ? 100 * (daysSinceLastBlock / etw)
+          : 100 * (farmedTimeDays / etw);
+      return percentage;
+    }
+    return 0.0;
+  }
+}

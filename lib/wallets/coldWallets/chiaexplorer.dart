@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
-import 'package:farmr_client/wallets/localWallets/wallet.dart';
+import 'package:farmr_client/wallets/localWallets/localWallet.dart';
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 
@@ -18,7 +18,7 @@ class ChiaExplorerWallet extends ColdWallet {
             grossBalance: grossBalance,
             blockchain: blockchain);
 
-  Future<void> init(String publicAddress, Wallet mainWallet) async {
+  Future<void> init(String publicAddress, LocalWallet mainWallet) async {
     const String chiaExplorerURL = "https://api2.chiaexplorer.com/";
 
     try {

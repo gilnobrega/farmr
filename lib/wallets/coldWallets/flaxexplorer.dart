@@ -1,6 +1,6 @@
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
-import 'package:farmr_client/wallets/localWallets/wallet.dart';
+import 'package:farmr_client/wallets/localWallets/localWallet.dart';
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 
@@ -16,7 +16,7 @@ class FlaxExplorerWallet extends ColdWallet {
             farmedBalance: farmedBalance,
             blockchain: blockchain);
 
-  Future<void> init(String publicAddress, Wallet mainWallet) async {
+  Future<void> init(String publicAddress, LocalWallet mainWallet) async {
     const String flaxExplorerURL =
         "https://flaxexplorer.org/blockchain/address/";
     //flaxexplorer has no way to know if wallet is empty or address invalid
