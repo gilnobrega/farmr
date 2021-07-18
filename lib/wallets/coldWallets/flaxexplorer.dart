@@ -16,7 +16,7 @@ class FlaxExplorerWallet extends ColdWallet {
             farmedBalance: farmedBalance,
             blockchain: blockchain);
 
-  Future<void> init(String publicAddress, LocalWallet mainWallet) async {
+  Future<void> init() async {
     const String flaxExplorerURL =
         "https://flaxexplorer.org/blockchain/address/";
     //flaxexplorer has no way to know if wallet is empty or address invalid
@@ -25,8 +25,8 @@ class FlaxExplorerWallet extends ColdWallet {
     farmedBalance = 0;
 
     try {
-      String contents =
-          await http.read(Uri.parse(flaxExplorerURL + publicAddress));
+      String contents = await http.read(
+          Uri.parse(flaxExplorerURL + blockchain.config.coldWalletAddress));
 
       RegExp regex = RegExp(r"([0-9]+\.[0-9]+) XFX</span>", multiLine: true);
 
@@ -58,7 +58,7 @@ class FlaxExplorerWallet extends ColdWallet {
         var blockHeightMatches =
             blockHeightExp.allMatches(contents.toLowerCase());
         if (blockHeightMatches.length > 0)
-          mainWallet.setLastBlockFarmed(
+          setLastBlockFarmed(
               int.parse(blockHeightMatches.first.group(1) ?? "-1"));
       } catch (error) {
         log.warning("Failed to get info about cold wallet last farmed reward");

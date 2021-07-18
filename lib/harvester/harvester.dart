@@ -4,7 +4,7 @@ import 'dart:io' as io;
 
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/hardware.dart';
-import 'package:farmr_client/wallets/wallet.dart';
+import 'package:farmr_client/harvester/wallets.dart';
 import 'package:uuid/uuid.dart';
 import 'package:logging/logging.dart';
 
@@ -18,12 +18,14 @@ import 'package:farmr_client/extensions/swarpm.dart';
 
 final log = Logger('Harvester');
 
-class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
+class Harvester
+    with
+        HarvesterDiskSpace,
+        HarvesterPlots,
+        HarvesterFilters,
+        HarvesterWallets {
   late Config _config;
   late Blockchain blockchain; // TODO: Why is late necessary here?
-
-  //list of wallets
-  List<Wallet> wallets = [];
 
   //if there are multiple harvesters associated to this device a.k.a. if it is the head farmer/harvester of farm
   bool _isAggregate = false;

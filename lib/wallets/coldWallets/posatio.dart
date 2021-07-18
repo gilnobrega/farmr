@@ -1,6 +1,5 @@
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
-import 'package:farmr_client/wallets/localWallets/localWallet.dart';
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 
@@ -10,19 +9,19 @@ class PosatIOWallet extends ColdWallet {
   PosatIOWallet({int netBalance = -1, required Blockchain blockchain})
       : super(netBalance: netBalance, blockchain: blockchain);
 
-  Future<void> init(String publicAddress, LocalWallet mainWallet) async {
+  Future<void> init() async {
     String posatExplorerURL =
-        "https://${mainWallet.blockchain.binaryName}.posat.io/address/";
+        "https://${blockchain.binaryName}.posat.io/address/";
 
     netBalance = 0;
 
     try {
-      String contents =
-          await http.read(Uri.parse(posatExplorerURL + publicAddress));
+      String contents = await http.read(
+          Uri.parse(posatExplorerURL + blockchain.config.coldWalletAddress));
 
       RegExp regex = RegExp(
           r"balance: <strong>([0-9]+\.[0-9]+) " +
-              mainWallet.blockchain.currencySymbol.toUpperCase(),
+              blockchain.currencySymbol.toUpperCase(),
           multiLine: true);
 
       try {
@@ -37,13 +36,13 @@ class PosatIOWallet extends ColdWallet {
         }
       } catch (error) {
         log.warning(
-            "Failed to get info about ${mainWallet.blockchain.binaryName} cold wallet balance");
+            "Failed to get info about ${blockchain.binaryName} cold wallet balance");
       }
 
       //tries to parse last farmed  reward
       RegExp blockHeightExp = RegExp(
           r'([0-9]+)<\/a><\/td>[\s]+<td><a href="\/coin\/[\w]+">[\w]+<\/a><\/td>[\s]+<td>farmer reward<\/td>[\s]+<td class="right">[0-9\.]+ ' +
-              mainWallet.blockchain.currencySymbol.toLowerCase() +
+              blockchain.currencySymbol.toLowerCase() +
               r'<\/td>',
           multiLine: true);
 
@@ -51,14 +50,14 @@ class PosatIOWallet extends ColdWallet {
         var blockHeightMatches =
             blockHeightExp.allMatches(contents.toLowerCase());
         if (blockHeightMatches.length > 0)
-          mainWallet.setLastBlockFarmed(
+          setLastBlockFarmed(
               int.parse(blockHeightMatches.first.group(1) ?? "-1"));
       } catch (error) {
         log.warning("Failed to get info about cold wallet last farmed reward");
       }
     } catch (error) {
       log.warning(
-          "Failed to get info about ${mainWallet.blockchain.binaryName} cold wallet");
+          "Failed to get info about ${blockchain.binaryName} cold wallet");
     }
   }
 }

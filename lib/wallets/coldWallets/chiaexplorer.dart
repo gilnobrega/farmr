@@ -18,20 +18,21 @@ class ChiaExplorerWallet extends ColdWallet {
             grossBalance: grossBalance,
             blockchain: blockchain);
 
-  Future<void> init(String publicAddress, LocalWallet mainWallet) async {
+  Future<void> init() async {
     const String chiaExplorerURL = "https://api2.chiaexplorer.com/";
 
     try {
-      String contents = await http
-          .read(Uri.parse(chiaExplorerURL + "balance/" + publicAddress));
+      String contents = await http.read(Uri.parse(
+          chiaExplorerURL + "balance/" + blockchain.config.coldWalletAddress));
 
       var object = jsonDecode(contents);
 
       grossBalance = object['grossBalance'] ?? -1;
       netBalance = object['netBalance'] ?? -1;
 
-      String coins = await http.read(
-          Uri.parse(chiaExplorerURL + "coinsForAddress/" + publicAddress));
+      String coins = await http.read(Uri.parse(chiaExplorerURL +
+          "coinsForAddress/" +
+          blockchain.config.coldWalletAddress));
 
       var coinsObject = jsonDecode(coins);
 
@@ -40,8 +41,7 @@ class ChiaExplorerWallet extends ColdWallet {
           i++) {
         var coin = coinsObject['coins'][i];
         if (coin['coinbase'] && int.tryParse(coin['timestamp']) != null)
-          mainWallet
-              .setDaysAgoWithTimestamp(int.parse(coin['timestamp']) * 1000);
+          setDaysAgoWithTimestamp(int.parse(coin['timestamp']) * 1000);
       }
     } catch (error) {
       //404 error means wallet is empty

@@ -84,4 +84,6 @@ class Wallet {
     else
       return Math.min(day1, day2);
   }
+
+  Future<void> init() async {}
 }
