@@ -44,9 +44,7 @@ class HPool extends Farmer {
     if (object['walletBalance'] != null &&
         object['undistributedBalance'] != null)
       _wallet = HPoolWallet(
-          (double.parse(object['walletBalance'].toString()) *
-                  blockchain.majorToMinorMultiplier)
-              .round(),
+          double.parse(object['walletBalance'].toString()),
           double.parse(object['undistributedBalance'].toString()),
           this.blockchain);
   }

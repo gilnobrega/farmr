@@ -4,7 +4,6 @@ import 'package:farmr_client/farmer/farmer.dart';
 import 'package:farmr_client/hpool/hpool.dart';
 import 'package:farmr_client/hpool/wallet.dart';
 import 'package:farmr_client/plot.dart';
-import 'package:farmr_client/wallets/poolWallets/genericPoolWallet.dart';
 import 'package:farmr_client/server/price.dart';
 import 'package:farmr_client/server/netspace.dart';
 import 'package:farmr_client/log/shortsync.dart';
@@ -41,30 +40,23 @@ class Stats {
       balanceFiat - (balanceFiat / (1 + (price?.change ?? 0.0)));
 
   // WALLET BALANCE
-  double get walletBalance =>
-      (_client is Farmer) ? (_client as Farmer).wallet.balance : -1.0;
+  double get walletBalance => _client.localWalletAggregate.balanceMajor;
   double get walletBalanceFiat => calculateFiat(walletBalance, _price, crypto);
   double get walletBalanceFiatChange =>
       calculateFiatChange(walletBalanceFiat, _price);
-  int get walletHeight =>
-      (_client is Farmer) ? (_client as Farmer).wallet.walletHeight : -1;
+  int get walletHeight => _client.localWalletAggregate.walletHeight;
 
   // COLD BALANCE
-  double get coldGrossBalance => (_client is Farmer)
-      ? (_client as Farmer).coldWallet.grossBalanceMajor
-      : -1.0;
+  double get coldGrossBalance => _client.coldWalletAggregate.grossBalanceMajor;
   double get coldGrossBalanceFiat =>
       calculateFiat(coldGrossBalance, _price, crypto);
 
-  double get coldFarmedBalance => (_client is Farmer)
-      ? (_client as Farmer).coldWallet.farmedBalanceMajor
-      : -1.0;
+  double get coldFarmedBalance =>
+      _client.coldWalletAggregate.farmedBalanceMajor;
   double get coldFarmedBalanceFiat =>
       calculateFiat(coldFarmedBalance, _price, crypto);
 
-  double get coldNetBalance => (_client is Farmer)
-      ? (_client as Farmer).coldWallet.netBalanceMajor
-      : -1.0;
+  double get coldNetBalance => _client.coldWalletAggregate.netBalanceMajor;
   double get coldNetBalanceFiat =>
       calculateFiat(coldNetBalance, _price, crypto);
   double get coldNetBalanceFiatChange =>
@@ -80,19 +72,14 @@ class Stats {
       calculateFiatChange(undistributedBalanceFiat, _price);
 
   //FoxyPool Wallet
-  double get pendingBalance => (_client is Farmer &&
-          (_client as Farmer).wallet is GenericPoolWallet)
-      ? ((_client as Farmer).wallet as GenericPoolWallet).pendingBalanceMajor
-      : -1.0;
+  double get pendingBalance => _client.poolWalletAggregate.pendingBalanceMajor;
   double get pendingBalanceFiat =>
       calculateFiat(pendingBalance, _price, crypto);
   double get pendingBalanceFiatChange =>
       calculateFiatChange(pendingBalanceFiat, _price);
 
-  double get collateralBalance => (_client is Farmer &&
-          (_client as Farmer).wallet is GenericPoolWallet)
-      ? ((_client as Farmer).wallet as GenericPoolWallet).collateralBalanceMajor
-      : -1.0;
+  double get collateralBalance =>
+      _client.poolWalletAggregate.collateralBalanceMajor;
   double get collateralBalanceFiat =>
       calculateFiat(collateralBalance, _price, crypto);
   double get collateralBalanceFiatChange =>
@@ -206,12 +193,10 @@ class Stats {
   double get ogFarmedDays => (ogFarmedDuration.inHours / 24.0);
   double get nftFarmedDays => (nftFarmedDuration.inHours / 24.0);
 
-  double get effort => (_client is Farmer)
-      ? (_client as Farmer).wallet.getCurrentEffort(etw, farmedDays)
-      : -1.0;
-  double get daysSinceLastBlock => (_client is Farmer)
-      ? (_client as Farmer).wallet.daysSinceLastBlock.roundToDouble()
-      : -1;
+  double get effort =>
+      _client.walletAggregate.getCurrentEffort(etw, farmedDays);
+  double get daysSinceLastBlock =>
+      _client.walletAggregate.daysSinceLastBlock.roundToDouble();
 
   String get netSpace => _netSpace.humanReadableSize;
   double get netSpaceSize => _netSpace.size;

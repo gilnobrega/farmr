@@ -85,5 +85,17 @@ class Wallet {
       return Math.min(day1, day2);
   }
 
+  double getCurrentEffort(double etw, double farmedTimeDays) {
+    if (etw > 0 && daysSinceLastBlock > 0) {
+      //if user has not found a block then it will assume that effort starts counting from when it began farming
+      double percentage = (farmedTimeDays > daysSinceLastBlock)
+          ? 100 * (daysSinceLastBlock / etw)
+          : 100 * (farmedTimeDays / etw);
+      return percentage;
+    }
+    return 0.0;
+  }
+
+  //placeholder function, only used in cold wallets and pool wallets
   Future<void> init() async {}
 }

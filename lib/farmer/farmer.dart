@@ -145,18 +145,14 @@ class Farmer extends Harvester {
 
       getNodeHeight(); //sets _syncedBlockHeight
 
-      if (type == ClientType.Farmer)
-        _wallet = Wallet(-1.0, -1.0, this.blockchain, _syncedBlockHeight, -1);
-      else if (type == ClientType.FoxyPoolOG)
-        _wallet = FoxyPoolWallet(
-            -1.0, -1.0, -1.0, -1.0, this.blockchain, _syncedBlockHeight, -1);
-      else if (type == ClientType.Flexpool)
-        _wallet = FlexpoolWallet(
-            -1.0, -1.0, -1.0, this.blockchain, _syncedBlockHeight, -1);
+      LocalWallet localWallet = LocalWallet(
+          blockchain: this.blockchain, syncedBlockHeight: _syncedBlockHeight);
 
       //parses chia wallet show for block height
-      _wallet.parseWalletBalance(blockchain.config.cache!.binPath,
+      localWallet.parseWalletBalance(blockchain.config.cache!.binPath,
           lastBlockFarmed, blockchain.config.showWalletBalance);
+
+      wallets.add(localWallet);
 
       //initializes connections and counts peers
       _connections = Connections(blockchain.config.cache!.binPath);
@@ -218,22 +214,10 @@ class Farmer extends Harvester {
 
   @override
   Future<void> init() async {
-    if (blockchain.config.coldWalletAddress != "")
-      await _coldWallet.init(blockchain.config.coldWalletAddress, _wallet);
-
     if (blockchain.currencySymbol == "xch") await getPeakHeight();
 
-    if (_wallet is FoxyPoolWallet) {
-      //parses foxypool api if that option is enabled
-      if (blockchain.config.foxyPoolOverride)
-        //tries to parse foxypool api
-        //normal wallet + foxypool pending income + foxypool collateral balance
-        await (_wallet as FoxyPoolWallet).init();
-    } else if (_wallet is FlexpoolWallet) {
-      //normal wallet + flexpool pending income
-      //tries to parse flexpool api
-      await (_wallet as FlexpoolWallet).init();
-    }
+    //initializes all wallets
+    for (Wallet wallet in wallets) await wallet.init();
 
     await super.init();
   }
@@ -250,12 +234,13 @@ class Farmer extends Harvester {
     _status = object['status'];
     _balance = double.parse(object['balance'].toString());
 
-    double walletBalance = -1.0;
-    double daysSinceLastBlock = 0;
+    int walletBalance = -1;
+    double daysSinceLastBlock = -1.0;
 
     //initializes wallet with given balance and number of days since last block
     if (object['walletBalance'] != null)
-      walletBalance = double.parse(object['walletBalance'].toString());
+      walletBalance =
+          (double.parse(object['walletBalance'].toString()) * 1e12).round();
     if (object['daysSinceLastBlock'] != null)
       daysSinceLastBlock =
           double.parse(object['daysSinceLastBlock'].toString());
@@ -281,8 +266,12 @@ class Farmer extends Harvester {
                   .round(),
           blockchain: blockchain));
     //local wallet LEGACY
-    wallets.add(LocalWallet(walletBalance, daysSinceLastBlock, this.blockchain,
-        _syncedBlockHeight, walletHeight));
+    wallets.add(LocalWallet(
+        balance: walletBalance,
+        daysSinceLastBlock: daysSinceLastBlock,
+        blockchain: this.blockchain,
+        syncedBlockHeight: syncedBlockHeight,
+        walletHeight: walletHeight));
 
     if (object['completeSubSlots'] != null)
       _completeSubSlots = object['completeSubSlots'];

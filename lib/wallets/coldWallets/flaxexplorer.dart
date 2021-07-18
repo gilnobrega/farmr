@@ -1,6 +1,5 @@
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
-import 'package:farmr_client/wallets/localWallets/localWallet.dart';
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 

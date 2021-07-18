@@ -17,7 +17,8 @@ class LocalWallet extends Wallet {
       {this.balance = -1,
       int syncedBlockHeight = -1,
       required Blockchain blockchain,
-      double daysSinceLastBlock = -1})
+      double daysSinceLastBlock = -1,
+      this.walletHeight = -1})
       : super(
             type: WalletType.Local,
             blockchain: blockchain,
@@ -58,17 +59,6 @@ class LocalWallet extends Wallet {
     }
   }
 
-  double getCurrentEffort(double etw, double farmedTimeDays) {
-    if (etw > 0 && daysSinceLastBlock > 0) {
-      //if user has not found a block then it will assume that effort starts counting from when it began farming
-      double percentage = (farmedTimeDays > daysSinceLastBlock)
-          ? 100 * (daysSinceLastBlock / etw)
-          : 100 * (farmedTimeDays / etw);
-      return percentage;
-    }
-    return 0.0;
-  }
-
   @override
   Wallet operator +(Wallet wallet2) {
     if (wallet2 is LocalWallet) {
@@ -78,6 +68,7 @@ class LocalWallet extends Wallet {
             balance: (this.balance >= 0 && wallet2.balance >= 0)
                 ? this.balance + wallet2.balance
                 : 0,
+            walletHeight: this.walletHeight,
             daysSinceLastBlock: Wallet.compareDaysSinceBlock(
                 this.daysSinceLastBlock, wallet2.daysSinceLastBlock));
       else

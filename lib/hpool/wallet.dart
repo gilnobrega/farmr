@@ -5,6 +5,8 @@ class HPoolWallet extends LocalWallet {
   double _undistributedBalance = -1.0;
   double get undistributedBalance => _undistributedBalance;
 
-  HPoolWallet(int balance, this._undistributedBalance, Blockchain blockchain)
-      : super(balance: balance, blockchain: blockchain);
+  HPoolWallet(double balance, this._undistributedBalance, Blockchain blockchain)
+      : super(
+            balance: (balance * blockchain.majorToMinorMultiplier).round(),
+            blockchain: blockchain);
 }
