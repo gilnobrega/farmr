@@ -64,14 +64,10 @@ class Config {
   String hpoolConfigPath = "";
   String hpoolAuthToken = "";
 
-  //FOXYPOOL MODE
-  String poolPublicKey = "";
+  List<String> coldWalletAddresses = [];
+  List<String> foxyPoolPublicKeys = [];
+  List<String> flexpoolAddresses = [];
 
-  //Flexpool Mode
-  String flexPoolAddress = "";
-
-  //chiaexplorer cold wallet
-  String coldWalletAddress = "";
   bool sendColdWalletBalanceNotifications = true;
 
   //overrides foxypool mode
@@ -169,15 +165,11 @@ class Config {
       "Parse Logs": parseLogs,
       "Number of Discord Users": userNumber,
       "Public API": publicAPI,
-      "Swar's Chia Plot Manager Path": swarPath
+      "Swar's Chia Plot Manager Path": swarPath,
+      "Cold Wallet Addresses": coldWalletAddresses,
+      "FoxyPool Public Keys": foxyPoolPublicKeys,
+      "Flexpool addresses": flexpoolAddresses
     };
-
-    if (type != ClientType.Harvester) {
-      configMap.putIfAbsent("Cold Wallet Address", () => coldWalletAddress);
-      configMap.putIfAbsent("Cold Wallet Notifications",
-          () => sendColdWalletBalanceNotifications);
-    }
-
     //hides ignoreDiskSpace from config.json if false (default)
     if (ignoreDiskSpace)
       configMap.putIfAbsent("Ignore Disk Space", () => ignoreDiskSpace);
@@ -189,16 +181,6 @@ class Config {
     //hpool's cookie
     if (type == ClientType.HPool || hpoolAuthToken != "")
       configMap.putIfAbsent("HPool Auth Token", () => hpoolAuthToken);
-
-    //poolPublicKey used in FoxyPool's chia-og
-    if (type == ClientType.FoxyPoolOG || poolPublicKey != "") {
-      configMap.putIfAbsent("Pool Public Key", () => poolPublicKey);
-      configMap.putIfAbsent("Use FoxyPool API", () => foxyPoolOverride);
-    }
-
-    //flexpooladdress used in flexpool api
-    if (type == ClientType.Flexpool || flexPoolAddress != "")
-      configMap.putIfAbsent("Flexpool Address", () => flexPoolAddress);
 
     return configMap;
   }
@@ -398,34 +380,54 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     if (json['HPool Auth Token'] != null)
       hpoolAuthToken = json['HPool Auth Token']; //new
 
-    //loads pool public key used by foxypool mode
+    //loads pool public key used by foxypool mode LEGACY
     if (json['Pool Public Key'] != null) {
-      poolPublicKey = json['Pool Public Key'];
+      String poolPublicKey = json['Pool Public Key'];
 
       //appends 0x to pool public key if it doesnt start with 0x
       if (poolPublicKey.length == 96 && !poolPublicKey.startsWith("0x"))
         poolPublicKey = "0x" + poolPublicKey;
+
+      foxyPoolPublicKeys.add(poolPublicKey);
     }
 
     if (json['Use FoxyPool API'] != null)
       foxyPoolOverride = json['Use FoxyPool API'];
 
-    //loads flexpool address used by flexpool mode
+    //loads flexpool address used by flexpool mode LEGACY
     if (json['Flexpool Address'] != null)
-      flexPoolAddress = json['Flexpool Address'];
+      flexpoolAddresses.add(json['Flexpool Address']);
 
     if (json["Show Hardware Info"] != null)
       showHardwareInfo = json["Show Hardware Info"];
 
-    if (json['Cold Wallet Address'] != null)
-      coldWalletAddress = json['Cold Wallet Address'];
+    if (json['Cold Wallet Address'] != null) {
+      var addresses = (json['Cold Wallet Address'] as String);
+      if (addresses.contains(','))
+        coldWalletAddresses.addAll(addresses.split(','));
+      else
+        coldWalletAddresses.add(addresses);
+    }
 
+    if (json['Cold Wallet Addresses'] != null)
+      for (var address in json['Cold Wallet Addresses'])
+        coldWalletAddresses.add(address);
+
+    //legacy
     if (json['Send Cold Wallet Balance Notifications'] != null)
       sendColdWalletBalanceNotifications =
           json['Send Cold Wallet Balance Notifications'];
 
     if (json['Cold Wallet Notifications'] != null)
       sendColdWalletBalanceNotifications = json['Cold Wallet Notifications'];
+
+    if (json['Flexpool Addresses'] != null)
+      for (var address in json['Flexpool Addresses'])
+        flexpoolAddresses.add(address);
+
+    if (json['FoxyPool Public Keys'] != null)
+      for (var address in json['FoxtPool Public Keys'])
+        foxyPoolPublicKeys.add(json['FoxyPool Public Keys']);
   }
 
   Future<void> _loadConfig() async {

@@ -20,36 +20,38 @@ class ChiaExplorerWallet extends ColdWallet {
   Future<void> init() async {
     const String chiaExplorerURL = "https://api2.chiaexplorer.com/";
 
-    try {
-      String contents = await http.read(Uri.parse(
-          chiaExplorerURL + "balance/" + blockchain.config.coldWalletAddress));
+    for (var address in blockchain.config.coldWalletAddresses
+        .where((element) => element.startsWith(blockchain.currencySymbol))) {
+      try {
+        String contents =
+            await http.read(Uri.parse(chiaExplorerURL + "balance/" + address));
 
-      var object = jsonDecode(contents);
+        var object = jsonDecode(contents);
 
-      grossBalance = object['grossBalance'] ?? -1;
-      netBalance = object['netBalance'] ?? -1;
+        grossBalance = object['grossBalance'] ?? -1;
+        netBalance = object['netBalance'] ?? -1;
 
-      String coins = await http.read(Uri.parse(chiaExplorerURL +
-          "coinsForAddress/" +
-          blockchain.config.coldWalletAddress));
+        String coins = await http
+            .read(Uri.parse(chiaExplorerURL + "coinsForAddress/" + address));
 
-      var coinsObject = jsonDecode(coins);
+        var coinsObject = jsonDecode(coins);
 
-      for (int i = 0;
-          coinsObject['coins'] != null && i < coinsObject['coins'].length;
-          i++) {
-        var coin = coinsObject['coins'][i];
-        if (coin['coinbase'] && int.tryParse(coin['timestamp']) != null)
-          setDaysAgoWithTimestamp(int.parse(coin['timestamp']) * 1000);
-      }
-    } catch (error) {
-      //404 error means wallet is empty
-      if (error is http.ClientException && error.toString().contains("404")) {
-        //if wallet is empty then assumes both gross balance and net balance are 0
-        grossBalance = 0;
-        netBalance = 0;
-      } else {
-        log.warning("Failed to get info about chia cold wallet");
+        for (int i = 0;
+            coinsObject['coins'] != null && i < coinsObject['coins'].length;
+            i++) {
+          var coin = coinsObject['coins'][i];
+          if (coin['coinbase'] && int.tryParse(coin['timestamp']) != null)
+            setDaysAgoWithTimestamp(int.parse(coin['timestamp']) * 1000);
+        }
+      } catch (error) {
+        //404 error means wallet is empty
+        if (error is http.ClientException && error.toString().contains("404")) {
+          //if wallet is empty then assumes both gross balance and net balance are 0
+          grossBalance = 0;
+          netBalance = 0;
+        } else {
+          log.warning("Failed to get info about chia cold wallet");
+        }
       }
     }
   }

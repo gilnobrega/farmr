@@ -30,31 +30,33 @@ class FoxyPoolWallet extends GenericPoolWallet {
             blockchain: blockchain);
 
   Future<void> init() async {
-    if (blockchain.config.poolPublicKey != "") {
-      Stopwatch stopwatch = Stopwatch();
+    for (var publicKey in blockchain.config.foxyPoolPublicKeys) {
+      if (publicKey != "") {
+        Stopwatch stopwatch = Stopwatch();
 
-      stopwatch.start();
+        stopwatch.start();
 
-      try {
-        _getBalance(blockchain.config.poolPublicKey, blockchain);
-      } catch (e) {
-        log.warning(
-            "Failed to get FoxyPool Info, make sure your pool public key is correct.");
+        try {
+          _getBalance(publicKey, blockchain);
+        } catch (e) {
+          log.warning(
+              "Failed to get FoxyPool Info, make sure your pool public key is correct.");
+        }
+
+        //maximum of 5 seconds
+        while (!_queryComplete && stopwatch.elapsedMilliseconds < 5000) {
+          await Future.delayed(Duration(seconds: 1));
+        }
+
+        //print("finished");
+        stopwatch.stop();
+        //print(stopwatch.elapsedMilliseconds);
+
+        //print(this.collateralBalance);
+        //print(this.pendingBalance);
+        //print(this.effectiveCapacity);
+        //print(this.shares);
       }
-
-      //maximum of 5 seconds
-      while (!_queryComplete && stopwatch.elapsedMilliseconds < 5000) {
-        await Future.delayed(Duration(seconds: 1));
-      }
-
-      //print("finished");
-      stopwatch.stop();
-      //print(stopwatch.elapsedMilliseconds);
-
-      //print(this.collateralBalance);
-      //print(this.pendingBalance);
-      //print(this.effectiveCapacity);
-      //print(this.shares);
     }
   }
 
