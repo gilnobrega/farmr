@@ -32,16 +32,20 @@ class HarvesterDiskSpace {
     try {
       // uses own universal_disk_space library
       diskspace = new uds.DiskSpace();
+      await diskspace.scan(); //scans disks
 
       for (int i = 0; i < plotDests.length; i++) {
         try {
-          uds.Disk currentdrive = diskspace.getDisk(plotDests[i]);
+          if (io.Directory(plotDests[i]).existsSync()) {
+            uds.Disk currentdrive =
+                diskspace.getDisk(io.Directory(plotDests[i]));
 
-          //only adds disk sizes/space if it has not been added before
-          if (!drives.contains(currentdrive)) {
-            drives.add(currentdrive);
-            totalDiskSpace += currentdrive.totalSize;
-            freeDiskSpace += currentdrive.availableSpace;
+            //only adds disk sizes/space if it has not been added before
+            if (!drives.contains(currentdrive)) {
+              drives.add(currentdrive);
+              totalDiskSpace += currentdrive.totalSize;
+              freeDiskSpace += currentdrive.availableSpace;
+            }
           }
         } catch (e) {
           try {
@@ -74,8 +78,12 @@ class HarvesterDiskSpace {
 
               int totalFolderSpace = folderUsedSpace + folderFreeSpace;
 
-              Disk currentDrive = Disk("N/A", plotDests[i], totalFolderSpace,
-                  folderUsedSpace, folderFreeSpace);
+              Disk currentDrive = Disk(
+                  devicePath: "N/A",
+                  mountPath: plotDests[i],
+                  totalSize: totalFolderSpace,
+                  usedSpace: folderUsedSpace,
+                  availableSpace: folderFreeSpace);
               if (!drives.contains("currentDrive")) {
                 drives.add(currentDrive);
                 totalDiskSpace += currentDrive.totalSize;
