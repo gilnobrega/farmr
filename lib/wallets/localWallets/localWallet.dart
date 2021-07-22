@@ -25,6 +25,18 @@ class LocalWallet extends Wallet {
 
   late LocalWalletStatus status;
 
+  @override
+  Map toJson() {
+    Map<dynamic, dynamic> walletMap = super.toJson();
+
+    walletMap.addAll({
+      "confirmedBalannce": confirmedBalance,
+      "unconfirmedBalannce": unconfirmedBalance,
+      "walletHeight": walletHeight,
+    });
+    return walletMap;
+  }
+
   LocalWallet(
       {this.confirmedBalance = -1,
       this.unconfirmedBalance = -1,
@@ -40,6 +52,12 @@ class LocalWallet extends Wallet {
             daysSinceLastBlock: daysSinceLastBlock,
             syncedBlockHeight: syncedBlockHeight,
             name: name);
+
+  LocalWallet.fromJson(dynamic json) : super.fromJson(json) {
+    confirmedBalance = json['confirmedBalance'] ?? -1;
+    unconfirmedBalance = json['unconfirmedBalance'] ?? -1;
+    walletHeight = json['walletHeight'] ?? -1;
+  }
 
   void parseWalletBalance(
       String binPath, int lastBlockFarmed, bool showWalletBalance) {
