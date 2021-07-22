@@ -348,12 +348,13 @@ class Farmer extends Harvester {
                   .round(),
           blockchain: blockchain));
     //local wallet LEGACY
-    wallets.add(LocalWallet(
-        confirmedBalance: walletBalance,
-        daysSinceLastBlock: daysSinceLastBlock,
-        blockchain: this.blockchain,
-        syncedBlockHeight: syncedBlockHeight,
-        walletHeight: walletHeight));
+    if (walletBalance >= 0 || daysSinceLastBlock > 0)
+      wallets.add(LocalWallet(
+          confirmedBalance: walletBalance,
+          daysSinceLastBlock: daysSinceLastBlock,
+          blockchain: Blockchain.fromSymbol(object['crypto'] ?? "xch"),
+          syncedBlockHeight: syncedBlockHeight,
+          walletHeight: walletHeight));
 
     if (object['completeSubSlots'] != null)
       _completeSubSlots = object['completeSubSlots'];
@@ -385,7 +386,7 @@ class Farmer extends Harvester {
           (object['coldWallet']['farmedBalance'] ?? "-1").toString());
 
       wallets.add(ColdWallet(
-          blockchain: blockchain,
+          blockchain: Blockchain.fromSymbol(object['crypto'] ?? "xch"),
           netBalance: (netBalance * 1e12).round(),
           farmedBalance: (farmedBalance * 1e12).round(),
           grossBalance: (grossBalance * 1e12).round()));
