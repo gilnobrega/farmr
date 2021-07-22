@@ -240,6 +240,7 @@ class Farmer extends Harvester {
               unconfirmedBalance: unconfirmedBalance,
               walletHeight: walletHeight,
               syncedBlockHeight: syncedBlockHeight,
+              name: name,
               status: (synced)
                   ? LocalWalletStatus.Synced
                   : (syncing)
@@ -249,8 +250,7 @@ class Farmer extends Harvester {
           wallets.add(wallet);
         }
       }
-    }
-    //legacy wallet method
+    } else //legacy wallet method
     {
       LocalWallet localWallet = LocalWallet(
           blockchain: this.blockchain, syncedBlockHeight: _syncedBlockHeight);

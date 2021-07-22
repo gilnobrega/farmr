@@ -30,7 +30,7 @@ class LocalWallet extends Wallet {
     Map<dynamic, dynamic> walletMap = super.toJson();
 
     walletMap.addAll({
-      "confirmedBalannce": confirmedBalance,
+      "confirmedBalance": confirmedBalance,
       "unconfirmedBalannce": unconfirmedBalance,
       "walletHeight": walletHeight,
     });
