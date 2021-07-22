@@ -491,8 +491,6 @@ void handleBlockchainReport(List<Object> arguments) async {
 
         log.info("url:$url");
         log.info("data sent:\n$sendJson");
-
-        if (io.Platform.isWindows) print("Do NOT close this window.");
       } catch (exception) {
         log.severe("Oh no, failed to connect to server!");
         log.severe(exception.toString());
