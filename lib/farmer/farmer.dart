@@ -376,8 +376,20 @@ class Farmer extends Harvester {
           NetSpace.fromBytes(double.parse(object['netSpace'].toString()));
     }
 
-    if (object['coldWallet'] != null)
-      wallets.add(ColdWallet.fromJson(object['coldWallet']));
+    if (object['coldWallet'] != null) {
+      double netBalance =
+          double.parse((object['coldWallet']['netBalance'] ?? "-1").toString());
+      double grossBalance = double.parse(
+          (object['coldWallet']['grossBalance'] ?? "-1").toString());
+      double farmedBalance = double.parse(
+          (object['coldWallet']['farmedBalance'] ?? "-1").toString());
+
+      wallets.add(ColdWallet(
+          blockchain: blockchain,
+          netBalance: (netBalance * 1e12).round(),
+          farmedBalance: (farmedBalance * 1e12).round(),
+          grossBalance: (grossBalance * 1e12).round()));
+    }
 
     calculateFilterRatio(this);
   }
