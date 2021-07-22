@@ -311,6 +311,10 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
   }
 
   loadfromJson(dynamic json) {
+    coldWalletAddresses = [];
+    foxyPoolPublicKeys = [];
+    flexpoolAddresses = [];
+
     //sets default name according to client type
     name = defaultNames[type] ?? "Harvester";
 
@@ -409,9 +413,13 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
         coldWalletAddresses.add(addresses);
     }
 
-    if (json['Cold Wallet Addresses'] != null)
+    if (json['Cold Wallet Addresses'] != null) {
       for (var address in json['Cold Wallet Addresses'])
         coldWalletAddresses.add(address);
+
+      coldWalletAddresses =
+          coldWalletAddresses.toSet().toList(); //clears duplicate entries
+    }
 
     //legacy
     if (json['Send Cold Wallet Balance Notifications'] != null)
@@ -421,13 +429,21 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     if (json['Cold Wallet Notifications'] != null)
       sendColdWalletBalanceNotifications = json['Cold Wallet Notifications'];
 
-    if (json['Flexpool Addresses'] != null)
+    if (json['Flexpool Addresses'] != null) {
       for (var address in json['Flexpool Addresses'])
         flexpoolAddresses.add(address);
 
-    if (json['FoxyPool Public Keys'] != null)
+      flexpoolAddresses =
+          flexpoolAddresses.toSet().toList(); //clears duplicate entries
+    }
+
+    if (json['FoxyPool Public Keys'] != null) {
       for (var address in json['FoxyPool Public Keys'])
         foxyPoolPublicKeys.add(address);
+
+      foxyPoolPublicKeys =
+          foxyPoolPublicKeys.toSet().toList(); //clears duplicate entries
+    }
   }
 
   Future<void> _loadConfig() async {
