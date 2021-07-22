@@ -7,8 +7,6 @@ Logger log = Logger("Cold Wallet");
 
 //Wallet that uses chiaexplorer/flaxexplorer/posat.io
 class ColdWallet extends Wallet {
-  late Blockchain blockchain;
-
   //gross balance
   //CHIAEXPLORER ONLY
   late int grossBalance;
@@ -61,7 +59,7 @@ class ColdWallet extends Wallet {
     if (wallet2 is ColdWallet) {
       if (this.blockchain.currencySymbol == wallet2.blockchain.currencySymbol)
         return ColdWallet(
-            blockchain: blockchain,
+            blockchain: this.blockchain,
             netBalance: this.netBalance + wallet2.netBalance,
             grossBalance: (this.grossBalance >= 0 && wallet2.grossBalance >= 0)
                 ? this.grossBalance + wallet2.grossBalance

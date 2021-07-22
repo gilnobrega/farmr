@@ -26,7 +26,7 @@ class ChiaExplorerWallet extends ColdWallet {
   Future<void> init() async {
     try {
       String contents =
-          await http.read(Uri.parse(_chiaExplorerURL + "balance/" + address!));
+          await http.read(Uri.parse(_chiaExplorerURL + "balance/" + address));
 
       var object = jsonDecode(contents);
 
@@ -34,7 +34,7 @@ class ChiaExplorerWallet extends ColdWallet {
       netBalance = object['netBalance'] ?? -1;
 
       String coins = await http
-          .read(Uri.parse(_chiaExplorerURL + "coinsForAddress/" + address!));
+          .read(Uri.parse(_chiaExplorerURL + "coinsForAddress/" + address));
 
       var coinsObject = jsonDecode(coins);
 
