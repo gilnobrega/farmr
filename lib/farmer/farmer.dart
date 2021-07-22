@@ -1,5 +1,6 @@
 import 'dart:core';
 import 'package:farmr_client/blockchain.dart';
+import 'package:farmr_client/rpc.dart';
 import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
 import 'package:farmr_client/wallets/poolWallets/flexPoolWallet.dart';
 import 'package:farmr_client/wallets/poolWallets/foxyPoolWallet.dart';
@@ -178,6 +179,16 @@ class Farmer extends Harvester {
 
       _poolErrors = blockchain.cache.poolErrors.length;
     }
+  }
+
+  void getWallets() async {
+    RPCConfiguration rpcConfig = RPCConfiguration(
+        blockchain: blockchain,
+        service: RPCService.Wallet,
+        endpoint: "get_wallets",
+        dataToSend: "{}");
+
+    var wallets = await RPCConnection.getEndpoint(rpcConfig);
   }
 
   void getNodeHeight() {

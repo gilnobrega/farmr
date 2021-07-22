@@ -7,6 +7,25 @@ import 'package:logging/logging.dart';
 
 Logger log = Logger("RPC");
 
+main() async {
+  RPCConfiguration rpcConfig = RPCConfiguration(
+      blockchain: Blockchain.fromSymbol("xch"),
+      service: RPCService.Wallet,
+      endpoint: "get_wallets",
+      dataToSend: "{}");
+
+  var wallets = await RPCConnection.getEndpoint(rpcConfig);
+  print(wallets);
+
+  RPCConfiguration rpcConfig2 = RPCConfiguration(
+      blockchain: Blockchain.fromSymbol("xch"),
+      service: RPCService.Wallet,
+      endpoint: "get_wallet_balance",
+      dataToSend: '{"wallet_id": 1}');
+
+  var walletBalance = await RPCConnection.getEndpoint(rpcConfig2);
+}
+
 enum RPCService { Daemon, Wallet, Farmer, Harvester, Full_Node }
 
 //accepts self signed certificates
