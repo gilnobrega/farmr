@@ -205,10 +205,12 @@ class Stats {
   double get ogFarmedDays => (ogFarmedDuration.inHours / 24.0);
   double get nftFarmedDays => (nftFarmedDuration.inHours / 24.0);
 
-  double get effort =>
-      _client.walletAggregate.getCurrentEffort(etw, farmedDays);
-  double get daysSinceLastBlock =>
-      _client.walletAggregate.daysSinceLastBlock.roundToDouble();
+  double get effort => (_client.wallets.length > 0)
+      ? _client.walletAggregate.getCurrentEffort(etw, farmedDays)
+      : -1;
+  double get daysSinceLastBlock => (_client.wallets.length > 0)
+      ? _client.walletAggregate.daysSinceLastBlock.roundToDouble()
+      : -1;
 
   String get netSpace => _netSpace.humanReadableSize;
   double get netSpaceSize => _netSpace.size;
