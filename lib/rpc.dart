@@ -12,7 +12,7 @@ main() async {
       blockchain: Blockchain.fromSymbol("xch"),
       service: RPCService.Wallet,
       endpoint: "get_wallets",
-      dataToSend: "{}");
+      dataToSend: "");
 
   var wallets = await RPCConnection.getEndpoint(rpcConfig);
   print(wallets);
@@ -24,6 +24,7 @@ main() async {
       dataToSend: '{"wallet_id": 1}');
 
   var walletBalance = await RPCConnection.getEndpoint(rpcConfig2);
+  print(walletBalance);
 }
 
 enum RPCService { Daemon, Wallet, Farmer, Harvester, Full_Node }
