@@ -94,7 +94,7 @@ class Blockchain {
     _binaryName = binaryName;
     _majorToMinorMultiplier = majorToMinorMultiplier;
 
-    _fromJson(null);
+    _fromJson({});
   }
 
   Blockchain.fromJson(dynamic json) {
@@ -102,19 +102,21 @@ class Blockchain {
   }
 
   _fromJson(dynamic json) {
-    //loads blockchain file from json file if that object is defined
-    //defaults to chia config
-    _binaryName = json['Binary Name'] ?? 'chia';
-    _folderName = json['Folder Name'] ?? '.$binaryName';
-    _currencySymbol = json['Currency Symbol'] ?? 'xch';
-    _minorCurrencySymbol = json['Minor Currency Symbol'] ?? 'mojo';
-    _net = json['Net'] ?? 'mainnet';
-    _logPath = json['Log Path'] ?? '';
-    _configPath = json['Config Path'] ?? '';
-    _blockRewards = json['Block Rewards'] ?? 2.0;
-    _blocksPer10Mins = json['Blocks Per 10 Minutes'] ?? 32.0;
-    _onlineConfig = json['Online Config'] ?? true;
-    _majorToMinorMultiplier = json['Major to Minor Multiplier'] ?? 1e12;
+    if (json != null) {
+      //loads blockchain file from json file if that object is defined
+      //defaults to chia config
+      _binaryName = json['Binary Name'] ?? 'chia';
+      _folderName = json['Folder Name'] ?? '.$binaryName';
+      _currencySymbol = json['Currency Symbol'] ?? 'xch';
+      _minorCurrencySymbol = json['Minor Currency Symbol'] ?? 'mojo';
+      _net = json['Net'] ?? 'mainnet';
+      _logPath = json['Log Path'] ?? '';
+      _configPath = json['Config Path'] ?? '';
+      _blockRewards = json['Block Rewards'] ?? 2.0;
+      _blocksPer10Mins = json['Blocks Per 10 Minutes'] ?? 32.0;
+      _onlineConfig = json['Online Config'] ?? true;
+      _majorToMinorMultiplier = json['Major to Minor Multiplier'] ?? 1e12;
+    }
 
     //initializes default rpc ports for xch
     if (currencySymbol == "xch") {
@@ -128,7 +130,7 @@ class Blockchain {
       rpcPorts = RPCPorts.fromJson(defaultMap);
     }
     //overwrites default ports with ports from config
-    if (json['Ports'] != null) {
+    if (json != null && json['Ports'] != null) {
       rpcPorts = RPCPorts.fromJson(json['Ports']);
     }
   }
