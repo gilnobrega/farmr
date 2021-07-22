@@ -40,23 +40,32 @@ class Stats {
       balanceFiat - (balanceFiat / (1 + (price?.change ?? 0.0)));
 
   // WALLET BALANCE
-  double get walletBalance => _client.localWalletAggregate.balanceMajor;
+  double get walletBalance => (_client.localWallets.length > 0)
+      ? _client.localWalletAggregate.balanceMajor
+      : -1;
   double get walletBalanceFiat => calculateFiat(walletBalance, _price, crypto);
   double get walletBalanceFiatChange =>
       calculateFiatChange(walletBalanceFiat, _price);
-  int get walletHeight => _client.localWalletAggregate.walletHeight;
+  int get walletHeight => (_client.localWallets.length > 0)
+      ? _client.localWalletAggregate.walletHeight
+      : -1;
 
   // COLD BALANCE
-  double get coldGrossBalance => _client.coldWalletAggregate.grossBalanceMajor;
+  double get coldGrossBalance => (_client.coldWallets.length > 0)
+      ? _client.coldWalletAggregate.grossBalanceMajor
+      : -1;
   double get coldGrossBalanceFiat =>
       calculateFiat(coldGrossBalance, _price, crypto);
 
-  double get coldFarmedBalance =>
-      _client.coldWalletAggregate.farmedBalanceMajor;
+  double get coldFarmedBalance => (_client.coldWallets.length > 0)
+      ? _client.coldWalletAggregate.farmedBalanceMajor
+      : -1;
   double get coldFarmedBalanceFiat =>
       calculateFiat(coldFarmedBalance, _price, crypto);
 
-  double get coldNetBalance => _client.coldWalletAggregate.netBalanceMajor;
+  double get coldNetBalance => (_client.coldWallets.length > 0)
+      ? _client.coldWalletAggregate.netBalanceMajor
+      : -1;
   double get coldNetBalanceFiat =>
       calculateFiat(coldNetBalance, _price, crypto);
   double get coldNetBalanceFiatChange =>
@@ -72,14 +81,17 @@ class Stats {
       calculateFiatChange(undistributedBalanceFiat, _price);
 
   //FoxyPool Wallet
-  double get pendingBalance => _client.poolWalletAggregate.pendingBalanceMajor;
+  double get pendingBalance => (_client.poolWallets.length > 0)
+      ? _client.poolWalletAggregate.pendingBalanceMajor
+      : -1;
   double get pendingBalanceFiat =>
       calculateFiat(pendingBalance, _price, crypto);
   double get pendingBalanceFiatChange =>
       calculateFiatChange(pendingBalanceFiat, _price);
 
-  double get collateralBalance =>
-      _client.poolWalletAggregate.collateralBalanceMajor;
+  double get collateralBalance => (_client.poolWallets.length > 0)
+      ? _client.poolWalletAggregate.collateralBalanceMajor
+      : -1;
   double get collateralBalanceFiat =>
       calculateFiat(collateralBalance, _price, crypto);
   double get collateralBalanceFiatChange =>
@@ -1067,81 +1079,80 @@ class Stats {
       bool removeEmojis = false]) {
     String output = '';
 
-    try {
-      if (!isFull) {
-        harvestersCount = 0;
-        farmersCount = 0;
-      }
-
-      Stats stats = Stats(harvester, rate, netSpace);
-
-      String name = (isWorkers) ? Stats.showName(harvester) : '';
-      String lastUpdated = ((isFull || isWorkers) && discord)
-          ? Stats.showLastUpdated(harvester, farmersCount, harvestersCount)
-          : '';
-
-      String main = name +
-          Stats.showStatus(stats) +
-          Stats.showBalance(stats, !(isFull || isWorkers)) +
-          Stats.showWalletBalance(stats, !(isFull || isWorkers)) +
-          Stats.showColdBalance(stats, (isFull || isWorkers)) +
-          ((harvester is HPool && (isFull || isWorkers))
-              ? Stats.showUndistributedBalance(stats)
-              : '') +
-          ((isFull || isWorkers)
-              ? Stats.showPendingBalance(stats) +
-                  Stats.showCollateralBalance(stats)
-              : '') +
-          Stats.showPlotsInfo(stats) +
-          Stats.showETWEDV(stats, !isWorkers, (isFull || isWorkers)) +
-          Stats.showNetworkSize(stats) +
-          Stats.showFarmedTime(stats);
-
-      String full = (isFull || isWorkers)
-          ? Stats.showDrives(stats) +
-              Stats.showHardware(stats) +
-              Stats.showPlotTypes(harvester) +
-              Stats.showLastPlotInfo(harvester) +
-              Stats.showLastNDaysPlots(harvester, 8, netSpace, stats) +
-              Stats.showWeekPlots(stats) +
-              Stats.showIncompletePlotsWarning(harvester) +
-              Stats.showFilters(harvester, stats)
-          : '';
-
-      String fullNodeStats = ((isFull || isWorkers) &&
-              harvester is Farmer &&
-              (harvester.completeSubSlots > 0 ||
-                  harvester.fullNodesConnected > 0 ||
-                  harvester.shortSyncs.length > 0))
-          ? ";;" + Stats.showFullNodeStats(stats) + lastUpdated
-          : '';
-
-      String swarPM =
-          ((isFull || isWorkers) && harvester.swarPM.jobs.length > 0)
-              ? ";;" + Stats.showSwarPMJobs(harvester) + lastUpdated
-              : '';
-
-      output = main + full + lastUpdated + fullNodeStats + swarPM;
-
-      //removes discord emojis
-      if (!discord || removeEmojis) {
-        try {
-          RegExp emojiRegex = RegExp('(:[\\S]+: )');
-          RegExp externalEmojiRegex = RegExp('(<:[\\S]+:[0-9]+> )');
-
-          var matches = emojiRegex.allMatches(output).toList();
-          matches.addAll(externalEmojiRegex.allMatches(output).toList());
-
-          for (var match in matches)
-            output = output.replaceAll(match.group(1) ?? 'none', "");
-
-          if (!discord)
-            output = output.replaceAll("**", "").replaceAll(";;", "\n");
-        } catch (e) {}
-      }
-    } catch (e) {
-      output = "Failed to display stats.";
+    //  try {
+    if (!isFull) {
+      harvestersCount = 0;
+      farmersCount = 0;
     }
+
+    Stats stats = Stats(harvester, rate, netSpace);
+
+    String name = (isWorkers) ? Stats.showName(harvester) : '';
+    String lastUpdated = ((isFull || isWorkers) && discord)
+        ? Stats.showLastUpdated(harvester, farmersCount, harvestersCount)
+        : '';
+
+    String main = name +
+        Stats.showStatus(stats) +
+        Stats.showBalance(stats, !(isFull || isWorkers)) +
+        Stats.showWalletBalance(stats, !(isFull || isWorkers)) +
+        Stats.showColdBalance(stats, (isFull || isWorkers)) +
+        ((harvester is HPool && (isFull || isWorkers))
+            ? Stats.showUndistributedBalance(stats)
+            : '') +
+        ((isFull || isWorkers)
+            ? Stats.showPendingBalance(stats) +
+                Stats.showCollateralBalance(stats)
+            : '') +
+        Stats.showPlotsInfo(stats) +
+        Stats.showETWEDV(stats, !isWorkers, (isFull || isWorkers)) +
+        Stats.showNetworkSize(stats) +
+        Stats.showFarmedTime(stats);
+
+    String full = (isFull || isWorkers)
+        ? Stats.showDrives(stats) +
+            Stats.showHardware(stats) +
+            Stats.showPlotTypes(harvester) +
+            Stats.showLastPlotInfo(harvester) +
+            Stats.showLastNDaysPlots(harvester, 8, netSpace, stats) +
+            Stats.showWeekPlots(stats) +
+            Stats.showIncompletePlotsWarning(harvester) +
+            Stats.showFilters(harvester, stats)
+        : '';
+
+    String fullNodeStats = ((isFull || isWorkers) &&
+            harvester is Farmer &&
+            (harvester.completeSubSlots > 0 ||
+                harvester.fullNodesConnected > 0 ||
+                harvester.shortSyncs.length > 0))
+        ? ";;" + Stats.showFullNodeStats(stats) + lastUpdated
+        : '';
+
+    String swarPM = ((isFull || isWorkers) && harvester.swarPM.jobs.length > 0)
+        ? ";;" + Stats.showSwarPMJobs(harvester) + lastUpdated
+        : '';
+
+    output = main + full + lastUpdated + fullNodeStats + swarPM;
+
+    //removes discord emojis
+    if (!discord || removeEmojis) {
+      try {
+        RegExp emojiRegex = RegExp('(:[\\S]+: )');
+        RegExp externalEmojiRegex = RegExp('(<:[\\S]+:[0-9]+> )');
+
+        var matches = emojiRegex.allMatches(output).toList();
+        matches.addAll(externalEmojiRegex.allMatches(output).toList());
+
+        for (var match in matches)
+          output = output.replaceAll(match.group(1) ?? 'none', "");
+
+        if (!discord)
+          output = output.replaceAll("**", "").replaceAll(";;", "\n");
+      } catch (e) {}
+    }
+    //} catch (e) {
+    //   output = "Failed to display stats.";
+    // }
 
     return output;
   }
