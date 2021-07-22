@@ -16,25 +16,30 @@ class HarvesterWallets {
   Wallet get walletAggregate => wallets.reduce((w1, w2) => w1 + w2);
 
   //list of local wallets
-  List<Wallet> get localWallets =>
-      wallets.where((wallet) => wallet.type == WalletType.Local).toList();
+  List<LocalWallet> get localWallets => wallets
+      .where((wallet) => wallet.type == WalletType.Local)
+      .map((e) => e as LocalWallet)
+      .toList();
   //sums all local wallets into one
   LocalWallet get localWalletAggregate =>
-      localWallets.reduce((w1, w2) => (w1 + w2)) as LocalWallet;
+      localWallets.reduce((w1, w2) => (w1 * w2));
 
   //list of cold wallets
-  List<Wallet> get coldWallets =>
-      wallets.where((wallet) => wallet.type == WalletType.Cold).toList();
+  List<ColdWallet> get coldWallets => wallets
+      .where((wallet) => wallet.type == WalletType.Cold)
+      .map((e) => e as ColdWallet)
+      .toList();
   //sums all cold wallets into one
-  ColdWallet get coldWalletAggregate =>
-      coldWallets.reduce((w1, w2) => w1 + w2) as ColdWallet;
+  ColdWallet get coldWalletAggregate => coldWallets.reduce((w1, w2) => w1 * w2);
 
   //list of pool wallets
-  List<Wallet> get poolWallets =>
-      wallets.where((wallet) => wallet.type == WalletType.Pool).toList();
+  List<GenericPoolWallet> get poolWallets => wallets
+      .where((wallet) => wallet.type == WalletType.Pool)
+      .map((e) => e as GenericPoolWallet)
+      .toList();
   //sums all pool wallets into one
   GenericPoolWallet get poolWalletAggregate =>
-      poolWallets.reduce((w1, w2) => w1 + w2) as GenericPoolWallet;
+      poolWallets.reduce((w1, w2) => w1 * w2);
 
   Future<void> getWallets(Blockchain blockchain) async {
     for (String address in blockchain.config.coldWalletAddresses) {

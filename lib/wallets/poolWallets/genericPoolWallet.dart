@@ -35,21 +35,17 @@ class GenericPoolWallet extends Wallet {
     pendingBalance = json['pendingBalance'] ?? -1.0;
   }
 
-  @override
-  Wallet operator +(Wallet wallet2) {
-    if (wallet2 is GenericPoolWallet) {
-      if (this.blockchain.currencySymbol == wallet2.blockchain.currencySymbol)
-        return GenericPoolWallet(
-            blockchain: blockchain,
-            pendingBalance: this.pendingBalance + wallet2.pendingBalance,
-            collateralBalance:
-                ((this.collateralBalance > 0) ? this.collateralBalance : 0) +
-                    ((wallet2.collateralBalance > 0)
-                        ? wallet2.collateralBalance
-                        : 0));
-      else
-        throw Exception("Cannot combine pool wallets of different blockchains");
-    } else
-      return (this as Wallet) + wallet2;
+  GenericPoolWallet operator *(GenericPoolWallet wallet2) {
+    if (this.blockchain.currencySymbol == wallet2.blockchain.currencySymbol)
+      return GenericPoolWallet(
+          blockchain: blockchain,
+          pendingBalance: this.pendingBalance + wallet2.pendingBalance,
+          collateralBalance:
+              ((this.collateralBalance > 0) ? this.collateralBalance : 0) +
+                  ((wallet2.collateralBalance > 0)
+                      ? wallet2.collateralBalance
+                      : 0));
+    else
+      throw Exception("Cannot combine pool wallets of different blockchains");
   }
 }

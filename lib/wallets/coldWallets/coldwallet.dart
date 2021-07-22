@@ -55,24 +55,20 @@ class ColdWallet extends Wallet {
   }
 
   @override
-  Wallet operator +(Wallet wallet2) {
-    if (wallet2 is ColdWallet) {
-      if (this.blockchain.currencySymbol == wallet2.blockchain.currencySymbol)
-        return ColdWallet(
-            blockchain: this.blockchain,
-            netBalance: this.netBalance + wallet2.netBalance,
-            grossBalance: (this.grossBalance >= 0 && wallet2.grossBalance >= 0)
-                ? this.grossBalance + wallet2.grossBalance
-                : 0,
-            farmedBalance:
-                (this.farmedBalance >= 0 && wallet2.farmedBalance >= 0)
-                    ? this.farmedBalance + wallet2.farmedBalance
-                    : 0,
-            daysSinceLastBlock: Wallet.compareDaysSinceBlock(
-                this.daysSinceLastBlock, wallet2.daysSinceLastBlock));
-      else
-        throw Exception("Cannot combine cold wallets of different blockchains");
-    } else
-      return (this as Wallet) + wallet2;
+  ColdWallet operator *(ColdWallet wallet2) {
+    if (this.blockchain.currencySymbol == wallet2.blockchain.currencySymbol)
+      return ColdWallet(
+          blockchain: this.blockchain,
+          netBalance: this.netBalance + wallet2.netBalance,
+          grossBalance: (this.grossBalance >= 0 && wallet2.grossBalance >= 0)
+              ? this.grossBalance + wallet2.grossBalance
+              : 0,
+          farmedBalance: (this.farmedBalance >= 0 && wallet2.farmedBalance >= 0)
+              ? this.farmedBalance + wallet2.farmedBalance
+              : 0,
+          daysSinceLastBlock: Wallet.compareDaysSinceBlock(
+              this.daysSinceLastBlock, wallet2.daysSinceLastBlock));
+    else
+      throw Exception("Cannot combine cold wallets of different blockchains");
   }
 }

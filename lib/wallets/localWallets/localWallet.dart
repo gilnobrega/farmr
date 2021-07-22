@@ -97,27 +97,22 @@ class LocalWallet extends Wallet {
     }
   }
 
-  @override
-  Wallet operator +(Wallet wallet2) {
-    if (wallet2 is LocalWallet) {
-      if (this.blockchain.currencySymbol == wallet2.blockchain.currencySymbol)
-        return LocalWallet(
-            blockchain: blockchain,
-            confirmedBalance:
-                (this.confirmedBalance >= 0 && wallet2.confirmedBalance >= 0)
-                    ? this.confirmedBalance + wallet2.confirmedBalance
-                    : -1,
-            unconfirmedBalance: (this.unconfirmedBalance >= 0 &&
-                    wallet2.unconfirmedBalance >= 0)
-                ? this.unconfirmedBalance + wallet2.unconfirmedBalance
-                : -1,
-            walletHeight: this.walletHeight,
-            daysSinceLastBlock: Wallet.compareDaysSinceBlock(
-                this.daysSinceLastBlock, wallet2.daysSinceLastBlock));
-      else
-        throw Exception(
-            "Cannot combine local wallets of different blockchains");
-    } else
-      return (this as Wallet) + wallet2;
+  LocalWallet operator *(LocalWallet wallet2) {
+    if (this.blockchain.currencySymbol == wallet2.blockchain.currencySymbol)
+      return LocalWallet(
+          blockchain: blockchain,
+          confirmedBalance:
+              (this.confirmedBalance >= 0 && wallet2.confirmedBalance >= 0)
+                  ? this.confirmedBalance + wallet2.confirmedBalance
+                  : -1,
+          unconfirmedBalance:
+              (this.unconfirmedBalance >= 0 && wallet2.unconfirmedBalance >= 0)
+                  ? this.unconfirmedBalance + wallet2.unconfirmedBalance
+                  : -1,
+          walletHeight: this.walletHeight,
+          daysSinceLastBlock: Wallet.compareDaysSinceBlock(
+              this.daysSinceLastBlock, wallet2.daysSinceLastBlock));
+    else
+      throw Exception("Cannot combine local wallets of different blockchains");
   }
 }
