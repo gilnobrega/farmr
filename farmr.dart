@@ -381,13 +381,16 @@ void handleBlockchainReport(List<Object> arguments) async {
 
   //sends notifications about cold wallet if that is enabled
   if (client is Farmer) {
-    if (client.coldWalletAggregate.farmedBalance >= 0)
-      coldBalance = client.coldWalletAggregate.farmedBalance.toString(); //flax
-    else if (client.coldWalletAggregate.grossBalance >= 0)
-      coldBalance = client.coldWalletAggregate.grossBalance.toString(); //chia
-    else if (client.coldWalletAggregate.netBalance >= 0)
-      coldBalance = client.coldWalletAggregate.netBalance
-          .toString(); //every other fork through posat.io
+    if (client.coldWallets.length > 0) {
+      if (client.coldWalletAggregate.farmedBalance >= 0)
+        coldBalance =
+            client.coldWalletAggregate.farmedBalance.toString(); //flax
+      else if (client.coldWalletAggregate.grossBalance >= 0)
+        coldBalance = client.coldWalletAggregate.grossBalance.toString(); //chia
+      else if (client.coldWalletAggregate.netBalance >= 0)
+        coldBalance = client.coldWalletAggregate.netBalance
+            .toString(); //every other fork through posat.io
+    }
 
     if (client.balance >= 0) balance = client.balance.toString();
   }
