@@ -167,9 +167,15 @@ class Config {
       "Public API": publicAPI,
       "Swar's Chia Plot Manager Path": swarPath,
       "Cold Wallet Addresses": coldWalletAddresses,
-      "FoxyPool Public Keys": foxyPoolPublicKeys,
-      "Flexpool addresses": flexpoolAddresses
     };
+
+    if (_blockchain.currencySymbol == "xch" ||
+        _blockchain.currencySymbol == "xfx")
+      configMap.putIfAbsent("FoxyPool Public Keys", () => foxyPoolPublicKeys);
+
+    if (_blockchain.currencySymbol == "xch")
+      configMap.putIfAbsent("Flexpool Addresses", () => flexpoolAddresses);
+
     //hides ignoreDiskSpace from config.json if false (default)
     if (ignoreDiskSpace)
       configMap.putIfAbsent("Ignore Disk Space", () => ignoreDiskSpace);
