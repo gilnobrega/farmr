@@ -20,8 +20,10 @@ class FlexpoolWallet extends GenericPoolWallet {
   FlexpoolWallet(
       {int pendingBalance = -1,
       double majorToMinorMultiplier = 1e12,
+      String name = "Flexpool Wallet",
       required Blockchain blockchain})
-      : super(pendingBalance: pendingBalance, blockchain: blockchain);
+      : super(
+            pendingBalance: pendingBalance, blockchain: blockchain, name: name);
 
   Future<void> init() async {
     for (var address in blockchain.config.flexpoolAddresses) {

@@ -6,8 +6,11 @@ import 'package:logging/logging.dart';
 Logger log = Logger("Chia Explorer Cold Wallet");
 
 class PosatIOWallet extends ColdWallet {
-  PosatIOWallet({int netBalance = -1, required Blockchain blockchain})
-      : super(netBalance: netBalance, blockchain: blockchain);
+  PosatIOWallet(
+      {int netBalance = -1,
+      required Blockchain blockchain,
+      String name = "posat.io Cold Wallet"})
+      : super(netBalance: netBalance, blockchain: blockchain, name: name);
 
   Future<void> init() async {
     String posatExplorerURL =

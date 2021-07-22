@@ -7,6 +7,7 @@ class HPoolWallet extends LocalWallet {
 
   HPoolWallet(double balance, this._undistributedBalance, Blockchain blockchain)
       : super(
-            balance: (balance * blockchain.majorToMinorMultiplier).round(),
+            confirmedBalance:
+                (balance * blockchain.majorToMinorMultiplier).round(),
             blockchain: blockchain);
 }

@@ -23,11 +23,13 @@ class FoxyPoolWallet extends GenericPoolWallet {
   FoxyPoolWallet(
       {int pendingBalance = -1,
       int collateralBalance = -1,
-      required Blockchain blockchain})
+      required Blockchain blockchain,
+      String name = "FoxyPool Wallet"})
       : super(
             pendingBalance: pendingBalance,
             collateralBalance: collateralBalance,
-            blockchain: blockchain);
+            blockchain: blockchain,
+            name: name);
 
   Future<void> init() async {
     for (var publicKey in blockchain.config.foxyPoolPublicKeys) {

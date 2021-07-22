@@ -15,8 +15,9 @@ class GenericPoolWallet extends Wallet {
   GenericPoolWallet(
       {this.collateralBalance = -1,
       this.pendingBalance = -1,
-      required Blockchain blockchain})
-      : super(type: WalletType.Pool, blockchain: blockchain);
+      required Blockchain blockchain,
+      String name = "Pool Wallet"})
+      : super(type: WalletType.Pool, blockchain: blockchain, name: name);
 
   @override
   Map toJson() {

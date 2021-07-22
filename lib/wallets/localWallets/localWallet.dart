@@ -6,24 +6,40 @@ import 'package:logging/logging.dart';
 
 final log = Logger('FarmerWallet');
 
+enum LocalWalletStatus { Synced, Syncing, NotSynced }
+
 class LocalWallet extends Wallet {
   //wallet balance
-  int balance; //-1.0 is default value if disabled
+  int get balance => confirmedBalance; //-1.0 is default value if disabled
   double get balanceMajor => balance / blockchain.majorToMinorMultiplier;
+
+  late int confirmedBalance;
+  double get confirmedBalanceMajor =>
+      confirmedBalance / blockchain.majorToMinorMultiplier;
+
+  late int unconfirmedBalance;
+  double get unconfirmedBalanceMajor =>
+      unconfirmedBalance / blockchain.majorToMinorMultiplier;
 
   late int walletHeight;
 
+  late LocalWalletStatus status;
+
   LocalWallet(
-      {this.balance = -1,
+      {this.confirmedBalance = -1,
+      this.unconfirmedBalance = -1,
       int syncedBlockHeight = -1,
       required Blockchain blockchain,
       double daysSinceLastBlock = -1,
-      this.walletHeight = -1})
+      this.walletHeight = -1,
+      String name = "Local Wallet",
+      this.status = LocalWalletStatus.Synced})
       : super(
             type: WalletType.Local,
             blockchain: blockchain,
             daysSinceLastBlock: daysSinceLastBlock,
-            syncedBlockHeight: syncedBlockHeight);
+            syncedBlockHeight: syncedBlockHeight,
+            name: name);
 
   void parseWalletBalance(
       String binPath, int lastBlockFarmed, bool showWalletBalance) {
@@ -40,8 +56,10 @@ class LocalWallet extends Wallet {
             "-Total Balance:(.*)${this.blockchain.currencySymbol.toLowerCase()} \\(([0-9]+) ${this.blockchain.minorCurrencySymbol.toLowerCase()}\\)",
             multiLine: false);
         //converts minor symbol to major symbol
-        balance =
-            int.parse(walletRegex.firstMatch(walletOutput)?.group(2) ?? '-1');
+        confirmedBalance = (double.parse(
+                    walletRegex.firstMatch(walletOutput)?.group(2) ?? '-1') *
+                blockchain.majorToMinorMultiplier)
+            .round();
       } catch (e) {
         log.warning("Error: could not parse wallet balance.");
       }
@@ -65,9 +83,14 @@ class LocalWallet extends Wallet {
       if (this.blockchain.currencySymbol == wallet2.blockchain.currencySymbol)
         return LocalWallet(
             blockchain: blockchain,
-            balance: (this.balance >= 0 && wallet2.balance >= 0)
-                ? this.balance + wallet2.balance
-                : 0,
+            confirmedBalance:
+                (this.confirmedBalance >= 0 && wallet2.confirmedBalance >= 0)
+                    ? this.confirmedBalance + wallet2.confirmedBalance
+                    : -1,
+            unconfirmedBalance: (this.unconfirmedBalance >= 0 &&
+                    wallet2.unconfirmedBalance >= 0)
+                ? this.unconfirmedBalance + wallet2.unconfirmedBalance
+                : -1,
             walletHeight: this.walletHeight,
             daysSinceLastBlock: Wallet.compareDaysSinceBlock(
                 this.daysSinceLastBlock, wallet2.daysSinceLastBlock));

@@ -11,11 +11,13 @@ class ChiaExplorerWallet extends ColdWallet {
   ChiaExplorerWallet(
       {int netBalance = -1,
       int grossBalance = -1,
-      required Blockchain blockchain})
+      required Blockchain blockchain,
+      String name = "ChiaExplorer Cold Wallet"})
       : super(
             netBalance: netBalance,
             grossBalance: grossBalance,
-            blockchain: blockchain);
+            blockchain: blockchain,
+            name: name);
 
   Future<void> init() async {
     const String chiaExplorerURL = "https://api2.chiaexplorer.com/";

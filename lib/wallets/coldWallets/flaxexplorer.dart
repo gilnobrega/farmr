@@ -9,11 +9,13 @@ class FlaxExplorerWallet extends ColdWallet {
   FlaxExplorerWallet(
       {int netBalance = -1,
       int farmedBalance = -1,
-      required Blockchain blockchain})
+      required Blockchain blockchain,
+      String name = "FlaxExplorer Cold Wallet"})
       : super(
             netBalance: netBalance,
             farmedBalance: farmedBalance,
-            blockchain: blockchain);
+            blockchain: blockchain,
+            name: name);
 
   Future<void> init() async {
     const String flaxExplorerURL =

@@ -13,16 +13,20 @@ class Wallet {
 
   late double daysSinceLastBlock;
 
+  late String name;
+
   Wallet(
       {required this.type,
       required this.blockchain,
       this.syncedBlockHeight = -1,
-      this.daysSinceLastBlock = -1});
+      this.daysSinceLastBlock = -1,
+      this.name = "Wallet"});
 
   Map toJson() => {
         'type': type.index,
         'majorToMinorMultiplier': blockchain.majorToMinorMultiplier,
-        'currency': blockchain.currencySymbol
+        'currency': blockchain.currencySymbol,
+        'name': name
       };
 
   Wallet.fromJson(dynamic json) {

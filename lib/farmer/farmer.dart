@@ -2,8 +2,6 @@ import 'dart:core';
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/rpc.dart';
 import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
-import 'package:farmr_client/wallets/poolWallets/flexPoolWallet.dart';
-import 'package:farmr_client/wallets/poolWallets/foxyPoolWallet.dart';
 import 'package:farmr_client/wallets/poolWallets/genericPoolWallet.dart';
 import 'package:farmr_client/wallets/wallet.dart';
 import 'package:universal_io/io.dart' as io;
@@ -66,6 +64,8 @@ class Farmer extends Harvester {
   int _poolErrors = -1; // -1 means client doesnt support
   int get poolErrors => _poolErrors;
 
+  int _lastBlockFarmed = 0;
+
   @override
   Map toJson() {
     //loads harvester's map (since farmer is an extension of it)
@@ -106,7 +106,6 @@ class Farmer extends Harvester {
           result.stdout.toString().replaceAll("\r", "").split('\n');
 
       //needs last farmed block to calculate effort, this is never stored
-      int lastBlockFarmed = 0;
       try {
         for (int i = 0; i < lines.length; i++) {
           String line = lines[i];
@@ -127,7 +126,7 @@ class Farmer extends Harvester {
 
           try {
             if (line.startsWith("Last height farmed: "))
-              lastBlockFarmed =
+              _lastBlockFarmed =
                   int.parse(line.split("Last height farmed: ")[1]);
           } catch (error) {
             log.warning(
@@ -145,15 +144,6 @@ class Farmer extends Harvester {
       }
 
       getNodeHeight(); //sets _syncedBlockHeight
-
-      LocalWallet localWallet = LocalWallet(
-          blockchain: this.blockchain, syncedBlockHeight: _syncedBlockHeight);
-
-      //parses chia wallet show for block height
-      localWallet.parseWalletBalance(blockchain.config.cache!.binPath,
-          lastBlockFarmed, blockchain.config.showWalletBalance);
-
-      wallets.add(localWallet);
 
       //initializes connections and counts peers
       _connections = Connections(blockchain.config.cache!.binPath);
@@ -181,14 +171,96 @@ class Farmer extends Harvester {
     }
   }
 
-  void getWallets() async {
+  Future<void> getWallets() async {
     RPCConfiguration rpcConfig = RPCConfiguration(
         blockchain: blockchain,
         service: RPCService.Wallet,
         endpoint: "get_wallets",
-        dataToSend: "{}");
+        dataToSend: {});
 
-    var wallets = await RPCConnection.getEndpoint(rpcConfig);
+    final walletsObject = await RPCConnection.getEndpoint(rpcConfig);
+
+    int walletHeight = -1;
+    String name = "Wallet";
+    int type = 0;
+    bool synced = true;
+    bool syncing = false;
+
+    //if rpc works
+    if (walletsObject != null && (walletsObject['success'] ?? false)) {
+      for (var walletID in walletsObject['wallets'] ?? []) {
+        final int id = walletID['id'] ?? 1;
+        name = walletID['name'] ?? "Wallet";
+        type = walletID['type'] ?? 0;
+
+        RPCConfiguration rpcConfig2 = RPCConfiguration(
+            blockchain: blockchain,
+            service: RPCService.Wallet,
+            endpoint: "get_wallet_balance",
+            dataToSend: {"wallet_id": id});
+
+        final walletInfo = await RPCConnection.getEndpoint(rpcConfig2);
+
+        if (walletInfo != null && (walletInfo['success'] ?? false)) {
+          final int confirmedBalance =
+              walletInfo['wallet_balance']['confirmed_wallet_balance'] ?? 0;
+
+          final int unconfirmedBalance =
+              walletInfo['wallet_balance']['unconfirmed_wallet_balance'] ?? 0;
+
+          RPCConfiguration rpcConfig3 = RPCConfiguration(
+              blockchain: blockchain,
+              service: RPCService.Wallet,
+              endpoint: "get_sync_status",
+              dataToSend: {"wallet_id": id});
+
+          final walletSyncInfo = await RPCConnection.getEndpoint(rpcConfig3);
+
+          if (walletSyncInfo != null && (walletSyncInfo['success'] ?? false)) {
+            synced = walletSyncInfo['synced'];
+            syncing = walletSyncInfo['syncing'];
+          }
+
+          RPCConfiguration rpcConfig4 = RPCConfiguration(
+              blockchain: blockchain,
+              service: RPCService.Wallet,
+              endpoint: "get_height_info",
+              dataToSend: {"wallet_id": id});
+
+          final walletHeightInfo = await RPCConnection.getEndpoint(rpcConfig4);
+
+          if (walletHeightInfo != null &&
+              (walletHeightInfo['success'] ?? false)) {
+            walletHeight = walletHeightInfo['height'] ?? -1;
+          }
+
+          final LocalWallet wallet = LocalWallet(
+              blockchain: blockchain,
+              confirmedBalance: confirmedBalance,
+              unconfirmedBalance: unconfirmedBalance,
+              walletHeight: walletHeight,
+              syncedBlockHeight: syncedBlockHeight,
+              status: (synced)
+                  ? LocalWalletStatus.Synced
+                  : (syncing)
+                      ? LocalWalletStatus.Syncing
+                      : LocalWalletStatus.NotSynced);
+
+          wallets.add(wallet);
+        }
+      }
+    }
+    //legacy wallet method
+    {
+      LocalWallet localWallet = LocalWallet(
+          blockchain: this.blockchain, syncedBlockHeight: _syncedBlockHeight);
+
+      //parses chia wallet show for block height
+      localWallet.parseWalletBalance(blockchain.config.cache!.binPath,
+          _lastBlockFarmed, blockchain.config.showWalletBalance);
+
+      wallets.add(localWallet);
+    }
   }
 
   void getNodeHeight() {
@@ -225,6 +297,8 @@ class Farmer extends Harvester {
 
   @override
   Future<void> init() async {
+    await getWallets();
+
     if (blockchain.currencySymbol == "xch") await getPeakHeight();
 
     //initializes all wallets
@@ -278,7 +352,7 @@ class Farmer extends Harvester {
           blockchain: blockchain));
     //local wallet LEGACY
     wallets.add(LocalWallet(
-        balance: walletBalance,
+        confirmedBalance: walletBalance,
         daysSinceLastBlock: daysSinceLastBlock,
         blockchain: this.blockchain,
         syncedBlockHeight: syncedBlockHeight,
