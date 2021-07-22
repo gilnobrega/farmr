@@ -33,6 +33,7 @@ class LocalWallet extends Wallet {
       "confirmedBalance": confirmedBalance,
       "unconfirmedBalannce": unconfirmedBalance,
       "walletHeight": walletHeight,
+      "status": status.index
     });
     return walletMap;
   }
@@ -57,6 +58,7 @@ class LocalWallet extends Wallet {
     confirmedBalance = json['confirmedBalance'] ?? -1;
     unconfirmedBalance = json['unconfirmedBalance'] ?? -1;
     walletHeight = json['walletHeight'] ?? -1;
+    status = LocalWalletStatus.values[json['status'] ?? 0];
   }
 
   void parseWalletBalance(
