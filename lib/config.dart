@@ -426,8 +426,8 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
         flexpoolAddresses.add(address);
 
     if (json['FoxyPool Public Keys'] != null)
-      for (var address in json['FoxtPool Public Keys'])
-        foxyPoolPublicKeys.add(json['FoxyPool Public Keys']);
+      for (var address in json['FoxyPool Public Keys'])
+        foxyPoolPublicKeys.add(address);
   }
 
   Future<void> _loadConfig() async {
