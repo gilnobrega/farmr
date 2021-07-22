@@ -328,101 +328,102 @@ void handleBlockchainReport(List<Object> arguments) async {
   String output = "";
 
   //PARSES DATA
-//  try {
-  //loads and updates cache every 10 minutes
-  //loads config every 10 minutes
-  await blockchain.init();
+  try {
+    //loads and updates cache every 10 minutes
+    //loads config every 10 minutes
+    await blockchain.init();
 
-  var client;
+    var client;
 
-  //if its xch
-  if (blockchain.currencySymbol == "xch" ||
-      blockchain.currencySymbol == "xfx") {
-    if (blockchain.config.type == ClientType.HPool &&
-        blockchain.currencySymbol == "xch")
-      client =
-          HPool(blockchain: blockchain, version: EnvironmentConfig.version);
-    else if (blockchain.config.type == ClientType.Harvester)
-      client = Harvester(blockchain, EnvironmentConfig.version);
-    else
-      client = Farmer(
-          blockchain: blockchain,
-          version: EnvironmentConfig.version,
-          type: blockchain.config.type);
-  }
-  //if its not xch then it wont start foxypool or hpool mode
-  //will default to farmer mode unless harvester domain is specific in addition to hpool
-  else {
-    if (argsContainsHarvester)
-      client = Harvester(blockchain, EnvironmentConfig.version);
-    else
-      client = Farmer(
-          blockchain: blockchain,
-          version: EnvironmentConfig.version,
-          type: blockchain.config.type);
-  }
-
-  //hpool has a special config.yaml directory, as defined in farmr's config.json
-  await client.init();
-
-  //Throws exception in case no plots were found
-  if (client.plots.length == 0)
-    log.warning(
-        "No plots have been found! Make sure your user has access to the folders where plots are stored.");
-
-  //if plot notifications are off then it will default to 0
-  lastPlotID =
-      (blockchain.config.sendPlotNotifications) ? client.lastPlotID() : "0";
-
-  //if hard drive notifications are disabled then it will default to 0
-  drives = (blockchain.config.sendDriveNotifications)
-      ? client.drivesCount.toString()
-      : "0";
-
-  //sends notifications about cold wallet if that is enabled
-  if (client is Farmer) {
-    if (client.coldWallets.length > 0) {
-      if (client.coldWalletAggregate.farmedBalance >= 0)
-        coldBalance =
-            client.coldWalletAggregate.farmedBalance.toString(); //flax
-      else if (client.coldWalletAggregate.grossBalance >= 0)
-        coldBalance = client.coldWalletAggregate.grossBalance.toString(); //chia
-      else if (client.coldWalletAggregate.netBalance >= 0)
-        coldBalance = client.coldWalletAggregate.netBalance
-            .toString(); //every other fork through posat.io
+    //if its xch
+    if (blockchain.currencySymbol == "xch" ||
+        blockchain.currencySymbol == "xfx") {
+      if (blockchain.config.type == ClientType.HPool &&
+          blockchain.currencySymbol == "xch")
+        client =
+            HPool(blockchain: blockchain, version: EnvironmentConfig.version);
+      else if (blockchain.config.type == ClientType.Harvester)
+        client = Harvester(blockchain, EnvironmentConfig.version);
+      else
+        client = Farmer(
+            blockchain: blockchain,
+            version: EnvironmentConfig.version,
+            type: blockchain.config.type);
+    }
+    //if its not xch then it wont start foxypool or hpool mode
+    //will default to farmer mode unless harvester domain is specific in addition to hpool
+    else {
+      if (argsContainsHarvester)
+        client = Harvester(blockchain, EnvironmentConfig.version);
+      else
+        client = Farmer(
+            blockchain: blockchain,
+            version: EnvironmentConfig.version,
+            type: blockchain.config.type);
     }
 
-    if (client.balance >= 0) balance = client.balance.toString();
+    //hpool has a special config.yaml directory, as defined in farmr's config.json
+    await client.init();
+
+    //Throws exception in case no plots were found
+    if (client.plots.length == 0)
+      log.warning(
+          "No plots have been found! Make sure your user has access to the folders where plots are stored.");
+
+    //if plot notifications are off then it will default to 0
+    lastPlotID =
+        (blockchain.config.sendPlotNotifications) ? client.lastPlotID() : "0";
+
+    //if hard drive notifications are disabled then it will default to 0
+    drives = (blockchain.config.sendDriveNotifications)
+        ? client.drivesCount.toString()
+        : "0";
+
+    //sends notifications about cold wallet if that is enabled
+    if (client is Farmer) {
+      if (client.coldWallets.length > 0) {
+        if (client.coldWalletAggregate.farmedBalance >= 0)
+          coldBalance =
+              client.coldWalletAggregate.farmedBalance.toString(); //flax
+        else if (client.coldWalletAggregate.grossBalance >= 0)
+          coldBalance =
+              client.coldWalletAggregate.grossBalance.toString(); //chia
+        else if (client.coldWalletAggregate.netBalance >= 0)
+          coldBalance = client.coldWalletAggregate.netBalance
+              .toString(); //every other fork through posat.io
+      }
+
+      if (client.balance >= 0) balance = client.balance.toString();
+    }
+
+    status = client.status;
+
+    if (blockchainsLength > 1)
+      output += "\nStats for ${blockchain.binaryName} farm:";
+    //shows stats in client
+    output += Stats.showHarvester(
+        client,
+        0,
+        0,
+        //shows netspace is client is farmer or foxypoolOG since foxypoolOG uses same chia client and full node
+        (client is Farmer) ? (client as Farmer).netSpace : NetSpace(),
+        false,
+        true,
+        Rate(0, 0, 0),
+        false);
+
+    name = client.name;
+    if (blockchainsLength > 1) name += " (${blockchain.currencySymbol})";
+
+    //copies object to a json string
+    copyJson = jsonEncode(client);
+  } catch (exception) {
+    log.severe("Oh no! Something went wrong.");
+    log.severe(exception.toString());
+    log.info("Config:\n${blockchain.cache}\n");
+    log.info("Cache:\n${blockchain.cache}");
+    if (onetime) io.exit(1);
   }
-
-  status = client.status;
-
-  if (blockchainsLength > 1)
-    output += "\nStats for ${blockchain.binaryName} farm:";
-  //shows stats in client
-  output += Stats.showHarvester(
-      client,
-      0,
-      0,
-      //shows netspace is client is farmer or foxypoolOG since foxypoolOG uses same chia client and full node
-      (client is Farmer) ? (client as Farmer).netSpace : NetSpace(),
-      false,
-      true,
-      Rate(0, 0, 0),
-      false);
-
-  name = client.name;
-  if (blockchainsLength > 1) name += " (${blockchain.currencySymbol})";
-
-  //copies object to a json string
-  copyJson = jsonEncode(client);
-  // } catch (exception) {
-//log.severe("Oh no! Something went wrong.");
-  //  log.severe(exception.toString());
-  //  log.info("Config:\n${blockchain.cache}\n");
-  //  log.info("Cache:\n${blockchain.cache}");
-  //  if (onetime) io.exit(1);
-  // }
 
   if (!standalone) {
     await Future.sync(() {
