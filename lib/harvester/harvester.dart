@@ -229,6 +229,8 @@ class Harvester
     await listPlots(_plotDests, _config);
     await readRPCPlotList(blockchain);
 
+    await getWallets(blockchain);
+
     filterDuplicates(); //removes plots with duplicate ids
 
     _lastUpdated = DateTime.now();

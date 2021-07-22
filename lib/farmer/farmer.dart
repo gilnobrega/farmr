@@ -171,7 +171,7 @@ class Farmer extends Harvester {
     }
   }
 
-  Future<void> getWallets() async {
+  Future<void> getLocalWallets() async {
     RPCConfiguration rpcConfig = RPCConfiguration(
         blockchain: blockchain,
         service: RPCService.Wallet,
@@ -297,12 +297,9 @@ class Farmer extends Harvester {
 
   @override
   Future<void> init() async {
-    await getWallets();
+    await getLocalWallets();
 
     if (blockchain.currencySymbol == "xch") await getPeakHeight();
-
-    //initializes all wallets
-    for (Wallet wallet in wallets) await wallet.init();
 
     await super.init();
   }

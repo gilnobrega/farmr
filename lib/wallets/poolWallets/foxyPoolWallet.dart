@@ -10,6 +10,7 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 Logger log = Logger("FoxyPool API");
 
 class FoxyPoolWallet extends GenericPoolWallet {
+  final String publicKey;
   IO.Socket? _socket;
 
   bool _queryComplete = false;
@@ -24,6 +25,7 @@ class FoxyPoolWallet extends GenericPoolWallet {
       {int pendingBalance = -1,
       int collateralBalance = -1,
       required Blockchain blockchain,
+      required this.publicKey,
       String name = "FoxyPool Wallet"})
       : super(
             pendingBalance: pendingBalance,
@@ -32,33 +34,31 @@ class FoxyPoolWallet extends GenericPoolWallet {
             name: name);
 
   Future<void> init() async {
-    for (var publicKey in blockchain.config.foxyPoolPublicKeys) {
-      if (publicKey != "") {
-        Stopwatch stopwatch = Stopwatch();
+    if (publicKey != "") {
+      Stopwatch stopwatch = Stopwatch();
 
-        stopwatch.start();
+      stopwatch.start();
 
-        try {
-          _getBalance(publicKey, blockchain);
-        } catch (e) {
-          log.warning(
-              "Failed to get FoxyPool Info, make sure your pool public key is correct.");
-        }
-
-        //maximum of 5 seconds
-        while (!_queryComplete && stopwatch.elapsedMilliseconds < 5000) {
-          await Future.delayed(Duration(seconds: 1));
-        }
-
-        //print("finished");
-        stopwatch.stop();
-        //print(stopwatch.elapsedMilliseconds);
-
-        //print(this.collateralBalance);
-        //print(this.pendingBalance);
-        //print(this.effectiveCapacity);
-        //print(this.shares);
+      try {
+        _getBalance(publicKey, blockchain);
+      } catch (e) {
+        log.warning(
+            "Failed to get FoxyPool Info, make sure your pool public key is correct.");
       }
+
+      //maximum of 5 seconds
+      while (!_queryComplete && stopwatch.elapsedMilliseconds < 5000) {
+        await Future.delayed(Duration(seconds: 1));
+      }
+
+      //print("finished");
+      stopwatch.stop();
+      //print(stopwatch.elapsedMilliseconds);
+
+      //print(this.collateralBalance);
+      //print(this.pendingBalance);
+      //print(this.effectiveCapacity);
+      //print(this.shares);
     }
   }
 
