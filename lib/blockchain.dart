@@ -62,36 +62,8 @@ class Blockchain {
 
   RPCPorts? rpcPorts;
 
-  Blockchain(this.id, String rootPath, this._args, [dynamic json = null]) {
-    //loads blockchain file from json file if that object is defined
-    //defaults to chia config
-    _binaryName = json['Binary Name'] ?? 'chia';
-    _folderName = json['Folder Name'] ?? '.$binaryName';
-    _currencySymbol = json['Currency Symbol'] ?? 'xch';
-    _minorCurrencySymbol = json['Minor Currency Symbol'] ?? 'mojo';
-    _net = json['Net'] ?? 'mainnet';
-    _logPath = json['Log Path'] ?? '';
-    _configPath = json['Config Path'] ?? '';
-    _blockRewards = json['Block Rewards'] ?? 2.0;
-    _blocksPer10Mins = json['Blocks Per 10 Minutes'] ?? 32.0;
-    _onlineConfig = json['Online Config'] ?? true;
-    _majorToMinorMultiplier = json['Major to Minor Multiplier'] ?? 1e12;
-
-    //initializes default rpc ports for xch
-    if (currencySymbol == "xch") {
-      const defaultMap = const {
-        "harvester": 8560,
-        "farmer": 8559,
-        "fullNode": 8555,
-        "wallet": 9256,
-        "daemon": 55400
-      };
-      rpcPorts = RPCPorts.fromJson(defaultMap);
-    }
-    //overwrites default ports with ports from config
-    if (json['Ports'] != null) {
-      rpcPorts = RPCPorts.fromJson(json['Ports']);
-    }
+  Blockchain(this.id, String rootPath, this._args, [dynamic json]) {
+    _fromJson(json); //loads properties from serialized blokchain
 
     //doesnt load online config if standalone argument is provided
     if (_args.contains("standalone") ||
@@ -121,6 +93,44 @@ class Blockchain {
       {String binaryName = '', double majorToMinorMultiplier = 1e12}) {
     _binaryName = binaryName;
     _majorToMinorMultiplier = majorToMinorMultiplier;
+
+    _fromJson(null);
+  }
+
+  Blockchain.fromJson(dynamic json) {
+    _fromJson(json);
+  }
+
+  _fromJson(dynamic json) {
+    //loads blockchain file from json file if that object is defined
+    //defaults to chia config
+    _binaryName = json['Binary Name'] ?? 'chia';
+    _folderName = json['Folder Name'] ?? '.$binaryName';
+    _currencySymbol = json['Currency Symbol'] ?? 'xch';
+    _minorCurrencySymbol = json['Minor Currency Symbol'] ?? 'mojo';
+    _net = json['Net'] ?? 'mainnet';
+    _logPath = json['Log Path'] ?? '';
+    _configPath = json['Config Path'] ?? '';
+    _blockRewards = json['Block Rewards'] ?? 2.0;
+    _blocksPer10Mins = json['Blocks Per 10 Minutes'] ?? 32.0;
+    _onlineConfig = json['Online Config'] ?? true;
+    _majorToMinorMultiplier = json['Major to Minor Multiplier'] ?? 1e12;
+
+    //initializes default rpc ports for xch
+    if (currencySymbol == "xch") {
+      const defaultMap = const {
+        "harvester": 8560,
+        "farmer": 8559,
+        "fullNode": 8555,
+        "wallet": 9256,
+        "daemon": 55400
+      };
+      rpcPorts = RPCPorts.fromJson(defaultMap);
+    }
+    //overwrites default ports with ports from config
+    if (json['Ports'] != null) {
+      rpcPorts = RPCPorts.fromJson(json['Ports']);
+    }
   }
 
   static OS? detectOS() {
