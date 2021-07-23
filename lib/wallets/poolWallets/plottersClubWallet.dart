@@ -37,7 +37,10 @@ class PlottersClubWallet extends GenericPoolWallet {
 
         var object = jsonDecode(contents);
 
-        pendingBalance = object['xch_paid'] ?? -1;
+        pendingBalance =
+            ((double.parse(object['xch_paid']?.toString() ?? "-1.0")) *
+                    blockchain.majorToMinorMultiplier)
+                .round();
       }
     } catch (error) {
       log.warning("Failed to get info from Plotters.Club API");
