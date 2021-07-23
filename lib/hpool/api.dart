@@ -19,7 +19,7 @@ class HPoolApi {
 
   HPoolApi();
 
-  static const String _baseUrl = r"https://ihpool.com";
+  static const String _baseUrl = r"https://www.ihpool.com";
 
   init(String authToken) async {
     if (authToken != "") {
@@ -35,7 +35,7 @@ class HPoolApi {
   }
 
   Future<void> _getIncome(String authToken) async {
-    const String incomeUrl = r"/api/pool/Income?language=en&type=opened";
+    const String incomeUrl = r"/api/pool/Income?type=opened";
     //TO ADD
     //const String plotsUrl =
     //   r"/api/pool/GetPlots?language=en&page=1&count=1&pool=chia";
@@ -73,7 +73,7 @@ class HPoolApi {
     try {
       double unsettledReward = 0;
       const String blocksUrl =
-          r"/api/pool/miningdetail?language=en&type=chia&count=100&page=1";
+          r"/api/pool/miningdetail?type=chia&count=100&page=1";
 
       http.Response responseBlocks =
           await http.post(Uri.parse(_baseUrl + blocksUrl), headers: {
