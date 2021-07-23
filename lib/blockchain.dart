@@ -83,12 +83,13 @@ class Blockchain {
 
   //this is used on server side
   //since blockchain objects cant be initialized as null
-  Blockchain.fromSymbol(this._currencySymbol,
+  Blockchain.fromSymbol(String currencySymbol,
       {String binaryName = '', double majorToMinorMultiplier = 1e12}) {
+    _currencySymbol = currencySymbol;
     _binaryName = binaryName;
     _majorToMinorMultiplier = majorToMinorMultiplier;
 
-    _fromJson({});
+    _fromJson(null);
   }
 
   Blockchain.fromJson(dynamic json) {

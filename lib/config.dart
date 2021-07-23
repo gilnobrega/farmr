@@ -306,7 +306,10 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     return valid;
   }
 
-  Config.fromJson(dynamic json, this._blockchain, this._type) {
+  Config.fromJson(dynamic json, Blockchain blockchain, ClientType type) {
+    _type = type;
+    _blockchain = blockchain;
+
     loadfromJson(json);
   }
 
