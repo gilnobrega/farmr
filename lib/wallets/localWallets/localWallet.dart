@@ -31,7 +31,7 @@ class LocalWallet extends Wallet {
 
     walletMap.addAll({
       "confirmedBalance": confirmedBalance,
-      "unconfirmedBalannce": unconfirmedBalance,
+      "unconfirmedBalance": unconfirmedBalance,
       "walletHeight": walletHeight,
       "status": status.index
     });
