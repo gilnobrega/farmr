@@ -247,6 +247,8 @@ class Farmer extends Harvester {
                       ? LocalWalletStatus.Syncing
                       : LocalWalletStatus.NotSynced);
 
+          wallet.setLastBlockFarmed(_lastBlockFarmed);
+
           wallets.add(wallet);
         }
       }
