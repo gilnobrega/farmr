@@ -26,13 +26,16 @@ class Wallet {
         'type': type.index,
         'majorToMinorMultiplier': blockchain.majorToMinorMultiplier,
         'currency': blockchain.currencySymbol,
-        'name': name
+        'name': name,
+        'daysSinceLastBlock': daysSinceLastBlock.toStringAsFixed(1)
       };
 
   Wallet.fromJson(dynamic json) {
     type = WalletType.values[json['type'] ?? 0];
     blockchain = Blockchain.fromSymbol(json['currency'] ?? "xch",
         majorToMinorMultiplier: json['majorToMinorMultiplier'] ?? 1e12);
+    daysSinceLastBlock =
+        double.tryParse(json['daysSinceLastBlock'] ?? "-1.0") ?? -1.0;
   }
 
   Wallet operator +(Wallet wallet2) {
