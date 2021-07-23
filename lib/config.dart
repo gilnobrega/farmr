@@ -32,7 +32,7 @@ class Config {
   bool showBalance = true;
 
   //wallet balance
-  bool showWalletBalance = false;
+  bool showWalletBalance = true;
 
   bool sendPlotNotifications = false; //plot notifications
 
