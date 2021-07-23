@@ -67,4 +67,21 @@ class HarvesterWallets {
     //initializes all wallets
     for (Wallet wallet in wallets) await wallet.init();
   }
+
+  void loadWalletsFromJson(dynamic object) {
+    //loads wallets from json
+    if (object['wallets'] != null) {
+      for (var wallet in object['wallets']) {
+        //detects which wallet type it is before deserializing it
+        WalletType type = WalletType.values[wallet['type'] ?? 0];
+
+        if (type == WalletType.Local)
+          wallets.add(LocalWallet.fromJson(wallet));
+        else if (type == WalletType.Cold)
+          wallets.add(ColdWallet.fromJson(wallet));
+        else if (type == WalletType.Pool)
+          wallets.add(GenericPoolWallet.fromJson(wallet));
+      }
+    }
+  }
 }

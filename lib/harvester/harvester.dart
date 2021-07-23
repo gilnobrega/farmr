@@ -220,6 +220,8 @@ class Harvester
       _hardware = Hardware.fromJson(object['hardware']);
 
     if (object['onlineConfig'] != null) _onlineConfig = object['onlineConfig'];
+
+    loadWalletsFromJson(object);
   }
 
   Future<void> init() async {
