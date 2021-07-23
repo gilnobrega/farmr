@@ -75,11 +75,11 @@ class LocalWallet extends Wallet {
         RegExp walletRegex = RegExp(
             "-Total Balance:(.*)${this.blockchain.currencySymbol.toLowerCase()} \\(([0-9]+) ${this.blockchain.minorCurrencySymbol.toLowerCase()}\\)",
             multiLine: false);
+
         //converts minor symbol to major symbol
-        confirmedBalance = (double.parse(
-                    walletRegex.firstMatch(walletOutput)?.group(2) ?? '-1') *
-                blockchain.majorToMinorMultiplier)
-            .round();
+        confirmedBalance = int.tryParse(
+                walletRegex.firstMatch(walletOutput)?.group(2) ?? '-1') ??
+            -1;
       } catch (e) {
         log.warning("Error: could not parse wallet balance.");
       }
