@@ -12,7 +12,7 @@ import 'package:http/http.dart' as http;
 final log = Logger('Config');
 
 //Tells if client is harvester or not
-enum ClientType { Farmer, Harvester, HPool, FoxyPoolOG, Flexpool }
+enum ClientType { Farmer, Harvester, HPool }
 
 class Config {
   Cache? cache;
@@ -66,6 +66,7 @@ class Config {
 
   List<String> coldWalletAddresses = [];
   List<String> foxyPoolPublicKeys = [];
+  List<String> plottersClubPublicKeys = [];
   List<String> flexpoolAddresses = [];
 
   bool sendColdWalletBalanceNotifications = true;
@@ -78,21 +79,12 @@ class Config {
   late io.File _config;
 
   Config(this._blockchain, this.cache, this._rootPath,
-      [isHarvester = false,
-      isHPool = false,
-      isFoxyPoolOG = false,
-      isFlexpool = false]) {
+      [isHarvester = false, isHPool = false]) {
     _config =
         io.File(_rootPath + "config/config${_blockchain.fileExtension}.json");
 
     if (isHPool && _blockchain.currencySymbol == "xch") {
       _type = ClientType.HPool;
-    } else if (isFoxyPoolOG &&
-        (_blockchain.currencySymbol == "xch" ||
-            _blockchain.currencySymbol == "xfx")) {
-      _type = ClientType.FoxyPoolOG;
-    } else if (isFlexpool && _blockchain.currencySymbol == "xch") {
-      _type = ClientType.Flexpool;
     } else if (isHarvester) {
       _type = ClientType.Harvester;
     } else {
@@ -105,10 +97,8 @@ class Config {
 
   static const Map<ClientType, String> defaultNames = {
     ClientType.HPool: "HPool",
-    ClientType.FoxyPoolOG: "FoxyPool",
     ClientType.Harvester: "Harvester",
     ClientType.Farmer: "Farmer",
-    ClientType.Flexpool: "Flexpool"
   };
 
   Future<void> init(bool onlineConfig, bool headless) async {
@@ -172,6 +162,10 @@ class Config {
     if (_blockchain.currencySymbol == "xch" ||
         _blockchain.currencySymbol == "xfx")
       configMap.putIfAbsent("FoxyPool Public Keys", () => foxyPoolPublicKeys);
+
+    if (_blockchain.currencySymbol == "xch")
+      configMap.putIfAbsent(
+          "Plotters.Club Public Keys", () => plottersClubPublicKeys);
 
     if (_blockchain.currencySymbol == "xch")
       configMap.putIfAbsent("Flexpool Addresses", () => flexpoolAddresses);
@@ -320,6 +314,7 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     coldWalletAddresses = [];
     foxyPoolPublicKeys = [];
     flexpoolAddresses = [];
+    plottersClubPublicKeys = [];
 
     //sets default name according to client type
     name = defaultNames[type] ?? "Harvester";
@@ -449,6 +444,14 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
 
       foxyPoolPublicKeys =
           foxyPoolPublicKeys.toSet().toList(); //clears duplicate entries
+    }
+
+    if (json['Plotters.Club Public Keys'] != null) {
+      for (var address in json['Plotters.Club Public Keys'])
+        plottersClubPublicKeys.add(address);
+
+      plottersClubPublicKeys =
+          plottersClubPublicKeys.toSet().toList(); //clears duplicate entries
     }
   }
 

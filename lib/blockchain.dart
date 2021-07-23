@@ -77,14 +77,8 @@ class Blockchain {
     this.cache = new Cache(this, rootPath);
 
     /** Initializes config, either creates a new one or loads a config file */
-    this.config = new Config(
-        this,
-        this.cache,
-        rootPath,
-        _args.contains("harvester"),
-        _args.contains("hpool"),
-        _args.contains("foxypoolog"),
-        _args.contains("flexpool"));
+    this.config = new Config(this, this.cache, rootPath,
+        _args.contains("harvester"), _args.contains("hpool"));
   }
 
   //this is used on server side

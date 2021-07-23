@@ -57,13 +57,9 @@ jobs:
              mv .github/workflows/farmer.sh ./farmer.sh
              mv .github/workflows/harvester.sh ./harvester.sh
              mv .github/workflows/hpool.sh ./hpool.sh
-             mv .github/workflows/foxypoolog.sh ./foxypoolog.sh
-             mv .github/workflows/flexpool.sh ./flexpool.sh
              chmod +x ./farmer.sh
              chmod +x ./harvester.sh
              chmod +x ./hpool.sh
-             chmod +x ./foxypoolog.sh
-             chmod +x ./flexpool.sh
 
       - uses: uraimo/run-on-arch-action@v2.0.10
         name: Compile aarch64
@@ -97,7 +93,7 @@ jobs:
         uses: xom9ikk/dotenv@v1.0.2
 
       - name: Compressing ${{ matrix.architecture }} .tar.gz
-        run: tar -czvf ./farmr-linux-${{ matrix.architecture }}.tar.gz ./farmr ./config ./blockchain ./farmer.sh ./harvester.sh ./hpool.sh ./foxypoolog.sh ./flexpool.sh
+        run: tar -czvf ./farmr-linux-${{ matrix.architecture }}.tar.gz ./farmr ./config ./blockchain ./farmer.sh ./harvester.sh ./hpool.sh 
 
       - name: Build .deb file for ${{ matrix.architecture }}
         uses: kentik/pkg@v1.0.0-rc7
@@ -190,15 +186,11 @@ jobs:
              chmod +x ./harvester.sh
              mv .github/workflows/hpool.sh ./hpool.sh
              chmod +x ./hpool.sh
-             mv .github/workflows/foxypoolog.sh ./foxypoolog.sh
-             chmod +x ./foxypoolog.sh
-             mv .github/workflows/flexpool.sh ./flexpool.sh
-             chmod +x ./flexpool.sh
              dart compile exe farmr.dart
              chmod +x farmr.exe
              ./farmr.exe harvester onetime standalone headless
              mv farmr.exe farmr
-             tar -czvf ./farmr-macOS-${{ matrix.architecture }}.tar.gz ./farmr ./config ./blockchain ./farmer.sh ./harvester.sh ./hpool.sh ./foxypoolog.sh ./flexpool.sh
+             tar -czvf ./farmr-macOS-${{ matrix.architecture }}.tar.gz ./farmr ./config ./blockchain ./farmer.sh ./harvester.sh ./hpool.sh 
              
       - name: Building Windows release
         if: matrix.os == 'windows-latest'
@@ -207,14 +199,10 @@ jobs:
              dart compile exe farmr.dart
              dart compile exe farmr_harvester.dart
              dart compile exe farmr_hpool.dart
-             dart compile exe farmr_foxypoolog.dart
-             dart compile exe farmr_flexpool.dart
              ./farmr.exe harvester onetime standalone headless
              move ./farmr.exe ./farmer.exe
              move ./farmr_hpool.exe ./hpool.exe
              move ./farmr_harvester.exe ./harvester.exe
-             move ./farmr_foxypoolog.exe ./foxypoolog.exe
-             move ./farmr_flexpool.exe ./flexpool.exe
 
       - name: Created windows zip file
         shell: bash

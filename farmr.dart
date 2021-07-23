@@ -465,9 +465,7 @@ void handleBlockchainReport(List<Object> arguments) async {
         if (blockchain.config.sendDriveNotifications)
           post.putIfAbsent("drives", () => drives);
 
-        bool isFarmerLike = (blockchain.config.type == ClientType.Farmer ||
-            blockchain.config.type == ClientType.FoxyPoolOG ||
-            blockchain.config.type == ClientType.Flexpool);
+        bool isFarmerLike = (blockchain.config.type == ClientType.Farmer);
         //If the client is a farmer and it is farming and sendBalanceNotifications is enabled then it will send balance
         if (isFarmerLike &&
             blockchain.config.sendBalanceNotifications &&

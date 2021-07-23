@@ -7,6 +7,7 @@ import 'package:farmr_client/wallets/localWallets/localWallet.dart';
 import 'package:farmr_client/wallets/poolWallets/flexPoolWallet.dart';
 import 'package:farmr_client/wallets/poolWallets/foxyPoolWallet.dart';
 import 'package:farmr_client/wallets/poolWallets/genericPoolWallet.dart';
+import 'package:farmr_client/wallets/poolWallets/plottersClubWallet.dart';
 import 'package:farmr_client/wallets/wallet.dart';
 
 class HarvesterWallets {
@@ -58,6 +59,10 @@ class HarvesterWallets {
 
     for (String publicKey in blockchain.config.foxyPoolPublicKeys)
       wallets.add(FoxyPoolWallet(blockchain: blockchain, publicKey: publicKey));
+
+    for (String publicKey in blockchain.config.plottersClubPublicKeys)
+      wallets.add(
+          PlottersClubWallet(blockchain: blockchain, poolPublicKey: publicKey));
 
     //initializes all wallets
     for (Wallet wallet in wallets) await wallet.init();
