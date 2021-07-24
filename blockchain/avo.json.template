@@ -3,7 +3,17 @@
     "Currency Symbol": "avo",
     "Minor Currency Symbol": "slice",
     "Net": "mainnet",
+    
     "Block Rewards": 2.0,
     "Blocks Per 10 Minutes": 32.0,
+    
     "Online Config": true
+    
+    "Ports": {
+        "harvester": 6860,
+        "farmer": 6749,
+        "fullNode": 7544,
+        "wallet": 8753,
+        "daemon": 56677
+      }
 }
