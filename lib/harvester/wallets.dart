@@ -1,8 +1,8 @@
 import 'package:farmr_client/blockchain.dart';
+import 'package:farmr_client/wallets/coldWallets/alltheblocks.dart';
 import 'package:farmr_client/wallets/coldWallets/chiaexplorer.dart';
 import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
 import 'package:farmr_client/wallets/coldWallets/flaxexplorer.dart';
-import 'package:farmr_client/wallets/coldWallets/posatio.dart';
 import 'package:farmr_client/wallets/localWallets/localWallet.dart';
 import 'package:farmr_client/wallets/poolWallets/flexPoolWallet.dart';
 import 'package:farmr_client/wallets/poolWallets/foxyPoolWallet.dart';
@@ -51,7 +51,8 @@ class HarvesterWallets {
         wallets
             .add(FlaxExplorerWallet(blockchain: blockchain, address: address));
       else
-        wallets.add(PosatIOWallet(blockchain: blockchain, address: address));
+        wallets
+            .add(AllTheBlocksWallet(blockchain: blockchain, address: address));
     }
 
     for (String address in blockchain.config.flexpoolAddresses)
