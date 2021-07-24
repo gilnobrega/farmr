@@ -106,4 +106,15 @@ class Wallet {
 
   //placeholder function, only used in cold wallets and pool wallets
   Future<void> init() async {}
+
+  static int sumTwoBalances(balance1, balance2) {
+    if (balance1 < 0 && balance2 >= 0)
+      return balance2;
+    else if (balance2 < 0 && balance1 >= 0)
+      return balance1;
+    else if (balance2 >= 0 && balance1 >= 0)
+      return balance2 + balance1;
+    else
+      return -1;
+  }
 }

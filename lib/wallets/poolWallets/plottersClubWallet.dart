@@ -13,20 +13,11 @@ Logger log = Logger("Plotters.Club API");
 class PlottersClubWallet extends GenericPoolWallet {
   final String poolPublicKey;
 
-  int _shares = 0;
-  int get shares => _shares;
-
-  int _effectiveCapacity = 0;
-  int get effectiveCapacity => _effectiveCapacity;
-
   PlottersClubWallet(
-      {int pendingBalance = -1,
-      double majorToMinorMultiplier = 1e12,
-      String name = "Plotters.Club Wallet",
+      {String name = "Plotters.Club Wallet",
       required this.poolPublicKey,
       required Blockchain blockchain})
-      : super(
-            pendingBalance: pendingBalance, blockchain: blockchain, name: name);
+      : super(blockchain: blockchain, name: name);
 
   Future<void> init() async {
     try {
@@ -37,9 +28,16 @@ class PlottersClubWallet extends GenericPoolWallet {
 
         var object = jsonDecode(contents);
 
-        pendingBalance =
+        paidBalance =
             ((double.parse(object['xch_paid']?.toString() ?? "-1.0")) *
                     blockchain.majorToMinorMultiplier)
+                .round();
+
+        currentPoints = object['points'] ?? -1;
+        totalPoints = object['overall_points'] ?? -1;
+        capacity =
+            (double.tryParse(object['capacityBytes']?.toString() ?? "-1.0") ??
+                    -1.0)
                 .round();
       }
     } catch (error) {

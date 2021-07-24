@@ -12,16 +12,10 @@ class ChiaExplorerWallet extends ColdWallet {
   final String address;
 
   ChiaExplorerWallet(
-      {int netBalance = -1,
-      int grossBalance = -1,
-      required Blockchain blockchain,
+      {required Blockchain blockchain,
       required this.address,
       String name = "ChiaExplorer Cold Wallet"})
-      : super(
-            netBalance: netBalance,
-            grossBalance: grossBalance,
-            blockchain: blockchain,
-            name: name);
+      : super(blockchain: blockchain, name: name);
 
   Future<void> init() async {
     try {

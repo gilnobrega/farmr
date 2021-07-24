@@ -1192,6 +1192,16 @@ class Stats {
     if (wallet is GenericPoolWallet && wallet.collateralBalance >= 0)
       output +=
           "\nCollateral Balance: ${wallet.collateralBalanceMajor} ${currencySymbol.toUpperCase()}";
+    if (wallet is GenericPoolWallet && wallet.paidBalance >= 0)
+      output +=
+          "\nPaid Balance: ${wallet.paidBalanceMajor} ${currencySymbol.toUpperCase()}";
+    if (wallet is GenericPoolWallet && wallet.currentPoints >= 0)
+      output += "\nCurrent Points: ${wallet.currentPoints} ";
+    if (wallet is GenericPoolWallet && wallet.totalPoints >= 0)
+      output += "\nTotal Points: ${wallet.totalPoints} ";
+    if (wallet is GenericPoolWallet && wallet.capacity >= 0)
+      output +=
+          "\nEffective Capacity: ${NetSpace.generateHumanReadableSize(wallet.capacity.toDouble())} ";
     return output;
   }
 }

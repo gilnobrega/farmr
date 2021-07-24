@@ -67,6 +67,7 @@ class Config {
   List<String> coldWalletAddresses = [];
   List<String> foxyPoolPublicKeys = [];
   List<String> plottersClubPublicKeys = [];
+  List<String> spacePoolPublicKeys = [];
   List<String> flexpoolAddresses = [];
 
   bool sendColdWalletBalanceNotifications = true;
@@ -163,9 +164,11 @@ class Config {
         _blockchain.currencySymbol == "xfx")
       configMap.putIfAbsent("FoxyPool Public Keys", () => foxyPoolPublicKeys);
 
-    if (_blockchain.currencySymbol == "xch")
+    if (_blockchain.currencySymbol == "xch") {
       configMap.putIfAbsent(
           "Plotters.Club Public Keys", () => plottersClubPublicKeys);
+      configMap.putIfAbsent("SpacePool Public Keys", () => spacePoolPublicKeys);
+    }
 
     if (_blockchain.currencySymbol == "xch")
       configMap.putIfAbsent("Flexpool Addresses", () => flexpoolAddresses);
@@ -318,6 +321,7 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     foxyPoolPublicKeys = [];
     flexpoolAddresses = [];
     plottersClubPublicKeys = [];
+    spacePoolPublicKeys = [];
 
     //sets default name according to client type
     name = defaultNames[type] ?? "Harvester";
@@ -420,9 +424,8 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     if (json['Cold Wallet Addresses'] != null) {
       for (var address in json['Cold Wallet Addresses'])
         coldWalletAddresses.add(address);
-
-      coldWalletAddresses =
-          coldWalletAddresses.toSet().toList(); //clears duplicate entries
+      //clears duplicate entries
+      coldWalletAddresses = coldWalletAddresses.toSet().toList();
     }
 
     //legacy
@@ -436,25 +439,29 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     if (json['Flexpool Addresses'] != null) {
       for (var address in json['Flexpool Addresses'])
         flexpoolAddresses.add(address);
-
-      flexpoolAddresses =
-          flexpoolAddresses.toSet().toList(); //clears duplicate entries
+      //clears duplicate entries
+      flexpoolAddresses = flexpoolAddresses.toSet().toList();
     }
 
     if (json['FoxyPool Public Keys'] != null) {
       for (var address in json['FoxyPool Public Keys'])
         foxyPoolPublicKeys.add(address);
-
-      foxyPoolPublicKeys =
-          foxyPoolPublicKeys.toSet().toList(); //clears duplicate entries
+//clears duplicate entries
+      foxyPoolPublicKeys = foxyPoolPublicKeys.toSet().toList();
     }
 
     if (json['Plotters.Club Public Keys'] != null) {
       for (var address in json['Plotters.Club Public Keys'])
         plottersClubPublicKeys.add(address);
+//clears duplicate entries
+      plottersClubPublicKeys = plottersClubPublicKeys.toSet().toList();
+    }
 
-      plottersClubPublicKeys =
-          plottersClubPublicKeys.toSet().toList(); //clears duplicate entries
+    if (json['SpacePool Public Keys'] != null) {
+      for (var address in json['SpacePool Public Keys'])
+        spacePoolPublicKeys.add(address);
+//clears duplicate entries
+      spacePoolPublicKeys = spacePoolPublicKeys.toSet().toList();
     }
   }
 

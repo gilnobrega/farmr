@@ -11,15 +11,11 @@ class FlaxExplorerWallet extends ColdWallet {
       "https://flaxexplorer.org/blockchain/address/";
 
   FlaxExplorerWallet(
-      {int netBalance = -1,
-      int farmedBalance = -1,
-      required Blockchain blockchain,
+      {required Blockchain blockchain,
       required this.address,
       int syncedBlockHeight = -1,
       String name = "FlaxExplorer Cold Wallet"})
       : super(
-            netBalance: netBalance,
-            farmedBalance: farmedBalance,
             blockchain: blockchain,
             syncedBlockHeight: syncedBlockHeight,
             name: name);

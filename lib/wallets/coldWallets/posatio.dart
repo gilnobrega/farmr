@@ -9,11 +9,10 @@ class PosatIOWallet extends ColdWallet {
   final String address;
 
   PosatIOWallet(
-      {int netBalance = -1,
-      required Blockchain blockchain,
+      {required Blockchain blockchain,
       required this.address,
       String name = "posat.io Cold Wallet"})
-      : super(netBalance: netBalance, blockchain: blockchain, name: name);
+      : super(blockchain: blockchain, name: name);
 
   Future<void> init() async {
     String posatExplorerURL =

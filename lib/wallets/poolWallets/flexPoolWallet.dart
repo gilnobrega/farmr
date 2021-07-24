@@ -13,28 +13,19 @@ Logger log = Logger("Flexpool API");
 class FlexpoolWallet extends GenericPoolWallet {
   final String address;
 
-  int _shares = 0;
-  int get shares => _shares;
-
-  int _effectiveCapacity = 0;
-  int get effectiveCapacity => _effectiveCapacity;
-
   FlexpoolWallet(
-      {int pendingBalance = -1,
-      double majorToMinorMultiplier = 1e12,
-      String name = "Flexpool Wallet",
+      {String name = "Flexpool Wallet",
       required this.address,
       required Blockchain blockchain})
-      : super(
-            pendingBalance: pendingBalance, blockchain: blockchain, name: name);
+      : super(blockchain: blockchain, name: name);
 
   Future<void> init() async {
     try {
       if (address != "") {
-        const String mainUrl =
+        const String mainUrlBalance =
             r"https://api.flexpool.io/v2/miner/balance?coin=xch&address=";
 
-        String contents = await http.read(Uri.parse(mainUrl + address));
+        String contents = await http.read(Uri.parse(mainUrlBalance + address));
 
         var object = jsonDecode(contents);
 
@@ -44,6 +35,18 @@ class FlexpoolWallet extends GenericPoolWallet {
             pendingBalance =
                 int.tryParse(object['result']['balance'].toString()) ?? -1;
         } else if (object['error']) throw Exception(object['error']);
+
+        const String mainUrlShares =
+            r"https://api.flexpool.io/v2/miner/stats?coin=xch&address=";
+
+        String contents2 = await http.read(Uri.parse(mainUrlShares + address));
+
+        var object2 = jsonDecode(contents2);
+
+        if (object2['error'] == null) {
+          capacity = object2['averageEffectiveHashrate'] ?? -1;
+          currentPoints = object2['validShares'] ?? -1;
+        } else if (object2['error']) throw Exception(object2['error']);
       }
     } catch (error) {
       log.warning("Failed to get info from Flexpool API");

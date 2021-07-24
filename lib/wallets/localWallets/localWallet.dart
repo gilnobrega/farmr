@@ -101,14 +101,10 @@ class LocalWallet extends Wallet {
     if (this.blockchain.currencySymbol == wallet2.blockchain.currencySymbol)
       return LocalWallet(
           blockchain: blockchain,
-          confirmedBalance:
-              (this.confirmedBalance >= 0 && wallet2.confirmedBalance >= 0)
-                  ? this.confirmedBalance + wallet2.confirmedBalance
-                  : -1,
-          unconfirmedBalance:
-              (this.unconfirmedBalance >= 0 && wallet2.unconfirmedBalance >= 0)
-                  ? this.unconfirmedBalance + wallet2.unconfirmedBalance
-                  : -1,
+          confirmedBalance: Wallet.sumTwoBalances(
+              this.confirmedBalance, wallet2.unconfirmedBalance),
+          unconfirmedBalance: Wallet.sumTwoBalances(
+              this.unconfirmedBalance, wallet2.unconfirmedBalance),
           walletHeight: this.walletHeight,
           daysSinceLastBlock: Wallet.compareDaysSinceBlock(
               this.daysSinceLastBlock, wallet2.daysSinceLastBlock));

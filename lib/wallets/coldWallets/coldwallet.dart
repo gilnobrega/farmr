@@ -61,13 +61,12 @@ class ColdWallet extends Wallet {
     if (this.blockchain.currencySymbol == wallet2.blockchain.currencySymbol)
       return ColdWallet(
           blockchain: this.blockchain,
-          netBalance: this.netBalance + wallet2.netBalance,
-          grossBalance: (this.grossBalance >= 0 && wallet2.grossBalance >= 0)
-              ? this.grossBalance + wallet2.grossBalance
-              : 0,
-          farmedBalance: (this.farmedBalance >= 0 && wallet2.farmedBalance >= 0)
-              ? this.farmedBalance + wallet2.farmedBalance
-              : 0,
+          netBalance:
+              Wallet.sumTwoBalances(this.netBalance, wallet2.netBalance),
+          grossBalance:
+              Wallet.sumTwoBalances(this.grossBalance, wallet2.grossBalance),
+          farmedBalance:
+              Wallet.sumTwoBalances(this.farmedBalance, wallet2.farmedBalance),
           daysSinceLastBlock: Wallet.compareDaysSinceBlock(
               this.daysSinceLastBlock, wallet2.daysSinceLastBlock));
     else

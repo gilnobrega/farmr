@@ -15,23 +15,11 @@ class FoxyPoolWallet extends GenericPoolWallet {
 
   bool _queryComplete = false;
 
-  int _shares = 0;
-  int get shares => _shares;
-
-  int _effectiveCapacity = 0;
-  int get effectiveCapacity => _effectiveCapacity;
-
   FoxyPoolWallet(
-      {int pendingBalance = -1,
-      int collateralBalance = -1,
-      required Blockchain blockchain,
+      {required Blockchain blockchain,
       required this.publicKey,
       String name = "FoxyPool Wallet"})
-      : super(
-            pendingBalance: pendingBalance,
-            collateralBalance: collateralBalance,
-            blockchain: blockchain,
-            name: name);
+      : super(blockchain: blockchain, name: name);
 
   Future<void> init() async {
     if (publicKey != "") {
@@ -85,9 +73,8 @@ class FoxyPoolWallet extends GenericPoolWallet {
             collateralBalance = (double.parse(data['collateral'].toString()) *
                     blockchain.majorToMinorMultiplier)
                 .round();
-            _shares = double.parse(data['shares'].toString()).round();
-            _effectiveCapacity =
-                NetSpace.sizeStringToInt("${data['ec']} GiB").round();
+            currentPoints = double.parse(data['shares'].toString()).round();
+            capacity = NetSpace.sizeStringToInt("${data['ec']} GiB").round();
           } catch (error) {
             log.warning("Error parsing FoxyPool info!");
             log.info(error.toString());
