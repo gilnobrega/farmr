@@ -19,10 +19,6 @@ files:
     file: .github/workflows/farmr-harvester.service
     mode: "0644"
     user: "root"
-  "/etc/systemd/user/farmr-foxypoolog.service":
-    file: .github/workflows/farmr-foxypoolog.service
-    mode: "0644"
-    user: "root"
   "/etc/farmr/config/config-xch.json":
     file: config/config-xch.json
     mode: "0644"
