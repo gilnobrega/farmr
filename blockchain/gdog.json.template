@@ -3,7 +3,17 @@
     "Currency Symbol": "gdog",
     "Minor Currency Symbol": "dog",
     "Net": "mainnet",
+    
     "Block Rewards": 100.0,
     "Blocks Per 10 Minutes": 32.0,
-    "Online Config": true
+    
+    "Online Config": true,
+    
+    "Ports": {
+        "harvester": 6660,
+        "farmer": 6659,
+        "fullNode": 6655,
+        "wallet": 7356,
+        "daemon": 53500
+      }
 }
