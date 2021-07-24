@@ -4,7 +4,17 @@
     "Currency Symbol": "XGJ",
     "Minor Currency Symbol": "moji",
     "Net": "mainnet",
+    
     "Block Rewards": 2.0,
     "Blocks Per 10 Minutes": 32.0,
-    "Online Config": true
+    
+    "Online Config": true, 
+    
+    "Ports": {
+        "harvester": 7560,
+        "farmer": 8559,
+        "fullNode": 7555,
+        "wallet": 8256,
+        "daemon": 57500
+      }
 }

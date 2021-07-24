@@ -1,0 +1,19 @@
+{
+    "Binary Name": "chiadoge",
+    "Currency Symbol": "XCD",
+    "Minor Currency Symbol": "mojo",
+    "Net": "mainnet",
+    
+    "Block Rewards": 20000.0,
+    "Blocks Per 10 Minutes": 32.0,
+    
+    "Online Config": true, 
+    
+    "Ports": {
+        "harvester": 6790,
+        "farmer": 6799,
+        "fullNode": 6795,
+        "wallet": 6791,
+        "daemon": 56690
+      }
+}
