@@ -9,6 +9,10 @@ import 'package:farmr_client/server/netspace.dart';
 import 'package:farmr_client/log/shortsync.dart';
 
 import 'package:farmr_client/extensions/swarpm.dart';
+import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
+import 'package:farmr_client/wallets/localWallets/localWallet.dart';
+import 'package:farmr_client/wallets/poolWallets/genericPoolWallet.dart';
+import 'package:farmr_client/wallets/wallet.dart';
 
 class Stats {
   Harvester _client; //Either a Farmer or Harvester
@@ -1157,6 +1161,37 @@ class Stats {
       output = "Failed to display stats.";
     }
 
+    return output;
+  }
+
+  static String showWalletInfo(Wallet wallet, String currencySymbol) {
+    String output = '';
+
+    output += "${wallet.name}";
+
+    if (wallet.daysSinceLastBlock >= 0)
+      output += "\nLast block ${wallet.daysSinceLastBlock} days ago";
+    if (wallet is LocalWallet && wallet.confirmedBalance >= 0)
+      output +=
+          "\nConfirmed Balance: ${wallet.confirmedBalanceMajor} ${currencySymbol.toUpperCase()}";
+    if (wallet is LocalWallet && wallet.unconfirmedBalance >= 0)
+      output +=
+          "\nUnconfirmed Balance: ${wallet.unconfirmedBalanceMajor} ${currencySymbol.toUpperCase()}";
+    if (wallet is ColdWallet && wallet.netBalance >= 0)
+      output +=
+          "\nNet Balance: ${wallet.netBalanceMajor} ${currencySymbol.toUpperCase()}";
+    if (wallet is ColdWallet && wallet.grossBalance >= 0)
+      output +=
+          "\nGross Balance: ${wallet.grossBalanceMajor} ${currencySymbol.toUpperCase()}";
+    if (wallet is ColdWallet && wallet.farmedBalance >= 0)
+      output +=
+          "\nFarmed Balance: ${wallet.farmedBalanceMajor} ${currencySymbol.toUpperCase()}";
+    if (wallet is GenericPoolWallet && wallet.pendingBalance >= 0)
+      output +=
+          "\nPending Balance: ${wallet.pendingBalanceMajor} ${currencySymbol.toUpperCase()}";
+    if (wallet is GenericPoolWallet && wallet.collateralBalance >= 0)
+      output +=
+          "\nCollateral Balance: ${wallet.collateralBalanceMajor} ${currencySymbol.toUpperCase()}";
     return output;
   }
 }

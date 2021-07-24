@@ -1,5 +1,6 @@
 import 'dart:core';
 
+import 'package:farmr_client/wallets/wallet.dart';
 import 'package:mysql1/mysql1.dart' as mysql;
 import 'package:dotenv/dotenv.dart' as dotenv;
 import 'package:http/http.dart' as http;
@@ -182,18 +183,24 @@ Future<void> main(List<String> args) async {
         farm.filterDuplicates(false);
         farm.sortPlots();
 
-        print(Stats.showHarvester(
-            farm,
-            harvestersCount,
-            farmersCount,
-            //for other blockchains loads local value for netspace
-            (blockchain == "xch") ? netspace : farm.netSpace,
-            args.contains("full"),
-            args.contains("workers"),
-            //doesnt load Price for blockchains other than chia
-            (blockchain == "xch")
-                ? price.rates[farm.currency]
-                : Price().rates[farm.currency]));
+        if (args.contains("wallets")) {
+          for (Wallet wallet in farm.wallets) {
+            print(Stats.showWalletInfo(wallet, blockchain));
+            if (wallet != farm.wallets.last) print(';;');
+          }
+        } else
+          print(Stats.showHarvester(
+              farm,
+              harvestersCount,
+              farmersCount,
+              //for other blockchains loads local value for netspace
+              (blockchain == "xch") ? netspace : farm.netSpace,
+              args.contains("full"),
+              args.contains("workers"),
+              //doesnt load Price for blockchains other than chia
+              (blockchain == "xch")
+                  ? price.rates[farm.currency]
+                  : Price().rates[farm.currency]));
       }
     } catch (Exception) {
       if (farmersCount == 0) print("Error: Farmer not found.");

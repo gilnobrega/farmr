@@ -22,7 +22,7 @@ class PlottersClubWallet extends GenericPoolWallet {
   PlottersClubWallet(
       {int pendingBalance = -1,
       double majorToMinorMultiplier = 1e12,
-      String name = "Flexpool Wallet",
+      String name = "Plotters.Club Wallet",
       required this.poolPublicKey,
       required Blockchain blockchain})
       : super(
