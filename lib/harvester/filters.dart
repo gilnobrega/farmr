@@ -204,9 +204,14 @@ class HarvesterFilters {
       }
     }
 
-    //Can't load standard deviation, average time or median time without a list of filters
+    //calculates average
+    _avgTime = ((harvester.avgTime * harvester.numberFilters) +
+            (this.avgTime * this.numberFilters)) /
+        (harvester.numberFilters + this.numberFilters);
+
+    //Can't load standard deviation or median time without a list of filters
     _stdDeviation = 0;
-    _avgTime = 0;
+
     _medianTime = 0;
   }
 
