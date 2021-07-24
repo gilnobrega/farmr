@@ -342,7 +342,7 @@ class Farmer extends Harvester {
                   blockchain.majorToMinorMultiplier)
               .round(),
           collateralBalance:
-              (double.parse(object['pendingBalance'].toString()) *
+              (double.parse(object['collateralBalance'].toString()) *
                       blockchain.majorToMinorMultiplier)
                   .round(),
           blockchain: blockchain));
