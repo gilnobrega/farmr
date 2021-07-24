@@ -75,7 +75,7 @@ class RPCConfiguration {
   final dynamic dataToSend;
   final Blockchain blockchain;
 
-  RPCConfiguration(
+  const RPCConfiguration(
       {required this.blockchain,
       required this.service,
       required this.endpoint,
