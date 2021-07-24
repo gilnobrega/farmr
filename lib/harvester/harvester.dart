@@ -293,6 +293,9 @@ class Harvester
     if (harvester.lastUpdated.millisecondsSinceEpoch >
         _lastUpdated.millisecondsSinceEpoch)
       _lastUpdated = harvester.lastUpdated;
+
+    //adds harvesters wallets
+    wallets.addAll(harvester.wallets);
   }
 
   //clears plots ids before sending info to server
