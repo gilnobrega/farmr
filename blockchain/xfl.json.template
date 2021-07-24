@@ -3,7 +3,17 @@
     "Currency Symbol": "XFL",
     "Minor Currency Symbol": "mojo",
     "Net": "mainnet",
-    "Block Rewards": 4.0,
+   
+   "Block Rewards": 4.0,
     "Blocks Per 10 Minutes": 32.0,
-    "Online Config": true
+   
+   "Online Config": true
+    
+    "Ports": {
+        "harvester": 18760,
+        "farmer": 18759,
+        "fullNode": 18755,
+        "wallet": 19456,
+        "daemon": 55422
+      }
 }
