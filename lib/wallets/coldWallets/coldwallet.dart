@@ -40,12 +40,14 @@ class ColdWallet extends Wallet {
       this.netBalance = -1,
       this.farmedBalance = -1,
       double daysSinceLastBlock = -1,
+      int syncedBlockHeight = -1,
       required Blockchain blockchain,
       String name = "Cold Wallet"})
       : super(
             type: WalletType.Cold,
             blockchain: blockchain,
             daysSinceLastBlock: daysSinceLastBlock,
+            syncedBlockHeight: syncedBlockHeight,
             name: name);
 
   ColdWallet.fromJson(dynamic json) : super.fromJson(json) {

@@ -53,10 +53,6 @@ class Farmer extends Harvester {
 
   List<ShortSync> shortSyncs = [];
 
-  //final DateTime currentTime = DateTime.now();
-  int _syncedBlockHeight = -1;
-  int get syncedBlockHeight => _syncedBlockHeight;
-
   int _peakBlockHeight = -1;
   int get peakBlockHeight => _peakBlockHeight;
 
@@ -255,7 +251,7 @@ class Farmer extends Harvester {
     } else //legacy wallet method
     {
       LocalWallet localWallet = LocalWallet(
-          blockchain: this.blockchain, syncedBlockHeight: _syncedBlockHeight);
+          blockchain: this.blockchain, syncedBlockHeight: syncedBlockHeight);
 
       //parses chia wallet show for block height
       localWallet.parseWalletBalance(blockchain.config.cache!.binPath,
@@ -274,7 +270,7 @@ class Farmer extends Harvester {
 
       RegExp regExp = RegExp(r"Height:[\s]+([0-9]+)");
 
-      _syncedBlockHeight =
+      syncedBlockHeight =
           int.tryParse(regExp.firstMatch(nodeOutput)?.group(1) ?? "-1") ?? -1;
     } catch (error) {
       log.warning("Failed to get synced height");
@@ -327,7 +323,7 @@ class Farmer extends Harvester {
           double.parse(object['daysSinceLastBlock'].toString());
 
     if (object['syncedBlockHeight'] != null)
-      _syncedBlockHeight = object['syncedBlockHeight'];
+      syncedBlockHeight = object['syncedBlockHeight'];
 
     if (object['peakBlockHeight'] != null)
       _peakBlockHeight = object['peakBlockHeight'];

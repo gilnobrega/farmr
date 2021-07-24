@@ -42,14 +42,19 @@ class HarvesterWallets {
   GenericPoolWallet get poolWalletAggregate =>
       poolWallets.reduce((w1, w2) => w1 * w2);
 
-  Future<void> getWallets(Blockchain blockchain) async {
+  //final DateTime currentTime = DateTime.now();
+  int syncedBlockHeight = -1;
+
+  Future<void> getWallets(Blockchain blockchain, int syncedBlockHeight) async {
     for (String address in blockchain.config.coldWalletAddresses) {
       if (address.startsWith("xch"))
         wallets
             .add(ChiaExplorerWallet(blockchain: blockchain, address: address));
       else if (address.startsWith("xfx"))
-        wallets
-            .add(FlaxExplorerWallet(blockchain: blockchain, address: address));
+        wallets.add(FlaxExplorerWallet(
+            blockchain: blockchain,
+            address: address,
+            syncedBlockHeight: syncedBlockHeight));
       else
         wallets
             .add(AllTheBlocksWallet(blockchain: blockchain, address: address));
