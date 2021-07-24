@@ -84,7 +84,7 @@ class Stats {
   double get undistributedBalanceFiatChange =>
       calculateFiatChange(undistributedBalanceFiat, _price);
 
-  //FoxyPool Wallet
+  //POOLS WALLETS
   double get pendingBalance => (_client.poolWallets.length > 0)
       ? _client.poolWalletAggregate.pendingBalanceMajor
       : -1;
@@ -100,6 +100,24 @@ class Stats {
       calculateFiat(collateralBalance, _price, crypto);
   double get collateralBalanceFiatChange =>
       calculateFiatChange(collateralBalanceFiat, _price);
+
+  double get paidBalance => (_client.poolWallets.length > 0)
+      ? _client.poolWalletAggregate.paidBalanceMajor
+      : -1;
+  double get paidBalanceFiat => calculateFiat(paidBalance, _price, crypto);
+  double get paidBalanceFiatChange =>
+      calculateFiatChange(paidBalanceFiat, _price);
+
+  int get currentPoints => (_client.poolWallets.length > 0)
+      ? _client.poolWalletAggregate.currentPoints
+      : -1;
+  int get totalPoints => (_client.poolWallets.length > 0)
+      ? _client.poolWalletAggregate.totalPoints
+      : -1;
+
+  int get capacity => (_client.poolWallets.length > 0)
+      ? _client.poolWalletAggregate.capacity
+      : -1;
 
   //PLOTS
   //total number of plots (complete plots)
