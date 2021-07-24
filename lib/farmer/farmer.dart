@@ -312,9 +312,6 @@ class Farmer extends Harvester {
 
     type = ClientType.Farmer;
 
-    if (object['type'] != null && object['type'] is int)
-      type = ClientType.values[object['type']];
-
     _status = object['status'];
     _balance = double.parse(object['balance'].toString());
 
