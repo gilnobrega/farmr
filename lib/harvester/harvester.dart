@@ -4,6 +4,7 @@ import 'dart:io' as io;
 
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/hardware.dart';
+import 'package:farmr_client/harvester/wallets.dart';
 import 'package:uuid/uuid.dart';
 import 'package:logging/logging.dart';
 
@@ -17,7 +18,12 @@ import 'package:farmr_client/extensions/swarpm.dart';
 
 final log = Logger('Harvester');
 
-class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
+class Harvester
+    with
+        HarvesterDiskSpace,
+        HarvesterPlots,
+        HarvesterFilters,
+        HarvesterWallets {
   late Config _config;
   late Blockchain blockchain; // TODO: Why is late necessary here?
 
@@ -101,7 +107,8 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
       "swarPM": swarPM,
       'version': version,
       'onlineConfig': onlineConfig,
-      "blockchainVersion": blockchainVersion
+      "blockchainVersion": blockchainVersion,
+      "wallets": wallets
     };
 
     if (_config.showHardwareInfo && hardware != null)
@@ -213,6 +220,8 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
       _hardware = Hardware.fromJson(object['hardware']);
 
     if (object['onlineConfig'] != null) _onlineConfig = object['onlineConfig'];
+
+    loadWalletsFromJson(object);
   }
 
   Future<void> init() async {
@@ -221,6 +230,8 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
 
     await listPlots(_plotDests, _config);
     await readRPCPlotList(blockchain);
+
+    await getWallets(blockchain);
 
     filterDuplicates(); //removes plots with duplicate ids
 
@@ -282,6 +293,9 @@ class Harvester with HarvesterDiskSpace, HarvesterPlots, HarvesterFilters {
     if (harvester.lastUpdated.millisecondsSinceEpoch >
         _lastUpdated.millisecondsSinceEpoch)
       _lastUpdated = harvester.lastUpdated;
+
+    //adds harvesters wallets
+    wallets.addAll(harvester.wallets);
   }
 
   //clears plots ids before sending info to server

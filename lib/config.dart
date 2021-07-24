@@ -12,7 +12,7 @@ import 'package:http/http.dart' as http;
 final log = Logger('Config');
 
 //Tells if client is harvester or not
-enum ClientType { Farmer, Harvester, HPool, FoxyPoolOG, Flexpool }
+enum ClientType { Farmer, Harvester, HPool }
 
 class Config {
   Cache? cache;
@@ -32,7 +32,7 @@ class Config {
   bool showBalance = true;
 
   //wallet balance
-  bool showWalletBalance = false;
+  bool showWalletBalance = true;
 
   bool sendPlotNotifications = false; //plot notifications
 
@@ -64,14 +64,11 @@ class Config {
   String hpoolConfigPath = "";
   String hpoolAuthToken = "";
 
-  //FOXYPOOL MODE
-  String poolPublicKey = "";
+  List<String> coldWalletAddresses = [];
+  List<String> foxyPoolPublicKeys = [];
+  List<String> plottersClubPublicKeys = [];
+  List<String> flexpoolAddresses = [];
 
-  //Flexpool Mode
-  String flexPoolAddress = "";
-
-  //chiaexplorer cold wallet
-  String coldWalletAddress = "";
   bool sendColdWalletBalanceNotifications = true;
 
   //overrides foxypool mode
@@ -82,21 +79,12 @@ class Config {
   late io.File _config;
 
   Config(this._blockchain, this.cache, this._rootPath,
-      [isHarvester = false,
-      isHPool = false,
-      isFoxyPoolOG = false,
-      isFlexpool = false]) {
+      [isHarvester = false, isHPool = false]) {
     _config =
         io.File(_rootPath + "config/config${_blockchain.fileExtension}.json");
 
     if (isHPool && _blockchain.currencySymbol == "xch") {
       _type = ClientType.HPool;
-    } else if (isFoxyPoolOG &&
-        (_blockchain.currencySymbol == "xch" ||
-            _blockchain.currencySymbol == "xfx")) {
-      _type = ClientType.FoxyPoolOG;
-    } else if (isFlexpool && _blockchain.currencySymbol == "xch") {
-      _type = ClientType.Flexpool;
     } else if (isHarvester) {
       _type = ClientType.Harvester;
     } else {
@@ -109,10 +97,8 @@ class Config {
 
   static const Map<ClientType, String> defaultNames = {
     ClientType.HPool: "HPool",
-    ClientType.FoxyPoolOG: "FoxyPool",
     ClientType.Harvester: "Harvester",
     ClientType.Farmer: "Farmer",
-    ClientType.Flexpool: "Flexpool"
   };
 
   Future<void> init(bool onlineConfig, bool headless) async {
@@ -169,14 +155,20 @@ class Config {
       "Parse Logs": parseLogs,
       "Number of Discord Users": userNumber,
       "Public API": publicAPI,
-      "Swar's Chia Plot Manager Path": swarPath
+      "Swar's Chia Plot Manager Path": swarPath,
+      "Cold Wallet Addresses": coldWalletAddresses,
     };
 
-    if (type != ClientType.Harvester) {
-      configMap.putIfAbsent("Cold Wallet Address", () => coldWalletAddress);
-      configMap.putIfAbsent("Cold Wallet Notifications",
-          () => sendColdWalletBalanceNotifications);
-    }
+    if (_blockchain.currencySymbol == "xch" ||
+        _blockchain.currencySymbol == "xfx")
+      configMap.putIfAbsent("FoxyPool Public Keys", () => foxyPoolPublicKeys);
+
+    if (_blockchain.currencySymbol == "xch")
+      configMap.putIfAbsent(
+          "Plotters.Club Public Keys", () => plottersClubPublicKeys);
+
+    if (_blockchain.currencySymbol == "xch")
+      configMap.putIfAbsent("Flexpool Addresses", () => flexpoolAddresses);
 
     //hides ignoreDiskSpace from config.json if false (default)
     if (ignoreDiskSpace)
@@ -189,16 +181,6 @@ class Config {
     //hpool's cookie
     if (type == ClientType.HPool || hpoolAuthToken != "")
       configMap.putIfAbsent("HPool Auth Token", () => hpoolAuthToken);
-
-    //poolPublicKey used in FoxyPool's chia-og
-    if (type == ClientType.FoxyPoolOG || poolPublicKey != "") {
-      configMap.putIfAbsent("Pool Public Key", () => poolPublicKey);
-      configMap.putIfAbsent("Use FoxyPool API", () => foxyPoolOverride);
-    }
-
-    //flexpooladdress used in flexpool api
-    if (type == ClientType.Flexpool || flexPoolAddress != "")
-      configMap.putIfAbsent("Flexpool Address", () => flexPoolAddress);
 
     return configMap;
   }
@@ -324,11 +306,19 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     return valid;
   }
 
-  Config.fromJson(dynamic json, this._blockchain, this._type) {
+  Config.fromJson(dynamic json, Blockchain blockchain, ClientType type) {
+    _type = type;
+    _blockchain = blockchain;
+
     loadfromJson(json);
   }
 
   loadfromJson(dynamic json) {
+    coldWalletAddresses = [];
+    foxyPoolPublicKeys = [];
+    flexpoolAddresses = [];
+    plottersClubPublicKeys = [];
+
     //sets default name according to client type
     name = defaultNames[type] ?? "Harvester";
 
@@ -398,34 +388,74 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
     if (json['HPool Auth Token'] != null)
       hpoolAuthToken = json['HPool Auth Token']; //new
 
-    //loads pool public key used by foxypool mode
+    //loads pool public key used by foxypool mode LEGACY
     if (json['Pool Public Key'] != null) {
-      poolPublicKey = json['Pool Public Key'];
+      String poolPublicKey = json['Pool Public Key'];
 
       //appends 0x to pool public key if it doesnt start with 0x
       if (poolPublicKey.length == 96 && !poolPublicKey.startsWith("0x"))
         poolPublicKey = "0x" + poolPublicKey;
+
+      foxyPoolPublicKeys.add(poolPublicKey);
     }
 
     if (json['Use FoxyPool API'] != null)
       foxyPoolOverride = json['Use FoxyPool API'];
 
-    //loads flexpool address used by flexpool mode
+    //loads flexpool address used by flexpool mode LEGACY
     if (json['Flexpool Address'] != null)
-      flexPoolAddress = json['Flexpool Address'];
+      flexpoolAddresses.add(json['Flexpool Address']);
 
     if (json["Show Hardware Info"] != null)
       showHardwareInfo = json["Show Hardware Info"];
 
-    if (json['Cold Wallet Address'] != null)
-      coldWalletAddress = json['Cold Wallet Address'];
+    if (json['Cold Wallet Address'] != null) {
+      var addresses = (json['Cold Wallet Address'] as String);
+      if (addresses.contains(','))
+        coldWalletAddresses.addAll(addresses.split(','));
+      else
+        coldWalletAddresses.add(addresses);
+    }
 
+    if (json['Cold Wallet Addresses'] != null) {
+      for (var address in json['Cold Wallet Addresses'])
+        coldWalletAddresses.add(address);
+
+      coldWalletAddresses =
+          coldWalletAddresses.toSet().toList(); //clears duplicate entries
+    }
+
+    //legacy
     if (json['Send Cold Wallet Balance Notifications'] != null)
       sendColdWalletBalanceNotifications =
           json['Send Cold Wallet Balance Notifications'];
 
     if (json['Cold Wallet Notifications'] != null)
       sendColdWalletBalanceNotifications = json['Cold Wallet Notifications'];
+
+    if (json['Flexpool Addresses'] != null) {
+      for (var address in json['Flexpool Addresses'])
+        flexpoolAddresses.add(address);
+
+      flexpoolAddresses =
+          flexpoolAddresses.toSet().toList(); //clears duplicate entries
+    }
+
+    if (json['FoxyPool Public Keys'] != null) {
+      for (var address in json['FoxyPool Public Keys'])
+        foxyPoolPublicKeys.add(address);
+
+      foxyPoolPublicKeys =
+          foxyPoolPublicKeys.toSet().toList(); //clears duplicate entries
+    }
+
+    if (json['Plotters.Club Public Keys'] != null) {
+      for (var address in json['Plotters.Club Public Keys'])
+        plottersClubPublicKeys.add(address);
+
+      plottersClubPublicKeys =
+          plottersClubPublicKeys.toSet().toList(); //clears duplicate entries
+    }
   }
 
   Future<void> _loadConfig() async {

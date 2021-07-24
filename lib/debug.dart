@@ -91,9 +91,7 @@ class Log {
         if (logLevel == "INFO") {
           print("$_binaryName's log level has been set to INFO");
           print("Restarting $_binaryName's services");
-          if (_type == ClientType.Farmer ||
-              _type == ClientType.FoxyPoolOG ||
-              _type == ClientType.Flexpool)
+          if (_type == ClientType.Farmer)
             io.Process.runSync(_cache.binPath, const ["start", "-r", "farmer"]);
           else if (_type == ClientType.Harvester)
             io.Process.runSync(

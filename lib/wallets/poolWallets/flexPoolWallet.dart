@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:farmr_client/blockchain.dart';
-import 'package:farmr_client/poolWallets/genericPoolWallet.dart';
+import 'package:farmr_client/wallets/poolWallets/genericPoolWallet.dart';
 
 import 'dart:async';
 
@@ -11,6 +11,8 @@ import 'package:logging/logging.dart';
 Logger log = Logger("Flexpool API");
 
 class FlexpoolWallet extends GenericPoolWallet {
+  final String address;
+
   int _shares = 0;
   int get shares => _shares;
 
@@ -18,35 +20,29 @@ class FlexpoolWallet extends GenericPoolWallet {
   int get effectiveCapacity => _effectiveCapacity;
 
   FlexpoolWallet(
-      double balance,
-      double daysSinceLastBlock,
-      double pendingBalance,
-      Blockchain blockchain,
-      int syncedBlockHeight,
-      int walletHeight)
-      : super(balance, daysSinceLastBlock, pendingBalance, -1.0, blockchain,
-            syncedBlockHeight, walletHeight);
+      {int pendingBalance = -1,
+      double majorToMinorMultiplier = 1e12,
+      String name = "Flexpool Wallet",
+      required this.address,
+      required Blockchain blockchain})
+      : super(
+            pendingBalance: pendingBalance, blockchain: blockchain, name: name);
 
   Future<void> init() async {
     try {
-      if (blockchain.config.flexPoolAddress != "") {
+      if (address != "") {
         const String mainUrl =
-            "https://api.flexpool.io/v2/miner/balance?coin=xch&address=";
+            r"https://api.flexpool.io/v2/miner/balance?coin=xch&address=";
 
-        String contents = await http
-            .read(Uri.parse(mainUrl + blockchain.config.flexPoolAddress));
+        String contents = await http.read(Uri.parse(mainUrl + address));
 
         var object = jsonDecode(contents);
 
         if (object['error'] == null) {
           if (object['result'] != null && object['result']['balance'] != null)
             //balance is in mojo, not xch, so it converts mojo to xch then makes sure its rounded to 12 decimals
-            pendingBalance = double.tryParse(
-                    ((int.tryParse(object['result']['balance'].toString()) ??
-                                -1) *
-                            1e-12)
-                        .toStringAsFixed(12)) ??
-                -1.0;
+            pendingBalance =
+                int.tryParse(object['result']['balance'].toString()) ?? -1;
         } else if (object['error']) throw Exception(object['error']);
       }
     } catch (error) {

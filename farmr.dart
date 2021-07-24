@@ -381,13 +381,17 @@ void handleBlockchainReport(List<Object> arguments) async {
 
     //sends notifications about cold wallet if that is enabled
     if (client is Farmer) {
-      if (client.coldWallet.farmedBalance >= 0)
-        coldBalance = client.coldWallet.farmedBalance.toString(); //flax
-      else if (client.coldWallet.grossBalance >= 0)
-        coldBalance = client.coldWallet.grossBalance.toString(); //chia
-      else if (client.coldWallet.netBalance >= 0)
-        coldBalance = client.coldWallet.netBalance
-            .toString(); //every other fork through posat.io
+      if (client.coldWallets.length > 0) {
+        if (client.coldWalletAggregate.farmedBalance >= 0)
+          coldBalance =
+              client.coldWalletAggregate.farmedBalance.toString(); //flax
+        else if (client.coldWalletAggregate.grossBalance >= 0)
+          coldBalance =
+              client.coldWalletAggregate.grossBalance.toString(); //chia
+        else if (client.coldWalletAggregate.netBalance >= 0)
+          coldBalance = client.coldWalletAggregate.netBalance
+              .toString(); //every other fork through posat.io
+      }
 
       if (client.balance >= 0) balance = client.balance.toString();
     }
@@ -461,9 +465,7 @@ void handleBlockchainReport(List<Object> arguments) async {
         if (blockchain.config.sendDriveNotifications)
           post.putIfAbsent("drives", () => drives);
 
-        bool isFarmerLike = (blockchain.config.type == ClientType.Farmer ||
-            blockchain.config.type == ClientType.FoxyPoolOG ||
-            blockchain.config.type == ClientType.Flexpool);
+        bool isFarmerLike = (blockchain.config.type == ClientType.Farmer);
         //If the client is a farmer and it is farming and sendBalanceNotifications is enabled then it will send balance
         if (isFarmerLike &&
             blockchain.config.sendBalanceNotifications &&
@@ -487,8 +489,6 @@ void handleBlockchainReport(List<Object> arguments) async {
 
         log.info("url:$url");
         log.info("data sent:\n$sendJson");
-
-        if (io.Platform.isWindows) print("Do NOT close this window.");
       } catch (exception) {
         log.severe("Oh no, failed to connect to server!");
         log.severe(exception.toString());

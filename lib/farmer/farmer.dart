@@ -1,9 +1,9 @@
 import 'dart:core';
 import 'package:farmr_client/blockchain.dart';
-import 'package:farmr_client/farmer/coldwallet.dart';
-import 'package:farmr_client/poolWallets/flexPoolWallet.dart';
-import 'package:farmr_client/poolWallets/foxyPoolWallet.dart';
-import 'package:farmr_client/poolWallets/genericPoolWallet.dart';
+import 'package:farmr_client/rpc.dart';
+import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
+import 'package:farmr_client/wallets/poolWallets/genericPoolWallet.dart';
+import 'package:farmr_client/wallets/wallet.dart';
 import 'package:universal_io/io.dart' as io;
 import 'dart:convert';
 
@@ -12,7 +12,7 @@ import 'package:logging/logging.dart';
 import 'package:farmr_client/config.dart';
 import 'package:farmr_client/harvester/harvester.dart';
 import 'package:farmr_client/debug.dart' as Debug;
-import 'package:farmr_client/farmer/wallet.dart';
+import 'package:farmr_client/wallets/localWallets/localWallet.dart';
 import 'package:farmr_client/farmer/connections.dart';
 import 'package:farmr_client/log/shortsync.dart';
 import 'package:http/http.dart' as http;
@@ -26,14 +26,6 @@ class Farmer extends Harvester {
   //shows not harvesting status if harvester class is not harvesting
   @override
   String get status => _status;
-
-  //default empty wallet
-  static Wallet _emptyWallet =
-      Wallet(-1.0, -1.0, Blockchain.fromSymbol("xch"), -1, -1);
-  Wallet _wallet = _emptyWallet;
-  Wallet get wallet => _wallet;
-  ColdWallet _coldWallet = ColdWallet();
-  ColdWallet get coldWallet => _coldWallet;
 
   Connections? _connections;
 
@@ -72,6 +64,8 @@ class Farmer extends Harvester {
   int _poolErrors = -1; // -1 means client doesnt support
   int get poolErrors => _poolErrors;
 
+  int _lastBlockFarmed = 0;
+
   @override
   Map toJson() {
     //loads harvester's map (since farmer is an extension of it)
@@ -80,11 +74,9 @@ class Farmer extends Harvester {
     //adds extra farmer's entries
     harvesterMap.addEntries({
       'balance': balance, //farmed balance
-      'walletBalance': _wallet.balance, //wallet balance
       //rounds days since last blocks so its harder to track wallets
       //precision of 0.1 days means uncertainty of 140 minutes
-      'daysSinceLastBlock':
-          double.parse(_wallet.daysSinceLastBlock.toStringAsFixed(1)),
+
       'completeSubSlots': completeSubSlots,
       'looseSignagePoints': looseSignagePoints,
 
@@ -93,20 +85,8 @@ class Farmer extends Harvester {
       "netSpace": netSpace.size,
       "syncedBlockHeight": syncedBlockHeight,
       "peakBlockHeight": peakBlockHeight,
-      "walletHeight": _wallet.walletHeight,
       "poolErrors": poolErrors
     }.entries);
-
-    if (_wallet is GenericPoolWallet)
-      harvesterMap.addEntries({
-        'pendingBalance':
-            (_wallet as GenericPoolWallet).pendingBalance, //pending balance
-        'collateralBalance': (_wallet as GenericPoolWallet)
-            .collateralBalance //collateral balance
-      }.entries);
-
-    if (coldWallet.grossBalance != -1.0 || coldWallet.netBalance != -1.0)
-      harvesterMap.putIfAbsent("coldWallet", () => coldWallet);
 
     //returns complete map with both farmer's + harvester's entries
     return harvesterMap;
@@ -126,7 +106,6 @@ class Farmer extends Harvester {
           result.stdout.toString().replaceAll("\r", "").split('\n');
 
       //needs last farmed block to calculate effort, this is never stored
-      int lastBlockFarmed = 0;
       try {
         for (int i = 0; i < lines.length; i++) {
           String line = lines[i];
@@ -147,7 +126,7 @@ class Farmer extends Harvester {
 
           try {
             if (line.startsWith("Last height farmed: "))
-              lastBlockFarmed =
+              _lastBlockFarmed =
                   int.parse(line.split("Last height farmed: ")[1]);
           } catch (error) {
             log.warning(
@@ -165,19 +144,6 @@ class Farmer extends Harvester {
       }
 
       getNodeHeight(); //sets _syncedBlockHeight
-
-      if (type == ClientType.Farmer)
-        _wallet = Wallet(-1.0, -1.0, this.blockchain, _syncedBlockHeight, -1);
-      else if (type == ClientType.FoxyPoolOG)
-        _wallet = FoxyPoolWallet(
-            -1.0, -1.0, -1.0, -1.0, this.blockchain, _syncedBlockHeight, -1);
-      else if (type == ClientType.Flexpool)
-        _wallet = FlexpoolWallet(
-            -1.0, -1.0, -1.0, this.blockchain, _syncedBlockHeight, -1);
-
-      //parses chia wallet show for block height
-      _wallet.parseWalletBalance(blockchain.config.cache!.binPath,
-          lastBlockFarmed, blockchain.config.showWalletBalance);
 
       //initializes connections and counts peers
       _connections = Connections(blockchain.config.cache!.binPath);
@@ -202,6 +168,100 @@ class Farmer extends Harvester {
         _status = "$_status, $harvestingStatusString";
 
       _poolErrors = blockchain.cache.poolErrors.length;
+    }
+  }
+
+  Future<void> getLocalWallets() async {
+    RPCConfiguration rpcConfig = RPCConfiguration(
+        blockchain: blockchain,
+        service: RPCService.Wallet,
+        endpoint: "get_wallets",
+        dataToSend: {});
+
+    final walletsObject = await RPCConnection.getEndpoint(rpcConfig);
+
+    int walletHeight = -1;
+    String name = "Wallet";
+    int type = 0;
+    bool synced = true;
+    bool syncing = false;
+
+    //if rpc works
+    if (walletsObject != null && (walletsObject['success'] ?? false)) {
+      for (var walletID in walletsObject['wallets'] ?? []) {
+        final int id = walletID['id'] ?? 1;
+        name = walletID['name'] ?? "Wallet";
+        type = walletID['type'] ?? 0;
+
+        RPCConfiguration rpcConfig2 = RPCConfiguration(
+            blockchain: blockchain,
+            service: RPCService.Wallet,
+            endpoint: "get_wallet_balance",
+            dataToSend: {"wallet_id": id});
+
+        final walletInfo = await RPCConnection.getEndpoint(rpcConfig2);
+
+        if (walletInfo != null && (walletInfo['success'] ?? false)) {
+          final int confirmedBalance =
+              walletInfo['wallet_balance']['confirmed_wallet_balance'] ?? 0;
+
+          final int unconfirmedBalance =
+              walletInfo['wallet_balance']['unconfirmed_wallet_balance'] ?? 0;
+
+          RPCConfiguration rpcConfig3 = RPCConfiguration(
+              blockchain: blockchain,
+              service: RPCService.Wallet,
+              endpoint: "get_sync_status",
+              dataToSend: {"wallet_id": id});
+
+          final walletSyncInfo = await RPCConnection.getEndpoint(rpcConfig3);
+
+          if (walletSyncInfo != null && (walletSyncInfo['success'] ?? false)) {
+            synced = walletSyncInfo['synced'];
+            syncing = walletSyncInfo['syncing'];
+          }
+
+          RPCConfiguration rpcConfig4 = RPCConfiguration(
+              blockchain: blockchain,
+              service: RPCService.Wallet,
+              endpoint: "get_height_info",
+              dataToSend: {"wallet_id": id});
+
+          final walletHeightInfo = await RPCConnection.getEndpoint(rpcConfig4);
+
+          if (walletHeightInfo != null &&
+              (walletHeightInfo['success'] ?? false)) {
+            walletHeight = walletHeightInfo['height'] ?? -1;
+          }
+
+          final LocalWallet wallet = LocalWallet(
+              blockchain: blockchain,
+              confirmedBalance: confirmedBalance,
+              unconfirmedBalance: unconfirmedBalance,
+              walletHeight: walletHeight,
+              syncedBlockHeight: syncedBlockHeight,
+              name: name,
+              status: (synced)
+                  ? LocalWalletStatus.Synced
+                  : (syncing)
+                      ? LocalWalletStatus.Syncing
+                      : LocalWalletStatus.NotSynced);
+
+          wallet.setLastBlockFarmed(_lastBlockFarmed);
+
+          wallets.add(wallet);
+        }
+      }
+    } else //legacy wallet method
+    {
+      LocalWallet localWallet = LocalWallet(
+          blockchain: this.blockchain, syncedBlockHeight: _syncedBlockHeight);
+
+      //parses chia wallet show for block height
+      localWallet.parseWalletBalance(blockchain.config.cache!.binPath,
+          _lastBlockFarmed, blockchain.config.showWalletBalance);
+
+      wallets.add(localWallet);
     }
   }
 
@@ -239,22 +299,9 @@ class Farmer extends Harvester {
 
   @override
   Future<void> init() async {
-    if (blockchain.config.coldWalletAddress != "")
-      await _coldWallet.init(blockchain.config.coldWalletAddress, _wallet);
+    await getLocalWallets();
 
     if (blockchain.currencySymbol == "xch") await getPeakHeight();
-
-    if (_wallet is FoxyPoolWallet) {
-      //parses foxypool api if that option is enabled
-      if (blockchain.config.foxyPoolOverride)
-        //tries to parse foxypool api
-        //normal wallet + foxypool pending income + foxypool collateral balance
-        await (_wallet as FoxyPoolWallet).init();
-    } else if (_wallet is FlexpoolWallet) {
-      //normal wallet + flexpool pending income
-      //tries to parse flexpool api
-      await (_wallet as FlexpoolWallet).init();
-    }
 
     await super.init();
   }
@@ -265,18 +312,16 @@ class Farmer extends Harvester {
 
     type = ClientType.Farmer;
 
-    if (object['type'] != null && object['type'] is int)
-      type = ClientType.values[object['type']];
-
     _status = object['status'];
     _balance = double.parse(object['balance'].toString());
 
-    double walletBalance = -1.0;
-    double daysSinceLastBlock = 0;
+    int walletBalance = -1;
+    double daysSinceLastBlock = -1.0;
 
     //initializes wallet with given balance and number of days since last block
     if (object['walletBalance'] != null)
-      walletBalance = double.parse(object['walletBalance'].toString());
+      walletBalance =
+          (double.parse(object['walletBalance'].toString()) * 1e12).round();
     if (object['daysSinceLastBlock'] != null)
       daysSinceLastBlock =
           double.parse(object['daysSinceLastBlock'].toString());
@@ -290,19 +335,25 @@ class Farmer extends Harvester {
     int walletHeight = -1;
     if (object['walletHeight'] != null) walletHeight = object['walletHeight'];
 
-    //pool wallet
+    //pool wallet LEGACY
     if (object['pendingBalance'] != null && object['collateralBalance'] != null)
-      _wallet = GenericPoolWallet(
-          walletBalance,
-          daysSinceLastBlock,
-          double.parse(object['pendingBalance'].toString()),
-          double.parse(object['collateralBalance'].toString()),
-          this.blockchain,
-          _syncedBlockHeight,
-          walletHeight);
-    else
-      _wallet = Wallet(walletBalance, daysSinceLastBlock, this.blockchain,
-          _syncedBlockHeight, walletHeight);
+      wallets.add(GenericPoolWallet(
+          pendingBalance: (double.parse(object['pendingBalance'].toString()) *
+                  blockchain.majorToMinorMultiplier)
+              .round(),
+          collateralBalance:
+              (double.parse(object['collateralBalance'].toString()) *
+                      blockchain.majorToMinorMultiplier)
+                  .round(),
+          blockchain: blockchain));
+    //local wallet LEGACY
+    if (walletBalance >= 0 || daysSinceLastBlock > 0)
+      wallets.add(LocalWallet(
+          confirmedBalance: walletBalance,
+          daysSinceLastBlock: daysSinceLastBlock,
+          blockchain: Blockchain.fromSymbol(object['crypto'] ?? "xch"),
+          syncedBlockHeight: syncedBlockHeight,
+          walletHeight: walletHeight));
 
     if (object['completeSubSlots'] != null)
       _completeSubSlots = object['completeSubSlots'];
@@ -325,8 +376,20 @@ class Farmer extends Harvester {
           NetSpace.fromBytes(double.parse(object['netSpace'].toString()));
     }
 
-    if (object['coldWallet'] != null)
-      _coldWallet = ColdWallet.fromJson(object['coldWallet']);
+    if (object['coldWallet'] != null) {
+      double netBalance =
+          double.parse((object['coldWallet']['netBalance'] ?? "-1").toString());
+      double grossBalance = double.parse(
+          (object['coldWallet']['grossBalance'] ?? "-1").toString());
+      double farmedBalance = double.parse(
+          (object['coldWallet']['farmedBalance'] ?? "-1").toString());
+
+      wallets.add(ColdWallet(
+          blockchain: Blockchain.fromSymbol(object['crypto'] ?? "xch"),
+          netBalance: (netBalance * 1e12).round(),
+          farmedBalance: (farmedBalance * 1e12).round(),
+          grossBalance: (grossBalance * 1e12).round()));
+    }
 
     calculateFilterRatio(this);
   }

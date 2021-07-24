@@ -4,12 +4,15 @@ import 'package:farmr_client/farmer/farmer.dart';
 import 'package:farmr_client/hpool/hpool.dart';
 import 'package:farmr_client/hpool/wallet.dart';
 import 'package:farmr_client/plot.dart';
-import 'package:farmr_client/poolWallets/genericPoolWallet.dart';
 import 'package:farmr_client/server/price.dart';
 import 'package:farmr_client/server/netspace.dart';
 import 'package:farmr_client/log/shortsync.dart';
 
 import 'package:farmr_client/extensions/swarpm.dart';
+import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
+import 'package:farmr_client/wallets/localWallets/localWallet.dart';
+import 'package:farmr_client/wallets/poolWallets/genericPoolWallet.dart';
+import 'package:farmr_client/wallets/wallet.dart';
 
 class Stats {
   Harvester _client; //Either a Farmer or Harvester
@@ -41,27 +44,32 @@ class Stats {
       balanceFiat - (balanceFiat / (1 + (price?.change ?? 0.0)));
 
   // WALLET BALANCE
-  double get walletBalance =>
-      (_client is Farmer) ? (_client as Farmer).wallet.balance : -1.0;
+  double get walletBalance => (_client.localWallets.length > 0)
+      ? _client.localWalletAggregate.balanceMajor
+      : -1;
   double get walletBalanceFiat => calculateFiat(walletBalance, _price, crypto);
   double get walletBalanceFiatChange =>
       calculateFiatChange(walletBalanceFiat, _price);
-  int get walletHeight =>
-      (_client is Farmer) ? (_client as Farmer).wallet.walletHeight : -1;
+  int get walletHeight => (_client.localWallets.length > 0)
+      ? _client.localWalletAggregate.walletHeight
+      : -1;
 
   // COLD BALANCE
-  double get coldGrossBalance =>
-      (_client is Farmer) ? (_client as Farmer).coldWallet.grossBalance : -1.0;
+  double get coldGrossBalance => (_client.coldWallets.length > 0)
+      ? _client.coldWalletAggregate.grossBalanceMajor
+      : -1;
   double get coldGrossBalanceFiat =>
       calculateFiat(coldGrossBalance, _price, crypto);
 
-  double get coldFarmedBalance =>
-      (_client is Farmer) ? (_client as Farmer).coldWallet.farmedBalance : -1.0;
+  double get coldFarmedBalance => (_client.coldWallets.length > 0)
+      ? _client.coldWalletAggregate.farmedBalanceMajor
+      : -1;
   double get coldFarmedBalanceFiat =>
       calculateFiat(coldFarmedBalance, _price, crypto);
 
-  double get coldNetBalance =>
-      (_client is Farmer) ? (_client as Farmer).coldWallet.netBalance : -1.0;
+  double get coldNetBalance => (_client.coldWallets.length > 0)
+      ? _client.coldWalletAggregate.netBalanceMajor
+      : -1;
   double get coldNetBalanceFiat =>
       calculateFiat(coldNetBalance, _price, crypto);
   double get coldNetBalanceFiatChange =>
@@ -77,19 +85,17 @@ class Stats {
       calculateFiatChange(undistributedBalanceFiat, _price);
 
   //FoxyPool Wallet
-  double get pendingBalance =>
-      (_client is Farmer && (_client as Farmer).wallet is GenericPoolWallet)
-          ? ((_client as Farmer).wallet as GenericPoolWallet).pendingBalance
-          : -1.0;
+  double get pendingBalance => (_client.poolWallets.length > 0)
+      ? _client.poolWalletAggregate.pendingBalanceMajor
+      : -1;
   double get pendingBalanceFiat =>
       calculateFiat(pendingBalance, _price, crypto);
   double get pendingBalanceFiatChange =>
       calculateFiatChange(pendingBalanceFiat, _price);
 
-  double get collateralBalance =>
-      (_client is Farmer && (_client as Farmer).wallet is GenericPoolWallet)
-          ? ((_client as Farmer).wallet as GenericPoolWallet).collateralBalance
-          : -1.0;
+  double get collateralBalance => (_client.poolWallets.length > 0)
+      ? _client.poolWalletAggregate.collateralBalanceMajor
+      : -1;
   double get collateralBalanceFiat =>
       calculateFiat(collateralBalance, _price, crypto);
   double get collateralBalanceFiatChange =>
@@ -203,11 +209,11 @@ class Stats {
   double get ogFarmedDays => (ogFarmedDuration.inHours / 24.0);
   double get nftFarmedDays => (nftFarmedDuration.inHours / 24.0);
 
-  double get effort => (_client is Farmer)
-      ? (_client as Farmer).wallet.getCurrentEffort(etw, farmedDays)
-      : -1.0;
-  double get daysSinceLastBlock => (_client is Farmer)
-      ? (_client as Farmer).wallet.daysSinceLastBlock.roundToDouble()
+  double get effort => (_client.wallets.length > 0)
+      ? _client.walletAggregate.getCurrentEffort(etw, farmedDays)
+      : -1;
+  double get daysSinceLastBlock => (_client.wallets.length > 0)
+      ? _client.walletAggregate.daysSinceLastBlock.roundToDouble()
       : -1;
 
   String get netSpace => _netSpace.humanReadableSize;
@@ -1155,6 +1161,37 @@ class Stats {
       output = "Failed to display stats.";
     }
 
+    return output;
+  }
+
+  static String showWalletInfo(Wallet wallet, String currencySymbol) {
+    String output = '';
+
+    output += "${wallet.name}";
+
+    if (wallet.daysSinceLastBlock >= 0)
+      output += "\nLast block ${wallet.daysSinceLastBlock} days ago";
+    if (wallet is LocalWallet && wallet.confirmedBalance >= 0)
+      output +=
+          "\nConfirmed Balance: ${wallet.confirmedBalanceMajor} ${currencySymbol.toUpperCase()}";
+    if (wallet is LocalWallet && wallet.unconfirmedBalance >= 0)
+      output +=
+          "\nUnconfirmed Balance: ${wallet.unconfirmedBalanceMajor} ${currencySymbol.toUpperCase()}";
+    if (wallet is ColdWallet && wallet.netBalance >= 0)
+      output +=
+          "\nNet Balance: ${wallet.netBalanceMajor} ${currencySymbol.toUpperCase()}";
+    if (wallet is ColdWallet && wallet.grossBalance >= 0)
+      output +=
+          "\nGross Balance: ${wallet.grossBalanceMajor} ${currencySymbol.toUpperCase()}";
+    if (wallet is ColdWallet && wallet.farmedBalance >= 0)
+      output +=
+          "\nFarmed Balance: ${wallet.farmedBalanceMajor} ${currencySymbol.toUpperCase()}";
+    if (wallet is GenericPoolWallet && wallet.pendingBalance >= 0)
+      output +=
+          "\nPending Balance: ${wallet.pendingBalanceMajor} ${currencySymbol.toUpperCase()}";
+    if (wallet is GenericPoolWallet && wallet.collateralBalance >= 0)
+      output +=
+          "\nCollateral Balance: ${wallet.collateralBalanceMajor} ${currencySymbol.toUpperCase()}";
     return output;
   }
 }

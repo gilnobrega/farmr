@@ -70,16 +70,16 @@ class RPCPorts {
 }
 
 class RPCConfiguration {
-  RPCService service;
-  String endpoint;
-  dynamic dataToSend;
-  Blockchain blockchain;
+  final RPCService service;
+  final String endpoint;
+  final dynamic dataToSend;
+  final Blockchain blockchain;
 
   RPCConfiguration(
       {required this.blockchain,
       required this.service,
       required this.endpoint,
-      required this.dataToSend});
+      this.dataToSend = const {}});
 }
 
 class RPCConnection {

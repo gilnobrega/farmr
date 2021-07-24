@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/config.dart';
-import 'package:farmr_client/farmer/wallet.dart';
+import 'package:farmr_client/wallets/localWallets/localWallet.dart';
 import 'package:farmr_client/harvester/harvester.dart';
 import 'package:farmr_client/farmer/farmer.dart';
 import 'package:farmr_client/hpool/api.dart';
@@ -20,7 +20,7 @@ class HPool extends Farmer {
 
   HPoolWallet _wallet = HPoolWallet(-1.0, -1.0, Blockchain.fromSymbol("xch"));
   @override
-  Wallet get wallet => _wallet;
+  LocalWallet get wallet => _wallet;
 
   @override
   final ClientType type = ClientType.HPool;

@@ -53,41 +53,17 @@ class Blockchain {
   bool _onlineConfig = true;
   bool get onlineConfig => _onlineConfig;
 
+  double _majorToMinorMultiplier = 1e12;
+  double get majorToMinorMultiplier => _majorToMinorMultiplier;
+
   late Cache cache;
   late Config config;
   late Log log;
 
   RPCPorts? rpcPorts;
 
-  Blockchain(this.id, String rootPath, this._args, [dynamic json = null]) {
-    //loads blockchain file from json file if that object is defined
-    //defaults to chia config
-    _binaryName = json['Binary Name'] ?? 'chia';
-    _folderName = json['Folder Name'] ?? '.$binaryName';
-    _currencySymbol = json['Currency Symbol'] ?? 'xch';
-    _minorCurrencySymbol = json['Minor Currency Symbol'] ?? 'mojo';
-    _net = json['Net'] ?? 'mainnet';
-    _logPath = json['Log Path'] ?? '';
-    _configPath = json['Config Path'] ?? '';
-    _blockRewards = json['Block Rewards'] ?? 2.0;
-    _blocksPer10Mins = json['Blocks Per 10 Minutes'] ?? 32.0;
-    _onlineConfig = json['Online Config'] ?? true;
-
-    //initializes default rpc ports for xch
-    if (currencySymbol == "xch") {
-      const defaultMap = const {
-        "harvester": 8560,
-        "farmer": 8559,
-        "fullNode": 8555,
-        "wallet": 9256,
-        "daemon": 55400
-      };
-      rpcPorts = RPCPorts.fromJson(defaultMap);
-    }
-    //overwrites default ports with ports from config
-    if (json['Ports'] != null) {
-      rpcPorts = RPCPorts.fromJson(json['Ports']);
-    }
+  Blockchain(this.id, String rootPath, this._args, [dynamic json]) {
+    _fromJson(json); //loads properties from serialized blokchain
 
     //doesnt load online config if standalone argument is provided
     if (_args.contains("standalone") ||
@@ -101,19 +77,58 @@ class Blockchain {
     this.cache = new Cache(this, rootPath);
 
     /** Initializes config, either creates a new one or loads a config file */
-    this.config = new Config(
-        this,
-        this.cache,
-        rootPath,
-        _args.contains("harvester"),
-        _args.contains("hpool"),
-        _args.contains("foxypoolog"),
-        _args.contains("flexpool"));
+    this.config = new Config(this, this.cache, rootPath,
+        _args.contains("harvester"), _args.contains("hpool"));
   }
 
   //this is used on server side
   //since blockchain objects cant be initialized as null
-  Blockchain.fromSymbol(this._currencySymbol, [this._binaryName = '']);
+  Blockchain.fromSymbol(String currencySymbol,
+      {String binaryName = '', double majorToMinorMultiplier = 1e12}) {
+    _currencySymbol = currencySymbol;
+    _binaryName = binaryName;
+    _majorToMinorMultiplier = majorToMinorMultiplier;
+
+    _fromJson(null);
+  }
+
+  Blockchain.fromJson(dynamic json) {
+    _fromJson(json);
+  }
+
+  _fromJson(dynamic json) {
+    if (json != null) {
+      //loads blockchain file from json file if that object is defined
+      //defaults to chia config
+      _binaryName = json['Binary Name'] ?? 'chia';
+      _folderName = json['Folder Name'] ?? '.$binaryName';
+      _currencySymbol = json['Currency Symbol'] ?? 'xch';
+      _minorCurrencySymbol = json['Minor Currency Symbol'] ?? 'mojo';
+      _net = json['Net'] ?? 'mainnet';
+      _logPath = json['Log Path'] ?? '';
+      _configPath = json['Config Path'] ?? '';
+      _blockRewards = json['Block Rewards'] ?? 2.0;
+      _blocksPer10Mins = json['Blocks Per 10 Minutes'] ?? 32.0;
+      _onlineConfig = json['Online Config'] ?? true;
+      _majorToMinorMultiplier = json['Major to Minor Multiplier'] ?? 1e12;
+    }
+
+    //initializes default rpc ports for xch
+    if (currencySymbol == "xch") {
+      const defaultMap = const {
+        "harvester": 8560,
+        "farmer": 8559,
+        "fullNode": 8555,
+        "wallet": 9256,
+        "daemon": 55400
+      };
+      rpcPorts = RPCPorts.fromJson(defaultMap);
+    }
+    //overwrites default ports with ports from config
+    if (json != null && json['Ports'] != null) {
+      rpcPorts = RPCPorts.fromJson(json['Ports']);
+    }
+  }
 
   static OS? detectOS() {
     OS? os;
