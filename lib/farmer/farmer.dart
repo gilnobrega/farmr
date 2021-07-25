@@ -309,7 +309,7 @@ class Farmer extends Harvester {
     type = ClientType.Farmer;
 
     _status = object['status'];
-    _balance = double.parse(object['balance'].toString());
+    _balance = double.parse(object['balance']?.toString() ?? "-1");
 
     int walletBalance = -1;
     double daysSinceLastBlock = -1.0;

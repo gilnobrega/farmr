@@ -33,7 +33,9 @@ class Wallet {
   Wallet.fromJson(dynamic json) {
     type = WalletType.values[json['type'] ?? 0];
     blockchain = Blockchain.fromSymbol(json['currency'] ?? "xch",
-        majorToMinorMultiplier: json['majorToMinorMultiplier'] ?? 1e12);
+        majorToMinorMultiplier: double.tryParse(
+                json['majorToMinorMultiplier']?.toString() ?? "1e12") ??
+            1e12);
     daysSinceLastBlock =
         double.tryParse(json['daysSinceLastBlock'] ?? "-1.0") ?? -1.0;
     name = json['name'] ?? "${type.toString().split('.')[1]} Wallet";
