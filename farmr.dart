@@ -406,7 +406,7 @@ void handleBlockchainReport(List<Object> arguments) async {
         0,
         0,
         //shows netspace is client is farmer or foxypoolOG since foxypoolOG uses same chia client and full node
-        (client is Farmer) ? (client as Farmer).netSpace : NetSpace(),
+        (client is Farmer) ? client.netSpace : NetSpace(),
         false,
         true,
         Rate(0, 0, 0),

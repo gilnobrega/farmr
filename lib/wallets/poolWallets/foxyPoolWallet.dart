@@ -5,9 +5,9 @@ import 'package:farmr_client/wallets/poolWallets/genericPoolWallet.dart';
 
 import 'dart:async';
 
-import 'package:farmr_client/server/netspace.dart';
 import 'package:logging/logging.dart';
 import 'package:http/http.dart' as http;
+import 'package:proper_filesize/proper_filesize.dart';
 
 Logger log = Logger("FoxyPool API");
 
@@ -44,7 +44,9 @@ class FoxyPoolWallet extends GenericPoolWallet {
                       blockchain.majorToMinorMultiplier)
                   .round();
           currentPoints = data['shares'] ?? -1;
-          capacity = NetSpace.sizeStringToInt("${data['ec']} GiB").round();
+          capacity =
+              ProperFilesize.parseHumanReadableFilesize("${data['ec']} GiB")
+                  .round();
         } catch (error) {
           log.warning("Error parsing FoxyPool info!");
           log.info(error.toString());

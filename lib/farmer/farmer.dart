@@ -3,7 +3,6 @@ import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/rpc.dart';
 import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
 import 'package:farmr_client/wallets/poolWallets/genericPoolWallet.dart';
-import 'package:farmr_client/wallets/wallet.dart';
 import 'package:universal_io/io.dart' as io;
 import 'dart:convert';
 
@@ -178,7 +177,6 @@ class Farmer extends Harvester {
 
     int walletHeight = -1;
     String name = "Wallet";
-    int type = 0;
     bool synced = true;
     bool syncing = false;
 

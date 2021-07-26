@@ -13,6 +13,7 @@ import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
 import 'package:farmr_client/wallets/localWallets/localWallet.dart';
 import 'package:farmr_client/wallets/poolWallets/genericPoolWallet.dart';
 import 'package:farmr_client/wallets/wallet.dart';
+import 'package:proper_filesize/proper_filesize.dart';
 
 class Stats {
   Harvester _client; //Either a Farmer or Harvester
@@ -1219,7 +1220,7 @@ class Stats {
       output += "\nTotal Points: ${wallet.totalPoints} ";
     if (wallet is GenericPoolWallet && wallet.capacity >= 0)
       output +=
-          "\nEffective Capacity: ${NetSpace.generateHumanReadableSize(wallet.capacity.toDouble())} ";
+          "\nEffective Capacity: ${ProperFilesize.generateHumanReadableFilesize(wallet.capacity.toDouble())} ";
     return output;
   }
 }

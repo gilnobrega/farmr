@@ -1,13 +1,13 @@
 import 'dart:convert';
 
 import 'package:farmr_client/blockchain.dart';
-import 'package:farmr_client/server/netspace.dart';
 import 'package:farmr_client/wallets/poolWallets/genericPoolWallet.dart';
 
 import 'dart:async';
 
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
+import 'package:proper_filesize/proper_filesize.dart';
 
 Logger log = Logger("SpacePool API");
 
@@ -41,7 +41,7 @@ class SpacePoolWallet extends GenericPoolWallet {
 
         currentPoints = object['pendingPoints'] ?? -1;
         totalPoints = object['totalPoints'] ?? -1;
-        capacity = NetSpace.sizeStringToInt(
+        capacity = ProperFilesize.parseHumanReadableFilesize(
                 "${object['estimatedPlotSizeTiB']?.toString() ?? "-1"} TiB")
             .round();
       }

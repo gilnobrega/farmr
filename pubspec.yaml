@@ -22,3 +22,4 @@ dependencies:
   collection: ^1.15.0
   console: ^4.1.0
   dart_console: ^1.0.0
+  proper_filesize: ^0.0.2

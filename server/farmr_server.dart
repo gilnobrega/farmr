@@ -5,6 +5,7 @@ import 'package:mysql1/mysql1.dart' as mysql;
 import 'package:dotenv/dotenv.dart' as dotenv;
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:proper_filesize/proper_filesize.dart';
 import 'package:universal_io/io.dart' as io;
 
 import 'package:farmr_client/farmer/farmer.dart';
@@ -78,7 +79,8 @@ Future<void> main(List<String> args) async {
           DateTime.fromMillisecondsSinceEpoch(int.parse(pastSize.key));
 
       String date = DateFormat('MMM dd').format(pastSizeDate);
-      String size = NetSpace.generateHumanReadableSize(pastSize.value.abs());
+      String size =
+          ProperFilesize.generateHumanReadableFilesize(pastSize.value.abs());
 
       String growth = (i != until && i != entries.length - 1)
           ? '(' + NetSpace.percentageDiff(pastSize, entries[i + 1], true) + ')'

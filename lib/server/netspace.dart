@@ -1,6 +1,7 @@
 import 'package:universal_io/io.dart' as io;
-import 'dart:math' as Math;
 import 'dart:convert';
+
+import 'package:proper_filesize/proper_filesize.dart';
 
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
@@ -11,7 +12,8 @@ class NetSpace {
   double _size = 0;
   double get size => _size;
 
-  String get humanReadableSize => generateHumanReadableSize(size);
+  String get humanReadableSize =>
+      ProperFilesize.generateHumanReadableFilesize(size);
   String get dayDifference => _getDayDifference();
 
   int _timestamp = 0;
@@ -36,7 +38,8 @@ class NetSpace {
   NetSpace([String humanReadableSize = "0 B"]) {
     try {
       _timestamp = DateTime.now().millisecondsSinceEpoch;
-      _size = sizeStringToInt(humanReadableSize);
+      _size = ProperFilesize.parseHumanReadableFilesize(humanReadableSize)
+          .toDouble();
     } catch (e) {}
   }
 
@@ -74,7 +77,8 @@ class NetSpace {
       //temporary override while chianetspace.com doesn't fix their website
       units = "EiB";
 
-      _size = sizeStringToInt('$sizeString $units');
+      _size = ProperFilesize.parseHumanReadableFilesize('$sizeString $units')
+          .toDouble();
     } catch (e) {}
 
     try {
@@ -88,7 +92,9 @@ class NetSpace {
 
         for (var match in matches)
           if (_size == 0)
-            _size = sizeStringToInt('${match.group(1)} ${match.group(2)}iB');
+            _size = ProperFilesize.parseHumanReadableFilesize(
+                    '${match.group(1)} ${match.group(2)}iB')
+                .toDouble();
 
         _source = "chiacalculator.com";
       }
@@ -108,7 +114,9 @@ class NetSpace {
                 .parseUTC(pastSize['date'])
                 .millisecondsSinceEpoch -
             Duration(hours: 3).inMilliseconds;
-        double size = sizeStringToInt("${pastSize['netspace']} PiB");
+        double size = ProperFilesize.parseHumanReadableFilesize(
+                "${pastSize['netspace']} PiB")
+            .toDouble();
         pastSizes.putIfAbsent(timestamp.toString(), () => size);
       }
     } catch (e) {}
@@ -159,7 +167,7 @@ class NetSpace {
 
     if (showAbsoluteSize)
       absoluteSize =
-          "$sign${generateHumanReadableSize(avgSizeDiff.abs() / 1.0)}, ";
+          "$sign${ProperFilesize.generateHumanReadableFilesize(avgSizeDiff.abs())}, ";
 
     growth = "$absoluteSize$sign${ratio.abs().toStringAsFixed(1)}%";
 
@@ -194,46 +202,6 @@ class NetSpace {
       _size = previousNetSpace.size;
       _source = previousNetSpace.source;
     }
-  }
-
-  static const List<String> units = ['', 'K', 'M', 'G', 'T', 'P', 'E'];
-
-  static const Map<String, double> bases = {'B': 1000, 'iB': 1024};
-
-  static double logBase(num x, num base) => Math.log(x) / Math.log(base);
-
-  //generates a human readable string in xiB from an int size in bytes
-  static String generateHumanReadableSize(double size,
-      [String base = "iB", int decimals = 3]) {
-    try {
-      var index = ((logBase(size, bases[base]!)).floor());
-      var unit = units[index];
-
-      double value = size / (Math.pow(bases[base]!, index) * 1.0);
-
-      return "${value.toStringAsFixed(decimals)} $unit$base";
-    } catch (e) {
-      return "$size B"; //when value in bytes
-    }
-  }
-
-  static double sizeStringToInt(String netspace) {
-    double size = 0;
-
-    //converts xiB or xB to bytes
-    for (var base in bases.entries.toList().reversed) {
-      for (var unit in units.reversed) {
-        if (netspace.contains("$unit${base.key}")) {
-          double value =
-              double.parse(netspace.replaceAll("$unit${base.key}", "").trim());
-          size = (value * (Math.pow(base.value, units.indexOf(unit))));
-
-          return size;
-        }
-      }
-    }
-
-    return size;
   }
 
   NetSpace.fromJson(dynamic json) {

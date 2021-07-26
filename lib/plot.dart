@@ -1,12 +1,11 @@
 import 'dart:core';
 import 'package:intl/intl.dart';
+import 'package:proper_filesize/proper_filesize.dart';
 import 'package:universal_io/io.dart' as io;
 import 'dart:math' as Math;
 
 import 'package:logging/logging.dart';
 import 'package:path/path.dart';
-
-import 'package:farmr_client/server/netspace.dart';
 
 final log = Logger('Plot');
 
@@ -203,6 +202,6 @@ String twoDigits(String input) {
 }
 
 String fileSize(int size, [int decimals = 1]) {
-  return NetSpace.generateHumanReadableSize(
-      size.abs().toDouble(), "iB", decimals);
+  return ProperFilesize.generateHumanReadableFilesize(size.abs().toDouble(),
+      decimals: decimals);
 }
