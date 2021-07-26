@@ -180,8 +180,11 @@ class Farmer extends Harvester {
     bool synced = true;
     bool syncing = false;
 
+    //if wallet balance is enabled and
     //if rpc works
-    if (walletsObject != null && (walletsObject['success'] ?? false)) {
+    if (blockchain.config.showWalletBalance &&
+        walletsObject != null &&
+        (walletsObject['success'] ?? false)) {
       for (var walletID in walletsObject['wallets'] ?? []) {
         final int id = walletID['id'] ?? 1;
         name = walletID['name'] ?? "Wallet";
@@ -250,10 +253,11 @@ class Farmer extends Harvester {
     {
       LocalWallet localWallet = LocalWallet(
           blockchain: this.blockchain, syncedBlockHeight: syncedBlockHeight);
+      localWallet.setLastBlockFarmed(_lastBlockFarmed);
 
-      //parses chia wallet show for block height
-      localWallet.parseWalletBalance(blockchain.config.cache!.binPath,
-          _lastBlockFarmed, blockchain.config.showWalletBalance);
+      //parses chia wallet show for wallet balance (legacy mode)
+      if (blockchain.config.showWalletBalance)
+        localWallet.parseWalletBalance(blockchain.config.cache!.binPath);
 
       wallets.add(localWallet);
     }
@@ -293,7 +297,7 @@ class Farmer extends Harvester {
 
   @override
   Future<void> init() async {
-    if (blockchain.config.showWalletBalance) await getLocalWallets();
+    await getLocalWallets();
 
     if (blockchain.currencySymbol == "xch") await getPeakHeight();
 

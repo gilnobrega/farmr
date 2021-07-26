@@ -61,39 +61,33 @@ class LocalWallet extends Wallet {
     status = LocalWalletStatus.values[json['status'] ?? 0];
   }
 
-  void parseWalletBalance(
-      String binPath, int lastBlockFarmed, bool showWalletBalance) {
-    setLastBlockFarmed(lastBlockFarmed);
+  void parseWalletBalance(String binPath) {
+    var walletOutput =
+        io.Process.runSync(binPath, const ["wallet", "show"]).stdout.toString();
 
-    if (showWalletBalance) {
-      var walletOutput = io.Process.runSync(binPath, const ["wallet", "show"])
-          .stdout
-          .toString();
+    try {
+      //If user enabled showWalletBalance then parses ``chia wallet show``
+      RegExp walletRegex = RegExp(
+          "-Total Balance:(.*)${this.blockchain.currencySymbol.toLowerCase()} \\(([0-9]+) ${this.blockchain.minorCurrencySymbol.toLowerCase()}\\)",
+          multiLine: false);
 
-      try {
-        //If user enabled showWalletBalance then parses ``chia wallet show``
-        RegExp walletRegex = RegExp(
-            "-Total Balance:(.*)${this.blockchain.currencySymbol.toLowerCase()} \\(([0-9]+) ${this.blockchain.minorCurrencySymbol.toLowerCase()}\\)",
-            multiLine: false);
+      //converts minor symbol to major symbol
+      confirmedBalance = int.tryParse(
+              walletRegex.firstMatch(walletOutput)?.group(2) ?? '-1') ??
+          -1;
+    } catch (e) {
+      log.warning("Error: could not parse wallet balance.");
+    }
 
-        //converts minor symbol to major symbol
-        confirmedBalance = int.tryParse(
-                walletRegex.firstMatch(walletOutput)?.group(2) ?? '-1') ??
-            -1;
-      } catch (e) {
-        log.warning("Error: could not parse wallet balance.");
-      }
-
-      //tries to get synced wallet height
-      try {
-        RegExp walletHeightRegex =
-            RegExp("Wallet height: ([0-9]+)", multiLine: false);
-        walletHeight = int.tryParse(
-                walletHeightRegex.firstMatch(walletOutput)?.group(1) ?? '-1') ??
-            -1;
-      } catch (e) {
-        log.warning("Error: could not parse wallet height");
-      }
+    //tries to get synced wallet height
+    try {
+      RegExp walletHeightRegex =
+          RegExp("Wallet height: ([0-9]+)", multiLine: false);
+      walletHeight = int.tryParse(
+              walletHeightRegex.firstMatch(walletOutput)?.group(1) ?? '-1') ??
+          -1;
+    } catch (e) {
+      log.warning("Error: could not parse wallet height");
     }
   }
 
