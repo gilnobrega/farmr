@@ -295,7 +295,7 @@ class Farmer extends Harvester {
 
   @override
   Future<void> init() async {
-    await getLocalWallets();
+    if (blockchain.config.showWalletBalance) await getLocalWallets();
 
     if (blockchain.currencySymbol == "xch") await getPeakHeight();
 
