@@ -188,7 +188,7 @@ class Farmer extends Harvester {
       for (var walletID in walletsObject['wallets'] ?? []) {
         final int id = walletID['id'] ?? 1;
         name = walletID['name'] ?? "Wallet";
-        type = walletID['type'] ?? 0;
+        //final int walletType = walletID['type'] ?? 0;
 
         RPCConfiguration rpcConfig2 = RPCConfiguration(
             blockchain: blockchain,
