@@ -11,25 +11,28 @@ import 'package:proper_filesize/proper_filesize.dart';
 
 Logger log = Logger("FoxyPool API");
 
+enum FoxyPoolProtocol { OG, NFT }
+
 class FoxyPoolWallet extends GenericPoolWallet {
   final String publicKey;
-  final bool og; //og uses chia-og/flax-og protocols
+  final FoxyPoolProtocol protocol; //og uses chia-og/flax-og protocols
 
   FoxyPoolWallet(
       {required Blockchain blockchain,
       required this.publicKey,
-      required this.og,
+      required this.protocol,
       String name = "FoxyPool Wallet"})
       : super(blockchain: blockchain, name: name);
 
-  static String _foxyPoolUrl(String poolIdentifier, bool og) =>
-      "https://api2.foxypool.io/api/v1/$poolIdentifier${(og) ? "-og" : ""}/account/";
+  static String _foxyPoolUrl(
+          String poolIdentifier, FoxyPoolProtocol protocol) =>
+      "https://api2.foxypool.io/api/v1/$poolIdentifier${(protocol == FoxyPoolProtocol.OG) ? "-og" : ""}/account/";
 
   Future<void> init() async {
     if (publicKey != "") {
       try {
         String contents = await http.read(Uri.parse(
-            _foxyPoolUrl("${blockchain.binaryName}", og) + publicKey));
+            _foxyPoolUrl("${blockchain.binaryName}", protocol) + publicKey));
 
         var data = jsonDecode(contents);
 
@@ -53,7 +56,7 @@ class FoxyPoolWallet extends GenericPoolWallet {
           }
         } else {
           log.warning(
-              "Failed to get FoxyPool ${(og) ? "OG" : "NFT"} Balance, make sure your pool public key is correct.\nIgnore this error if you are not farming with FoxyPool ${(og) ? "OG" : "NFT"} protocol.");
+              "Failed to get FoxyPool ${(protocol == FoxyPoolProtocol.OG) ? "OG" : "NFT"} Balance, make sure your pool public key or launcher_id is correct.");
           log.info(data['error'].toString());
         }
       } catch (e) {

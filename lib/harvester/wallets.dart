@@ -66,17 +66,21 @@ class HarvesterWallets {
 
     for (String publicKey in blockchain.config.foxyPoolPublicKeys) {
       //og wallet
-      wallets.add(FoxyPoolWallet(
-          blockchain: blockchain,
-          publicKey: publicKey,
-          og: true,
-          name: "FoxyPool OG Wallet"));
+      if (publicKey.length == 96 ||
+          publicKey.length == 98) // length difference is 0x
+        wallets.add(FoxyPoolWallet(
+            blockchain: blockchain,
+            publicKey: publicKey,
+            protocol: FoxyPoolProtocol.OG,
+            name: "FoxyPool OG Wallet"));
       //nft wallet
-      wallets.add(FoxyPoolWallet(
-          blockchain: blockchain,
-          publicKey: publicKey,
-          og: false,
-          name: "FoxyPool NFT Wallet"));
+      else if ((publicKey.length == 64 || publicKey.length == 66) &&
+          blockchain.currencySymbol == "xch")
+        wallets.add(FoxyPoolWallet(
+            blockchain: blockchain,
+            publicKey: publicKey,
+            protocol: FoxyPoolProtocol.NFT,
+            name: "FoxyPool NFT Wallet"));
     }
 
     for (String publicKey in blockchain.config.plottersClubPublicKeys)
