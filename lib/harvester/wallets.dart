@@ -64,8 +64,20 @@ class HarvesterWallets {
     for (String address in blockchain.config.flexpoolAddresses)
       wallets.add(FlexpoolWallet(blockchain: blockchain, address: address));
 
-    for (String publicKey in blockchain.config.foxyPoolPublicKeys)
-      wallets.add(FoxyPoolWallet(blockchain: blockchain, publicKey: publicKey));
+    for (String publicKey in blockchain.config.foxyPoolPublicKeys) {
+      //og wallet
+      wallets.add(FoxyPoolWallet(
+          blockchain: blockchain,
+          publicKey: publicKey,
+          og: true,
+          name: "FoxyPool OG Wallet"));
+      //nft wallet
+      wallets.add(FoxyPoolWallet(
+          blockchain: blockchain,
+          publicKey: publicKey,
+          og: false,
+          name: "FoxyPool NFT Wallet"));
+    }
 
     for (String publicKey in blockchain.config.plottersClubPublicKeys)
       wallets.add(
