@@ -61,12 +61,15 @@ jobs:
              chmod +x ./harvester.sh
              chmod +x ./hpool.sh
 
-      - uses: uraimo/run-on-arch-action@v2.0.10
+      - uses: uraimo/run-on-arch-action@v2.1.0
         name: Compile aarch64
         id: runcmd
         with:
           arch: aarch64
           distro: ubuntu20.04
+          install: |
+               apt-get update -q -y
+               apt-get install -q -y git
           run: |
                ./dart-aarch64/dart-sdk/bin/dart pub get
                ./dart-aarch64/dart-sdk/bin/dart run environment_config:generate
