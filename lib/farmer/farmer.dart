@@ -88,12 +88,9 @@ class Farmer extends Harvester {
   }
 
   Farmer(
-      {required Blockchain blockchain,
-      String version = '',
-      bool hpool = false,
-      required this.type})
+      {required Blockchain blockchain, String version = '', required this.type})
       : super(blockchain, version) {
-    if (!hpool) {
+    if (type != ClientType.HPool) {
       //runs chia farm summary if it is a farmer
       var result = io.Process.runSync(
           blockchain.config.cache!.binPath, const ["farm", "summary"]);
@@ -297,9 +294,11 @@ class Farmer extends Harvester {
 
   @override
   Future<void> init() async {
-    await getLocalWallets();
+    if (type != ClientType.HPool) {
+      await getLocalWallets();
 
-    if (blockchain.currencySymbol == "xch") await getPeakHeight();
+      if (blockchain.currencySymbol == "xch") await getPeakHeight();
+    }
 
     await super.init();
   }

@@ -19,7 +19,6 @@ class HPool extends Farmer {
   double get balance => _balance; //hides balance
 
   HPoolWallet _wallet = HPoolWallet(-1.0, -1.0, Blockchain.fromSymbol("xch"));
-  @override
   LocalWallet get wallet => _wallet;
 
   @override
@@ -27,10 +26,7 @@ class HPool extends Farmer {
 
   HPool({required Blockchain blockchain, String version = ''})
       : super(
-            blockchain: blockchain,
-            version: version,
-            hpool: true,
-            type: ClientType.HPool) {
+            blockchain: blockchain, version: version, type: ClientType.HPool) {
     _wallet = HPoolWallet(-1.0, -1.0, this.blockchain);
     _authToken = blockchain.config.hpoolAuthToken;
   }
