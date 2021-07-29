@@ -28,11 +28,11 @@ class RPCPorts {
         RPCService.Full_Node: fullNodePort
       };
 
-  final int harvesterPort;
-  final int walletPort;
-  final int farmerPort;
-  final int daemonPort;
-  final int fullNodePort;
+  final int? harvesterPort;
+  final int? walletPort;
+  final int? farmerPort;
+  final int? daemonPort;
+  final int? fullNodePort;
 
   Map toJson() => {
         "harvester": harvesterPort,
@@ -51,11 +51,11 @@ class RPCPorts {
 
   RPCPorts.fromJson(dynamic json)
       : this(
-            harvesterPort: json['harvester'] ?? -1,
-            farmerPort: json['farmer'] ?? -1,
-            walletPort: json['wallet'] ?? -1,
-            fullNodePort: json['fullNode'] ?? -1,
-            daemonPort: json['daemon'] ?? -1);
+            harvesterPort: json['harvester'],
+            farmerPort: json['farmer'],
+            walletPort: json['wallet'],
+            fullNodePort: json['fullNode'],
+            daemonPort: json['daemon']);
 
   int? getServicePort(RPCService service) {
     return _servicePorts[service];
@@ -98,10 +98,9 @@ class RPCConnection {
       HttpClient client = new HttpClient(context: context);
 
       //reads service port
-      int port =
-          rpcConfig.blockchain.rpcPorts?.getServicePort(rpcConfig.service) ??
-              -1;
-      if (port > 0) {
+      int? port =
+          rpcConfig.blockchain.rpcPorts?.getServicePort(rpcConfig.service);
+      if (port != null) {
         // The rest of this code comes from your question.
         var uri = "https://localhost:$port/${rpcConfig.endpoint}";
         var data = jsonEncode(rpcConfig.dataToSend);
