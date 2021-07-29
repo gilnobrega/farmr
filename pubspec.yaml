@@ -25,3 +25,4 @@ dependencies:
   console: ^4.1.0
   dart_console: ^1.0.0
   proper_filesize: ^0.0.2
+  tcp_scanner: ^2.0.5

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:farmr_client/blockchain.dart';
+import 'package:tcp_scanner/tcp_scanner.dart';
 
 import 'package:universal_io/io.dart';
 import 'package:logging/logging.dart';
@@ -59,6 +60,30 @@ class RPCPorts {
 
   int? getServicePort(RPCService service) {
     return _servicePorts[service];
+  }
+
+  //returns if port is being used by service a.k.a. if service is running
+  //null means port was not secified or there was an exception thrown by library
+  Future<bool?> isServiceRunning(RPCService service) async {
+    const String host = 'localhost';
+
+    final int? port = getServicePort(service);
+
+    bool? running;
+
+    if (port != null) {
+      try {
+        final report =
+            await TcpScannerTask(host, [port], parallelism: 1).start();
+
+        running = report.closedPorts.contains(port);
+      } catch (e) {
+        // Here you can catch exceptions threw in the constructor
+        stderr.writeln('TCP Scanner Error: $e');
+      }
+    }
+
+    return running;
   }
 }
 
