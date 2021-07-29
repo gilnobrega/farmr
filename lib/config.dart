@@ -116,9 +116,10 @@ class Config {
 
     //and asks for bin path if path is not defined/not found and it is not in headless mode
     //(means user input works)
-    if (!headless &&
+/*     if (!headless &&
         (cache!.binPath == '' || !io.File(cache!.binPath).existsSync()))
-      await _askForBinPath();
+      await _askForBinPath(); */
+    //DEPRECATED -> AUTOMATICALLY ASKS FOR BIN PATH IF RREQUESTED
   }
 
   Future<void> loadOnlineConfig() async {
@@ -194,119 +195,6 @@ class Config {
     String contents = encoder.convert([genConfigMap()]);
 
     _config.writeAsStringSync(contents);
-  }
-
-  Future<void> _askForBinPath() async {
-    String exampleDir = (io.Platform.isLinux || io.Platform.isMacOS)
-        ? "/home/user/${_blockchain.binaryName}-blockchain"
-        : (io.Platform.isWindows)
-            ? "C:\\Users\\user\\AppData\\Local\\${_blockchain.binaryName}-blockchain or C:\\Users\\user\\AppData\\Local\\${_blockchain.binaryName}-blockchain\\app-1.0.3\\resources\\app.asar.unpacked"
-            : "";
-
-    bool validDirectory = false;
-
-    validDirectory = await _tryDirectories();
-
-    if (validDirectory)
-      log.info(
-          "Automatically found ${_blockchain.binaryName} binary at: '${cache!.binPath}'");
-    else
-      log.info("Could not automatically locate chia binary.");
-
-    while (!validDirectory) {
-      log.warning(
-          "Specify your ${_blockchain.binaryName}-blockchain directory below: (e.g.: " +
-              exampleDir +
-              ")");
-
-      _blockchain.cache.chiaPath = io.stdin.readLineSync() ?? '';
-      log.info("Input chia path: '${_blockchain.cache.chiaPath}'");
-
-      cache!.binPath = (io.Platform.isLinux || io.Platform.isMacOS)
-          ? _blockchain.cache.chiaPath + "/venv/bin/${_blockchain.binaryName}"
-          : _blockchain.cache.chiaPath +
-              "\\daemon\\${_blockchain.binaryName}.exe";
-
-      if (io.File(cache!.binPath).existsSync())
-        validDirectory = true;
-      else if (io.Directory(_blockchain.cache.chiaPath).existsSync())
-        log.warning("""Could not locate chia binary in your directory.
-(${cache!.binPath} not found)
-Please try again.
-Make sure this folder has the same structure as Chia's GitHub repo.""");
-      else
-        log.warning(
-            "Uh oh, that directory could not be found! Please try again.");
-    }
-
-    await saveConfig(); //saves path input by user to config
-    cache!.save(); //saves bin path to cache
-  }
-
-  //If in windows, tries a bunch of directories
-  Future<bool> _tryDirectories() async {
-    bool valid = false;
-
-    late io.Directory chiaRootDir;
-    late String file;
-
-    if (io.Platform.isWindows) {
-      //Checks if binary exist in C:\User\AppData\Local\chia-blockchain\resources\app.asar.unpacked\daemon\chia.exe
-      chiaRootDir = io.Directory(io.Platform.environment['UserProfile']! +
-          "/AppData/Local/${_blockchain.binaryName}-blockchain");
-
-      file =
-          "/resources/app.asar.unpacked/daemon/${_blockchain.binaryName}.exe";
-
-      if (chiaRootDir.existsSync()) {
-        await chiaRootDir.list(recursive: false).forEach((dir) {
-          io.File trypath = io.File(dir.path + file);
-          if (trypath.existsSync()) {
-            cache!.binPath = trypath.path;
-            valid = true;
-          }
-        });
-      }
-    } else if (io.Platform.isLinux || io.Platform.isMacOS) {
-      List<String> possiblePaths = [];
-
-      if (io.Platform.isLinux) {
-        chiaRootDir =
-            io.Directory("/usr/lib/${_blockchain.binaryName}-blockchain");
-        file = "/resources/app.asar.unpacked/daemon/${_blockchain.binaryName}";
-      } else if (io.Platform.isMacOS) {
-        //capitalizes first letter of a string
-        String capitalize(String input) {
-          return "${input[0].toUpperCase()}${input.substring(1)}";
-        }
-
-        chiaRootDir = io.Directory(
-            "/Applications/${capitalize(_blockchain.binaryName)}.app/Contents");
-        file = "/Resources/app.asar.unpacked/daemon/${_blockchain.binaryName}";
-      }
-
-      possiblePaths = [
-        // checks if binary exists in /package:farmr_client/chia-blockchain/resources/app.asar.unpacked/daemon/chia in linux or
-        // checks if binary exists in /Applications/Chia.app/Contents/Resources/app.asar.unpacked/daemon/chia in macOS
-        chiaRootDir.path + file,
-        // Checks if binary exists in /usr/package:farmr_client/chia-blockchain/resources/app.asar.unpacked/daemon/chia
-        "/usr" + chiaRootDir.path + file,
-        //checks if binary exists in /home/user/.local/bin/chia
-        io.Platform.environment['HOME']! +
-            "/.local/bin/${_blockchain.binaryName}"
-      ];
-
-      for (int i = 0; i < possiblePaths.length; i++) {
-        io.File possibleFile = io.File(possiblePaths[i]);
-
-        if (possibleFile.existsSync()) {
-          cache!.binPath = possibleFile.path;
-          valid = true;
-        }
-      }
-    }
-
-    return valid;
   }
 
   Config.fromJson(dynamic json, Blockchain blockchain, ClientType type) {
