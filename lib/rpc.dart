@@ -20,13 +20,19 @@ class MyHttpOverrides extends HttpOverrides {
 }
 
 class RPCPorts {
-  late Map<RPCService, int?> _servicePorts;
+  Map<RPCService, int?> get _servicePorts => {
+        RPCService.Daemon: daemonPort,
+        RPCService.Farmer: farmerPort,
+        RPCService.Harvester: harvesterPort,
+        RPCService.Wallet: walletPort,
+        RPCService.Full_Node: fullNodePort
+      };
 
-  late int harvesterPort;
-  late int walletPort;
-  late int farmerPort;
-  late int daemonPort;
-  late int fullNodePort;
+  final int harvesterPort;
+  final int walletPort;
+  final int farmerPort;
+  final int daemonPort;
+  final int fullNodePort;
 
   Map toJson() => {
         "harvester": harvesterPort,
@@ -36,33 +42,20 @@ class RPCPorts {
         "daemon": daemonPort
       };
 
-  _initializeServicePorts() {
-    _servicePorts = {
-      RPCService.Daemon: daemonPort,
-      RPCService.Farmer: farmerPort,
-      RPCService.Harvester: harvesterPort,
-      RPCService.Wallet: walletPort,
-      RPCService.Full_Node: fullNodePort
-    };
-  }
-
-  RPCPorts(
+  const RPCPorts(
       {required this.harvesterPort,
       required this.farmerPort,
       required this.walletPort,
       required this.fullNodePort,
-      required this.daemonPort}) {
-    _initializeServicePorts();
-  }
+      required this.daemonPort});
 
-  RPCPorts.fromJson(dynamic json) {
-    harvesterPort = json['harvester'] ?? -1;
-    farmerPort = json['farmer'] ?? -1;
-    walletPort = json['wallet'] ?? -1;
-    fullNodePort = json['fullNode'] ?? -1;
-    daemonPort = json['daemon'] ?? -1;
-    _initializeServicePorts();
-  }
+  RPCPorts.fromJson(dynamic json)
+      : this(
+            harvesterPort: json['harvester'] ?? -1,
+            farmerPort: json['farmer'] ?? -1,
+            walletPort: json['wallet'] ?? -1,
+            fullNodePort: json['fullNode'] ?? -1,
+            daemonPort: json['daemon'] ?? -1);
 
   int? getServicePort(RPCService service) {
     return _servicePorts[service];
