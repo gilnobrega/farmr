@@ -147,14 +147,16 @@ class Harvester
       _config.cache!.saveMemories(_hardware?.memories ?? []);
     }
 
-    try {
-      _blockchainVersion = io.Process.runSync(
-              blockchain.config.cache!.binPath, const ["version"])
-          .stdout
-          .toString()
-          .trim();
-    } catch (error) {
-      log.warning("Failed to get ${blockchain.binaryName} version");
+    if (type != ClientType.HPool) {
+      try {
+        _blockchainVersion = io.Process.runSync(
+                blockchain.config.cache!.binPath, const ["version"])
+            .stdout
+            .toString()
+            .trim();
+      } catch (error) {
+        log.warning("Failed to get ${blockchain.binaryName} version");
+      }
     }
   }
 
@@ -227,7 +229,8 @@ class Harvester
     _plotDests = listPlotDest(this.blockchain.configPath);
 
     await listPlots(_plotDests, _config);
-    await readRPCPlotList(blockchain);
+
+    if (type != ClientType.HPool) await readRPCPlotList(blockchain);
 
     await getWallets(blockchain, syncedBlockHeight);
 
