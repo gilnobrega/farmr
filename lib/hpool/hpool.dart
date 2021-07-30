@@ -50,9 +50,9 @@ class HPool extends Farmer {
     Map farmerMap = (super.toJson());
 
     farmerMap.update("balance", (value) => _balance);
-    farmerMap.update("walletBalance", (value) => _wallet.balance);
 
     farmerMap.addEntries({
+      "walletBalance": _wallet.balance,
       'undistributedBalance': _wallet.undistributedBalance, //wallet balance
     }.entries);
 
