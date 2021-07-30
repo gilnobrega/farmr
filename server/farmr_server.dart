@@ -275,21 +275,20 @@ Future<List<Harvester>> _getUserData(String userID, String blockchain) async {
         .toList();
 
     for (int i = 0; i < clientsSerial.length; i++) {
-      var clientData = jsonDecode(clientsSerial[i]);
-      var client;
+      var clientData = jsonDecode(clientsSerial[i])[0];
 
       //If this object is a farmer then adds it to farmers list, if not adds it to harvesters list
       if (ClientType.values[clientData['type']] == ClientType.Farmer ||
           clientData['type'] == 3 ||
           clientData['type'] == 4) {
-        client = Farmer.fromJson(clientData);
+        final client = Farmer.fromJson(clientData);
         harvesters.add(client);
       } else if (ClientType.values[clientData['type']] ==
           ClientType.Harvester) {
-        client = Harvester.fromJson(clientData);
+        final client = Harvester.fromJson(clientData);
         harvesters.add(client);
       } else if (ClientType.values[clientData['type']] == ClientType.HPool) {
-        client = HPool.fromJson(clientData);
+        final client = HPool.fromJson(clientData);
         harvesters.add(client);
       }
     }
