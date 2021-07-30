@@ -31,9 +31,7 @@ class HPool extends Farmer {
     _authToken = blockchain.config.hpoolAuthToken;
   }
 
-  HPool.fromJson(String json) : super.fromJson(json) {
-    var object = jsonDecode(json)[0];
-
+  HPool.fromJson(dynamic object) : super.fromJson(object) {
     if (object['balance'] != null)
       _balance = double.parse(object['balance'].toString());
 
@@ -50,9 +48,9 @@ class HPool extends Farmer {
     Map farmerMap = (super.toJson());
 
     farmerMap.update("balance", (value) => _balance);
-    farmerMap.update("walletBalance", (value) => _wallet.balance);
 
     farmerMap.addEntries({
+      "walletBalance": _wallet.balance,
       'undistributedBalance': _wallet.undistributedBalance, //wallet balance
     }.entries);
 
