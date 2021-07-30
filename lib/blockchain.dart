@@ -151,6 +151,10 @@ class Blockchain {
     await this.config.init(this.onlineConfig,
         this._args.contains("headless") || this._args.contains("hpool"));
 
+    //DEBUG PURPOSES
+    await rpcPorts?.printStatus();
+    io.stdin.readByteSync();
+
     //TODO: find a way to not have to run this logUpdate command twice (in blockchain.init and every 10 minutes)
     logUpdate();
   }

@@ -85,6 +85,15 @@ class RPCPorts {
 
     return running;
   }
+
+  //debug purposes
+  //prints list of every services and if they are running
+  Future<void> printStatus() async {
+    for (RPCService service in RPCService.values) {
+      final isRunning = await isServiceRunning(service);
+      print("$service: $isRunning ");
+    }
+  }
 }
 
 class RPCConfiguration {
