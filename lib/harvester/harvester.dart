@@ -158,10 +158,8 @@ class Harvester
     }
   }
 
-  Harvester.fromJson(String json) {
+  Harvester.fromJson(dynamic object) {
     allPlots = [];
-
-    var object = jsonDecode(json)[0];
 
     //loads harvester status
     if (object['status'] != null) _status = object['status'];

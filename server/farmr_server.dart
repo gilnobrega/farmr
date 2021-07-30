@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:core';
 
+import 'package:farmr_client/config.dart';
 import 'package:farmr_client/wallets/wallet.dart';
 import 'package:mysql1/mysql1.dart' as mysql;
 import 'package:dotenv/dotenv.dart' as dotenv;
@@ -242,16 +244,17 @@ Future<List<Harvester>> _getUserData(String userID, String blockchain) async {
     var results = await conn.query(mysqlQuery);
     for (var result in results) {
       if (result[0].toString().contains('"type"')) {
-        String data = "[" + result[0].toString() + "]";
+        String data = result[0].toString();
+        var clientData = jsonDecode(data);
 
-        if (data.contains('"type":0') ||
-            data.contains('"type":3') ||
-            data.contains('"type":4'))
-          harvesters.add(Farmer.fromJson(data));
-        else if (data.contains('"type":1'))
-          harvesters.add(Harvester.fromJson(data));
-        else if (data.contains('"type":2'))
-          harvesters.add(HPool.fromJson(data));
+        if (ClientType.values[clientData['type']] == ClientType.Farmer ||
+            clientData['type'] == 3 ||
+            clientData['type'] == 4)
+          harvesters.add(Farmer.fromJson(clientData));
+        else if (ClientType.values[clientData['type']] == ClientType.Harvester)
+          harvesters.add(Harvester.fromJson(clientData));
+        else if (ClientType.values[clientData['type']] == ClientType.HPool)
+          harvesters.add(HPool.fromJson(clientData));
       }
     }
 
@@ -272,21 +275,21 @@ Future<List<Harvester>> _getUserData(String userID, String blockchain) async {
         .toList();
 
     for (int i = 0; i < clientsSerial.length; i++) {
-      String clientSerial = clientsSerial[i];
-
+      var clientData = jsonDecode(clientsSerial[i]);
       var client;
 
       //If this object is a farmer then adds it to farmers list, if not adds it to harvesters list
-      if (clientSerial.contains('"type":0') ||
-          clientSerial.contains('"type":3') ||
-          clientSerial.contains('"type":4')) {
-        client = Farmer.fromJson(clientSerial);
+      if (ClientType.values[clientData['type']] == ClientType.Farmer ||
+          clientData['type'] == 3 ||
+          clientData['type'] == 4) {
+        client = Farmer.fromJson(clientData);
         harvesters.add(client);
-      } else if (clientSerial.contains('"type":1')) {
-        client = Harvester.fromJson(clientSerial);
+      } else if (ClientType.values[clientData['type']] ==
+          ClientType.Harvester) {
+        client = Harvester.fromJson(clientData);
         harvesters.add(client);
-      } else if (clientSerial.contains('"type":2')) {
-        client = HPool.fromJson(clientSerial);
+      } else if (ClientType.values[clientData['type']] == ClientType.HPool) {
+        client = HPool.fromJson(clientData);
         harvesters.add(client);
       }
     }

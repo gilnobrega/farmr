@@ -31,9 +31,7 @@ class HPool extends Farmer {
     _authToken = blockchain.config.hpoolAuthToken;
   }
 
-  HPool.fromJson(String json) : super.fromJson(json) {
-    var object = jsonDecode(json)[0];
-
+  HPool.fromJson(dynamic object) : super.fromJson(object) {
     if (object['balance'] != null)
       _balance = double.parse(object['balance'].toString());
 
