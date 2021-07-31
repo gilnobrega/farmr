@@ -1,7 +1,6 @@
 import 'dart:core';
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/farmer/status.dart';
-import 'package:farmr_client/harvester/filters.dart';
 import 'package:farmr_client/rpc.dart';
 import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
 import 'package:farmr_client/wallets/poolWallets/genericPoolWallet.dart';
@@ -231,15 +230,6 @@ class Farmer extends Harvester with FarmerStatusMixin {
   Future<void> init() async {
     if (type != ClientType.HPool) {
       await updateFarmerStatus(blockchain);
-
-      //harvesting status
-      String harvestingStatusString = (HarvesterFilters.harvestingStatus(
-              blockchain.config.parseLogs, filters))
-          ? "Harvesting"
-          : "Not Harvesting";
-
-      if (harvestingStatusString != "Harvesting")
-        status = "$status, $harvestingStatusString";
 
       await getLocalWallets();
 

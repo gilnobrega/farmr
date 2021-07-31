@@ -3,6 +3,7 @@ import 'dart:io' as io;
 
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/hardware.dart';
+import 'package:farmr_client/harvester/status.dart';
 import 'package:farmr_client/harvester/wallets.dart';
 import 'package:uuid/uuid.dart';
 import 'package:logging/logging.dart';
@@ -22,7 +23,8 @@ class Harvester
         HarvesterDiskSpace,
         HarvesterPlots,
         HarvesterFilters,
-        HarvesterWallets {
+        HarvesterWallets,
+        HarvesterStatusMixin {
   late Config _config;
   late Blockchain blockchain; // TODO: Why is late necessary here?
 
@@ -31,9 +33,6 @@ class Harvester
   bool get isAggregate => _isAggregate;
 
   String name = "Harvester";
-
-  String _status = "Harvesting";
-  String get status => _status;
 
   String _crypto = "xch";
   String get crypto => _crypto;
@@ -80,7 +79,6 @@ class Harvester
   Map toJson() {
     var initialMap = {
       'name': name,
-      'status': status,
       'crypto': crypto,
       'blockRewards': blockRewards,
       'blocksPer10Mins': blocksPer10Mins,
@@ -135,9 +133,7 @@ class Harvester
 
     loadFilters(blockchain.log);
 
-    _status = (HarvesterFilters.harvestingStatus(_config.parseLogs, filters))
-        ? _status
-        : "Not Harvesting";
+    updateHarvesterStatus(blockchain);
 
     //loads swar plot manager config if defined by user
     if (_config.swarPath != "") _swarPM = SwarPM(_config.swarPath);
@@ -164,8 +160,7 @@ class Harvester
   Harvester.fromJson(dynamic object) {
     allPlots = [];
 
-    //loads harvester status
-    if (object['status'] != null) _status = object['status'];
+    loadStatusFromJson(object);
 
     //loads name from json file
     if (object['name'] != null) name = object['name'];
@@ -282,9 +277,7 @@ class Harvester
     //clears cpu list
     this.hardware?.cpus = [];
 
-    //shows harvesters status if theyre not harvesting
-    if (harvester.status != "Harvesting" && harvester.status != "Farming")
-      _status = "$_status,\n${harvester.name} is ${harvester.status}";
+    combineStatus(harvester);
 
     if (_version != harvester.version) _version = "";
 

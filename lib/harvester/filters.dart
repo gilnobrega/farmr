@@ -70,22 +70,6 @@ class HarvesterFilters {
     _numberFilters = filters.length;
   }
 
-  //used by harvester to evaluate filters
-  // used by farmer to evaluate signage points
-  // true means harvesting/farming, false means not farming/harvesting
-  static bool harvestingStatus(bool parseLogs, List<LogItem> logItems) {
-    final int harvestingLimit =
-        DateTime.now().subtract(Duration(minutes: 10)).millisecondsSinceEpoch;
-    final int last10mins =
-        logItems.where((logItem) => logItem.timestamp > harvestingLimit).length;
-
-    //detects if for some reason filters stopped being logged -> assumes its not harvesting
-    if (parseLogs && logItems.length > 0 && last10mins == 0)
-      return false;
-    else
-      return true;
-  }
-
   loadFiltersStatsJson(dynamic json, int numPlots) {
     //Old clients
     if (json['filters'] != null) {

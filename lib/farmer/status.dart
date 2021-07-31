@@ -1,5 +1,5 @@
 import 'package:farmr_client/blockchain.dart';
-import 'package:farmr_client/harvester/filters.dart';
+import 'package:farmr_client/harvester/status.dart';
 import 'package:farmr_client/rpc.dart';
 import 'package:farmr_client/server/netspace.dart';
 import 'package:logging/logging.dart';
@@ -8,21 +8,19 @@ import 'package:universal_io/io.dart' as io;
 enum FarmerStatus {
   Farming,
   Syncing,
-  NotSynced,
-  NotAvailable,
-  NotRunning,
-  NotFarming
+  Not_Synced,
+  Not_Available,
+  Not_Running,
+  Not_Farming
 }
 
 final log = Logger('Farmer Status');
 
 //class that contains everything related to ``chia farm summary`` command
 class FarmerStatusMixin {
-  //shows not harvesting status if harvester class is not harvesting
-  String status = "N/A";
-
-  FarmerStatus farmerStatus = FarmerStatus.NotAvailable;
-  String get farmerStatusString => farmerStatus.toString().split('.')[1];
+  FarmerStatus farmerStatus = FarmerStatus.Not_Available;
+  String get farmerStatusString =>
+      farmerStatus.toString().split('.')[1].replaceAll("_", " ");
 
   //Farmed balance
   double _farmedBalance = -1.0;
@@ -35,7 +33,6 @@ class FarmerStatusMixin {
   int lastBlockFarmed = 0;
 
   statusFromJson(dynamic object) {
-    status = object['status'];
     _farmedBalance = double.parse(object['balance']?.toString() ?? "-1");
 
     //reads netspace from json
@@ -78,18 +75,18 @@ class FarmerStatusMixin {
         if (result['sync']['sync_mode'] ?? false)
           farmerStatus = FarmerStatus.Syncing;
         else if (!(result['sync']['synced'] ?? true))
-          farmerStatus = FarmerStatus.NotSynced;
+          farmerStatus = FarmerStatus.Not_Synced;
         //checks if there were signage points in the last 10 minutes
-        else if (HarvesterFilters.harvestingStatus(
+        else if (HarvesterStatusMixin.harvestingStatus(
             blockchain.config.parseLogs, blockchain.cache.signagePoints))
           farmerStatus = FarmerStatus.Farming;
         else
-          farmerStatus = FarmerStatus.NotFarming;
+          farmerStatus = FarmerStatus.Not_Farming;
       }
     } else if (daemonRunning)
-      farmerStatus = FarmerStatus.NotAvailable;
+      farmerStatus = FarmerStatus.Not_Available;
     else
-      farmerStatus = FarmerStatus.NotRunning;
+      farmerStatus = FarmerStatus.Not_Running;
   }
 
   void _legacyFarmerStatus(Blockchain blockchain) {
@@ -104,9 +101,24 @@ class FarmerStatusMixin {
       for (int i = 0; i < lines.length; i++) {
         String line = lines[i];
 
-        if (line.startsWith("Farming status: "))
-          status = line.split("Farming status: ")[1];
+        if (line.startsWith("Farming status: ")) {
+          final String cliStatus =
+              line.split("Farming status: ")[1].toLowerCase();
 
+          if (cliStatus.contains("not")) {
+            if (cliStatus.contains("synced"))
+              farmerStatus = FarmerStatus.Not_Synced;
+            else if (cliStatus.contains("running"))
+              farmerStatus = FarmerStatus.Not_Running;
+            else if (cliStatus.contains("available"))
+              farmerStatus = FarmerStatus.Not_Available;
+          } else {
+            if (cliStatus.contains("syncing"))
+              farmerStatus = FarmerStatus.Syncing;
+            else if (cliStatus.contains("farming"))
+              farmerStatus = FarmerStatus.Farming;
+          }
+        }
         try {
           if (line.startsWith("Total ${blockchain.binaryName} farmed: "))
             _farmedBalance = (blockchain.config.showBalance)
