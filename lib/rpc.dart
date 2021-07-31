@@ -64,35 +64,46 @@ class RPCPorts {
 
   //returns if port is being used by service a.k.a. if service is running
   //null means port was not secified or there was an exception thrown by library
-  Future<bool?> isServiceRunning(RPCService service) async {
+  Future<Map<RPCService, bool?>> isServiceRunning(
+      List<RPCService> services) async {
     const String host = 'localhost';
 
-    final int? port = getServicePort(service);
+    Map<RPCService, bool?> resultMap = {};
+    Map<RPCService, int> ports = {};
 
-    bool? running;
+    for (var service in services) {
+      resultMap.putIfAbsent(service, () => null);
 
-    if (port != null) {
-      try {
-        final report =
-            await TcpScannerTask(host, [port], parallelism: 1).start();
+      final int? port = getServicePort(service);
 
-        running = report.openPorts.contains(port);
-      } catch (e) {
-        // Here you can catch exceptions threw in the constructor
-        stderr.writeln('TCP Scanner Error: $e');
-      }
+      if (port != null) ports.putIfAbsent(service, () => port);
     }
 
-    return running;
+    final Map<RPCService, bool?> runningMap = {};
+
+    try {
+      final report = await TcpScannerTask(
+              host, ports.entries.map((e) => e.value).toList(),
+              parallelism: 4)
+          .start();
+
+      for (var entry in ports.entries) {
+        final bool running = report.openPorts.contains(entry.value);
+        resultMap.update(entry.key, (value) => running);
+      }
+    } catch (e) {
+      // Here you can catch exceptions threw in the constructor
+      stderr.writeln('TCP Scanner Error: $e');
+    }
+
+    return runningMap;
   }
 
   //debug purposes
   //prints list of every services and if they are running
   Future<void> printStatus() async {
-    for (RPCService service in RPCService.values) {
-      final isRunning = await isServiceRunning(service);
-      print("$service: $isRunning ");
-    }
+    final isRunning = await isServiceRunning(RPCService.values);
+    print("$isRunning");
   }
 }
 
