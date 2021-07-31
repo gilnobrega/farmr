@@ -15,9 +15,12 @@ class HarvesterStatusMixin {
     if (_legacyStatus != "N/A")
       return _legacyStatus;
     else if (this is Farmer) {
-      return "${(this as Farmer).farmerStatusString}";
-    }
-    return "";
+      if (harvesterStatus != HarvesterStatus.Harvesting)
+        return "${(this as Farmer).farmerStatusString}, ${this.harvesterStatusString}";
+      else
+        return "${(this as Farmer).farmerStatusString}";
+    } else
+      return "${this.harvesterStatusString}";
   }
 
   void updateHarvesterStatus(Blockchain blockchain) {
