@@ -331,35 +331,28 @@ void handleBlockchainReport(List<Object> arguments) async {
   try {
     //loads and updates cache every 10 minutes
     //loads config every 10 minutes
+    await blockchain.initializePorts();
     await blockchain.init();
 
     var client;
 
-    //if its xch
-    if (blockchain.currencySymbol == "xch" ||
-        blockchain.currencySymbol == "xfx") {
-      if (blockchain.config.type == ClientType.HPool &&
-          blockchain.currencySymbol == "xch")
+    //initializes client based on type detected by blockchain
+    switch (blockchain.type) {
+      case ClientType.Farmer:
+        client = client = Farmer(
+            blockchain: blockchain,
+            version: EnvironmentConfig.version,
+            type: blockchain.config.type);
+        break;
+
+      case ClientType.Harvester:
+        client = Harvester(blockchain, EnvironmentConfig.version);
+        break;
+
+      case ClientType.HPool:
         client =
             HPool(blockchain: blockchain, version: EnvironmentConfig.version);
-      else if (blockchain.config.type == ClientType.Harvester)
-        client = Harvester(blockchain, EnvironmentConfig.version);
-      else
-        client = Farmer(
-            blockchain: blockchain,
-            version: EnvironmentConfig.version,
-            type: blockchain.config.type);
-    }
-    //if its not xch then it wont start foxypool or hpool mode
-    //will default to farmer mode unless harvester domain is specific in addition to hpool
-    else {
-      if (argsContainsHarvester)
-        client = Harvester(blockchain, EnvironmentConfig.version);
-      else
-        client = Farmer(
-            blockchain: blockchain,
-            version: EnvironmentConfig.version,
-            type: blockchain.config.type);
+        break;
     }
 
     //hpool has a special config.yaml directory, as defined in farmr's config.json

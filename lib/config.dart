@@ -79,18 +79,14 @@ class Config {
   late String _rootPath;
   late io.File _config;
 
-  Config(this._blockchain, this.cache, this._rootPath,
-      [isHarvester = false, isHPool = false]) {
+  Config(
+    this._blockchain,
+    this.cache,
+    this._rootPath,
+    this._type,
+  ) {
     _config =
         io.File(_rootPath + "config/config${_blockchain.fileExtension}.json");
-
-    if (isHPool && _blockchain.currencySymbol == "xch") {
-      _type = ClientType.HPool;
-    } else if (isHarvester) {
-      _type = ClientType.Harvester;
-    } else {
-      _type = ClientType.Farmer;
-    }
 
     //sets default name according to client type
     name = defaultNames[type] ?? "Harvester";

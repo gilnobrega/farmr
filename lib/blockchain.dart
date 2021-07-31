@@ -60,9 +60,14 @@ class Blockchain {
   late Config config;
   late Log log;
 
-  RPCPorts? rpcPorts;
+  late final String _rootPath;
 
-  Blockchain(this.id, String rootPath, this._args, [dynamic json]) {
+  RPCPorts? rpcPorts;
+  late final Map<RPCService, bool?> _initialServiceStatus;
+
+  late final ClientType type;
+
+  Blockchain(this.id, this._rootPath, this._args, [dynamic json]) {
     _fromJson(json); //loads properties from serialized blokchain
 
     //doesnt load online config if standalone argument is provided
@@ -72,13 +77,6 @@ class Blockchain {
       _onlineConfig = false;
 
     _os = detectOS();
-
-    // Setup
-    this.cache = new Cache(this, rootPath);
-
-    /** Initializes config, either creates a new one or loads a config file */
-    this.config = new Config(this, this.cache, rootPath,
-        _args.contains("harvester"), _args.contains("hpool"));
   }
 
   //this is used on server side
@@ -146,14 +144,43 @@ class Blockchain {
     return os;
   }
 
+  Future<void> initializePorts() async {
+    //DEBUG PURPOSES
+    //await rpcPorts?.printStatus();
+    //io.stdin.readByteSync();
+
+    //initializes map with list of RPC services and if they are running or not
+    _initialServiceStatus =
+        await rpcPorts?.isServiceRunning(RPCService.values) ?? {};
+
+    bool harvesterRunning =
+        _initialServiceStatus[RPCService.Harvester] ?? false;
+    bool farmerRunning = _initialServiceStatus[RPCService.Farmer] ?? false;
+
+    //hpool argument overrides type
+    if (_args.contains("hpool") && currencySymbol == "xch")
+      type = ClientType.HPool;
+    //chooses farmer if farmer service is running
+    else if (farmerRunning)
+      type = ClientType.Farmer;
+    //chooses harvester if harvester service is running
+    else if (harvesterRunning)
+      type = ClientType.Harvester;
+    else
+      throw Exception(
+          "Unable to detect running $binaryName farming/harvesting service.");
+  }
+
   Future<void> init() async {
+    // Setup
+    this.cache = new Cache(this, _rootPath);
+
+    /** Initializes config, either creates a new one or loads a config file */
+    this.config = new Config(this, this.cache, _rootPath, type);
+
     await this.cache.init();
     await this.config.init(this.onlineConfig,
         this._args.contains("headless") || this._args.contains("hpool"));
-
-    //DEBUG PURPOSES
-    await rpcPorts?.printStatus();
-    io.stdin.readByteSync();
 
     //TODO: find a way to not have to run this logUpdate command twice (in blockchain.init and every 10 minutes)
     logUpdate();
