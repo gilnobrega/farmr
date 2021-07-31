@@ -66,6 +66,7 @@ class Blockchain {
   late final Map<RPCService, bool?> _initialServiceStatus;
 
   late final ClientType type;
+  String get typeName => type.toString().split('.')[1];
 
   Blockchain(this.id, this._rootPath, this._args, [dynamic json]) {
     _fromJson(json); //loads properties from serialized blokchain
@@ -169,6 +170,9 @@ class Blockchain {
     else
       throw Exception(
           "Unable to detect running $binaryName farming/harvesting service.");
+
+    print("Starting farmr for $binaryName in $typeName mode...");
+    io.stdin.readByteSync(); //DEBUGGING, comment
   }
 
   Future<void> init() async {
