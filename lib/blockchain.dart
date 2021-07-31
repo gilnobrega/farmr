@@ -154,25 +154,31 @@ class Blockchain {
     _initialServiceStatus =
         await rpcPorts?.isServiceRunning(RPCService.values) ?? {};
 
-    bool harvesterRunning =
-        _initialServiceStatus[RPCService.Harvester] ?? false;
-    bool farmerRunning = _initialServiceStatus[RPCService.Farmer] ?? false;
+    final bool? harvesterRunning = _initialServiceStatus[RPCService.Harvester];
+    final bool? farmerRunning = _initialServiceStatus[RPCService.Farmer];
 
     //hpool argument overrides type
     if (_args.contains("hpool") && currencySymbol == "xch")
       type = ClientType.HPool;
     //chooses farmer if farmer service is running
-    else if (farmerRunning)
+    else if (farmerRunning != null && farmerRunning)
       type = ClientType.Farmer;
     //chooses harvester if harvester service is running
-    else if (harvesterRunning)
+    else if (harvesterRunning != null && harvesterRunning)
       type = ClientType.Harvester;
-    else
+    //in case RPC Ports are not defined or there was an exception
+    //chooses type based on arguments
+    else if (farmerRunning == null && farmerRunning == null) {
+      if (_args.contains("harvester"))
+        type = ClientType.Harvester;
+      else
+        type = ClientType.Farmer;
+    } else
       throw Exception(
           "Unable to detect running $binaryName farming/harvesting service.");
 
     print("Starting farmr for $binaryName in $typeName mode...");
-    io.stdin.readByteSync(); //DEBUGGING, comment
+    //io.stdin.readByteSync(); //DEBUGGING, comment
   }
 
   Future<void> init() async {
