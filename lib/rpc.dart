@@ -79,8 +79,6 @@ class RPCPorts {
       if (port != null) ports.putIfAbsent(service, () => port);
     }
 
-    final Map<RPCService, bool?> runningMap = {};
-
     try {
       final report = await TcpScannerTask(
               host, ports.entries.map((e) => e.value).toList(),
@@ -96,7 +94,7 @@ class RPCPorts {
       stderr.writeln('TCP Scanner Error: $e');
     }
 
-    return runningMap;
+    return resultMap;
   }
 
   //debug purposes
