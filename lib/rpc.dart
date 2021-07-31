@@ -76,7 +76,7 @@ class RPCPorts {
         final report =
             await TcpScannerTask(host, [port], parallelism: 1).start();
 
-        running = report.closedPorts.contains(port);
+        running = report.openPorts.contains(port);
       } catch (e) {
         // Here you can catch exceptions threw in the constructor
         stderr.writeln('TCP Scanner Error: $e');
