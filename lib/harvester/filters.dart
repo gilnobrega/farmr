@@ -69,7 +69,7 @@ class HarvesterFilters {
     _numberFilters = filters.length;
   }
 
-  String? harvestingStatus(bool parseLogs) {
+  static String? harvestingStatus(bool parseLogs, List<Filter> filters) {
     final int harvestingLimit =
         DateTime.now().subtract(Duration(minutes: 10)).millisecondsSinceEpoch;
     int last10mins =

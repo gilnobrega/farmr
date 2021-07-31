@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/config.dart';
 import 'package:farmr_client/wallets/localWallets/localWallet.dart';

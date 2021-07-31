@@ -1,5 +1,4 @@
 import 'dart:core';
-import 'dart:convert';
 import 'dart:io' as io;
 
 import 'package:farmr_client/blockchain.dart';
@@ -136,7 +135,8 @@ class Harvester
 
     loadFilters(blockchain.log);
 
-    _status = harvestingStatus(_config.parseLogs) ?? _status;
+    _status = HarvesterFilters.harvestingStatus(_config.parseLogs, filters) ??
+        _status;
 
     //loads swar plot manager config if defined by user
     if (_config.swarPath != "") _swarPM = SwarPM(_config.swarPath);

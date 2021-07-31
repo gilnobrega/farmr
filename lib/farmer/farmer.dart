@@ -1,5 +1,7 @@
 import 'dart:core';
 import 'package:farmr_client/blockchain.dart';
+import 'package:farmr_client/farmer/status.dart';
+import 'package:farmr_client/harvester/filters.dart';
 import 'package:farmr_client/rpc.dart';
 import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
 import 'package:farmr_client/wallets/poolWallets/genericPoolWallet.dart';
@@ -16,31 +18,17 @@ import 'package:farmr_client/farmer/connections.dart';
 import 'package:farmr_client/log/shortsync.dart';
 import 'package:http/http.dart' as http;
 
-import 'package:farmr_client/server/netspace.dart';
-
 final log = Logger('Farmer');
 
-class Farmer extends Harvester {
-  String _status = "N/A";
-  //shows not harvesting status if harvester class is not harvesting
-  @override
-  String get status => _status;
-
+class Farmer extends Harvester with FarmerStatusMixin {
   Connections? _connections;
 
   //number of full nodes connected to farmer
   int _fullNodesConnected = 0;
   int get fullNodesConnected => _fullNodesConnected;
 
-  //Farmed balance
-  double _balance = -1.0;
-  double get balance => _balance; //hides balance if string
-
   @override
   late ClientType type;
-
-  NetSpace _netSpace = NetSpace("1 B");
-  NetSpace get netSpace => _netSpace;
 
   //SubSlots with 64 signage points
   int _completeSubSlots = 0;
@@ -58,8 +46,6 @@ class Farmer extends Harvester {
   //number of poolErrors events
   int _poolErrors = -1; // -1 means client doesnt support
   int get poolErrors => _poolErrors;
-
-  int _lastBlockFarmed = 0;
 
   @override
   Map toJson() {
@@ -91,50 +77,6 @@ class Farmer extends Harvester {
       {required Blockchain blockchain, String version = '', required this.type})
       : super(blockchain, version) {
     if (type != ClientType.HPool) {
-      //runs chia farm summary if it is a farmer
-      var result = io.Process.runSync(
-          blockchain.config.cache!.binPath, const ["farm", "summary"]);
-      List<String> lines =
-          result.stdout.toString().replaceAll("\r", "").split('\n');
-
-      //needs last farmed block to calculate effort, this is never stored
-      try {
-        for (int i = 0; i < lines.length; i++) {
-          String line = lines[i];
-
-          if (line.startsWith("Farming status: "))
-            _status = line.split("Farming status: ")[1];
-
-          try {
-            if (line.startsWith("Total ${this.blockchain.binaryName} farmed: "))
-              _balance = (blockchain.config.showBalance)
-                  ? double.parse(line
-                      .split('Total ${this.blockchain.binaryName} farmed: ')[1])
-                  : -1.0;
-          } catch (error) {
-            log.warning(
-                "Unable to parse farmed ${this.blockchain.currencySymbol.toUpperCase()}. Is wallet service running?");
-          }
-
-          try {
-            if (line.startsWith("Last height farmed: "))
-              _lastBlockFarmed =
-                  int.parse(line.split("Last height farmed: ")[1]);
-          } catch (error) {
-            log.warning(
-                "Unable to parse last height farmed for ${this.blockchain.currencySymbol.toUpperCase()}. Is wallet service running?");
-          }
-          try {
-            if (line.startsWith("Estimated network space: "))
-              _netSpace = NetSpace(line.split("Estimated network space: ")[1]);
-          } catch (error) {
-            log.warning("Unable to parse Netspace.");
-          }
-        }
-      } catch (exception) {
-        print("Error parsing Farm info.");
-      }
-
       getNodeHeight(); //sets _syncedBlockHeight
 
       //initializes connections and counts peers
@@ -151,13 +93,6 @@ class Farmer extends Harvester {
       }
 
       shortSyncs = blockchain.log.shortSyncs; //loads short sync events
-
-      //harvesting status
-      String harvestingStatusString =
-          harvestingStatus(blockchain.config.parseLogs) ?? "Harvesting";
-
-      if (harvestingStatusString != "Harvesting")
-        _status = "$_status, $harvestingStatusString";
 
       _poolErrors = blockchain.cache.poolErrors.length;
     }
@@ -241,7 +176,7 @@ class Farmer extends Harvester {
                       ? LocalWalletStatus.Syncing
                       : LocalWalletStatus.NotSynced);
 
-          wallet.setLastBlockFarmed(_lastBlockFarmed);
+          wallet.setLastBlockFarmed(lastBlockFarmed);
 
           wallets.add(wallet);
         }
@@ -250,7 +185,7 @@ class Farmer extends Harvester {
     {
       LocalWallet localWallet = LocalWallet(
           blockchain: this.blockchain, syncedBlockHeight: syncedBlockHeight);
-      localWallet.setLastBlockFarmed(_lastBlockFarmed);
+      localWallet.setLastBlockFarmed(lastBlockFarmed);
 
       //parses chia wallet show for wallet balance (legacy mode)
       if (blockchain.config.showWalletBalance)
@@ -295,6 +230,16 @@ class Farmer extends Harvester {
   @override
   Future<void> init() async {
     if (type != ClientType.HPool) {
+      await updateFarmerStatus(blockchain);
+
+      //harvesting status
+      String harvestingStatusString = HarvesterFilters.harvestingStatus(
+              blockchain.config.parseLogs, filters) ??
+          "Harvesting";
+
+      if (harvestingStatusString != "Harvesting")
+        status = "$status, $harvestingStatusString";
+
       await getLocalWallets();
 
       if (blockchain.currencySymbol == "xch") await getPeakHeight();
@@ -307,8 +252,7 @@ class Farmer extends Harvester {
   Farmer.fromJson(dynamic object) : super.fromJson(object) {
     type = ClientType.Farmer;
 
-    _status = object['status'];
-    _balance = double.parse(object['balance']?.toString() ?? "-1");
+    statusFromJson(object);
 
     int walletBalance = -1;
     double daysSinceLastBlock = -1.0;
@@ -364,12 +308,6 @@ class Farmer extends Harvester {
     }
 
     if (object['poolErrors'] != null) _poolErrors = object['poolErrors'];
-
-    //reads netspace from json
-    if (object['netSpace'] != null) {
-      _netSpace =
-          NetSpace.fromBytes(double.parse(object['netSpace'].toString()));
-    }
 
     if (object['coldWallet'] != null) {
       double netBalance =
