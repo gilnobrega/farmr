@@ -1,4 +1,5 @@
 import 'package:farmr_client/blockchain.dart';
+import 'package:farmr_client/harvester/filters.dart';
 import 'package:farmr_client/rpc.dart';
 import 'package:farmr_client/server/netspace.dart';
 import 'package:logging/logging.dart';
@@ -51,9 +52,14 @@ class FarmerStatusMixin {
         {}); //defaults to true if RPC Port is not defined
 
     final bool daemonRunning = servicesRunning[RPCService.Daemon] ?? true;
-    final bool farmerRunning = servicesRunning[RPCService.Farmer] ?? true;
+    final bool? farmerRunning = servicesRunning[RPCService.Farmer];
+
+    //null value means RPC Port is not defined
+    //In this case it tries legacy mode
+    if (farmerRunning == null)
+      _legacyFarmerStatus(blockchain);
     //Try RPC
-    if (farmerRunning) {
+    else if (farmerRunning) {
       var result = {};
 
       try {
@@ -73,12 +79,13 @@ class FarmerStatusMixin {
           farmerStatus = FarmerStatus.Syncing;
         else if (!(result['sync']['synced'] ?? true))
           farmerStatus = FarmerStatus.NotSynced;
-        else
+        //checks if there were signage points in the last 10 minutes
+        else if (HarvesterFilters.harvestingStatus(
+            blockchain.config.parseLogs, blockchain.cache.signagePoints))
           farmerStatus = FarmerStatus.Farming;
+        else
+          farmerStatus = FarmerStatus.NotFarming;
       }
-      //If that fails try legacy mode
-      else
-        _legacyFarmerStatus(blockchain);
     } else if (daemonRunning)
       farmerStatus = FarmerStatus.NotAvailable;
     else

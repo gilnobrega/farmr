@@ -135,8 +135,9 @@ class Harvester
 
     loadFilters(blockchain.log);
 
-    _status = HarvesterFilters.harvestingStatus(_config.parseLogs, filters) ??
-        _status;
+    _status = (HarvesterFilters.harvestingStatus(_config.parseLogs, filters))
+        ? _status
+        : "Not Harvesting";
 
     //loads swar plot manager config if defined by user
     if (_config.swarPath != "") _swarPM = SwarPM(_config.swarPath);

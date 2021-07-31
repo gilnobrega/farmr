@@ -233,9 +233,10 @@ class Farmer extends Harvester with FarmerStatusMixin {
       await updateFarmerStatus(blockchain);
 
       //harvesting status
-      String harvestingStatusString = HarvesterFilters.harvestingStatus(
-              blockchain.config.parseLogs, filters) ??
-          "Harvesting";
+      String harvestingStatusString = (HarvesterFilters.harvestingStatus(
+              blockchain.config.parseLogs, filters))
+          ? "Harvesting"
+          : "Not Harvesting";
 
       if (harvestingStatusString != "Harvesting")
         status = "$status, $harvestingStatusString";
