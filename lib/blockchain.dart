@@ -168,7 +168,7 @@ class Blockchain {
       type = ClientType.Harvester;
     //in case RPC Ports are not defined or there was an exception
     //chooses type based on arguments
-    else if (farmerRunning == null && farmerRunning == null) {
+    else if (harvesterRunning == null && farmerRunning == null) {
       if (_args.contains("harvester"))
         type = ClientType.Harvester;
       else
