@@ -162,6 +162,9 @@ main(List<String> args) async {
   List<Blockchain> blockchains = readBlockchains(id, rootPath, args);
 
   for (Blockchain blockchain in blockchains) {
+    //initializes ports and detects harvester/farmer mode
+    await blockchain.initializePorts();
+
     await blockchain.init();
     outputs.putIfAbsent("View ${blockchain.currencySymbol} report",
         () => "Generating ${blockchain.currencySymbol} report");
@@ -331,7 +334,6 @@ void handleBlockchainReport(List<Object> arguments) async {
   try {
     //loads and updates cache every 10 minutes
     //loads config every 10 minutes
-    await blockchain.initializePorts();
     await blockchain.init();
 
     var client;
