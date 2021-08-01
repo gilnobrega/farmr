@@ -65,7 +65,7 @@ class FarmerStatusMixin {
             service: RPCService.Full_Node,
             endpoint: "get_blockchain_state");
 
-        result = await RPCConnection.getEndpoint(configuration);
+        result = (await RPCConnection.getEndpoint(configuration));
 
         print(result);
         io.stdin.readLineSync(); //debug purposes
@@ -75,10 +75,10 @@ class FarmerStatusMixin {
       }
 
       //sync status
-      if (result['sync'] != null) {
-        if (result['sync']['sync_mode'] ?? false)
+      if (result['success'] == true) {
+        if (result['blockchain_state']['sync']['sync_mode'] ?? false)
           farmerStatus = FarmerStatus.Syncing;
-        else if (!(result['sync']['synced'] ?? true))
+        else if (!(result['blockchain_state']['sync']['synced'] ?? true))
           farmerStatus = FarmerStatus.Not_Synced;
         //checks if there were signage points in the last 10 minutes
         else if (HarvesterStatusMixin.harvestingStatus(
