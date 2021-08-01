@@ -87,8 +87,8 @@ class FarmerStatusMixin {
 
       //netspace
       if (result['blockchain_state']['space'] != null) {
-        _netSpace =
-            NetSpace.fromBytes(double.tryParse("${result['space']}") ?? -1);
+        _netSpace = NetSpace.fromBytes(
+            double.tryParse("${result['blockchain_state']['space']}") ?? 1);
       }
     } else if (daemonRunning)
       farmerStatus = FarmerStatus.Not_Available;
