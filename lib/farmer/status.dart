@@ -23,16 +23,17 @@ class FarmerStatusMixin {
       farmerStatus.toString().split('.')[1].replaceAll("_", " ");
 
   //Farmed balance
-  double farmedBalance = -1.0;
-  double get balance => farmedBalance; //hides balance if string
+  int farmedBalance = -1;
 
   NetSpace _netSpace = NetSpace("1 B");
   NetSpace get netSpace => _netSpace;
 
   int lastBlockFarmed = 0;
 
-  statusFromJson(dynamic object) {
-    farmedBalance = double.parse(object['balance']?.toString() ?? "-1");
+  statusFromJson(dynamic object, Blockchain blockchain) {
+    farmedBalance = (double.parse(object['balance']?.toString() ?? "-1") *
+            blockchain.majorToMinorMultiplier)
+        .toInt();
 
     //reads netspace from json
     if (object['netSpace'] != null) {
@@ -65,6 +66,9 @@ class FarmerStatusMixin {
             endpoint: "get_blockchain_state");
 
         result = await RPCConnection.getEndpoint(configuration);
+
+        print(result);
+        io.stdin.readLineSync(); //debug purposes
       } catch (e) {
         log.warning("RPC erorr: get_blockchain_state failed");
         log.info(e.toString());
@@ -128,9 +132,11 @@ class FarmerStatusMixin {
         try {
           if (line.startsWith("Total ${blockchain.binaryName} farmed: "))
             farmedBalance = (blockchain.config.showBalance)
-                ? double.parse(
-                    line.split('Total ${blockchain.binaryName} farmed: ')[1])
-                : -1.0;
+                ? (double.parse(line.split(
+                            'Total ${blockchain.binaryName} farmed: ')[1]) *
+                        blockchain.majorToMinorMultiplier)
+                    .toInt()
+                : -1;
         } catch (error) {
           log.warning(
               "Unable to parse farmed ${blockchain.currencySymbol.toUpperCase()}. Is wallet service running?");

@@ -22,6 +22,10 @@ final log = Logger('Farmer');
 class Farmer extends Harvester with FarmerStatusMixin {
   Connections? _connections;
 
+  double get balance =>
+      farmedBalance /
+      blockchain.majorToMinorMultiplier; //hides balance if string
+
   //number of full nodes connected to farmer
   int _fullNodesConnected = 0;
   int get fullNodesConnected => _fullNodesConnected;
@@ -190,7 +194,7 @@ class Farmer extends Harvester with FarmerStatusMixin {
               (walletFarmedInfo['success'] ?? false)) {
             //adds wallet farmed balance
             if (blockchain.config.showBalance)
-              farmedBalance += walletFarmedInfo['farmed_amount'];
+              farmedBalance += walletFarmedInfo['farmed_amount'] as int;
             //sets wallet last farmed height
             wallet.setLastBlockFarmed(walletFarmedInfo['last_height_farmed']);
           }
@@ -261,7 +265,7 @@ class Farmer extends Harvester with FarmerStatusMixin {
   Farmer.fromJson(dynamic object) : super.fromJson(object) {
     type = ClientType.Farmer;
 
-    statusFromJson(object);
+    statusFromJson(object, blockchain);
 
     int walletBalance = -1;
     double daysSinceLastBlock = -1.0;
