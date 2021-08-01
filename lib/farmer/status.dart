@@ -66,9 +66,6 @@ class FarmerStatusMixin {
             endpoint: "get_blockchain_state");
 
         result = (await RPCConnection.getEndpoint(configuration));
-
-        print(result);
-        io.stdin.readLineSync(); //debug purposes
       } catch (e) {
         log.warning("RPC erorr: get_blockchain_state failed");
         log.info(e.toString());
