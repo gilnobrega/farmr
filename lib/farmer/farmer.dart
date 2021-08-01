@@ -102,118 +102,134 @@ class Farmer extends Harvester with FarmerStatusMixin {
   }
 
   Future<void> getLocalWallets() async {
-    RPCConfiguration rpcConfig = RPCConfiguration(
-        blockchain: blockchain,
-        service: RPCService.Wallet,
-        endpoint: "get_wallets",
-        dataToSend: {});
+    final bool? isWalletServiceRunning =
+        ((await blockchain.rpcPorts?.isServiceRunning([RPCService.Wallet])) ??
+            {})[RPCService.Wallet];
 
-    final walletsObject = await RPCConnection.getEndpoint(rpcConfig);
+    //checks if wallet rpc service is running and wallet port is defined
+    if (isWalletServiceRunning ?? false) {
+      RPCConfiguration rpcConfig = RPCConfiguration(
+          blockchain: blockchain,
+          service: RPCService.Wallet,
+          endpoint: "get_wallets",
+          dataToSend: {});
 
-    int walletHeight = -1;
-    String name = "Wallet";
-    bool synced = true;
-    bool syncing = false;
+      final walletsObject = await RPCConnection.getEndpoint(rpcConfig);
 
-    //if wallet balance is enabled and
-    //if rpc works
-    if (walletsObject != null && (walletsObject['success'] ?? false)) {
-      if (blockchain.config.showBalance && walletsObject['wallets'].length > 0)
-        farmedBalance = 0;
+      int walletHeight = -1;
+      String name = "Wallet";
+      bool synced = true;
+      bool syncing = false;
 
-      for (var walletID in walletsObject['wallets'] ?? []) {
-        final int id = walletID['id'] ?? 1;
-        name = walletID['name'] ?? "Wallet";
-        //final int walletType = walletID['type'] ?? 0;
+      //if wallet balance is enabled and
+      //if rpc works
+      if (walletsObject != null && (walletsObject['success'] ?? false)) {
+        if (blockchain.config.showBalance &&
+            walletsObject['wallets'].length > 0) farmedBalance = 0;
 
-        RPCConfiguration rpcConfig2 = RPCConfiguration(
-            blockchain: blockchain,
-            service: RPCService.Wallet,
-            endpoint: "get_wallet_balance",
-            dataToSend: {"wallet_id": id});
+        for (var walletID in walletsObject['wallets'] ?? []) {
+          final int id = walletID['id'] ?? 1;
+          name = walletID['name'] ?? "Wallet";
+          //final int walletType = walletID['type'] ?? 0;
 
-        final walletInfo = await RPCConnection.getEndpoint(rpcConfig2);
-
-        if (walletInfo != null && (walletInfo['success'] ?? false)) {
-          final int confirmedBalance =
-              walletInfo['wallet_balance']['confirmed_wallet_balance'] ?? 0;
-
-          final int unconfirmedBalance =
-              walletInfo['wallet_balance']['unconfirmed_wallet_balance'] ?? 0;
-
-          RPCConfiguration rpcConfig3 = RPCConfiguration(
+          RPCConfiguration rpcConfig2 = RPCConfiguration(
               blockchain: blockchain,
               service: RPCService.Wallet,
-              endpoint: "get_sync_status",
+              endpoint: "get_wallet_balance",
               dataToSend: {"wallet_id": id});
 
-          final walletSyncInfo = await RPCConnection.getEndpoint(rpcConfig3);
+          final walletInfo = await RPCConnection.getEndpoint(rpcConfig2);
 
-          if (walletSyncInfo != null && (walletSyncInfo['success'] ?? false)) {
-            synced = walletSyncInfo['synced'];
-            syncing = walletSyncInfo['syncing'];
+          if (walletInfo != null && (walletInfo['success'] ?? false)) {
+            final int confirmedBalance =
+                walletInfo['wallet_balance']['confirmed_wallet_balance'] ?? 0;
+
+            final int unconfirmedBalance =
+                walletInfo['wallet_balance']['unconfirmed_wallet_balance'] ?? 0;
+
+            RPCConfiguration rpcConfig3 = RPCConfiguration(
+                blockchain: blockchain,
+                service: RPCService.Wallet,
+                endpoint: "get_sync_status",
+                dataToSend: {"wallet_id": id});
+
+            final walletSyncInfo = await RPCConnection.getEndpoint(rpcConfig3);
+
+            if (walletSyncInfo != null &&
+                (walletSyncInfo['success'] ?? false)) {
+              synced = walletSyncInfo['synced'];
+              syncing = walletSyncInfo['syncing'];
+            }
+
+            RPCConfiguration rpcConfig4 = RPCConfiguration(
+                blockchain: blockchain,
+                service: RPCService.Wallet,
+                endpoint: "get_height_info",
+                dataToSend: {"wallet_id": id});
+
+            final walletHeightInfo =
+                await RPCConnection.getEndpoint(rpcConfig4);
+
+            if (walletHeightInfo != null &&
+                (walletHeightInfo['success'] ?? false)) {
+              walletHeight = walletHeightInfo['height'] ?? -1;
+            }
+
+            final LocalWallet wallet = LocalWallet(
+                blockchain: blockchain,
+                confirmedBalance:
+                    blockchain.config.showWalletBalance ? confirmedBalance : -1,
+                unconfirmedBalance: blockchain.config.showWalletBalance
+                    ? unconfirmedBalance
+                    : -1,
+                walletHeight: walletHeight,
+                syncedBlockHeight: syncedBlockHeight,
+                name: name,
+                status: (synced)
+                    ? LocalWalletStatus.Synced
+                    : (syncing)
+                        ? LocalWalletStatus.Syncing
+                        : LocalWalletStatus.NotSynced);
+
+            RPCConfiguration rpcConfig5 = RPCConfiguration(
+                blockchain: blockchain,
+                service: RPCService.Wallet,
+                endpoint: "get_farmed_amount",
+                dataToSend: {"wallet_id": id});
+
+            final walletFarmedInfo =
+                await RPCConnection.getEndpoint(rpcConfig5);
+
+            if (walletFarmedInfo != null &&
+                (walletFarmedInfo['success'] ?? false)) {
+              //adds wallet farmed balance
+              if (blockchain.config.showBalance)
+                farmedBalance += walletFarmedInfo['farmed_amount'] as int;
+              //sets wallet last farmed height
+              wallet.setLastBlockFarmed(walletFarmedInfo['last_height_farmed']);
+            }
+
+            wallets.add(wallet);
           }
-
-          RPCConfiguration rpcConfig4 = RPCConfiguration(
-              blockchain: blockchain,
-              service: RPCService.Wallet,
-              endpoint: "get_height_info",
-              dataToSend: {"wallet_id": id});
-
-          final walletHeightInfo = await RPCConnection.getEndpoint(rpcConfig4);
-
-          if (walletHeightInfo != null &&
-              (walletHeightInfo['success'] ?? false)) {
-            walletHeight = walletHeightInfo['height'] ?? -1;
-          }
-
-          final LocalWallet wallet = LocalWallet(
-              blockchain: blockchain,
-              confirmedBalance:
-                  blockchain.config.showWalletBalance ? confirmedBalance : -1,
-              unconfirmedBalance:
-                  blockchain.config.showWalletBalance ? unconfirmedBalance : -1,
-              walletHeight: walletHeight,
-              syncedBlockHeight: syncedBlockHeight,
-              name: name,
-              status: (synced)
-                  ? LocalWalletStatus.Synced
-                  : (syncing)
-                      ? LocalWalletStatus.Syncing
-                      : LocalWalletStatus.NotSynced);
-
-          RPCConfiguration rpcConfig5 = RPCConfiguration(
-              blockchain: blockchain,
-              service: RPCService.Wallet,
-              endpoint: "get_farmed_amount",
-              dataToSend: {"wallet_id": id});
-
-          final walletFarmedInfo = await RPCConnection.getEndpoint(rpcConfig5);
-
-          if (walletFarmedInfo != null &&
-              (walletFarmedInfo['success'] ?? false)) {
-            //adds wallet farmed balance
-            if (blockchain.config.showBalance)
-              farmedBalance += walletFarmedInfo['farmed_amount'] as int;
-            //sets wallet last farmed height
-            wallet.setLastBlockFarmed(walletFarmedInfo['last_height_farmed']);
-          }
-
-          wallets.add(wallet);
         }
-      }
-    } else //legacy wallet method
-    {
-      LocalWallet localWallet = LocalWallet(
-          blockchain: this.blockchain, syncedBlockHeight: syncedBlockHeight);
-      localWallet.setLastBlockFarmed(lastBlockFarmed);
+      } else //legacy wallet method
+        _getLegacyLocalWallets();
+    } else
+      _getLegacyLocalWallets();
+  }
 
-      //parses chia wallet show for wallet balance (legacy mode)
-      if (blockchain.config.showWalletBalance)
-        localWallet.parseWalletBalance(blockchain.config.cache!.binPath);
+  //legacy mode for getting local wallet
+  //basically uses cli (chia wallet show)
+  void _getLegacyLocalWallets() {
+    LocalWallet localWallet = LocalWallet(
+        blockchain: this.blockchain, syncedBlockHeight: syncedBlockHeight);
+    localWallet.setLastBlockFarmed(lastBlockFarmed);
 
-      wallets.add(localWallet);
-    }
+    //parses chia wallet show for wallet balance (legacy mode)
+    if (blockchain.config.showWalletBalance)
+      localWallet.parseWalletBalance(blockchain.config.cache!.binPath);
+
+    wallets.add(localWallet);
   }
 
   void getNodeHeight() {
