@@ -86,7 +86,7 @@ class FarmerStatusMixin {
       }
 
       //netspace
-      if (result['space'] != null) {
+      if (result['blockchain_state']['space'] != null) {
         _netSpace =
             NetSpace.fromBytes(double.tryParse("${result['space']}") ?? -1);
       }
