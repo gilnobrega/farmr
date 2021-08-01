@@ -23,9 +23,8 @@ class FarmerStatusMixin {
       farmerStatus.toString().split('.')[1].replaceAll("_", " ");
 
   //Farmed balance
-  double _farmedBalance = -1.0;
-  double get farmedBalance => _farmedBalance;
-  double get balance => _farmedBalance; //hides balance if string
+  double farmedBalance = -1.0;
+  double get balance => farmedBalance; //hides balance if string
 
   NetSpace _netSpace = NetSpace("1 B");
   NetSpace get netSpace => _netSpace;
@@ -33,7 +32,7 @@ class FarmerStatusMixin {
   int lastBlockFarmed = 0;
 
   statusFromJson(dynamic object) {
-    _farmedBalance = double.parse(object['balance']?.toString() ?? "-1");
+    farmedBalance = double.parse(object['balance']?.toString() ?? "-1");
 
     //reads netspace from json
     if (object['netSpace'] != null) {
@@ -71,6 +70,7 @@ class FarmerStatusMixin {
         log.info(e.toString());
       }
 
+      //sync status
       if (result['sync'] != null) {
         if (result['sync']['sync_mode'] ?? false)
           farmerStatus = FarmerStatus.Syncing;
@@ -82,6 +82,12 @@ class FarmerStatusMixin {
           farmerStatus = FarmerStatus.Farming;
         else
           farmerStatus = FarmerStatus.Not_Farming;
+      }
+
+      //netspace
+      if (result['space'] != null) {
+        _netSpace =
+            NetSpace.fromBytes(double.tryParse("${result['space']}") ?? -1);
       }
     } else if (daemonRunning)
       farmerStatus = FarmerStatus.Not_Available;
@@ -121,7 +127,7 @@ class FarmerStatusMixin {
         }
         try {
           if (line.startsWith("Total ${blockchain.binaryName} farmed: "))
-            _farmedBalance = (blockchain.config.showBalance)
+            farmedBalance = (blockchain.config.showBalance)
                 ? double.parse(
                     line.split('Total ${blockchain.binaryName} farmed: ')[1])
                 : -1.0;

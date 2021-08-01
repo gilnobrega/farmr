@@ -113,9 +113,10 @@ class Farmer extends Harvester with FarmerStatusMixin {
 
     //if wallet balance is enabled and
     //if rpc works
-    if (blockchain.config.showWalletBalance &&
-        walletsObject != null &&
-        (walletsObject['success'] ?? false)) {
+    if (walletsObject != null && (walletsObject['success'] ?? false)) {
+      if (blockchain.config.showBalance && walletsObject['wallets'].length > 0)
+        farmedBalance = 0;
+
       for (var walletID in walletsObject['wallets'] ?? []) {
         final int id = walletID['id'] ?? 1;
         name = walletID['name'] ?? "Wallet";
@@ -164,8 +165,10 @@ class Farmer extends Harvester with FarmerStatusMixin {
 
           final LocalWallet wallet = LocalWallet(
               blockchain: blockchain,
-              confirmedBalance: confirmedBalance,
-              unconfirmedBalance: unconfirmedBalance,
+              confirmedBalance:
+                  blockchain.config.showWalletBalance ? confirmedBalance : -1,
+              unconfirmedBalance:
+                  blockchain.config.showWalletBalance ? unconfirmedBalance : -1,
               walletHeight: walletHeight,
               syncedBlockHeight: syncedBlockHeight,
               name: name,
@@ -175,7 +178,22 @@ class Farmer extends Harvester with FarmerStatusMixin {
                       ? LocalWalletStatus.Syncing
                       : LocalWalletStatus.NotSynced);
 
-          wallet.setLastBlockFarmed(lastBlockFarmed);
+          RPCConfiguration rpcConfig5 = RPCConfiguration(
+              blockchain: blockchain,
+              service: RPCService.Wallet,
+              endpoint: "get_farmed_amount",
+              dataToSend: {"wallet_id": id});
+
+          final walletFarmedInfo = await RPCConnection.getEndpoint(rpcConfig5);
+
+          if (walletFarmedInfo != null &&
+              (walletFarmedInfo['success'] ?? false)) {
+            //adds wallet farmed balance
+            if (blockchain.config.showBalance)
+              farmedBalance += walletFarmedInfo['farmed_amount'];
+            //sets wallet last farmed height
+            wallet.setLastBlockFarmed(walletFarmedInfo['last_height_farmed']);
+          }
 
           wallets.add(wallet);
         }
