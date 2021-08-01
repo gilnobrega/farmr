@@ -34,8 +34,8 @@ final Duration delay = Duration(minutes: 10); //10 minutes delay between updates
 // '/home/user/.farmr' for package installs, '.' (project path) for the rest
 late String rootPath;
 
-const String url = "https://farmr.net/send11.php";
-const String urlBackup = "https://chiabot.znc.sh/send11.php";
+const String url = "https://farmr.net/send12.php";
+const String urlBackup = "https://chiabot.znc.sh/send12.php";
 
 //prepares rootPath
 prepareRootPath(bool package) {
@@ -371,7 +371,7 @@ void handleBlockchainReport(List<Object> arguments) async {
 
     //if hard drive notifications are disabled then it will default to 0
     drives = (blockchain.config.sendDriveNotifications)
-        ? client.drivesCount.toString()
+        ? client.drives.length.toString()
         : "0";
 
     //sends notifications about cold wallet if that is enabled
