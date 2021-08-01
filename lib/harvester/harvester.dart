@@ -79,6 +79,7 @@ class Harvester
   Map toJson() {
     var initialMap = {
       'name': name,
+      'status': status,
       'crypto': crypto,
       'blockRewards': blockRewards,
       'blocksPer10Mins': blocksPer10Mins,
