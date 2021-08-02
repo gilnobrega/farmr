@@ -208,5 +208,5 @@ class Country {
 
   const Country({required this.code, required this.name});
 
-  Map toJson() => {'code': code, 'name': name};
+  Map toJson() => {"code": code, "name": name};
 }
