@@ -46,7 +46,8 @@ class Connection {
         "ports": ports,
         "peakHeight": peakHeight,
         "bytesRead": bytesRead,
-        "bytesWritten": bytesWritten
+        "bytesWritten": bytesWritten,
+        "country": country
       };
 }
 
