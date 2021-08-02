@@ -82,11 +82,6 @@ class Farmer extends Harvester with FarmerStatusMixin {
     if (type != ClientType.HPool) {
       getNodeHeight(); //sets _syncedBlockHeight
 
-      _fullNodesConnected = _connections?.connections
-              .where((connection) => connection.type == ConnectionType.FullNode)
-              .length ??
-          0; //whats wrong with this vs code formatting lmao
-
       //Parses logs for sub slots info
       if (blockchain.config.parseLogs) {
         calculateSubSlots(blockchain.log);
@@ -266,6 +261,11 @@ class Farmer extends Harvester with FarmerStatusMixin {
     if (type != ClientType.HPool) {
       //initializes connections and counts peers
       _connections = await Connections.generateConnections(blockchain);
+
+      _fullNodesConnected = _connections?.connections
+              .where((connection) => connection.type == ConnectionType.FullNode)
+              .length ??
+          0; //whats wrong with this vscode formatting lmao
 
       await updateFarmerStatus(blockchain);
 

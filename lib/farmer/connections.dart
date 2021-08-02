@@ -59,7 +59,7 @@ enum ConnectionType {
 final log = Logger('FarmerWallet');
 
 class Connections {
-  List<Connection> connections;
+  final List<Connection> connections;
 
   Connections(this.connections);
 
