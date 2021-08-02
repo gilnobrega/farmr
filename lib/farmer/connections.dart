@@ -1,5 +1,6 @@
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/rpc.dart';
+import 'package:proper_filesize/proper_filesize.dart';
 import 'package:universal_io/io.dart' as io;
 
 import 'package:logging/logging.dart';
@@ -7,23 +8,44 @@ import 'package:logging/logging.dart';
 //connection in chia show -c
 class Connection {
   //type of connection
-  ConnectionType _type;
-  ConnectionType get type => _type;
+  final ConnectionType type;
 
   //ip from connection e.g. 127.0.0.1
-  String _ip;
-  String get ip => _ip;
+  final String ip;
 
   //ports associated with connection e.g. 8444/8444
-  List<int> ports = [];
+  final List<int?> ports;
 
-  Connection(this._type, this._ip, this.ports);
+  final int? peakHeight;
+
+  final int? bytesRead;
+  final int? bytesWritten;
+  String get bytesReadString =>
+      ProperFilesize.generateHumanReadableFilesize(bytesRead?.toDouble() ?? 0);
+  String get bytesWrittenString =>
+      ProperFilesize.generateHumanReadableFilesize(bytesRead?.toDouble() ?? 0);
+
+  const Connection(
+      {required this.type,
+      required this.ip,
+      required this.ports,
+      this.peakHeight,
+      this.bytesRead,
+      this.bytesWritten});
 
   Map toJson() => {"type": type, "ip": ip, "ports": ports};
 }
 
 //Maybe there are more???
-enum ConnectionType { FullNode, Farmer, Wallet, Introducer, ERROR }
+enum ConnectionType {
+  ERROR,
+  FullNode,
+  Harvester,
+  Farmer,
+  Timelord,
+  Introducer,
+  Wallet,
+}
 
 final log = Logger('FarmerWallet');
 
@@ -46,7 +68,26 @@ class Connections {
           service: RPCService.Full_Node,
           endpoint: "get_connections");
 
-      print(await RPCConnection.getEndpoint(configuration));
+      final response = await RPCConnection.getEndpoint(configuration);
+
+      if (response['success'] ?? false) {
+        final connectionsList = response['connections'];
+
+        for (var connection in connectionsList) {
+          ConnectionType type =
+              ConnectionType.values[(connection['type'] ?? 0)];
+
+          connections.add(Connection(
+              type: type,
+              ip: connection['peer_host'],
+              ports: [connection['local_port'], connection['peer_server_port']],
+              peakHeight: connection['peak_height'],
+              bytesRead: connection['bytes_read'],
+              bytesWritten: connection['bytes_written']));
+        }
+      }
+
+      print(connections);
       io.stdin.readLineSync(); //debug
     }
     //if not parses connections in legacy mode
@@ -83,7 +124,8 @@ class Connections {
             int port1 = int.parse(match.group(3) ?? '-1');
             int port2 = int.parse(match.group(4) ?? '-1');
 
-            Connection connection = new Connection(type, ip, [port1, port2]);
+            Connection connection =
+                new Connection(type: type, ip: ip, ports: [port1, port2]);
 
             connections.add(connection);
           } catch (e) {
