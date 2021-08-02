@@ -36,7 +36,7 @@ class Connection {
       this.bytesWritten});
 
   Map toJson() => {
-        "type": type,
+        "type": type.index,
         "ip": ip,
         "ports": ports,
         "peakHeight": peakHeight,
@@ -96,8 +96,8 @@ class Connections {
         }
       }
 
-      print(jsonEncode(connections));
-      io.stdin.readLineSync(); //debug
+      //print(jsonEncode(connections));
+      //io.stdin.readLineSync(); //debug
     }
     //if not parses connections in legacy mode
     else {
