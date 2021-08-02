@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/rpc.dart';
 import 'package:proper_filesize/proper_filesize.dart';
@@ -33,7 +35,14 @@ class Connection {
       this.bytesRead,
       this.bytesWritten});
 
-  Map toJson() => {"type": type, "ip": ip, "ports": ports};
+  Map toJson() => {
+        "type": type,
+        "ip": ip,
+        "ports": ports,
+        "peakHeight": peakHeight,
+        "bytesRead": bytesRead,
+        "bytesWritten": bytesWritten
+      };
 }
 
 //Maybe there are more???
@@ -87,7 +96,7 @@ class Connections {
         }
       }
 
-      print(connections);
+      print(jsonEncode(connections));
       io.stdin.readLineSync(); //debug
     }
     //if not parses connections in legacy mode
