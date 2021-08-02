@@ -29,7 +29,7 @@ class Connection {
   String get bytesWrittenString =>
       ProperFilesize.generateHumanReadableFilesize(bytesRead?.toDouble() ?? 0);
 
-  String? countryCode;
+  Country? country;
 
   Connection(
       {required this.type,
@@ -38,7 +38,7 @@ class Connection {
       this.peakHeight,
       this.bytesRead,
       this.bytesWritten,
-      this.countryCode});
+      this.country});
 
   Map toJson() => {
         "type": type.index,
@@ -159,7 +159,32 @@ class Connections {
         Uri.parse("http://ip-api.com/batch"),
         body: jsonEncode(connections.map((e) => e.ip).toList()));
 
-    print(response.body);
+    var responseObject = jsonDecode(response.body);
+
+    for (var countryObject in responseObject) {
+      final String ip = countryObject['query'] ?? "N/A";
+
+      final String countryName = countryObject['country'] ?? "N/A";
+      final String countryCode = countryObject['countryCode'] ?? "N/A";
+
+      for (int i = 0; i < connections.length; i++) {
+        Connection connection = connections[i];
+
+        if (connection.ip == ip)
+          connection.country = Country(code: countryCode, name: countryName);
+      }
+    }
+
+    print(jsonEncode(connections));
     io.stdin.readByteSync(); //debug
   }
+}
+
+class Country {
+  final String code;
+  final String name;
+
+  const Country({required this.code, required this.name});
+
+  Map toJson() => {'code': code, 'name': name};
 }
