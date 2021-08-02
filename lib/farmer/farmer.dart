@@ -30,6 +30,9 @@ class Farmer extends Harvester with FarmerStatusMixin {
   int _fullNodesConnected = 0;
   int get fullNodesConnected => _fullNodesConnected;
 
+  Map<Country, int> _countriesConnected = {};
+  Map<Country, int> get countriesConnected => _countriesConnected;
+
   @override
   late ClientType type;
 
@@ -65,7 +68,7 @@ class Farmer extends Harvester with FarmerStatusMixin {
       'looseSignagePoints': looseSignagePoints,
 
       'fullNodesConnected': fullNodesConnected,
-      'countriesConnected': _connections?.countryCount ?? {},
+      'countriesConnected': _countriesConnected,
       "shortSyncs": shortSyncs,
       "netSpace": netSpace.size,
       "syncedBlockHeight": syncedBlockHeight,
@@ -268,6 +271,8 @@ class Farmer extends Harvester with FarmerStatusMixin {
               .where((connection) => connection.type == ConnectionType.FullNode)
               .length ??
           0; //whats wrong with this vscode formatting lmao
+
+      _countriesConnected = _connections?.countryCount ?? {};
 
       await updateFarmerStatus(blockchain);
 

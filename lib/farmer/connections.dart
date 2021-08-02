@@ -73,7 +73,7 @@ class Connections {
   Map<Country, int> get countryCount {
     Map<Country, int> count = {};
 
-    for (var connection in this.connections) {
+    for (Connection connection in this.connections) {
       if (connection.country != null)
         count.update(connection.country!, (value) => value + 1,
             ifAbsent: () => 1);
