@@ -79,10 +79,10 @@ class Connections {
           count
               .where((element) => element.code == connection.country!.code)
               .first
-              .plusOne();
+              .addIP(connection.ip);
         } else {
           count.add(CountryCount(
-              count: 1,
+              ips: [connection.ip],
               code: connection.country!.code,
               name: connection.country!.name));
         }
@@ -222,22 +222,22 @@ class Country {
 }
 
 class CountryCount extends Country {
-  int count;
+  List<String> ips = [];
+  int get count => ips.length;
 
-  CountryCount(
-      {required this.count, required String code, required String name})
+  CountryCount({required this.ips, required String code, required String name})
       : super(code: code, name: name);
 
   Map toJson() {
     var superMap = super.toJson();
 
-    superMap.putIfAbsent("count", () => count);
+    superMap.putIfAbsent("ips", () => ips);
 
     return superMap;
   }
 
   //adds one to count
-  plusOne() {
-    count = count + 1;
+  addIP(String ip) {
+    ips.add(ip);
   }
 }
