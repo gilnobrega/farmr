@@ -65,6 +65,7 @@ class Farmer extends Harvester with FarmerStatusMixin {
       'looseSignagePoints': looseSignagePoints,
 
       'fullNodesConnected': fullNodesConnected,
+      'countriesConnected': _connections?.countryCount ?? {},
       "shortSyncs": shortSyncs,
       "netSpace": netSpace.size,
       "syncedBlockHeight": syncedBlockHeight,

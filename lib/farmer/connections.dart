@@ -69,6 +69,19 @@ class Connections {
 
   Connections(this.connections);
 
+  //generates map of every country and nodes connected to them
+  Map<Country, int> get countryCount {
+    Map<Country, int> count = {};
+
+    for (var connection in this.connections) {
+      if (connection.country != null)
+        count.update(connection.country!, (value) => value + 1,
+            ifAbsent: () => 1);
+    }
+
+    return count;
+  }
+
   static Future<Connections> generateConnections(Blockchain blockchain) async {
     List<Connection> connections = [];
 
@@ -156,28 +169,36 @@ class Connections {
   }
 
   Future<void> getCountryCodes() async {
-    http.Response response = await http.post(
-        Uri.parse("http://ip-api.com/batch"),
-        body: jsonEncode(connections.map((e) => e.ip).toList()));
+    try {
+      http.Response response = await http.post(
+          Uri.parse("http://ip-api.com/batch"),
+          body: jsonEncode(connections
+              .where((connection) => connection.type == ConnectionType.FullNode)
+              .map((connection) => connection.ip)
+              .toList()));
 
-    var responseObject = jsonDecode(response.body);
+      var responseObject = jsonDecode(response.body);
 
-    for (var countryObject in responseObject) {
-      final String ip = countryObject['query'] ?? "N/A";
+      for (var countryObject in responseObject) {
+        final String ip = countryObject['query'] ?? "N/A";
 
-      final String countryName = countryObject['country'] ?? "N/A";
-      final String countryCode = countryObject['countryCode'] ?? "N/A";
+        final String countryName = countryObject['country'] ?? "N/A";
+        final String countryCode = countryObject['countryCode'] ?? "N/A";
 
-      for (int i = 0; i < connections.length; i++) {
-        Connection connection = connections[i];
+        for (int i = 0; i < connections.length; i++) {
+          Connection connection = connections[i];
 
-        if (connection.ip == ip)
-          connection.country = Country(code: countryCode, name: countryName);
+          if (connection.ip == ip)
+            connection.country = Country(code: countryCode, name: countryName);
+        }
       }
-    }
 
-    print(jsonEncode(connections));
-    io.stdin.readByteSync(); //debug
+      //print(jsonEncode(connections));
+      //io.stdin.readByteSync(); //debug
+    } catch (error) {
+      log.warning("Failed to get connection countries");
+      log.info(error.toString());
+    }
   }
 }
 
