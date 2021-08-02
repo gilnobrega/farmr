@@ -30,9 +30,8 @@ class Farmer extends Harvester with FarmerStatusMixin {
   int _fullNodesConnected = 0;
   int get fullNodesConnected => _fullNodesConnected;
 
-  Map<String, Map<String, dynamic>> _countriesConnected = {};
-  Map<String, Map<String, dynamic>> get countriesConnected =>
-      _countriesConnected;
+  List<CountryCount> _countriesConnected = [];
+  List<CountryCount> get countriesConnected => _countriesConnected;
 
   @override
   late ClientType type;
@@ -273,7 +272,7 @@ class Farmer extends Harvester with FarmerStatusMixin {
               .length ??
           0; //whats wrong with this vscode formatting lmao
 
-      _countriesConnected = _connections?.countryCount ?? {};
+      _countriesConnected = _connections?.countryCount ?? [];
 
       await updateFarmerStatus(blockchain);
 

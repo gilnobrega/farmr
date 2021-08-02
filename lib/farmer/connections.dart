@@ -70,14 +70,23 @@ class Connections {
   Connections(this.connections);
 
   //generates map of every country and nodes connected to them
-  Map<String, Map<String, dynamic>> get countryCount {
-    Map<String, Map<String, dynamic>> count = {};
+  List<CountryCount> get countryCount {
+    List<CountryCount> count = [];
 
     for (Connection connection in this.connections) {
-      if (connection.country != null)
-        count.update(connection.country!.code,
-            (value1) => value1.update("count", (value2) => value2 + 1),
-            ifAbsent: () => {"name": connection.country!.name, "count": 1});
+      if (connection.country != null) {
+        if (count.any((element) => element.code == connection.country!.code)) {
+          count
+              .where((element) => element.code == connection.country!.code)
+              .first
+              .plusOne();
+        } else {
+          count.add(CountryCount(
+              count: 1,
+              code: connection.country!.code,
+              name: connection.country!.name));
+        }
+      }
     }
 
     return count;
@@ -210,4 +219,25 @@ class Country {
   const Country({required this.code, required this.name});
 
   Map toJson() => {"code": code, "name": name};
+}
+
+class CountryCount extends Country {
+  int count;
+
+  CountryCount(
+      {required this.count, required String code, required String name})
+      : super(code: code, name: name);
+
+  Map toJson() {
+    var superMap = super.toJson();
+
+    superMap.putIfAbsent("count", () => count);
+
+    return superMap;
+  }
+
+  //adds one to count
+  plusOne() {
+    count = count + 1;
+  }
 }
