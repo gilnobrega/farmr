@@ -82,9 +82,6 @@ class Farmer extends Harvester with FarmerStatusMixin {
     if (type != ClientType.HPool) {
       getNodeHeight(); //sets _syncedBlockHeight
 
-      //initializes connections and counts peers
-      _connections = Connections(blockchain.config.cache!.binPath);
-
       _fullNodesConnected = _connections?.connections
               .where((connection) => connection.type == ConnectionType.FullNode)
               .length ??
@@ -267,6 +264,9 @@ class Farmer extends Harvester with FarmerStatusMixin {
   @override
   Future<void> init() async {
     if (type != ClientType.HPool) {
+      //initializes connections and counts peers
+      _connections = await Connections.generateConnections(blockchain);
+
       await updateFarmerStatus(blockchain);
 
       await getLocalWallets();
