@@ -70,13 +70,14 @@ class Connections {
   Connections(this.connections);
 
   //generates map of every country and nodes connected to them
-  Map<Country, int> get countryCount {
-    Map<Country, int> count = {};
+  Map<String, Map<String, dynamic>> get countryCount {
+    Map<String, Map<String, dynamic>> count = {};
 
     for (Connection connection in this.connections) {
       if (connection.country != null)
-        count.update(connection.country!, (value) => value + 1,
-            ifAbsent: () => 1);
+        count.update(connection.country!.code,
+            (value1) => value1.update("count", (value2) => value2 + 1),
+            ifAbsent: () => {"name": connection.country!.name, "count": 1});
     }
 
     return count;

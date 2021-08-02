@@ -30,8 +30,9 @@ class Farmer extends Harvester with FarmerStatusMixin {
   int _fullNodesConnected = 0;
   int get fullNodesConnected => _fullNodesConnected;
 
-  Map<Country, int> _countriesConnected = {};
-  Map<Country, int> get countriesConnected => _countriesConnected;
+  Map<String, Map<String, dynamic>> _countriesConnected = {};
+  Map<String, Map<String, dynamic>> get countriesConnected =>
+      _countriesConnected;
 
   @override
   late ClientType type;
