@@ -3,7 +3,6 @@ import 'dart:math' as Math;
 import 'package:farmr_client/log/filter.dart';
 import 'package:farmr_client/debug.dart';
 import 'package:farmr_client/harvester/harvester.dart';
-import 'package:farmr_client/log/logitem.dart';
 
 import 'package:stats/stats.dart';
 

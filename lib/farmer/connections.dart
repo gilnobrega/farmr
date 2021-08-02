@@ -7,6 +7,8 @@ import 'package:universal_io/io.dart' as io;
 
 import 'package:logging/logging.dart';
 
+import 'package:http/http.dart' as http;
+
 //connection in chia show -c
 class Connection {
   //type of connection
@@ -27,13 +29,16 @@ class Connection {
   String get bytesWrittenString =>
       ProperFilesize.generateHumanReadableFilesize(bytesRead?.toDouble() ?? 0);
 
-  const Connection(
+  String? countryCode;
+
+  Connection(
       {required this.type,
       required this.ip,
       required this.ports,
       this.peakHeight,
       this.bytesRead,
-      this.bytesWritten});
+      this.bytesWritten,
+      this.countryCode});
 
   Map toJson() => {
         "type": type.index,
@@ -147,5 +152,14 @@ class Connections {
     }
 
     return Connections(connections);
+  }
+
+  Future<void> getCountryCodes() async {
+    http.Response response = await http.post(
+        Uri.parse("http://ip-api.com/batch"),
+        body: jsonEncode(connections.map((e) => e.ip).toList()));
+
+    print(response.body);
+    io.stdin.readByteSync(); //debug
   }
 }

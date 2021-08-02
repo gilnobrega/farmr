@@ -261,6 +261,7 @@ class Farmer extends Harvester with FarmerStatusMixin {
     if (type != ClientType.HPool) {
       //initializes connections and counts peers
       _connections = await Connections.generateConnections(blockchain);
+      await _connections?.getCountryCodes();
 
       _fullNodesConnected = _connections?.connections
               .where((connection) => connection.type == ConnectionType.FullNode)
