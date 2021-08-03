@@ -108,7 +108,7 @@ class Connections {
 
       final response = await RPCConnection.getEndpoint(configuration);
 
-      if (response['success'] ?? false) {
+      if (response != null && (response['success'] ?? false)) {
         final connectionsList = response['connections'];
 
         for (var connection in connectionsList) {

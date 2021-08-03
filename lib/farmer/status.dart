@@ -72,7 +72,7 @@ class FarmerStatusMixin {
       }
 
       //sync status
-      if (result['success'] == true) {
+      if (result != null && ((result['success'] ?? false) == true)) {
         if (result['blockchain_state']['sync']['sync_mode'] ?? false)
           farmerStatus = FarmerStatus.Syncing;
         else if (!(result['blockchain_state']['sync']['synced'] ?? true))
