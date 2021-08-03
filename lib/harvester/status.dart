@@ -8,7 +8,7 @@ enum HarvesterStatus { Harvesting, Not_Harvesting }
 class HarvesterStatusMixin {
   HarvesterStatus harvesterStatus = HarvesterStatus.Harvesting;
   String get harvesterStatusString =>
-      harvesterStatusString.toString().split('.')[1].replaceAll("_", " ");
+      harvesterStatus.toString().split('.')[1].replaceAll("_", " ");
 
   String _legacyStatus = "N/A";
   String get status {
