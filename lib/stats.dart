@@ -266,6 +266,9 @@ class Stats {
   //Full Node Stats
   int get fullNodesConnected =>
       (_client is Farmer) ? (_client as Farmer).fullNodesConnected : 0;
+  int get countriesConnected =>
+      (_client is Farmer) ? (_client as Farmer).countriesConnected.length : 0;
+
   int get completeSubSlots =>
       (_client is Farmer) ? (_client as Farmer).completeSubSlots : 0;
   int get looseSignagePoints =>
@@ -894,6 +897,9 @@ class Stats {
 
     if (stats.fullNodesConnected > 0) {
       output += "\nConnected to ${stats.fullNodesConnected} peers";
+
+      if (stats.countriesConnected > 0)
+        output += " from ${stats.countriesConnected} countries";
     }
 
     if (stats.syncedBlockHeight > 0) {
