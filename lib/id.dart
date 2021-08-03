@@ -6,6 +6,8 @@ import 'package:uuid/uuid.dart';
 
 import 'package:logging/logging.dart';
 
+import 'package:http/http.dart' as http;
+
 Logger log = Logger("ID");
 
 class ID {
@@ -53,7 +55,7 @@ class ID {
     }
   }
 
-  String info(List<Blockchain> blockchains) {
+  Future<String> info(List<Blockchain> blockchains) async {
     String output = "";
     List<String> idsWithBlockchains = [];
 
@@ -89,11 +91,29 @@ class ID {
     else
       output += "\nto link this client to your discord user";
 
-    output += """\nYou can interact with farmrbot in Swar's Chia Community
+    output +=
+        """\nYou can interact with farmrbot in Swar's Chia Community
 Open the following link to join the server: https://discord.gg/fghFbffYsC""";
 
     output += "\n";
     output += "\n$line";
+
+    output += await showSponsor();
+
+    return output;
+  }
+
+  //reads sponsor from farmr.net
+  Future<String> showSponsor() async {
+    String output = "\n";
+
+    try {
+      const String sponsorUrl = r"https://farmr.net/sponsor.txt";
+
+      String contents = (await http.get(Uri.parse(sponsorUrl))).body;
+
+      output += contents;
+    } catch (error) {}
 
     return output;
   }

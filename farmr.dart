@@ -171,7 +171,7 @@ main(List<String> args) async {
   }
 
   //shows info with ids to link
-  final String info = id.info(blockchains);
+  final String info = await id.info(blockchains);
 
   outputs.putIfAbsent("View IDs list", () => info);
   outputs.putIfAbsent("Quit", () => "quit");
@@ -218,7 +218,8 @@ bool firstTime = true;
 
 late dartconsole.Console console;
 Future<void> reportSelector() async {
-  print("""\nfarmr sends a report every 10 minutes.
+  print(
+      """\nfarmr sends a report every 10 minutes.
 Do not close this window or these stats will not show up in farmr.net and farmrBot
 """);
 
@@ -526,7 +527,8 @@ Future<void> sendReport(String id, Object? post, Blockchain blockchain,
 Future<void> checkIfLinked(String response, String previousOutput,
     SendPort sendPort, String id) async {
   if (response.trim().contains("Not linked")) {
-    final errorString = """\n\nID $id is not linked to an account.
+    final errorString =
+        """\n\nID $id is not linked to an account.
 Link it in farmr.net or through farmrbot and then start this program again
 Press enter to quit""";
     print(errorString);
