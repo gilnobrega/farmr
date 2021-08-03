@@ -79,7 +79,7 @@ class Connections {
           count
               .where((element) => element.code == connection.country!.code)
               .first
-              .addIP(connection.ip);
+              .add(connection);
         } else {
           count.add(CountryCount(
               ips: [connection.ip],
@@ -230,6 +230,16 @@ class CountryCount extends Country {
   List<String> ips = [];
   int get count => ips.length;
 
+  int _bytesRead = 0;
+  int get bytesRead => _bytesRead;
+  String get bytesReadString =>
+      ProperFilesize.generateHumanReadableFilesize(bytesRead.toDouble());
+
+  int _bytesWritten = 0;
+  int get bytesWritten => _bytesWritten;
+  String get bytesWrittenString =>
+      ProperFilesize.generateHumanReadableFilesize(bytesRead.toDouble());
+
   CountryCount({required this.ips, required String code, required String name})
       : super(code: code, name: name);
 
@@ -237,6 +247,8 @@ class CountryCount extends Country {
     var superMap = super.toJson();
 
     superMap.putIfAbsent("ips", () => ips);
+    superMap.putIfAbsent("bytesRead", () => ips);
+    superMap.putIfAbsent("bytesWritten", () => ips);
 
     return superMap;
   }
@@ -245,10 +257,15 @@ class CountryCount extends Country {
     if (object['ips'] != null) {
       for (var ip in object['ips']) ips.add(ip);
     }
+
+    _bytesRead = object['bytesRead'] ?? 0;
+    _bytesWritten = object['bytesWritten'] ?? 0;
   }
 
   //adds one to count
-  addIP(String ip) {
-    ips.add(ip);
+  add(Connection connection) {
+    ips.add(connection.ip);
+    _bytesRead += connection.bytesRead ?? 0;
+    _bytesWritten += connection.bytesWritten ?? 0;
   }
 }
