@@ -112,7 +112,7 @@ Open the following link to join the server: https://discord.gg/fghFbffYsC""";
 
       String contents = (await http.get(Uri.parse(sponsorUrl))).body;
 
-      output += contents;
+      output += "\n" + contents;
     } catch (error) {}
 
     return output;
