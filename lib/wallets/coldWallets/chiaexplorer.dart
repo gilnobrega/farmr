@@ -18,36 +18,36 @@ class ChiaExplorerWallet extends ColdWallet {
       : super(blockchain: blockchain, name: name);
 
   Future<void> init() async {
-    // try {
-    String contents =
-        await http.read(Uri.parse(_chiaExplorerURL + "balance/" + address));
+    try {
+      String contents =
+          await http.read(Uri.parse(_chiaExplorerURL + "balance/" + address));
 
-    var object = jsonDecode(contents);
+      var object = jsonDecode(contents);
 
-    grossBalance = object['grossBalance'] ?? -1;
-    netBalance = object['netBalance'] ?? -1;
+      grossBalance = object['grossBalance'] ?? -1;
+      netBalance = object['netBalance'] ?? -1;
 
-    String coins = await http
-        .read(Uri.parse(_chiaExplorerURL + "coinsForAddress/" + address));
+      String coins = await http
+          .read(Uri.parse(_chiaExplorerURL + "coinsForAddress/" + address));
 
-    var coinsObject = jsonDecode(coins);
+      var coinsObject = jsonDecode(coins);
 
-    for (int i = 0;
-        coinsObject['coins'] != null && i < coinsObject['coins'].length;
-        i++) {
-      var coin = coinsObject['coins'][i];
-      if (coin['coinbase'] && int.tryParse(coin['timestamp']) != null)
-        setDaysAgoWithTimestamp(int.parse(coin['timestamp']) * 1000);
+      for (int i = 0;
+          coinsObject['coins'] != null && i < coinsObject['coins'].length;
+          i++) {
+        var coin = coinsObject['coins'][i];
+        if (coin['coinbase'] && int.tryParse(coin['timestamp']) != null)
+          setDaysAgoWithTimestamp(int.parse(coin['timestamp']) * 1000);
+      }
+    } catch (error) {
+      //404 error means wallet is empty
+      if (error is http.ClientException && error.toString().contains("404")) {
+        //if wallet is empty then assumes both gross balance and net balance are 0
+        grossBalance = 0;
+        netBalance = 0;
+      } else {
+        log.warning("Failed to get info about chia cold wallet");
+      }
     }
-    // } catch (error) {
-    //404 error means wallet is empty
-    //   if (error is http.ClientException && error.toString().contains("404")) {
-    //if wallet is empty then assumes both gross balance and net balance are 0
-    //     grossBalance = 0;
-    //     netBalance = 0;
-    //    } else {
-    //      log.warning("Failed to get info about chia cold wallet");
-    //   }
-    //}
   }
 }
