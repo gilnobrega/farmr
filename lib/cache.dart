@@ -22,7 +22,10 @@ class Cache {
 
   String? _binPath;
   String get binPath {
-    return _binPath ?? _askForBinPath();
+    if (Blockchain.detectOS() != OS.GitHub)
+      return _binPath ?? _askForBinPath();
+    else
+      return "";
   }
 
   List<Plot> _plots = []; //cached plots
@@ -248,7 +251,8 @@ class Cache {
       if (io.File(_binPath!).existsSync())
         validDirectory = true;
       else if (io.Directory(_blockchain.cache.chiaPath).existsSync())
-        log.warning("""Could not locate chia binary in your directory.
+        log.warning(
+            """Could not locate chia binary in your directory.
 ($_binPath not found)
 Please try again.
 Make sure this folder has the same structure as Chia's GitHub repo.""");
