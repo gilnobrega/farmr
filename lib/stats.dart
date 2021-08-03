@@ -183,6 +183,7 @@ class Stats {
 
   //EARNINGS
   double get etw => estimateETW(_client, _netSpace);
+  double get etwHours => etw * 24.0;
   double get edv => blockRewards / etw; //daily
   double get edvFiat => calculateFiat(edv, _price, crypto);
   double get ewv => edv * 7; //weekly
@@ -233,6 +234,9 @@ class Stats {
       : -1;
   double get daysSinceLastBlock => (_client.wallets.length > 0)
       ? _client.walletAggregate.daysSinceLastBlock.roundToDouble()
+      : -1;
+  double get hoursSinceLastBlock => (_client.wallets.length > 0)
+      ? (_client.walletAggregate.daysSinceLastBlock * 24.0)
       : -1;
 
   String get netSpace => _netSpace.humanReadableSize;
@@ -571,7 +575,9 @@ class Stats {
         //doesnt show last block days ago if user has not found a block at all
         String lastBlock = (stats.farmedDays > stats.daysSinceLastBlock &&
                 stats.daysSinceLastBlock > 0)
-            ? "(last block ~${stats.daysSinceLastBlock.round()} days ago)"
+            ? ((stats.daysSinceLastBlock > 1)
+                ? "(last block ~${stats.daysSinceLastBlock.round()} days ago)"
+                : "(last block ~${stats.hoursSinceLastBlock.round()} hours ago)")
             : '';
         output +=
             "\n:person_lifting_weights: Effort: ${stats.effort.toStringAsFixed(1)}% $lastBlock";
