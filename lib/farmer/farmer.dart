@@ -120,8 +120,8 @@ class Farmer extends Harvester with FarmerStatusMixin {
       //if wallet balance is enabled and
       //if rpc works
       if (walletsObject != null && (walletsObject['success'] ?? false)) {
-        if (blockchain.config.showBalance &&
-            walletsObject['wallets'].length > 0) farmedBalance = 0;
+        // if (blockchain.config.showBalance &&
+        //   walletsObject['wallets'].length > 0) farmedBalance = 0;
 
         for (var walletID in walletsObject['wallets'] ?? []) {
           final int id = walletID['id'] ?? 1;
