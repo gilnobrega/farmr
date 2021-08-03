@@ -247,8 +247,8 @@ class CountryCount extends Country {
     var superMap = super.toJson();
 
     superMap.putIfAbsent("ips", () => ips);
-    superMap.putIfAbsent("bytesRead", () => ips);
-    superMap.putIfAbsent("bytesWritten", () => ips);
+    superMap.putIfAbsent("bytesRead", () => bytesRead);
+    superMap.putIfAbsent("bytesWritten", () => bytesWritten);
 
     return superMap;
   }
