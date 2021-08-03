@@ -43,6 +43,28 @@ class FarmerStatusMixin {
   }
 
   Future<void> updateFarmerStatus(Blockchain blockchain) async {
+    //runs chia farm summary if it is a farmer
+    var result = io.Process.runSync(
+        blockchain.config.cache!.binPath, const ["farm", "summary"]);
+    List<String> lines =
+        result.stdout.toString().replaceAll("\r", "").split('\n');
+
+    //parses total farmed
+    for (var line in lines) {
+      try {
+        if (line.startsWith("Total ${blockchain.binaryName} farmed: "))
+          farmedBalance = (blockchain.config.showBalance)
+              ? (double.parse(line.split(
+                          'Total ${blockchain.binaryName} farmed: ')[1]) *
+                      blockchain.majorToMinorMultiplier)
+                  .toInt()
+              : -1;
+      } catch (error) {
+        log.warning(
+            "Unable to parse farmed ${blockchain.currencySymbol.toUpperCase()}. Is wallet service running?");
+      }
+    }
+
     //check if farmer service is running
     final servicesRunning = (await blockchain.rpcPorts
             ?.isServiceRunning([RPCService.Farmer, RPCService.Daemon]) ??
@@ -54,7 +76,7 @@ class FarmerStatusMixin {
     //null value means RPC Port is not defined
     //In this case it tries legacy mode
     if (farmerRunning == null)
-      _legacyFarmerStatus(blockchain);
+      _legacyFarmerStatus(blockchain, lines);
     //Try RPC
     else if (farmerRunning) {
       var result = {};
@@ -96,13 +118,7 @@ class FarmerStatusMixin {
       farmerStatus = FarmerStatus.Not_Running;
   }
 
-  void _legacyFarmerStatus(Blockchain blockchain) {
-    //runs chia farm summary if it is a farmer
-    var result = io.Process.runSync(
-        blockchain.config.cache!.binPath, const ["farm", "summary"]);
-    List<String> lines =
-        result.stdout.toString().replaceAll("\r", "").split('\n');
-
+  void _legacyFarmerStatus(Blockchain blockchain, List<String> lines) {
     //needs last farmed block to calculate effort, this is never stored
     try {
       for (int i = 0; i < lines.length; i++) {
@@ -125,18 +141,6 @@ class FarmerStatusMixin {
             else if (cliStatus.contains("farming"))
               farmerStatus = FarmerStatus.Farming;
           }
-        }
-        try {
-          if (line.startsWith("Total ${blockchain.binaryName} farmed: "))
-            farmedBalance = (blockchain.config.showBalance)
-                ? (double.parse(line.split(
-                            'Total ${blockchain.binaryName} farmed: ')[1]) *
-                        blockchain.majorToMinorMultiplier)
-                    .toInt()
-                : -1;
-        } catch (error) {
-          log.warning(
-              "Unable to parse farmed ${blockchain.currencySymbol.toUpperCase()}. Is wallet service running?");
         }
 
         try {

@@ -199,8 +199,10 @@ class Farmer extends Harvester with FarmerStatusMixin {
             if (walletFarmedInfo != null &&
                 (walletFarmedInfo['success'] ?? false)) {
               //adds wallet farmed balance
-              if (blockchain.config.showBalance)
-                farmedBalance += walletFarmedInfo['farmed_amount'] as int;
+              //WARNING THIS IS NOT REALLY WORKING
+              // CHIA RPC IS BROKEN
+              /* if (blockchain.config.showBalance)
+                farmedBalance += walletFarmedInfo['farmed_amount'] as int;*/
               //sets wallet last farmed height
               wallet.setLastBlockFarmed(walletFarmedInfo['last_height_farmed']);
             }
