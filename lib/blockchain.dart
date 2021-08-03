@@ -160,20 +160,20 @@ class Blockchain {
     //hpool argument overrides type
     if (_args.contains("hpool") && currencySymbol == "xch")
       type = ClientType.HPool;
+    //harvester agument overrides type
+    else if (_args.contains("harvester"))
+      type = ClientType.Harvester;
+    //in case RPC Ports are not defined or there was an exception
+    //chooses type based on arguments
+    else if (harvesterRunning == null && farmerRunning == null)
+      type = ClientType.Farmer;
     //chooses farmer if farmer service is running
     else if (farmerRunning != null && farmerRunning)
       type = ClientType.Farmer;
     //chooses harvester if harvester service is running
     else if (harvesterRunning != null && harvesterRunning)
       type = ClientType.Harvester;
-    //in case RPC Ports are not defined or there was an exception
-    //chooses type based on arguments
-    else if (harvesterRunning == null && farmerRunning == null) {
-      if (_args.contains("harvester"))
-        type = ClientType.Harvester;
-      else
-        type = ClientType.Farmer;
-    } else
+    else
       throw Exception(
           "Unable to detect running $binaryName farming/harvesting service.");
 
