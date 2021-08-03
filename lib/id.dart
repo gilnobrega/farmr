@@ -11,6 +11,8 @@ import 'package:http/http.dart' as http;
 Logger log = Logger("ID");
 
 class ID {
+  String? sponsoredMessage;
+
   List<String> ids = [];
 
   late io.File _idFile;
@@ -108,11 +110,13 @@ Open the following link to join the server: https://discord.gg/fghFbffYsC""";
     String output = "\n";
 
     try {
-      const String sponsorUrl = r"https://farmr.net/sponsor.txt";
+      if (sponsoredMessage == null) {
+        const String sponsorUrl = r"https://farmr.net/sponsor.txt";
 
-      String contents = (await http.get(Uri.parse(sponsorUrl))).body;
+        sponsoredMessage = (await http.get(Uri.parse(sponsorUrl))).body;
+      }
 
-      output += "\n" + contents;
+      output += "\n" + (sponsoredMessage ?? "");
     } catch (error) {}
 
     return output;
