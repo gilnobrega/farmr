@@ -9,7 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
 import 'package:proper_filesize/proper_filesize.dart';
 
-Logger log = Logger("SpacePool API");
+Logger log = Logger("XCH Garden API");
 
 class XchGardenWallet extends GenericPoolWallet {
   final String poolPublicKey;
