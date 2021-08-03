@@ -219,6 +219,11 @@ class Country {
   const Country({required this.code, required this.name});
 
   Map toJson() => {"code": code, "name": name};
+
+  Country.fromJson(dynamic object)
+      : this(
+            code: object['code'] ?? "N/A",
+            name: object['name'] ?? "Not Available");
 }
 
 class CountryCount extends Country {
@@ -234,6 +239,12 @@ class CountryCount extends Country {
     superMap.putIfAbsent("ips", () => ips);
 
     return superMap;
+  }
+
+  CountryCount.fromJson(dynamic object) : super.fromJson(object) {
+    if (object['ips'] != null) {
+      for (var ip in object['ips']) ips.add(ip);
+    }
   }
 
   //adds one to count

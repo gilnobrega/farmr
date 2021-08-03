@@ -361,6 +361,11 @@ class Farmer extends Harvester with FarmerStatusMixin {
     }
 
     calculateFilterRatio(this);
+
+    if (object['countriesConnected'] != null) {
+      for (var countryConnected in object['countriesConnected'])
+        _countriesConnected.add(CountryCount.fromJson(countryConnected));
+    }
   }
 
   //Adds harvester's plots into farm's plots
