@@ -54,9 +54,9 @@ jobs:
         run: |
              sudo chmod -R 755 dart-${{ matrix.architecture }}
              mv .github/workflows/config.test .github/workflows/config.yaml
-             mv .github/workflows/farmer.sh ./farmer.sh
+             mv .github/workflows/farmr.sh ./farmr.sh
              mv .github/workflows/hpool.sh ./hpool.sh
-             chmod +x ./farmer.sh
+             chmod +x ./farmr.sh
              chmod +x ./hpool.sh
 
       - uses: uraimo/run-on-arch-action@v2.1.0
@@ -94,7 +94,7 @@ jobs:
         uses: xom9ikk/dotenv@v1.0.2
 
       - name: Compressing ${{ matrix.architecture }} .tar.gz
-        run: tar -czvf ./farmr-linux-${{ matrix.architecture }}.tar.gz ./farmr ./config ./blockchain ./farmer.sh ./hpool.sh 
+        run: tar -czvf ./farmr-linux-${{ matrix.architecture }}.tar.gz ./farmr ./config ./blockchain ./farmr.sh ./hpool.sh 
 
       - name: Build .deb file for ${{ matrix.architecture }}
         uses: kentik/pkg@v1.0.0-rc7
@@ -181,15 +181,15 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: |
              mv .github/workflows/config.test .github/workflows/config.yaml
-             mv .github/workflows/farmer.sh ./farmer.sh
-             chmod +x ./farmer.sh
+             mv .github/workflows/farmr.sh ./farmr.sh
+             chmod +x ./farmr.sh
              mv .github/workflows/hpool.sh ./hpool.sh
              chmod +x ./hpool.sh
              dart compile exe farmr.dart
              chmod +x farmr.exe
              ./farmr.exe harvester onetime standalone headless
              mv farmr.exe farmr
-             tar -czvf ./farmr-macOS-${{ matrix.architecture }}.tar.gz ./farmr ./config ./blockchain ./farmer.sh ./hpool.sh 
+             tar -czvf ./farmr-macOS-${{ matrix.architecture }}.tar.gz ./farmr ./config ./blockchain ./farmr.sh ./hpool.sh 
              
       - name: Building Windows release
         if: matrix.os == 'windows-latest'
@@ -198,7 +198,7 @@ jobs:
              dart compile exe farmr.dart
              dart compile exe farmr_hpool.dart
              ./farmr.exe harvester onetime standalone headless
-             move ./farmr.exe ./farmer.exe
+             move ./farmr.exe ./farmr.exe
              move ./farmr_hpool.exe ./hpool.exe
 
       - name: Created windows zip file
