@@ -68,6 +68,7 @@ class Config {
   List<String> foxyPoolPublicKeys = [];
   List<String> plottersClubPublicKeys = [];
   List<String> spacePoolPublicKeys = [];
+  List<String> xchGardenPublicKeys = [];
   List<String> flexpoolAddresses = [];
 
   bool sendColdWalletBalanceNotifications = true;
@@ -165,6 +166,8 @@ class Config {
       configMap.putIfAbsent(
           "Plotters.Club Public Keys", () => plottersClubPublicKeys);
       configMap.putIfAbsent("SpacePool Public Keys", () => spacePoolPublicKeys);
+      configMap.putIfAbsent(
+          "XCH Garden Public Keys", () => xchGardenPublicKeys);
     }
 
     if (_blockchain.currencySymbol == "xch")
@@ -206,6 +209,7 @@ class Config {
     flexpoolAddresses = [];
     plottersClubPublicKeys = [];
     spacePoolPublicKeys = [];
+    xchGardenPublicKeys = [];
 
     //sets default name according to client type
     name = defaultNames[type] ?? "Harvester";
@@ -346,6 +350,13 @@ class Config {
         spacePoolPublicKeys.add(address);
 //clears duplicate entries
       spacePoolPublicKeys = spacePoolPublicKeys.toSet().toList();
+    }
+
+    if (json["XCH Garden Public Keys"] != null) {
+      for (var address in json["XCH Garden Public Keys"])
+        xchGardenPublicKeys.add(address);
+//clears duplicate entries
+      xchGardenPublicKeys = xchGardenPublicKeys.toSet().toList();
     }
   }
 

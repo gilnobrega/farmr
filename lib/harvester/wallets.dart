@@ -9,6 +9,7 @@ import 'package:farmr_client/wallets/poolWallets/foxyPoolWallet.dart';
 import 'package:farmr_client/wallets/poolWallets/genericPoolWallet.dart';
 import 'package:farmr_client/wallets/poolWallets/plottersClubWallet.dart';
 import 'package:farmr_client/wallets/poolWallets/spacePoolWallet.dart';
+import 'package:farmr_client/wallets/poolWallets/xchGardenWallet.dart';
 import 'package:farmr_client/wallets/wallet.dart';
 
 class HarvesterWallets {
@@ -90,6 +91,10 @@ class HarvesterWallets {
     for (String publicKey in blockchain.config.spacePoolPublicKeys)
       wallets.add(
           SpacePoolWallet(blockchain: blockchain, poolPublicKey: publicKey));
+
+    for (String publicKey in blockchain.config.xchGardenPublicKeys)
+      wallets.add(
+          XchGardenWallet(blockchain: blockchain, poolPublicKey: publicKey));
 
     //initializes all wallets
     for (Wallet wallet in wallets) await wallet.init();
