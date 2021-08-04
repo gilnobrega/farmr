@@ -94,7 +94,9 @@ class FarmerStatusMixin {
       }
 
       //sync status
-      if (result != null && ((result['success'] ?? false) == true)) {
+      if (result != null &&
+          ((result['success'] ?? false) == true) &&
+          result['blockchain_state'] != null) {
         if (result['blockchain_state']['sync']['sync_mode'] ?? false)
           farmerStatus = FarmerStatus.Syncing;
         else if (!(result['blockchain_state']['sync']['synced'] ?? true))
@@ -105,12 +107,12 @@ class FarmerStatusMixin {
           farmerStatus = FarmerStatus.Farming;
         else
           farmerStatus = FarmerStatus.Not_Farming;
-      }
 
-      //netspace
-      if (result['blockchain_state']['space'] != null) {
-        _netSpace = NetSpace.fromBytes(
-            double.tryParse("${result['blockchain_state']['space']}") ?? 1);
+        //netspace
+        if (result['blockchain_state']['space'] != null) {
+          _netSpace = NetSpace.fromBytes(
+              double.tryParse("${result['blockchain_state']['space']}") ?? 1);
+        }
       }
     } else if (daemonRunning)
       farmerStatus = FarmerStatus.Not_Available;
