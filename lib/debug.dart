@@ -225,7 +225,8 @@ class Log {
 
     try {
       RegExp filtersRegex = RegExp(
-          "([0-9-]+)T([0-9:]+)\\.([0-9]+) harvester $_binaryName\\.harvester\\.harvester:\\s+INFO\\s+([0-9]+) plots were eligible for farming \\S+ Found ([0-9]+) proofs\\. Time: ([0-9\\.]+) s\\. Total ([0-9]+) plots",
+          // Qwinn replaced: "([0-9-]+)T([0-9:]+)\\.([0-9]+) harvester $_binaryName\\.harvester\\.harvester:\\s+INFO\\s+([0-9]+) plots were eligible for farming \\S+ Found ([0-9]+) proofs\\. Time: ([0-9\\.]+) s\\. Total ([0-9]+) plots",
+          "([0-9-]+)T([0-9:]+)\\.([0-9]+) harvester [a-z]+\\.harvester\\.harvester[\s]*:\\s+INFO\\s+([0-9]+) plots were eligible for farming \\S+ Found ([0-9]+) proofs\\. Time: ([0-9\\.]+) s\\. Total ([0-9]+) plots",
           multiLine: true);
 
       var matches = filtersRegex.allMatches(contents).toList();
@@ -279,7 +280,9 @@ class Log {
 
     try {
       RegExp signagePointsRegex = RegExp(
-          "([0-9-]+)T([0-9:]+)\\.([0-9]+) full_node $_binaryName\\.full\\_node\\.full\\_node:\\s+INFO\\W+Finished[\\S ]+ ([0-9]+)\\/64",
+          // Qwinn replaced
+          // "([0-9-]+)T([0-9:]+)\\.([0-9]+) full_node $_binaryName\\.full\\_node\\.full\\_node:\\s+INFO\\W+Finished[\\S ]+ ([0-9]+)\\/64",
+          "([0-9-]+)T([0-9:]+)\\.([0-9]+) full_node [a-z]+\\.full\\_node\\.full\\_node[\s]*:\\s+INFO\\W+Finished[\\S ]+ ([0-9]+)\\/64",
           multiLine: true);
 
       var matches = signagePointsRegex.allMatches(contents).toList();
@@ -352,7 +355,7 @@ class Log {
 
     try {
       RegExp shortSyncsRegex = RegExp(
-          "([0-9-]+)T([0-9:]+)\\.([0-9]+) full_node $_binaryName\\.full\\_node\\.full\\_node:\\s+INFO\\W+Starting batch short sync from ([0-9]+) to height ([0-9]+)",
+          "([0-9-]+)T([0-9:]+)\\.([0-9]+) full_node [a-z]+\\.full\\_node\\.full\\_node[/s]*:\\s+INFO\\W+Starting batch short sync from ([0-9]+) to height ([0-9]+)",
           multiLine: true);
 
       var matches = shortSyncsRegex.allMatches(contents).toList();
@@ -394,7 +397,7 @@ class Log {
 
     try {
       RegExp poolErrorsRegex = RegExp(
-          "([0-9-]+)T([0-9:]+)\\.([0-9]+) farmer $_binaryName\\.farmer\\.farmer\\s+:\\s+ERROR\\s+Error sending partial to",
+          "([0-9-]+)T([0-9:]+)\\.([0-9]+) farmer [a-z]+\\.farmer\\.farmer\\s+[\s]*:\\s+ERROR\\s+Error sending partial to",
           multiLine: true);
 
       var matches = poolErrorsRegex.allMatches(contents).toList();
