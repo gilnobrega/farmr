@@ -32,7 +32,7 @@ final log = Logger('Client');
 final Duration delay = Duration(minutes: 10); //10 minutes delay between updates
 
 // '/home/user/.farmr' for package installs, '.' (project path) for the rest
-late String rootPath;
+String rootPath = "";
 
 const String url = "https://farmr.net/send12.php";
 const String urlBackup = "https://chiabot.znc.sh/send12.php";
@@ -218,8 +218,7 @@ bool firstTime = true;
 
 late dartconsole.Console console;
 Future<void> reportSelector() async {
-  print(
-      """\nfarmr sends a report every 10 minutes.
+  print("""\nfarmr sends a report every 10 minutes.
 Do not close this window or these stats will not show up in farmr.net and farmrBot
 """);
 
@@ -527,8 +526,7 @@ Future<void> sendReport(String id, Object? post, Blockchain blockchain,
 Future<void> checkIfLinked(String response, String previousOutput,
     SendPort sendPort, String id) async {
   if (response.trim().contains("Not linked")) {
-    final errorString =
-        """\n\nID $id is not linked to an account.
+    final errorString = """\n\nID $id is not linked to an account.
 Link it in farmr.net or through farmrbot and then start this program again
 Press enter to quit""";
     print(errorString);
@@ -577,7 +575,7 @@ void initLogger([String blockchainExtension = ""]) {
     //logs on windows is disabled
     if (!io.Platform.isWindows) {
       try {
-        io.File logFile = io.File("log$blockchainExtension.txt");
+        io.File logFile = io.File(rootPath + "log$blockchainExtension.txt");
 
         logFile.writeAsStringSync(
             '\n${record.time} ${record.loggerName}: ' + output,
