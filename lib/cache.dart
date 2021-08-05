@@ -123,7 +123,8 @@ class Cache {
       }
 
       //loads chia binary path from cache
-      if (contents[0]['binPath'] != null) _binPath = contents[0]['binPath'];
+      if (contents[0]['binPath'] != null && contents[0]['binPath'] != "")
+        _binPath = contents[0]['binPath'];
 
       //loads filters list from cache file
       if (contents[0]['filters'] != null) {
@@ -251,8 +252,7 @@ class Cache {
       if (io.File(_binPath!).existsSync())
         validDirectory = true;
       else if (io.Directory(_blockchain.cache.chiaPath).existsSync())
-        log.warning(
-            """Could not locate chia binary in your directory.
+        log.warning("""Could not locate chia binary in your directory.
 ($_binPath not found)
 Please try again.
 Make sure this folder has the same structure as Chia's GitHub repo.""");

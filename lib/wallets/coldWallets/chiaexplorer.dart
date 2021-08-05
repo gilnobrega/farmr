@@ -8,7 +8,7 @@ import 'package:logging/logging.dart';
 Logger log = Logger("Chia Explorer Cold Wallet");
 
 class ChiaExplorerWallet extends ColdWallet {
-  static const String _chiaExplorerURL = "https://api3.chiaexplorer.com/";
+  static const String _chiaExplorerURL = "https://abc.chiaexplorer.com/";
   final String address;
 
   ChiaExplorerWallet(

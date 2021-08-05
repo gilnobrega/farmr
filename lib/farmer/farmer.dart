@@ -249,7 +249,7 @@ class Farmer extends Harvester with FarmerStatusMixin {
   Future<void> getPeakHeight() async {
     //tries to get peak block height from chiaexplorer.com
     try {
-      const String url = "https://api3.chiaexplorer.com/blocks";
+      const String url = "https://abc.chiaexplorer.com/blocks";
 
       String contents = await http.read(Uri.parse(url));
 
