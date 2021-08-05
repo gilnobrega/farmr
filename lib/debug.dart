@@ -394,7 +394,7 @@ class Log {
 
     try {
       RegExp poolErrorsRegex = RegExp(
-          "([0-9-]+)T([0-9:]+)\\.([0-9]+) farmer [a-z]\\.farmer\\.farmer\\s+:\\s+ERROR\\s+Error sending partial to",
+          "([0-9-]+)T([0-9:]+)\\.([0-9]+) farmer [a-z]+\\.farmer\\.farmer\\s*:\\s+ERROR\\s+Error sending partial to",
           multiLine: true);
 
       var matches = poolErrorsRegex.allMatches(contents).toList();
