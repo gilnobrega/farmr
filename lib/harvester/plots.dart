@@ -84,6 +84,13 @@ class HarvesterPlots {
     return pathsFiltered.toSet().toList();
   }
 
+  //returns last bit of plot filename if plot contains '-' (such as chia plotter and madmax)
+  //else returns whole filename
+  static String getPlotId(String path) {
+    final String fileName = basenameWithoutExtension(path);
+    return (fileName.contains("-")) ? fileName.split('-').last : fileName;
+  }
+
 //makes a list of available plots in all plot destination paths
   Future<void> listPlots(List<String> paths, Config config) async {
     List<Plot> newplots = [];
@@ -98,13 +105,7 @@ class HarvesterPlots {
           //Checks if file extension is .plot
           //also checks that it is a File and not a directory
           if (extension(file.path) == ".plot" && file is io.File) {
-            String? id;
-
-            try {
-              id = basenameWithoutExtension(file.path).split('-').last;
-            } catch (exception) {
-              log.info("Failed to parse id of plot in ${file.path}");
-            }
+            final id = getPlotId(file.path);
 
             bool inCache = (id != null)
                 ? allPlots.any((cachedPlot) => cachedPlot.id == id)
@@ -164,10 +165,7 @@ class HarvesterPlots {
         for (var plot in rpcOutput['plots']) {
           if (plot['filename'] is String) {
             try {
-              String id = (plot['filename'] as String)
-                  .split("-")
-                  .last
-                  .replaceFirst(".plot", "");
+              String id = getPlotId(plot['filename'] as String);
 
               loadedIDs.add(id);
 
