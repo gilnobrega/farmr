@@ -12,7 +12,7 @@
     
     "Ports": {
         "harvester": 7560,
-        "farmer": 8559,
+        "farmer": 7559,
         "fullNode": 7555,
         "wallet": 8256,
         "daemon": 57500
