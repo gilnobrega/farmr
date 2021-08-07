@@ -165,7 +165,7 @@ class HarvesterPlots {
         for (var plot in rpcOutput['plots']) {
           if (plot['filename'] is String) {
             try {
-              String id = getPlotId(plot['filename'] as String);
+              final String id = getPlotId(plot['filename'] as String);
 
               loadedIDs.add(id);
 

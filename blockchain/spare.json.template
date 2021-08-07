@@ -6,5 +6,13 @@
     "Net": "mainnet",
     "Block Rewards": 4.0,
     "Blocks Per 10 Minutes": 32.0,
-    "Online Config": true
+    "Online Config": true,
+
+    "Ports": {
+        "harvester": 9560,
+        "farmer": 9559,
+        "fullNode": 9555,
+        "wallet": 9257,
+        "daemon": 59400
+      }
 }
