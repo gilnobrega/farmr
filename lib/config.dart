@@ -36,7 +36,7 @@ class Config {
 
   bool sendPlotNotifications = false; //plot notifications
 
-  bool sendDriveNotifications = true; //drive notifications
+  bool sendDriveNotifications = false; //drive notifications
 
   bool sendBalanceNotifications = true; //balance notifications
 

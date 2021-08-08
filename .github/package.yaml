@@ -70,6 +70,51 @@ files:
     mode: "0644"
     user: "root"
     keep: true
+  "/etc/farmr/blockchain/apple.json.template":
+    file: blockchain/apple.json.template
+    mode: "0644"
+    user: "root"
+    keep: true
+  "/etc/farmr/blockchain/tad.json.template":
+    file: blockchain/tad.json.template
+    mode: "0644"
+    user: "root"
+    keep: true
+  "/etc/farmr/blockchain/xdg.json.template":
+    file: blockchain/xdg.json.template
+    mode: "0644"
+    user: "root"
+    keep: true
+  "/etc/farmr/blockchain/xka.json.template":
+    file: blockchain/xka.json.template
+    mode: "0644"
+    user: "root"
+    keep: true
+  "/etc/farmr/blockchain/xmz.json.template":
+    file: blockchain/xmz.json.template
+    mode: "0644"
+    user: "root"
+    keep: true
+  "/etc/farmr/blockchain/xtx.json.template":
+    file: blockchain/xtx.json.template
+    mode: "0644"
+    user: "root"
+    keep: true
+  "/etc/farmr/blockchain/tsit.json.template":
+    file: blockchain/tsit.json.template
+    mode: "0644"
+    user: "root"
+    keep: true
+  "/etc/farmr/blockchain/cac.json.template":
+    file: blockchain/cac.json.template
+    mode: "0644"
+    user: "root"
+    keep: true
+  "/etc/farmr/blockchain/xcd.json.template":
+    file: blockchain/xcd.json.template
+    mode: "0644"
+    user: "root"
+    keep: true
 units:
   #- .github/workflows/farmr.service
 scripts:
