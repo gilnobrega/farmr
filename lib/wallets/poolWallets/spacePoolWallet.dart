@@ -44,6 +44,8 @@ class SpacePoolWallet extends GenericPoolWallet {
         capacity = ProperFilesize.parseHumanReadableFilesize(
                 "${object['estimatedPlotSizeTiB']?.toString() ?? "-1"} TiB")
             .round();
+
+        difficulty = object['lastDifficulty'] ?? -1;
       }
     } catch (error) {
       log.warning("Failed to get info from SpacePool API");

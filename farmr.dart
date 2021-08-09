@@ -379,16 +379,16 @@ void handleBlockchainReport(List<Object> arguments) async {
     if (client.coldWallets.length > 0) {
       if (client.coldWalletAggregate.farmedBalance >= 0)
         coldBalance = client.coldWalletAggregate.farmedBalanceMajor
-            .toString(); //flax //LEGACY
+            .toStringAsFixed(2); //flax //LEGACY
       else if (client.coldWalletAggregate.grossBalance >= 0)
         coldBalance = client.coldWalletAggregate.grossBalanceMajor
-            .toString(); //chia // LEGACY
+            .toStringAsFixed(2); //chia // LEGACY
       else if (client.coldWalletAggregate.netBalance >= 0)
         coldBalance = client.coldWalletAggregate.netBalanceMajor
-            .toString(); //every other fork through posat.io
+            .toStringAsFixed(2); //every other fork through posat.io
     }
 
-    if (client.balance >= 0) balance = client.balance.toString();
+    if (client.balance >= 0) balance = client.balance.toStringAsFixed(2);
   }
 
   status = client.status;

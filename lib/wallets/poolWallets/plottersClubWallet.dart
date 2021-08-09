@@ -39,6 +39,8 @@ class PlottersClubWallet extends GenericPoolWallet {
             (double.tryParse(object['capacityBytes']?.toString() ?? "-1.0") ??
                     -1.0)
                 .round();
+
+        difficulty = object['difficulty'] ?? -1;
       }
     } catch (error) {
       log.warning("Failed to get info from Plotters.Club API");
