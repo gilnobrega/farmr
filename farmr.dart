@@ -378,12 +378,13 @@ void handleBlockchainReport(List<Object> arguments) async {
   if (client is Farmer) {
     if (client.coldWallets.length > 0) {
       if (client.coldWalletAggregate.farmedBalance >= 0)
-        coldBalance =
-            client.coldWalletAggregate.farmedBalance.toString(); //flax
+        coldBalance = client.coldWalletAggregate.farmedBalanceMajor
+            .toString(); //flax //LEGACY
       else if (client.coldWalletAggregate.grossBalance >= 0)
-        coldBalance = client.coldWalletAggregate.grossBalance.toString(); //chia
+        coldBalance = client.coldWalletAggregate.grossBalanceMajor
+            .toString(); //chia // LEGACY
       else if (client.coldWalletAggregate.netBalance >= 0)
-        coldBalance = client.coldWalletAggregate.netBalance
+        coldBalance = client.coldWalletAggregate.netBalanceMajor
             .toString(); //every other fork through posat.io
     }
 
