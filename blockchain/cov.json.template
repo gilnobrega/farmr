@@ -1,0 +1,19 @@
+{
+    "Binary Name": "covid",
+    "Currency Symbol": "COV",
+    "Minor Currency Symbol": "mojo",
+    "Net": "mainnet",
+    
+    "Block Rewards": 2.0,
+    "Blocks Per 10 Minutes": 32.0,
+    
+    "Online Config": true,
+    
+    "Ports": {
+        "harvester": 18137,
+        "farmer": 18136,
+        "fullNode": 18135,
+        "wallet": 19132,
+        "daemon": 44176
+      }
+}
