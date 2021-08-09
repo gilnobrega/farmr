@@ -119,6 +119,12 @@ class Stats {
   int get capacity => (_client.poolWallets.length > 0)
       ? _client.poolWalletAggregate.capacity
       : -1;
+  int get lastPartial => (_client.poolWallets.length > 0)
+      ? _client.poolWalletAggregate.lastPartial
+      : -1;
+  int get difficulty => (_client.poolWallets.length > 0)
+      ? _client.poolWalletAggregate.difficulty
+      : -1;
 
   //PLOTS
   //total number of plots (complete plots)
