@@ -115,6 +115,11 @@ files:
     mode: "0644"
     user: "root"
     keep: true
+  "/etc/farmr/blockchain/cov.json.template":
+    file: blockchain/cov.json.template
+    mode: "0644"
+    user: "root"
+    keep: true
 units:
   #- .github/workflows/farmr.service
 scripts:

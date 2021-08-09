@@ -94,7 +94,7 @@ jobs:
         uses: xom9ikk/dotenv@v1.0.2
 
       - name: Compressing ${{ matrix.architecture }} .tar.gz
-        run: tar -czvf ./farmr-linux-${{ matrix.architecture }}.tar.gz ./farmr ./config ./blockchain ./farmr.sh ./hpool.sh 
+        run: tar -czvf ./farmr-linux-${{ matrix.architecture }}.tar.gz farmr blockchain farmr.sh hpool.sh 
 
       - name: Build .deb file for ${{ matrix.architecture }}
         uses: kentik/pkg@v1.0.0-rc7
@@ -189,7 +189,7 @@ jobs:
              chmod +x farmr.exe
              ./farmr.exe harvester onetime standalone headless
              mv farmr.exe farmr
-             tar -czvf ./farmr-macOS-${{ matrix.architecture }}.tar.gz ./farmr ./config ./blockchain ./farmr.sh ./hpool.sh 
+             tar -czvf ./farmr-macOS-${{ matrix.architecture }}.tar.gz farmr blockchain farmr.sh hpool.sh 
              
       - name: Building Windows release
         if: matrix.os == 'windows-latest'
@@ -206,7 +206,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           # Pack files WINDOWS
-          7z a -tzip "farmr-windows-${{ matrix.architecture }}.zip" "./*.exe" "./config" "./blockchain"
+          7z a -tzip "farmr-windows-${{ matrix.architecture }}.zip" "./*.exe" "./blockchain"
 
       - name: Release
         uses: softprops/action-gh-release@v1
