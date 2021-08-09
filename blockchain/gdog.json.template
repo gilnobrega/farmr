@@ -4,7 +4,7 @@
     "Minor Currency Symbol": "dog",
     "Net": "mainnet",
     
-    "Block Rewards": 100.0,
+    "Block Rewards": 20.0,
     "Blocks Per 10 Minutes": 32.0,
     
     "Online Config": true,
