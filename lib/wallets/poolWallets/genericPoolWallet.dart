@@ -81,7 +81,10 @@ class GenericPoolWallet extends Wallet {
               Wallet.sumTwoBalances(this.currentPoints, wallet2.currentPoints),
           totalPoints:
               Wallet.sumTwoBalances(this.totalPoints, wallet2.totalPoints),
-          capacity: Wallet.sumTwoBalances(this.capacity, wallet2.capacity));
+          capacity: Wallet.sumTwoBalances(this.capacity, wallet2.capacity),
+          lastPartial:
+              Wallet.maximumTwoBalances(this.lastPartial, wallet2.lastPartial),
+          difficulty: this.difficulty);
     else
       throw Exception("Cannot combine pool wallets of different blockchains");
   }

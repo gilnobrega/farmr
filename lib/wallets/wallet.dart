@@ -119,4 +119,26 @@ class Wallet {
     else
       return -1;
   }
+
+  static int minimumTwoBalances(balance1, balance2) {
+    if (balance1 < 0 && balance2 >= 0)
+      return balance2;
+    else if (balance2 < 0 && balance1 >= 0)
+      return balance1;
+    else if (balance2 >= 0 && balance1 >= 0)
+      return Math.min(balance1, balance2);
+    else
+      return -1;
+  }
+
+  static int maximumTwoBalances(balance1, balance2) {
+    if (balance1 < 0 && balance2 >= 0)
+      return balance2;
+    else if (balance2 < 0 && balance1 >= 0)
+      return balance1;
+    else if (balance2 >= 0 && balance1 >= 0)
+      return Math.max(balance1, balance2);
+    else
+      return -1;
+  }
 }
