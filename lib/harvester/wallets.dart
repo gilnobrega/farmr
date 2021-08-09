@@ -49,19 +49,17 @@ class HarvesterWallets {
 
   Future<void> getWallets(Blockchain blockchain, int syncedBlockHeight) async {
     for (String address in blockchain.config.coldWalletAddresses) {
-      if (address.startsWith("xch"))
-        //wallets
-        //  .add(ChiaExplorerWallet(blockchain: blockchain, address: address)); Temporarily disabling this while ChiaExplorer keeps having issues
-        wallets
-            .add(AllTheBlocksWallet(blockchain: blockchain, address: address));
-      else if (address.startsWith("xfx"))
-        wallets.add(FlaxExplorerWallet(
-            blockchain: blockchain,
-            address: address,
-            syncedBlockHeight: syncedBlockHeight));
-      else
-        wallets
-            .add(AllTheBlocksWallet(blockchain: blockchain, address: address));
+      // if (address.startsWith("xch"))
+      //wallets
+      //  .add(ChiaExplorerWallet(blockchain: blockchain, address: address)); Temporarily disabling this while ChiaExplorer keeps having issues
+
+      // else if (address.startsWith("xfx"))
+      //   wallets.add(FlaxExplorerWallet(
+      //      blockchain: blockchain,
+      //      address: address,
+      //      syncedBlockHeight: syncedBlockHeight));
+      // else
+      wallets.add(AllTheBlocksWallet(blockchain: blockchain, address: address));
     }
 
     for (String address in blockchain.config.flexpoolAddresses)

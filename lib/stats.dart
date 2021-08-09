@@ -119,9 +119,11 @@ class Stats {
   int get capacity => (_client.poolWallets.length > 0)
       ? _client.poolWalletAggregate.capacity
       : -1;
-  int get lastPartial => (_client.poolWallets.length > 0)
-      ? _client.poolWalletAggregate.lastPartial
-      : -1;
+  DateTime? get lastPartial => (_client.poolWallets.length > 0 &&
+          _client.poolWalletAggregate.lastPartial >= 0)
+      ? DateTime.fromMillisecondsSinceEpoch(
+          _client.poolWalletAggregate.lastPartial * 1000)
+      : null;
   int get difficulty => (_client.poolWallets.length > 0)
       ? _client.poolWalletAggregate.difficulty
       : -1;
