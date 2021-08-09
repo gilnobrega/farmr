@@ -70,6 +70,7 @@ class Config {
   List<String> spacePoolPublicKeys = [];
   List<String> xchGardenPublicKeys = [];
   List<String> flexpoolAddresses = [];
+  List<String> elysiumPoolLauncherIDs = [];
 
   bool sendColdWalletBalanceNotifications = true;
 
@@ -158,17 +159,19 @@ class Config {
       "Cold Wallet Addresses": coldWalletAddresses,
     };
 
-    if (_blockchain.currencySymbol == "xch" ||
-        _blockchain.currencySymbol == "xfx")
-      configMap.putIfAbsent("FoxyPool Public Keys", () => foxyPoolPublicKeys);
-
     if (_blockchain.currencySymbol == "xch") {
+      configMap.putIfAbsent(
+          "Elysium Pool Launcher IDs", () => elysiumPoolLauncherIDs);
       configMap.putIfAbsent(
           "Plotters.Club Public Keys", () => plottersClubPublicKeys);
       configMap.putIfAbsent("SpacePool Public Keys", () => spacePoolPublicKeys);
       configMap.putIfAbsent(
           "XCH Garden Public Keys", () => xchGardenPublicKeys);
     }
+
+    if (_blockchain.currencySymbol == "xch" ||
+        _blockchain.currencySymbol == "xfx")
+      configMap.putIfAbsent("FoxyPool Public Keys", () => foxyPoolPublicKeys);
 
     if (_blockchain.currencySymbol == "xch")
       configMap.putIfAbsent("Flexpool Addresses", () => flexpoolAddresses);
@@ -210,6 +213,7 @@ class Config {
     plottersClubPublicKeys = [];
     spacePoolPublicKeys = [];
     xchGardenPublicKeys = [];
+    elysiumPoolLauncherIDs = [];
 
     //sets default name according to client type
     name = defaultNames[type] ?? "Harvester";
@@ -357,6 +361,14 @@ class Config {
         xchGardenPublicKeys.add(address);
 //clears duplicate entries
       xchGardenPublicKeys = xchGardenPublicKeys.toSet().toList();
+    }
+
+    if (json["Elysium Pool Launcher IDs"] != null) {
+      for (var launcherID in json["Elysium Pool Launcher IDs"]) {
+        elysiumPoolLauncherIDs.add(launcherID);
+        //clears duplicate launcher ids
+        elysiumPoolLauncherIDs = elysiumPoolLauncherIDs.toSet().toList();
+      }
     }
   }
 

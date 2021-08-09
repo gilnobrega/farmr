@@ -1,9 +1,9 @@
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/wallets/coldWallets/alltheblocks.dart';
-import 'package:farmr_client/wallets/coldWallets/chiaexplorer.dart';
 import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
 import 'package:farmr_client/wallets/coldWallets/flaxexplorer.dart';
 import 'package:farmr_client/wallets/localWallets/localWallet.dart';
+import 'package:farmr_client/wallets/poolWallets/elysiumPoolWallet.dart';
 import 'package:farmr_client/wallets/poolWallets/flexPoolWallet.dart';
 import 'package:farmr_client/wallets/poolWallets/foxyPoolWallet.dart';
 import 'package:farmr_client/wallets/poolWallets/genericPoolWallet.dart';
@@ -97,6 +97,10 @@ class HarvesterWallets {
     for (String publicKey in blockchain.config.xchGardenPublicKeys)
       wallets.add(
           XchGardenWallet(blockchain: blockchain, poolPublicKey: publicKey));
+
+    for (String launcherID in blockchain.config.elysiumPoolLauncherIDs)
+      wallets.add(
+          ElysiumPoolWallet(blockchain: blockchain, launcherID: launcherID));
 
     //initializes all wallets
     for (Wallet wallet in wallets) await wallet.init();

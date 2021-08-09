@@ -22,6 +22,9 @@ class GenericPoolWallet extends Wallet {
 
   //effective capacity of plots in pool in bytes
   late int capacity;
+  late int difficulty;
+
+  late int lastPartial; //last partial in unix time
 
   GenericPoolWallet(
       {this.collateralBalance = -1,
@@ -30,6 +33,8 @@ class GenericPoolWallet extends Wallet {
       this.currentPoints = -1,
       this.totalPoints = -1,
       this.capacity = -1,
+      this.difficulty = -1,
+      this.lastPartial = -1,
       required Blockchain blockchain,
       String name = "Pool Wallet"})
       : super(type: WalletType.Pool, blockchain: blockchain, name: name);
@@ -44,7 +49,9 @@ class GenericPoolWallet extends Wallet {
       'paidBalance': paidBalance,
       'currentPoints': currentPoints,
       'totalPoints': totalPoints,
-      'capacity': capacity
+      'capacity': capacity,
+      'difficulty': difficulty,
+      'lastPartial': lastPartial
     });
     return walletMap;
   }
@@ -56,6 +63,8 @@ class GenericPoolWallet extends Wallet {
     currentPoints = json['currentPoints'] ?? -1;
     totalPoints = json['totalPoints'] ?? -1;
     capacity = json['capacity'] ?? -1;
+    difficulty = json['difficulty'] ?? -1;
+    lastPartial = json['lastPartial'] ?? -1;
   }
 
   GenericPoolWallet operator *(GenericPoolWallet wallet2) {
