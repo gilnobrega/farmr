@@ -278,20 +278,38 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
 
     if (io.Platform.isWindows) {
       //Checks if binary exist in C:\User\AppData\Local\chia-blockchain\resources\app.asar.unpacked\daemon\chia.exe
-      chiaRootDir = io.Directory(io.Platform.environment['UserProfile']! +
-          "/AppData/Local/${_blockchain.binaryName}-blockchain");
+      if (_blockchain.binaryName != "spare") {
+        chiaRootDir = io.Directory(io.Platform.environment['UserProfile']! +
+            "/AppData/Local/${_blockchain.binaryName}-blockchain");
 
-      file =
-          "/resources/app.asar.unpacked/daemon/${_blockchain.binaryName}.exe";
+        file =
+            "/resources/app.asar.unpacked/daemon/${_blockchain.binaryName}.exe";
 
-      if (chiaRootDir.existsSync()) {
-        chiaRootDir.listSync(recursive: false).forEach((dir) {
-          io.File trypath = io.File(dir.path + file);
+        if (chiaRootDir.existsSync()) {
+          chiaRootDir.listSync(recursive: false).forEach((dir) {
+            io.File trypath = io.File(dir.path + file);
+            if (trypath.existsSync()) {
+              _binPath = trypath.path;
+              valid = true;
+            }
+          });
+        }
+      }
+      //hard codes spare path
+      else {
+        chiaRootDir = io.Directory(io.Platform.environment['UserProfile']! +
+            "/AppData/Local/Spare-blockchain");
+
+        file =
+            "/resources/app.asar.unpacked/daemon/${_blockchain.binaryName}.exe";
+
+        if (chiaRootDir.existsSync()) {
+          io.File trypath = io.File(chiaRootDir.path + file);
           if (trypath.existsSync()) {
             _binPath = trypath.path;
             valid = true;
           }
-        });
+        }
       }
     } else if (io.Platform.isLinux || io.Platform.isMacOS) {
       List<String> possiblePaths = [];
