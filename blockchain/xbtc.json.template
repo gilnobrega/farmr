@@ -1,0 +1,19 @@
+{
+    "Binary Name": "btcgreen",
+    "Currency Symbol": "XBTC",
+    "Minor Currency Symbol": "mojo",
+    "Net": "mainnet",
+    
+    "Block Rewards": 1.0,
+    "Blocks Per 10 Minutes": 32.0,
+    
+    "Online Config": true,
+    
+    "Ports": {
+        "harvester": 18585,
+        "farmer": 18695,
+        "fullNode": 18942,
+        "wallet": 19544,
+        "daemon": 44276
+      }
+}
