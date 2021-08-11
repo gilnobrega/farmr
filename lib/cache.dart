@@ -22,9 +22,12 @@ class Cache {
 
   String? _binPath;
   String get binPath {
-    if (Blockchain.detectOS() != OS.GitHub)
-      return _binPath ?? _askForBinPath();
-    else
+    if (Blockchain.detectOS() != OS.GitHub) {
+      if (_binPath != null && io.File(_binPath!).existsSync())
+        return _binPath!;
+      else
+        return _askForBinPath();
+    } else
       return "";
   }
 
