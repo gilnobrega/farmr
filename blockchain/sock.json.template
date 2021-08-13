@@ -1,0 +1,20 @@
+{
+    "Binary Name": "socks",
+    "Folder Name": ".socks",
+    "Currency Symbol": "SOCK",
+    "Minor Currency Symbol": "msock",
+    "Net": "mainnet",
+    
+    "Block Rewards": 2.0,
+    "Blocks Per 10 Minutes": 32.0,
+
+    "Online Config": true,
+    
+    "Ports": {
+        "harvester": 58560,
+        "farmer": 58559,
+        "fullNode": 58455,
+        "wallet": 59256,
+        "daemon": 55500
+      }
+}
