@@ -21,8 +21,9 @@ class HarvesterPlots {
   List<Plot> allPlots = [];
 
   //Returns list of complete and loaded plots
-  List<Plot> get plots =>
-      allPlots.where((plot) => plot.complete && plot.loaded).toList();
+  List<Plot> get plots => allPlots
+      .where((plot) => (plot.complete || !checkPlotSize) && plot.loaded)
+      .toList();
 
   //Returns list of complete
   List<Plot> get completePlots =>
