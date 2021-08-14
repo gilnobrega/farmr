@@ -302,6 +302,7 @@ class Harvester
     if (harvester.lastUpdated.millisecondsSinceEpoch <
         _lastUpdated.millisecondsSinceEpoch)
       _oldestUpdated = harvester.lastUpdated;
+    else if (_oldestUpdated == null) _oldestUpdated = _lastUpdated;
 
     //adds harvesters wallets
     wallets.addAll(harvester.wallets);
