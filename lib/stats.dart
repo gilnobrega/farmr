@@ -352,6 +352,7 @@ class Stats {
   String get blockchainVersion => _client.blockchainVersion;
 
   DateTime get lastUpdated => _client.lastUpdated;
+  DateTime? get oldestUpdated => _client.oldestUpdated;
 
   Stats(this._client, this._price, this._netSpace);
 

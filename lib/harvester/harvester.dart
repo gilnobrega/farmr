@@ -60,6 +60,10 @@ class Harvester
   DateTime _lastUpdated = DateTime.now();
   DateTime get lastUpdated => _lastUpdated;
 
+  //Timestamp oldest report
+  DateTime? _oldestUpdated;
+  DateTime? get oldestUpdated => _oldestUpdated;
+
   String _lastUpdatedString = "1971-01-01";
   String get lastUpdatedString => _lastUpdatedString;
 
@@ -294,6 +298,10 @@ class Harvester
     if (harvester.lastUpdated.millisecondsSinceEpoch >
         _lastUpdated.millisecondsSinceEpoch)
       _lastUpdated = harvester.lastUpdated;
+
+    if (harvester.lastUpdated.millisecondsSinceEpoch <
+        _lastUpdated.millisecondsSinceEpoch)
+      _oldestUpdated = harvester.lastUpdated;
 
     //adds harvesters wallets
     wallets.addAll(harvester.wallets);
