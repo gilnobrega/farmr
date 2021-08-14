@@ -130,6 +130,16 @@ files:
     mode: "0644"
     user: "root"
     keep: true
+  "/etc/farmr/blockchain/sock.json.template":
+    file: blockchain/sock.json.template
+    mode: "0644"
+    user: "root"
+    keep: true
+  "/etc/farmr/blockchain/xcc.json.template":
+    file: blockchain/xcc.json.template
+    mode: "0644"
+    user: "root"
+    keep: true
 units:
   #- .github/workflows/farmr.service
 scripts:

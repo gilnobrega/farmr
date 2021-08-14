@@ -56,6 +56,9 @@ class Blockchain {
   double _majorToMinorMultiplier = 1e12;
   double get majorToMinorMultiplier => _majorToMinorMultiplier;
 
+  bool _checkPlotSize = true; //checks if k32 or smaller
+  bool get checkPlotSize => _checkPlotSize;
+
   late Cache cache;
   late Config config;
   late Log log;
@@ -110,6 +113,7 @@ class Blockchain {
       _blocksPer10Mins = json['Blocks Per 10 Minutes'] ?? 32.0;
       _onlineConfig = json['Online Config'] ?? true;
       _majorToMinorMultiplier = json['Major to Minor Multiplier'] ?? 1e12;
+      _checkPlotSize = json['Check for Complete Plots'] ?? true;
     }
 
     //initializes default rpc ports for xch
@@ -173,9 +177,16 @@ class Blockchain {
     //chooses harvester if harvester service is running
     else if (harvesterRunning != null && harvesterRunning)
       type = ClientType.Harvester;
-    else
-      throw Exception(
-          "Unable to detect running $binaryName farming/harvesting service.");
+    else {
+      //throws exception if blockchain is not running
+      String exception =
+          "Unable to detect running $binaryName farming/harvesting service.";
+      print(exception);
+
+      await Future.delayed(Duration(seconds: 10));
+
+      throw Exception(exception);
+    }
 
     print("Starting farmr for $binaryName in $typeName mode...");
     //io.stdin.readByteSync(); //DEBUGGING, comment

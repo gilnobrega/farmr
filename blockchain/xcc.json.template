@@ -1,0 +1,22 @@
+{
+    "Binary Name": "chives",
+    "Folder Name": ".chives",
+    "Currency Symbol": "XCC",
+    "Minor Currency Symbol": "mojo",
+    "Net": "mainnet",
+    
+    "Block Rewards": 200.0,
+    "Blocks Per 10 Minutes": 32.0,
+
+    "Online Config": true,
+    
+    "Ports": {
+        "harvester": 9760,
+        "farmer": 9759,
+        "fullNode": 9755,
+        "wallet": 9856,
+        "daemon": 56900
+      },
+
+    "Check for Complete Plots": false
+}

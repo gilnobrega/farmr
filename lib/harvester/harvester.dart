@@ -86,6 +86,7 @@ class Harvester
       'currency': currency,
       'drives': drives,
       'plots': allPlots, //important
+      'checkPlotSize': checkPlotSize,
       'totalDiskSpace': totalDiskSpace,
       'freeDiskSpace': freeDiskSpace,
       'lastUpdated': lastUpdated.millisecondsSinceEpoch,
@@ -121,6 +122,7 @@ class Harvester
     this._blockRewards = blockchain.blockRewards;
     this._blocksPer10Mins = blockchain.blocksPer10Mins;
     this._onlineConfig = blockchain.onlineConfig;
+    checkPlotSize = blockchain.checkPlotSize;
 
     this._config = this.blockchain.config;
     _version = version;
@@ -192,6 +194,9 @@ class Harvester
     for (int i = 0; i < object['plots'].length; i++) {
       allPlots.add(Plot.fromJson(object['plots'][i]));
     }
+
+    if (object['checkPlotSize'] != null && object['checkPlotSize'] is bool)
+      checkPlotSize = object['checkPlotSize'];
 
     //check harvester/filters.dart
     loadFiltersStatsJson(object, plots.length);

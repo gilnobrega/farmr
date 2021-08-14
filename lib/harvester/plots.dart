@@ -14,6 +14,9 @@ import 'package:farmr_client/config.dart';
 final Logger log = Logger('Harvester.Plots');
 
 class HarvesterPlots {
+  //checks if plot is larger than k32 (for most forks)
+  bool checkPlotSize = true;
+
   //Private list with complete and incomplete plots
   List<Plot> allPlots = [];
 
@@ -23,11 +26,11 @@ class HarvesterPlots {
 
   //Returns list of complete
   List<Plot> get completePlots =>
-      allPlots.where((plot) => plot.complete).toList();
+      allPlots.where((plot) => plot.complete || !checkPlotSize).toList();
 
   //Returns list of incomplete plots
   List<Plot> get incompletePlots =>
-      allPlots.where((plot) => !plot.complete).toList();
+      allPlots.where((plot) => !plot.complete && checkPlotSize).toList();
 
   //Returns list of og plots
   List<Plot> get ogPlots =>
@@ -38,8 +41,9 @@ class HarvesterPlots {
       allPlots.where((plot) => plot.isNFT && plot.loaded).toList();
 
   //Returns list of plots which failed to load
-  List<Plot> get failedPlots =>
-      allPlots.where((plot) => plot.failed || !plot.complete).toList();
+  List<Plot> get failedPlots => allPlots
+      .where((plot) => plot.failed || (!plot.complete && checkPlotSize))
+      .toList();
 
   //creates a map with the following structure { 'k32' : 3, 'k33' : 2 } etc.
   Map<String, int> get typeCount => genPlotTypes(plots);
