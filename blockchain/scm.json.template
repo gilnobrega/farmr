@@ -1,0 +1,20 @@
+{
+    "Binary Name": "scam",
+    "Folder Name": ".scam",
+    "Currency Symbol": "SCM",
+    "Minor Currency Symbol": "mojo",
+    "Net": "mainnet",
+    
+    "Block Rewards": 10.0,
+    "Blocks Per 10 Minutes": 32.0,
+    
+    "Online Config": true,
+    
+    "Ports": {
+        "harvester": 9660,
+        "farmer": 9773,
+        "fullNode": 9655,
+        "wallet": 9661,
+        "daemon": 9701
+      }
+}
