@@ -1,6 +1,7 @@
 {
     "Binary Name": "chives",
     "Folder Name": ".chives",
+    "Major to Minor Multiplier": 1e8,
     "Currency Symbol": "XCC",
     "Minor Currency Symbol": "mojo",
     "Net": "mainnet",
