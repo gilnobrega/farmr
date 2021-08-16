@@ -136,6 +136,11 @@ class HarvesterPlots {
             else if (!duplicate) {
               //print("Found new plot " + id); // UNCOMMENT FOR DEBUGGING PLOT CACHE
               Plot plot = new Plot(file);
+              
+              //displays warning if plot is incomplete and minimum k size is k32
+              if (!plot.complete && checkPlotSize)
+                log.warning("Warning: plot " + file.path + " is incomplete!");
+              
               newplots.add(plot);
             }
           }
