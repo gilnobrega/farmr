@@ -99,8 +99,6 @@ class Plot {
 
     _size = stat.size;
 
-    if (!complete)
-      log.warning("Warning: plot " + file.path + " is incomplete!");
   }
 
   //Generate plot from json string
