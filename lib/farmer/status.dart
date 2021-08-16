@@ -52,10 +52,10 @@ class FarmerStatusMixin {
     //parses total farmed
     for (var line in lines) {
       try {
-        if (line.startsWith("Total ${blockchain.binaryName} farmed: "))
+        if (line.startsWith("Total ") && line.contains(" farmed: "))
           farmedBalance = (blockchain.config.showBalance)
               ? (double.parse(line.split(
-                          'Total ${blockchain.binaryName} farmed: ')[1]) *
+                          ' farmed: ')[1]) *
                       blockchain.majorToMinorMultiplier)
                   .toInt()
               : -1;
