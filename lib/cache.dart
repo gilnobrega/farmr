@@ -337,7 +337,11 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
         "/usr" + chiaRootDir.path + file,
         //checks if binary exists in /home/user/.local/bin/chia
         io.Platform.environment['HOME']! +
-            "/.local/bin/${_blockchain.binaryName}"
+            "/.local/bin/${_blockchain.binaryName}",
+
+        //checks for file in /home/user/chia-blockchain/venv/bin/chia
+        io.Platform.environment['HOME']! +
+            "/${_blockchain.binaryName}-blockchain/venv/bin/${_blockchain.binaryName}"
       ];
 
       for (int i = 0; i < possiblePaths.length; i++) {
