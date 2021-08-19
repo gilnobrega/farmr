@@ -921,7 +921,7 @@ class Stats {
       output += "\nSynced to block height ${stats.syncedBlockHeight}";
       if (stats.peakBlockHeight > 0) {
         output +=
-            "\nPeak block height ~${stats.peakBlockHeight} (according to chiaexplorer.com)";
+            "\nPeak block height ~${stats.peakBlockHeight} (according to alltheblocks.net)";
       }
     }
 

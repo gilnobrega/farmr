@@ -247,18 +247,19 @@ class Farmer extends Harvester with FarmerStatusMixin {
   }
 
   Future<void> getPeakHeight() async {
-    //tries to get peak block height from chiaexplorer.com
+    //tries to get peak block height from all the blocks
     try {
-      const String url = "https://abc.chiaexplorer.com/blocks";
+      final String url =
+          "https://api.alltheblocks.net/${blockchain.binaryName}/block?pageNumber=0&pageSize=1";
 
       String contents = await http.read(Uri.parse(url));
 
       dynamic object = jsonDecode(contents);
 
       _peakBlockHeight =
-          int.tryParse((object[0]['height'] ?? -1).toString()) ?? -1;
+          int.tryParse((object['content'][0]['height'] ?? -1).toString()) ?? -1;
     } catch (error) {
-      log.warning("Failed to get peak height");
+      log.warning("Failed to get peak height for ${blockchain.currencySymbol}");
     }
   }
 
@@ -280,7 +281,8 @@ class Farmer extends Harvester with FarmerStatusMixin {
 
       await getLocalWallets();
 
-      if (blockchain.currencySymbol == "xch") await getPeakHeight();
+      await getPeakHeight(); // attempts to get peak height
+      //only works for blockchains supported by alltheblocks.net
     }
 
     await super.init();
