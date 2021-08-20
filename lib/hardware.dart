@@ -1,6 +1,7 @@
 import "package:system_info/system_info.dart";
 import 'package:logging/logging.dart';
 import "package:collection/collection.dart";
+import 'package:universal_io/io.dart' as io;
 
 Logger log = Logger("Hardware");
 
@@ -14,7 +15,13 @@ class Hardware {
 
   Memory recentMemory = Memory(0, 0, 0, 0);
 
-  toJson() => {"os": os, "cpus": cpus, "memories": memories};
+  Map<String, dynamic> toJson() {
+    return {
+      "os": os,
+      "cpus": cpus,
+      if (!io.Platform.isMacOS) "memories": memories
+    };
+  }
 
   Hardware.fromJson(dynamic json) {
     if (json['os'] != null) _os = json['os'];
