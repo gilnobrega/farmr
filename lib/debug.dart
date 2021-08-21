@@ -15,6 +15,8 @@ import 'package:yaml/yaml.dart';
 
 final log = Logger('LOG');
 
+enum ErrorType { Pool, Harvester }
+
 class Log {
   ClientType _type;
   Cache _cache;
@@ -35,6 +37,7 @@ class Log {
   List<ShortSync> shortSyncs = [];
 
   List<LogItem> poolErrors = [];
+  List<LogItem> harvesterErrors = [];
 
   Log(String logPath, this._cache, bool parseLogs, this._binaryName, this._type,
       String configPath) {
@@ -42,6 +45,8 @@ class Log {
     _filters = _cache.filters; //loads cached filters
     signagePoints = _cache.signagePoints; //loads cached subslots
     shortSyncs = _cache.shortSyncs;
+    poolErrors = _cache.poolErrors;
+    harvesterErrors = _cache.harvesterErrors;
 
     debugPath = logPath + "/debug.log";
     _debugFile = io.File(debugPath);
@@ -61,6 +66,7 @@ class Log {
       _cache.saveSignagePoints(signagePoints); //saves signagePoints to cache
       _cache.saveShortSyncs(shortSyncs);
       _cache.savePoolErrors(poolErrors);
+      _cache.saveHarvesterErrors(harvesterErrors);
     }
   }
 
@@ -111,6 +117,7 @@ class Log {
     bool keepParsingSignagePoints = true;
     bool keepParsingShortSyncs = true;
     bool keepParsingPoolErrors = true;
+    bool keepParsingHarvesterErrors = true;
 
     log.info("Started parsing logs");
     //parses debug.log, debug.log.1, debug.log.2, ...
@@ -181,10 +188,11 @@ class Log {
 
             //parses signage points
             if (keepParsingPoolErrors) {
-              log.info("Started parsing PoolErrors events in debug.log$ext");
+              log.info("Started parsing Pool Errors events in debug.log$ext");
 
               try {
-                keepParsingPoolErrors = _parsePoolErrors(content, _parseUntil);
+                keepParsingPoolErrors =
+                    _parseErrors(content, _parseUntil, ErrorType.Pool);
               } catch (e) {
                 log.info(
                     "Warning: could not parse Pool Error events in debug.log$ext, make sure $_binaryName log level is set to INFO");
@@ -192,6 +200,23 @@ class Log {
 
               log.info(
                   "Finished pool error events in debug.log$ext - keepParsingPoolErrors: $keepParsingPoolErrors");
+            }
+
+            //parses signage points
+            if (keepParsingHarvesterErrors) {
+              log.info(
+                  "Started parsing Harvester Errors events in debug.log$ext");
+
+              try {
+                keepParsingHarvesterErrors =
+                    _parseErrors(content, _parseUntil, ErrorType.Harvester);
+              } catch (e) {
+                log.info(
+                    "Warning: could not parse Harvester Error events in debug.log$ext, make sure $_binaryName log level is set to INFO");
+              }
+
+              log.info(
+                  "Finished Harvester Error events in debug.log$ext - keepParsingHarvesterErrors: $keepParsingHarvesterErrors");
             }
           }
         } catch (Exception) {
@@ -203,6 +228,7 @@ class Log {
         keepParsing = keepParsingFilters &&
             keepParsingSignagePoints &&
             keepParsingShortSyncs &&
+            keepParsingPoolErrors &&
             keepParsingPoolErrors;
 
         log.info("Finished parsing debug.log$ext - keepParsing: $keepParsing");
@@ -215,7 +241,7 @@ class Log {
     filterDuplicateSignagePoints();
     _genSubSlots();
 
-    filterDuplicatePoolErrors();
+    filterDuplicateErrors();
   }
 
   //Parses debug file and looks for filters
@@ -388,16 +414,27 @@ class Log {
   }
 
   //Parses debug file and looks for pool errors
-  bool _parsePoolErrors(String contents, int parseUntil) {
+  bool _parseErrors(String contents, int parseUntil, ErrorType type) {
     bool keepParsing = true;
     bool inCache = false;
 
     try {
-      RegExp poolErrorsRegex = RegExp(
-          "([0-9-]+)T([0-9:]+)\\.([0-9]+) farmer [a-z]+\\.farmer\\.farmer\\s*:\\s+ERROR\\s+Error sending partial to",
+      final errorText;
+
+      switch (type) {
+        case ErrorType.Pool:
+          errorText = "Error sending partial to";
+          break;
+        case ErrorType.Harvester:
+          errorText = "Harvester did not respond";
+          break;
+      }
+
+      RegExp errorsRegex = RegExp(
+          "([0-9-]+)T([0-9:]+)\\.([0-9]+) farmer [a-z]+\\.farmer\\.farmer\\s*:\\s+ERROR\\s+$errorText",
           multiLine: true);
 
-      var matches = poolErrorsRegex.allMatches(contents).toList();
+      var matches = errorsRegex.allMatches(contents).toList();
 
       int timestamp = DateTime.now().millisecondsSinceEpoch;
 
@@ -414,14 +451,16 @@ class Log {
             keepParsing = timestamp > parseUntil;
 
             //if filter is in cache
-            inCache = poolErrors.any((cached) => cached.timestamp == timestamp);
+            inCache = (type == ErrorType.Pool ? poolErrors : harvesterErrors)
+                .any((cached) => cached.timestamp == timestamp);
 
             if (!inCache && keepParsing) {
               //print(timestamp);
 
-              LogItem poolError = LogItem(timestamp, LogItemType.Farmer);
+              LogItem error = LogItem(timestamp, LogItemType.Farmer);
 
-              poolErrors.add(poolError);
+              (type == ErrorType.Pool ? poolErrors : harvesterErrors)
+                  .add(error);
             }
           }
         } catch (Exception) {
@@ -452,9 +491,16 @@ Ignore this warning if you are not farming in a pool.""");
         .retainWhere((signagePoint) => ids.remove(signagePoint.timestamp));
   }
 
-  void filterDuplicatePoolErrors() {
-//Removes pool errors with same timestamps!
-    final ids = poolErrors.map((error) => error.timestamp).toSet();
-    poolErrors.retainWhere((error) => ids.remove(error.timestamp));
+  void filterDuplicateErrors() {
+    final List<ErrorType> types = ErrorType.values;
+
+    for (var type in types) {
+//Removes pool/harvester errors with same timestamps!
+      final ids = (type == ErrorType.Pool ? poolErrors : harvesterErrors)
+          .map((error) => error.timestamp)
+          .toSet();
+      (type == ErrorType.Pool ? poolErrors : harvesterErrors)
+          .retainWhere((error) => ids.remove(error.timestamp));
+    }
   }
 }

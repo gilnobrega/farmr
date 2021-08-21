@@ -46,6 +46,9 @@ class Cache {
   List<LogItem> _poolErrors = [];
   List<LogItem> get poolErrors => _poolErrors;
 
+  List<LogItem> _harvesterErrors = [];
+  List<LogItem> get harvesterErrors => _harvesterErrors;
+
   //past values for memory (24 hour)
   List<Memory> _memories = [];
   List<Memory> get memories => _memories;
@@ -70,6 +73,7 @@ class Cache {
         "shortSyncs": shortSyncs,
         "memories": memories,
         "poolErrors": poolErrors,
+        "harvesterErrors": harvesterErrors,
         "${_blockchain.binaryName}Path": chiaPath
       };
 
@@ -165,13 +169,26 @@ class Cache {
 
       //loads pool errors list from cache file
       if (contents[0]['poolErrors'] != null) {
-        _shortSyncs = [];
+        _poolErrors = [];
         var poolErrorsJson = contents[0]['poolErrors'];
 
         for (var poolErrorJson in poolErrorsJson) {
           LogItem poolError =
               LogItem.fromJson(poolErrorJson, LogItemType.Farmer);
           if (poolError.timestamp > parseUntil) _poolErrors.add(poolError);
+        }
+      }
+
+      //loads harvester errors list from cache file
+      if (contents[0]['harvesterErrors'] != null) {
+        _harvesterErrors = [];
+        var harvesterErrorsJson = contents[0]['harvesterErrors'];
+
+        for (var harvesterErrorJson in harvesterErrorsJson) {
+          LogItem harvesterError =
+              LogItem.fromJson(harvesterErrorJson, LogItemType.Farmer);
+          if (harvesterError.timestamp > parseUntil)
+            _harvesterErrors.add(harvesterError);
         }
       }
 
@@ -213,6 +230,11 @@ class Cache {
 
   void savePoolErrors(List<LogItem> poolErrors) {
     _poolErrors = poolErrors;
+    save();
+  }
+
+  void saveHarvesterErrors(List<LogItem> harvesterErrors) {
+    _harvesterErrors = harvesterErrors;
     save();
   }
 

@@ -315,6 +315,10 @@ class Stats {
   int get poolErrors =>
       (_client is Farmer) ? (_client as Farmer).poolErrors : -1;
 
+  //counts pool errors events
+  int get harvesterErrors =>
+      (_client is Farmer) ? (_client as Farmer).harvesterErrors : -1;
+
   //Hardware
   String get cpuName => ((_client.hardware?.cpus.length ?? 0) > 0)
       ? _client.hardware?.cpus[0].name ?? ""
@@ -927,6 +931,10 @@ class Stats {
 
     if (stats.poolErrors > 0) {
       output += "\n${stats.poolErrors} 'Error sending partial' errors";
+    }
+
+    if (stats.harvesterErrors > 0) {
+      output += "\n${stats.harvesterErrors} 'Harvester did not respond' errors";
     }
 
     if (stats.blockchainVersion != "") {

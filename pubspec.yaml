@@ -1,28 +1,28 @@
 name: farmr_client
-version: 1.4.1
+version: 1.7.3
 publish_to: none
 description: 
 environment: 
   sdk: '>=2.12.0 < 3.0.0'
 dependencies:
-  path: ^1.8.0
-  uuid: ^3.0.4
-  yaml: ^3.1.0
-  http: ^0.13.3
-  universal_disk_space: ^0.2.2
-  stats: ^2.0.0
-  intl: ^0.17.0
-  logging: ^1.0.1
-  dotenv: ^3.0.0
-  mysql1: ^0.19.2
-  universal_io: ^2.0.4
-  environment_config: ^3.0.0
+  path: 1.8.0
+  uuid: 3.0.4
+  yaml: 3.1.0
+  http: 0.13.3
+  universal_disk_space: 0.2.3
+  stats: 2.0.0
+  intl: 0.17.0
+  logging: 1.0.1
+  dotenv: 3.0.0
+  mysql1: 0.19.2
+  universal_io: 2.0.4
+  environment_config: 3.0.0
   system_info: 
     git:
       url: https://github.com/joaquimguimaraes/system_info.git
       ref: e81ac3a5777eb486e6853b64a7c68ee22eba7389
-  collection: ^1.15.0
-  console: ^4.1.0
-  dart_console: ^1.0.0
-  proper_filesize: ^0.0.2
-  tcp_scanner: ^2.0.5
+  collection: 1.15.0
+  console: 4.1.0
+  dart_console: 1.0.0
+  proper_filesize: 0.0.2
+  tcp_scanner: 2.0.5

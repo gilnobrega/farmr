@@ -53,6 +53,10 @@ class Farmer extends Harvester with FarmerStatusMixin {
   int _poolErrors = -1; // -1 means client doesnt support
   int get poolErrors => _poolErrors;
 
+  //number of harvesterErrors events
+  int _harvesterErrors = -1; // -1 means client doesnt support
+  int get harvesterErrors => _harvesterErrors;
+
   @override
   Map toJson() {
     //loads harvester's map (since farmer is an extension of it)
@@ -73,7 +77,8 @@ class Farmer extends Harvester with FarmerStatusMixin {
       "netSpace": netSpace.size,
       "syncedBlockHeight": syncedBlockHeight,
       "peakBlockHeight": peakBlockHeight,
-      "poolErrors": poolErrors
+      "poolErrors": poolErrors,
+      "harvesterErrors": harvesterErrors,
     }.entries);
 
     //returns complete map with both farmer's + harvester's entries
@@ -94,6 +99,7 @@ class Farmer extends Harvester with FarmerStatusMixin {
       shortSyncs = blockchain.log.shortSyncs; //loads short sync events
 
       _poolErrors = blockchain.cache.poolErrors.length;
+      _harvesterErrors = blockchain.cache.harvesterErrors.length;
     }
   }
 
@@ -348,6 +354,8 @@ class Farmer extends Harvester with FarmerStatusMixin {
     }
 
     if (object['poolErrors'] != null) _poolErrors = object['poolErrors'];
+    if (object['harvesterErrors'] != null)
+      _harvesterErrors = object['harvesterErrors'];
 
     if (object['coldWallet'] != null) {
       double netBalance =
