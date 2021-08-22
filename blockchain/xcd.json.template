@@ -2,7 +2,7 @@
     "Binary Name": "cryptodoge",
     "Currency Symbol": "XCD",
     "Minor Currency Symbol": "mojo",
-    "Major to Minor Multiplier": 1e9,
+    "Major to Minor Multiplier": 1e6,
     "Net": "mainnet",
     
     "Block Rewards": 20000.0,
