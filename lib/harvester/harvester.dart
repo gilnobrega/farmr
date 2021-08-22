@@ -294,15 +294,16 @@ class Harvester
     if (harvester.blockchainVersion != this.blockchainVersion)
       _blockchainVersion = "";
 
-    //sets farm's last updated time to latest worker to get updated
-    if (harvester.lastUpdated.millisecondsSinceEpoch >
-        _lastUpdated.millisecondsSinceEpoch)
-      _lastUpdated = harvester.lastUpdated;
-
+    //sets farm oldest updated time
     if (harvester.lastUpdated.millisecondsSinceEpoch <
         _lastUpdated.millisecondsSinceEpoch)
       _oldestUpdated = harvester.lastUpdated;
     else if (_oldestUpdated == null) _oldestUpdated = _lastUpdated;
+
+    //sets farm's last updated time to latest worker to get updated
+    if (harvester.lastUpdated.millisecondsSinceEpoch >
+        _lastUpdated.millisecondsSinceEpoch)
+      _lastUpdated = harvester.lastUpdated;
 
     //adds harvesters wallets
     wallets.addAll(harvester.wallets);
