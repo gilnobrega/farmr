@@ -19,15 +19,16 @@ class AllTheBlocksWallet extends ColdWallet {
 
   Future<void> init() async {
     try {
-      String contents = await http.read(Uri.parse(
-          _allTheBlocksURL + "${blockchain.binaryName}/address/" + address));
+      String contents = await http.read(Uri.parse(_allTheBlocksURL +
+          "${blockchain.allTheBlocksName}/address/" +
+          address));
 
       var object = jsonDecode(contents);
 
       netBalance = object['balance'] ?? -1;
 
       String coins = await http.read(Uri.parse(_allTheBlocksURL +
-          "${blockchain.binaryName}/coin/address/" +
+          "${blockchain.allTheBlocksName}/coin/address/" +
           address));
 
       var coinsObject = jsonDecode(coins);

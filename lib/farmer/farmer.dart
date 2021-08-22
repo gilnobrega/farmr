@@ -256,7 +256,7 @@ class Farmer extends Harvester with FarmerStatusMixin {
     //tries to get peak block height from all the blocks
     try {
       final String url =
-          "https://api.alltheblocks.net/${blockchain.binaryName}/block?pageNumber=0&pageSize=1";
+          "https://api.alltheblocks.net/${blockchain.allTheBlocksName}/block?pageNumber=0&pageSize=1";
 
       String contents = await http.read(Uri.parse(url));
 

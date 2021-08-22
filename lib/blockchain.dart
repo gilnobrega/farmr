@@ -15,6 +15,9 @@ class Blockchain {
 
   String _binaryName = '';
   String get binaryName => _binaryName.toLowerCase();
+  String get allTheBlocksName => (currencySymbol == "vag")
+      ? "c_nt"
+      : binaryName; //this is how "c*nt" blockchain is named in alltheblocksapi
 
   String _folderName = '';
   String get folderName => _folderName;
