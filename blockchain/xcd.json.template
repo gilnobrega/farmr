@@ -1,5 +1,5 @@
 {
-    "Binary Name": "chiadoge",
+    "Binary Name": "cryptodoge",
     "Currency Symbol": "XCD",
     "Minor Currency Symbol": "mojo",
     "Major to Minor Multiplier": 1e9,
@@ -11,10 +11,10 @@
     "Online Config": true, 
     
     "Ports": {
-        "harvester": 6790,
-        "farmer": 6799,
-        "fullNode": 6795,
-        "wallet": 6791,
-        "daemon": 56690
+        "harvester": 16790,
+        "farmer": 16799,
+        "fullNode": 16795,
+        "wallet": 16791,
+        "daemon": 57690
       }
 }
