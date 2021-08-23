@@ -467,9 +467,7 @@ void handleBlockchainReport(List<Object> arguments) async {
             status == "Farming" &&
             balance != "") post.putIfAbsent("balance", () => balance);
         //if cold balance has been read and cold balance notifications are enabled then it will send coldBalance to server
-        if (isFarmerLike &&
-            blockchain.config.sendColdWalletBalanceNotifications &&
-            coldBalance != "")
+        if (blockchain.config.sendColdWalletNotifications && coldBalance != "")
           post.putIfAbsent("coldBalance", () => coldBalance);
 
         String type = isFarmerLike ? "farmer" : "harvester";

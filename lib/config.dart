@@ -40,6 +40,8 @@ class Config {
 
   bool sendBalanceNotifications = true; //balance notifications
 
+  bool sendColdWalletNotifications = true; //cold wallet notifications
+
   bool sendOfflineNotifications = true; //status notifications
 
   bool sendStatusNotifications = true; //status notifications
@@ -71,8 +73,6 @@ class Config {
   List<String> xchGardenPublicKeys = [];
   List<String> flexpoolAddresses = [];
   List<String> elysiumPoolLauncherIDs = [];
-
-  bool sendColdWalletBalanceNotifications = true;
 
   //overrides foxypool mode
   bool foxyPoolOverride = true;
@@ -148,6 +148,7 @@ class Config {
       "Show Wallet Balance": showWalletBalance,
       "Show Hardware Info": showHardwareInfo,
       "Block Notifications": sendBalanceNotifications,
+      "Cold Wallet Notifications": sendColdWalletNotifications,
       "Plot Notifications": sendPlotNotifications,
       "Hard Drive Notifications": sendDriveNotifications,
       "Offline Notifications": sendOfflineNotifications,
@@ -251,6 +252,9 @@ class Config {
     if (json['Block Notifications'] != null)
       sendBalanceNotifications = json['Block Notifications']; //new
 
+    if (json['Cold Wallet Notifications'] != null)
+      sendColdWalletNotifications = json['Cold Wallet Notifications'];
+
     if (json['sendOfflineNotifications'] != null)
       sendOfflineNotifications = json['sendOfflineNotifications']; //old
     if (json['Offline Notifications'] != null)
@@ -319,14 +323,6 @@ class Config {
       //clears duplicate entries
       coldWalletAddresses = coldWalletAddresses.toSet().toList();
     }
-
-    //legacy
-    if (json['Send Cold Wallet Balance Notifications'] != null)
-      sendColdWalletBalanceNotifications =
-          json['Send Cold Wallet Balance Notifications'];
-
-    if (json['Cold Wallet Notifications'] != null)
-      sendColdWalletBalanceNotifications = json['Cold Wallet Notifications'];
 
     if (json['Flexpool Addresses'] != null) {
       for (var address in json['Flexpool Addresses'])

@@ -56,7 +56,6 @@ class ColdWallet extends Wallet {
     farmedBalance = json['farmedBalance'] ?? -1;
   }
 
-  @override
   ColdWallet operator *(ColdWallet wallet2) {
     if (this.blockchain.currencySymbol == wallet2.blockchain.currencySymbol)
       return ColdWallet(
