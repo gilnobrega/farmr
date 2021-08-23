@@ -294,11 +294,12 @@ class Harvester
     if (harvester.blockchainVersion != this.blockchainVersion)
       _blockchainVersion = "";
 
+    //assume oldestupdated is main farmer if oldesupdated value is null
+    _oldestUpdated = (_oldestUpdated ?? _lastUpdated);
     //sets farm oldest updated time
     if (harvester.lastUpdated.millisecondsSinceEpoch <
-        _lastUpdated.millisecondsSinceEpoch)
+        _oldestUpdated!.millisecondsSinceEpoch)
       _oldestUpdated = harvester.lastUpdated;
-    else if (_oldestUpdated == null) _oldestUpdated = _lastUpdated;
 
     //sets farm's last updated time to latest worker to get updated
     if (harvester.lastUpdated.millisecondsSinceEpoch >
