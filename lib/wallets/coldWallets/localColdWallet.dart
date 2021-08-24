@@ -71,7 +71,7 @@ class LocalColdWallet extends ColdWallet {
           farmedBalance += amountToAdd;
 
           if (coin['timestamp'] is int)
-            setDaysAgoWithTimestamp(coin['timestamp'] as int);
+            setDaysAgoWithTimestamp((coin['timestamp'] as int) * 1000);
         }
       }
 
