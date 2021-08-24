@@ -53,12 +53,9 @@ class FarmerStatusMixin {
     for (var line in lines) {
       try {
         if (line.startsWith("Total ") && line.contains(" farmed: "))
-          farmedBalance = (blockchain.config.showBalance)
-              ? (double.parse(line.split(
-                          ' farmed: ')[1]) *
-                      blockchain.majorToMinorMultiplier)
-                  .toInt()
-              : -1;
+          farmedBalance = (double.parse(line.split(' farmed: ')[1]) *
+                  blockchain.majorToMinorMultiplier)
+              .toInt();
       } catch (error) {
         log.warning(
             "Unable to parse farmed ${blockchain.currencySymbol.toUpperCase()}. Is wallet service running?");
