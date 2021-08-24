@@ -51,8 +51,6 @@ class LocalColdWallet extends ColdWallet {
           where: 'puzzle_hash= ?', whereArgs: ["${puzzleHash.scriptPubKey}"]);
 
       for (var coin in result) {
-        print(coin);
-
         //converts list of bytes to an uint64
         final int amountToAdd =
             (Uint8List.fromList(coin['amount'] as List<int>))
@@ -70,6 +68,7 @@ class LocalColdWallet extends ColdWallet {
         if (coin['coinbase'] == 1) {
           farmedBalance += amountToAdd;
 
+          //sets last farmed timestamp
           if (coin['timestamp'] is int)
             setDaysAgoWithTimestamp((coin['timestamp'] as int) * 1000);
         }
