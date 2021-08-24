@@ -62,15 +62,16 @@ class Farmer extends Harvester with FarmerStatusMixin {
     //loads harvester's map (since farmer is an extension of it)
     Map harvesterMap = (super.toJson());
 
+    if (blockchain.config.showBalance) {
+      harvesterMap.addEntries({
+        'balance': balance //farmed balance
+      }.entries);
+    }
+
     //adds extra farmer's entries
     harvesterMap.addEntries({
-      'balance': balance, //farmed balance
-      //rounds days since last blocks so its harder to track wallets
-      //precision of 0.1 days means uncertainty of 140 minutes
-
       'completeSubSlots': completeSubSlots,
       'looseSignagePoints': looseSignagePoints,
-
       'fullNodesConnected': fullNodesConnected,
       'countriesConnected': _countriesConnected,
       "shortSyncs": shortSyncs,

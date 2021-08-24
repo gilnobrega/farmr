@@ -28,6 +28,8 @@ class Wallet {
         'currency': blockchain.currencySymbol,
         'name': name,
         'daysSinceLastBlock': daysSinceLastBlock.toStringAsFixed(1)
+        //rounds days since last blocks so its harder to track wallets
+        //precision of 0.1 days means uncertainty of 140 minutes
       };
 
   Wallet.fromJson(dynamic json) {
