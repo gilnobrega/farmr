@@ -286,7 +286,7 @@ class Farmer extends Harvester with FarmerStatusMixin {
       _peakBlockHeight =
           int.tryParse((object['content'][0]['height'] ?? -1).toString()) ?? -1;
     } catch (error) {
-      log.warning("Failed to get peak height for ${blockchain.currencySymbol}");
+      log.info("Failed to get peak height for ${blockchain.currencySymbol}");
     }
   }
 

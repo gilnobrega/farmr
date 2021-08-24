@@ -10,7 +10,8 @@ import "dart:typed_data"; //to convert int lists to uints
 
 Logger log = Logger("Local Cold Wallet");
 
-main() {
+//Testing purposes
+/*main() {
   Segwit address = segwit
       .decode("xch1z9wes90p356aqn9svvmr7du8yrr03payla02nkfpmfrtpeh23s4qmhx9q9");
 
@@ -21,7 +22,7 @@ main() {
               "xch1z9wes90p356aqn9svvmr7du8yrr03payla02nkfpmfrtpeh23s4qmhx9q9",
           blockchain: Blockchain.fromSymbol("xch"))
       .init();
-}
+}*/
 
 class LocalColdWallet extends ColdWallet {
   final String address;
