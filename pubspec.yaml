@@ -26,3 +26,5 @@ dependencies:
   dart_console: 1.0.0
   proper_filesize: 0.0.2
   tcp_scanner: 2.0.5
+  sqflite_common_ffi: 2.0.0+3
+  bech32m: 0.2.1
