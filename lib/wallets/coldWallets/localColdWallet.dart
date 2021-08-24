@@ -2,10 +2,11 @@ import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
 import 'package:logging/logging.dart';
 
-import 'package:sqflite_common/sqlite_api.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart'; //sqlite library
 
-import 'package:bech32m/bech32m.dart';
+import 'package:bech32m/bech32m.dart'; //puzzle hash library
+
+import "dart:typed_data"; //to convert int lists to uints
 
 Logger log = Logger("Local Cold Wallet");
 
@@ -32,24 +33,45 @@ class LocalColdWallet extends ColdWallet {
       : super(blockchain: blockchain, name: name);
 
   Future<void> init() async {
-    Segwit puzzleHash = segwit.decode(this.address);
+    try {
+      //generates puzzle hash from address
+      Segwit puzzleHash = segwit.decode(this.address);
+      print(puzzleHash.scriptPubKey);
 
-    print(puzzleHash.scriptPubKey);
+      // Init ffi loader if needed.
+      sqfliteFfiInit();
 
-    // Init ffi loader if needed.
-    sqfliteFfiInit();
+      var databaseFactory = databaseFactoryFfi;
 
-    var databaseFactory = databaseFactoryFfi;
+      final dbPath = blockchain.dbPath + "/blockchain_v1_mainnet.sqlite";
 
-    final dbPath = blockchain.dbPath + "/blockchain_v1_mainnet.sqlite";
+      var db = await databaseFactory.openDatabase(dbPath);
+      var result = await db.query('coin_record',
+          where: 'puzzle_hash= ?', whereArgs: ["${puzzleHash.scriptPubKey}"]);
 
-    var db = await databaseFactory.openDatabase(dbPath);
-    var result = await db.rawQuery('''
-SELECT * FROM coin_record WHERE puzzle_hash='0x${puzzleHash.scriptPubKey}'
-  ''');
+      for (var coin in result) {
+        //converts list of bytes to an uint64
+        final int amountToAdd =
+            (Uint8List.fromList(coin['amount'] as List<int>))
+                .buffer
+                .asByteData()
+                .getUint64(0);
 
-    print(result);
-    // prints [{id: 1, title: Product 1}, {id: 2, title: Product 1}]
-    await db.close();
+        //gross balance
+        grossBalance += amountToAdd;
+
+        //if coin was not spent, adds that amount to netbalance
+        if (coin['spent'] == 0) netBalance += amountToAdd;
+
+        //if coin was farmed to address, adds it to farmed balance
+        if (coin['coinbase'] == 1) farmedBalance += amountToAdd;
+      }
+
+      //closes database connection
+      await db.close();
+    } catch (error) {
+      log.warning("Exception in getting local cold wallet info");
+      log.info(error);
+    }
   }
 }

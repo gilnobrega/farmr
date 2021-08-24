@@ -2,7 +2,9 @@ import 'dart:core';
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/farmer/status.dart';
 import 'package:farmr_client/rpc.dart';
+import 'package:farmr_client/wallets/coldWallets/alltheblocks.dart';
 import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
+import 'package:farmr_client/wallets/coldWallets/localColdWallet.dart';
 import 'package:farmr_client/wallets/poolWallets/genericPoolWallet.dart';
 import 'package:universal_io/io.dart' as io;
 import 'dart:convert';
@@ -221,6 +223,24 @@ class Farmer extends Harvester with FarmerStatusMixin {
         _getLegacyLocalWallets();
     } else
       _getLegacyLocalWallets();
+
+    for (String address in blockchain.config.coldWalletAddresses) {
+      // if (address.startsWith("xch"))
+      //wallets
+      //  .add(ChiaExplorerWallet(blockchain: blockchain, address: address)); Temporarily disabling this while ChiaExplorer keeps having issues
+
+      // else if (address.startsWith("xfx"))
+      //   wallets.add(FlaxExplorerWallet(
+      //      blockchain: blockchain,
+      //      address: address,
+      //      syncedBlockHeight: syncedBlockHeight));
+      // else
+      if (farmerStatus == FarmerStatus.Farming)
+        wallets.add(LocalColdWallet(blockchain: blockchain, address: address));
+      else
+        wallets
+            .add(AllTheBlocksWallet(blockchain: blockchain, address: address));
+    }
   }
 
   //legacy mode for getting local wallet

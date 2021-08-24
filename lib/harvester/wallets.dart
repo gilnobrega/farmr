@@ -1,7 +1,5 @@
 import 'package:farmr_client/blockchain.dart';
-import 'package:farmr_client/wallets/coldWallets/alltheblocks.dart';
 import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
-import 'package:farmr_client/wallets/coldWallets/flaxexplorer.dart';
 import 'package:farmr_client/wallets/localWallets/localWallet.dart';
 import 'package:farmr_client/wallets/poolWallets/elysiumPoolWallet.dart';
 import 'package:farmr_client/wallets/poolWallets/flexPoolWallet.dart';
@@ -48,20 +46,6 @@ class HarvesterWallets {
   int syncedBlockHeight = -1;
 
   Future<void> getWallets(Blockchain blockchain, int syncedBlockHeight) async {
-    for (String address in blockchain.config.coldWalletAddresses) {
-      // if (address.startsWith("xch"))
-      //wallets
-      //  .add(ChiaExplorerWallet(blockchain: blockchain, address: address)); Temporarily disabling this while ChiaExplorer keeps having issues
-
-      // else if (address.startsWith("xfx"))
-      //   wallets.add(FlaxExplorerWallet(
-      //      blockchain: blockchain,
-      //      address: address,
-      //      syncedBlockHeight: syncedBlockHeight));
-      // else
-      wallets.add(AllTheBlocksWallet(blockchain: blockchain, address: address));
-    }
-
     for (String address in blockchain.config.flexpoolAddresses)
       wallets.add(FlexpoolWallet(blockchain: blockchain, address: address));
 
