@@ -1,0 +1,19 @@
+{
+    "Binary Name": "littlelambocoin",
+    "Currency Symbol": "LLC",
+    "Minor Currency Symbol": "mojo",
+    "Net": "mainnet",
+    
+    "Block Rewards": 2.0,
+    "Blocks Per 10 Minutes": 32.0,
+    
+    "Online Config": true,
+    
+    "Ports": {
+        "harvester": 28630,
+        "farmer": 28629,
+        "fullNode": 28625,
+        "wallet": 29326,
+        "daemon": 25470
+      }
+}
