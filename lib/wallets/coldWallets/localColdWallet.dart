@@ -51,7 +51,8 @@ class LocalColdWallet extends ColdWallet {
     final mode = OpenMode.readOnly;
 
     try {
-      db = sqlite3.open(blockchain.dbPath + "/blockchain_v1_mainnet.sqlite",
+      db = sqlite3.open(
+          blockchain.dbPath + "/blockchain_v1_${blockchain.net}.sqlite",
           mode: mode);
     } catch (error) {
       open.overrideFor(
