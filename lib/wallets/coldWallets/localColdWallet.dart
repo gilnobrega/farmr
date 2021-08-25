@@ -40,7 +40,6 @@ class LocalColdWallet extends ColdWallet {
       : super(blockchain: blockchain, name: name);
 
   Future<void> init() async {
-    // try {
     //generates puzzle hash from address
     final Segwit puzzleHash = segwit.decode(this.address);
     //print("Puzzle hash: ${puzzleHash.scriptPubKey}");
@@ -99,10 +98,6 @@ class LocalColdWallet extends ColdWallet {
 
     //closes database connection
     db.dispose();
-    // } catch (error) {
-    //  log.warning("Exception in getting local cold wallet info");
-    //  log.info(error);
-    // }
   }
 
   DynamicLibrary _openOnLinux() {

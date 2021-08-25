@@ -43,15 +43,8 @@ class AllTheBlocksWallet extends ColdWallet {
               int.parse(coin['timestamp'].toString()) * 1000);
       }
     } catch (error) {
-      //404 error means wallet is empty
-      if (error is http.ClientException && error.toString().contains("404")) {
-        //if wallet is empty then assumes both gross balance and net balance are 0
-        grossBalance = 0;
-        netBalance = 0;
-      } else {
-        log.warning(
-            "Failed to get info about ${blockchain.binaryName} cold wallet");
-      }
+      log.warning(
+          "Failed to get info about ${blockchain.binaryName} cold wallet");
     }
   }
 }

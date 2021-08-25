@@ -231,20 +231,11 @@ class Farmer extends Harvester with FarmerStatusMixin {
       _getLegacyLocalWallets();
 
     for (String address in blockchain.config.coldWalletAddresses) {
-      // if (address.startsWith("xch"))
-      //wallets
-      //  .add(ChiaExplorerWallet(blockchain: blockchain, address: address)); Temporarily disabling this while ChiaExplorer keeps having issues
-
-      // else if (address.startsWith("xfx"))
-      //   wallets.add(FlaxExplorerWallet(
-      //      blockchain: blockchain,
-      //      address: address,
-      //      syncedBlockHeight: syncedBlockHeight));
-      // else
+      //if full node is synced then uses local cold wallet
       if (farmerStatus == FarmerStatus.Farming)
         wallets.add(LocalColdWallet(
             blockchain: blockchain, address: address, rootPath: rootPath));
-      else
+      else //else uses alltheblocks api
         wallets
             .add(AllTheBlocksWallet(blockchain: blockchain, address: address));
     }

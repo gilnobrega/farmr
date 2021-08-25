@@ -1,5 +1,8 @@
 import 'package:farmr_client/blockchain.dart';
+import 'package:farmr_client/wallets/coldWallets/alltheblocks.dart';
 import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
+import 'package:farmr_client/wallets/coldWallets/localColdWallet-web.dart'
+    if (dart.library.io) "package:farmr_client/wallets/coldWallets/localColdWallet.dart";
 import 'package:farmr_client/wallets/localWallets/localWallet.dart';
 import 'package:farmr_client/wallets/poolWallets/elysiumPoolWallet.dart';
 import 'package:farmr_client/wallets/poolWallets/flexPoolWallet.dart';
@@ -9,6 +12,9 @@ import 'package:farmr_client/wallets/poolWallets/plottersClubWallet.dart';
 import 'package:farmr_client/wallets/poolWallets/spacePoolWallet.dart';
 import 'package:farmr_client/wallets/poolWallets/xchGardenWallet.dart';
 import 'package:farmr_client/wallets/wallet.dart';
+import 'package:logging/logging.dart';
+
+Logger log = Logger("HarvesterWallet");
 
 class HarvesterWallets {
   //list of wallets
@@ -85,7 +91,29 @@ class HarvesterWallets {
           ElysiumPoolWallet(blockchain: blockchain, launcherID: launcherID));
 
     //initializes all wallets
-    for (Wallet wallet in wallets) await wallet.init();
+    bool success = true;
+    List<String> failedAddresses = [];
+
+    for (Wallet wallet in wallets)
+      await wallet.init().catchError((error) {
+        if (wallet is LocalColdWallet) {
+          log.warning("Exception in getting local cold wallet info");
+          log.info(error);
+          success = false;
+          failedAddresses.add(wallet.address);
+        }
+      });
+
+    //adds failed local cold wallet addresses as alltheblocks wallets
+    if (!success) {
+      for (String address in failedAddresses) {
+        final AllTheBlocksWallet backupWallet =
+            AllTheBlocksWallet(blockchain: blockchain, address: address);
+        await backupWallet.init();
+
+        wallets.add(backupWallet);
+      }
+    }
   }
 
   void loadWalletsFromJson(dynamic object) {
