@@ -45,20 +45,19 @@ class LocalColdWallet extends ColdWallet {
     final Segwit puzzleHash = segwit.decode(this.address);
     print("Puzzle hash: ${puzzleHash.scriptPubKey}");
 
-    var db;
-
     //tries to open database
     //if that fails loads pre bundled libraries
-    try {
-      db = sqlite3.open(blockchain.dbPath + "/blockchain_v1_mainnet.sqlite");
-    } catch (error) {
-      print("Error 1, loading dll");
-      open.overrideFor(
-          OperatingSystem.linux, _openOnLinux); //provides .so file to linux
-      open.overrideFor(OperatingSystem.windows,
-          _openOnWindows); // provides .dll file to windows
-      db = sqlite3.open(blockchain.dbPath + "/blockchain_v1_mainnet.sqlite");
-    }
+    //try {
+    //   db = sqlite3.open(blockchain.dbPath + "/blockchain_v1_mainnet.sqlite");
+    // } catch (error) {
+    print("Error 1, loading dll");
+    open.overrideFor(
+        OperatingSystem.linux, _openOnLinux); //provides .so file to linux
+    open.overrideFor(OperatingSystem.windows,
+        _openOnWindows); // provides .dll file to windows
+    final db =
+        sqlite3.open(blockchain.dbPath + "/blockchain_v1_mainnet.sqlite");
+    // }
     // Use the database
 
     var result = db.select('SELECT * FROM coin_record WHERE puzzle_hash=?',
