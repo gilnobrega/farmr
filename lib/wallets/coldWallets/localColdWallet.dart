@@ -45,7 +45,7 @@ class LocalColdWallet extends ColdWallet {
     final Segwit puzzleHash = segwit.decode(this.address);
     print("Puzzle hash: ${puzzleHash.scriptPubKey}");
 
-    late final db;
+    late final Database db;
     //tries to open database
     //if that fails loads pre bundled libraries
 
@@ -71,26 +71,33 @@ class LocalColdWallet extends ColdWallet {
 
     print("DEBUG: $result");
 
-    for (var coin in result) {
-      //converts list of bytes to an uint64
-      final int amountToAdd = (Uint8List.fromList(coin['amount'] as List<int>))
-          .buffer
-          .asByteData()
-          .getUint64(0);
+    if (result.length > 0) {
+      farmedBalance = 0;
+      grossBalance = 0;
+      netBalance = 0;
 
-      //gross balance
-      grossBalance += amountToAdd;
+      for (var coin in result) {
+        //converts list of bytes to an uint64
+        final int amountToAdd =
+            (Uint8List.fromList(coin['amount'] as List<int>))
+                .buffer
+                .asByteData()
+                .getUint64(0);
 
-      //if coin was not spent, adds that amount to netbalance
-      if (coin['spent'] == 0) netBalance += amountToAdd;
+        //gross balance
+        grossBalance += amountToAdd;
 
-      //if coin was farmed to address, adds it to farmed balance
-      if (coin['coinbase'] == 1) {
-        farmedBalance += amountToAdd;
+        //if coin was not spent, adds that amount to netbalance
+        if (coin['spent'] == 0) netBalance += amountToAdd;
 
-        //sets last farmed timestamp
-        if (coin['timestamp'] is int)
-          setDaysAgoWithTimestamp((coin['timestamp'] as int) * 1000);
+        //if coin was farmed to address, adds it to farmed balance
+        if (coin['coinbase'] == 1) {
+          farmedBalance += amountToAdd;
+
+          //sets last farmed timestamp
+          if (coin['timestamp'] is int)
+            setDaysAgoWithTimestamp((coin['timestamp'] as int) * 1000);
+        }
       }
     }
 
