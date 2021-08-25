@@ -45,23 +45,22 @@ class LocalColdWallet extends ColdWallet {
     final Segwit puzzleHash = segwit.decode(this.address);
     print("Puzzle hash: ${puzzleHash.scriptPubKey}");
 
+    late final db;
     //tries to open database
     //if that fails loads pre bundled libraries
-    //try {
-    //   db = sqlite3.open(blockchain.dbPath + "/blockchain_v1_mainnet.sqlite");
-    // } catch (error) {
-    print("Error 1, loading dll");
-    open.overrideFor(
-        OperatingSystem.linux, _openOnLinux); //provides .so file to linux
-    open.overrideFor(OperatingSystem.windows,
-        _openOnWindows); // provides .dll file to windows
-    final db =
-        sqlite3.open(blockchain.dbPath + "/blockchain_v1_mainnet.sqlite");
-    // }
-    // Use the database
+    try {
+      db = sqlite3.open(blockchain.dbPath + "/blockchain_v1_mainnet.sqlite");
+    } catch (error) {
+      open.overrideFor(
+          OperatingSystem.linux, _openOnLinux); //provides .so file to linux
+      open.overrideFor(OperatingSystem.windows,
+          _openOnWindows); // provides .dll file to windows
+      db = sqlite3.open(blockchain.dbPath + "/blockchain_v1_mainnet.sqlite");
+    }
+    //Use the database
 
-    var result = db.select('SELECT * FROM coin_record WHERE puzzle_hash=?',
-        ["${puzzleHash.scriptPubKey}"]);
+    var result = db.select(
+        'SELECT * FROM coin_record LIMIT 20', ["${puzzleHash.scriptPubKey}"]);
 
     print(result);
 
@@ -112,8 +111,6 @@ class LocalColdWallet extends ColdWallet {
   }
 
   DynamicLibrary _openOnWindows() {
-    print("loading dll");
-
     final scriptDir = io.File(io.Platform.script.toFilePath()).parent;
 
     final libraryNextToScript = io.File(scriptDir.path + '/sqlite3.dll');
