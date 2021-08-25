@@ -67,7 +67,7 @@ class LocalColdWallet extends ColdWallet {
     var result = db.select("SELECT * FROM coin_record WHERE puzzle_hash=?",
         ["${puzzleHash.scriptPubKey}"]);
 
-    print("DEBUG: " + result);
+    print("DEBUG: $result");
 
     for (var coin in result) {
       //converts list of bytes to an uint64
