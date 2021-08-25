@@ -342,6 +342,7 @@ void handleBlockchainReport(List<Object> arguments) async {
   switch (blockchain.type) {
     case ClientType.Farmer:
       client = client = Farmer(
+          rootPath: rootPath,
           blockchain: blockchain,
           version: EnvironmentConfig.version,
           type: blockchain.config.type);

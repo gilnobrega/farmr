@@ -59,6 +59,8 @@ class Farmer extends Harvester with FarmerStatusMixin {
   int _harvesterErrors = -1; // -1 means client doesnt support
   int get harvesterErrors => _harvesterErrors;
 
+  String rootPath = "";
+
   @override
   Map toJson() {
     //loads harvester's map (since farmer is an extension of it)
@@ -89,7 +91,10 @@ class Farmer extends Harvester with FarmerStatusMixin {
   }
 
   Farmer(
-      {required Blockchain blockchain, String version = '', required this.type})
+      {required Blockchain blockchain,
+      String version = '',
+      required this.type,
+      required this.rootPath})
       : super(blockchain, version) {
     if (type != ClientType.HPool) {
       getNodeHeight(); //sets _syncedBlockHeight
@@ -236,7 +241,8 @@ class Farmer extends Harvester with FarmerStatusMixin {
       //      syncedBlockHeight: syncedBlockHeight));
       // else
       if (farmerStatus == FarmerStatus.Farming)
-        wallets.add(LocalColdWallet(blockchain: blockchain, address: address));
+        wallets.add(LocalColdWallet(
+            blockchain: blockchain, address: address, rootPath: rootPath));
       else
         wallets
             .add(AllTheBlocksWallet(blockchain: blockchain, address: address));

@@ -2,7 +2,10 @@ import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
 import 'package:logging/logging.dart';
 
-import 'package:sqflite_common_ffi/sqflite_ffi.dart'; //sqlite library
+import 'dart:ffi';
+import 'dart:io';
+import 'package:sqlite3/open.dart';
+import 'package:sqlite3/sqlite3.dart'; //sqlite library
 
 import 'package:bech32m/bech32m.dart'; //puzzle hash library
 
@@ -26,29 +29,31 @@ Logger log = Logger("Local Cold Wallet");
 
 class LocalColdWallet extends ColdWallet {
   final String address;
+  final String rootPath;
 
   LocalColdWallet(
       {required Blockchain blockchain,
       required this.address,
+      required this.rootPath,
       String name = "Local Cold Wallet"})
       : super(blockchain: blockchain, name: name);
 
   Future<void> init() async {
     try {
       //generates puzzle hash from address
-      Segwit puzzleHash = segwit.decode(this.address);
-      print(puzzleHash.scriptPubKey);
+      final Segwit puzzleHash = segwit.decode(this.address);
 
-      // Init ffi loader if needed.
-      sqfliteFfiInit();
+      open.overrideFor(
+          OperatingSystem.linux, _openOnLinux); //provides .so file to linux
+      open.overrideFor(OperatingSystem.windows,
+          _openOnWindows); // provides .dll file to windows
 
-      var databaseFactory = databaseFactoryFfi;
+      final db =
+          sqlite3.open(blockchain.dbPath + "/blockchain_v1_mainnet.sqlite");
+      // Use the database
 
-      final dbPath = blockchain.dbPath + "/blockchain_v1_mainnet.sqlite";
-
-      var db = await databaseFactory.openDatabase(dbPath);
-      var result = await db.query('coin_record',
-          where: 'puzzle_hash= ?', whereArgs: ["${puzzleHash.scriptPubKey}"]);
+      var result = db.select('SELECT * FROM coin_record WHERE puzzle_hash=?',
+          ["${puzzleHash.scriptPubKey}"]);
 
       for (var coin in result) {
         //converts list of bytes to an uint64
@@ -75,10 +80,20 @@ class LocalColdWallet extends ColdWallet {
       }
 
       //closes database connection
-      await db.close();
+      db.dispose();
     } catch (error) {
       log.warning("Exception in getting local cold wallet info");
       log.info(error);
     }
+  }
+
+  DynamicLibrary _openOnLinux() {
+    final libraryNextToScript = File('$rootPath/libsqlite3.so');
+    return DynamicLibrary.open(libraryNextToScript.path);
+  }
+
+  DynamicLibrary _openOnWindows() {
+    final libraryNextToScript = File('$rootPath/sqlite3.dll');
+    return DynamicLibrary.open(libraryNextToScript.path);
   }
 }
