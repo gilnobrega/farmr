@@ -97,11 +97,11 @@ class LocalColdWallet extends ColdWallet {
   }
 
   DynamicLibrary _openOnLinux() {
-    late final libraryNextToScript;
-
     final String scriptDir = (rootPath != "")
         ? rootPath
         : io.File(io.Platform.script.toFilePath()).parent.path + "/";
+
+    var libraryNextToScript;
 
     if (io.File("/etc/farmr/libsqlite3.so").existsSync())
       libraryNextToScript = io.File("/etc/farmr/libsqlite3.so");
