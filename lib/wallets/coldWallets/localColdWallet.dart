@@ -14,7 +14,7 @@ import "dart:typed_data"; //to convert int lists to uints
 Logger log = Logger("Local Cold Wallet");
 
 //Testing purposes
-main() {
+/*main() {
   Segwit address = segwit
       .decode("xch1z9wes90p356aqn9svvmr7du8yrr03payla02nkfpmfrtpeh23s4qmhx9q9");
 
@@ -26,7 +26,7 @@ main() {
               "xch1z9wes90p356aqn9svvmr7du8yrr03payla02nkfpmfrtpeh23s4qmhx9q9",
           blockchain: Blockchain.fromSymbol("xch"))
       .init();
-}
+}*/
 
 class LocalColdWallet extends ColdWallet {
   final String address;
@@ -40,51 +40,52 @@ class LocalColdWallet extends ColdWallet {
       : super(blockchain: blockchain, name: name);
 
   Future<void> init() async {
-    //  try {
-    //generates puzzle hash from address
-    final Segwit puzzleHash = segwit.decode(this.address);
+    try {
+      //generates puzzle hash from address
+      final Segwit puzzleHash = segwit.decode(this.address);
 
-    open.overrideFor(
-        OperatingSystem.linux, _openOnLinux); //provides .so file to linux
-    open.overrideFor(OperatingSystem.windows,
-        _openOnWindows); // provides .dll file to windows
+      open.overrideFor(
+          OperatingSystem.linux, _openOnLinux); //provides .so file to linux
+      open.overrideFor(OperatingSystem.windows,
+          _openOnWindows); // provides .dll file to windows
 
-    final db =
-        sqlite3.open(blockchain.dbPath + "/blockchain_v1_mainnet.sqlite");
-    // Use the database
+      final db =
+          sqlite3.open(blockchain.dbPath + "/blockchain_v1_mainnet.sqlite");
+      // Use the database
 
-    var result = db.select('SELECT * FROM coin_record WHERE puzzle_hash=?',
-        ["${puzzleHash.scriptPubKey}"]);
+      var result = db.select('SELECT * FROM coin_record WHERE puzzle_hash=?',
+          ["${puzzleHash.scriptPubKey}"]);
 
-    for (var coin in result) {
-      //converts list of bytes to an uint64
-      final int amountToAdd = (Uint8List.fromList(coin['amount'] as List<int>))
-          .buffer
-          .asByteData()
-          .getUint64(0);
+      for (var coin in result) {
+        //converts list of bytes to an uint64
+        final int amountToAdd =
+            (Uint8List.fromList(coin['amount'] as List<int>))
+                .buffer
+                .asByteData()
+                .getUint64(0);
 
-      //gross balance
-      grossBalance += amountToAdd;
+        //gross balance
+        grossBalance += amountToAdd;
 
-      //if coin was not spent, adds that amount to netbalance
-      if (coin['spent'] == 0) netBalance += amountToAdd;
+        //if coin was not spent, adds that amount to netbalance
+        if (coin['spent'] == 0) netBalance += amountToAdd;
 
-      //if coin was farmed to address, adds it to farmed balance
-      if (coin['coinbase'] == 1) {
-        farmedBalance += amountToAdd;
+        //if coin was farmed to address, adds it to farmed balance
+        if (coin['coinbase'] == 1) {
+          farmedBalance += amountToAdd;
 
-        //sets last farmed timestamp
-        if (coin['timestamp'] is int)
-          setDaysAgoWithTimestamp((coin['timestamp'] as int) * 1000);
+          //sets last farmed timestamp
+          if (coin['timestamp'] is int)
+            setDaysAgoWithTimestamp((coin['timestamp'] as int) * 1000);
+        }
       }
-    }
 
-    //closes database connection
-    db.dispose();
-    // } catch (error) {
-    //  log.warning("Exception in getting local cold wallet info");
-    //  log.info(error);
-    // }
+      //closes database connection
+      db.dispose();
+    } catch (error) {
+      log.warning("Exception in getting local cold wallet info");
+      log.info(error);
+    }
   }
 
   DynamicLibrary _openOnLinux() {

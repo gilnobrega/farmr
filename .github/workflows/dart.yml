@@ -90,11 +90,19 @@ jobs:
              mv ./farmr.exe ./farmr
              mv ./farmr_package.exe ./farmr_package
 
+      - name: Moves SQLite3 library (x86_64)
+        if: matrix.architecture == 'x86_64'
+        run: mv .github/libsqlite3.so ./libsqlite3.so
+
+      - name: Moves SQLite3 library (aarch64)
+        if: matrix.architecture == 'aarch64'
+        run: mv .github/libsqlite3-arm64.so ./libsqlite3.so
+
       - name: Load .env file
         uses: xom9ikk/dotenv@v1.0.2
 
       - name: Compressing ${{ matrix.architecture }} .tar.gz
-        run: tar -czvf ./farmr-linux-${{ matrix.architecture }}.tar.gz farmr blockchain farmr.sh hpool.sh 
+        run: tar -czvf ./farmr-linux-${{ matrix.architecture }}.tar.gz farmr blockchain farmr.sh hpool.sh  libsqlite3.so
 
       - name: Build .deb file for ${{ matrix.architecture }}
         uses: kentik/pkg@v1.0.0-rc7
@@ -201,12 +209,15 @@ jobs:
              move ./farmr.exe ./farmr.exe
              move ./farmr_hpool.exe ./hpool.exe
 
+      - name: Moves SQLite3 library
+        run: mv .github/libsqlite3.dll ./libsqlite3.dll
+
       - name: Created windows zip file
         shell: bash
         if: matrix.os == 'windows-latest'
         run: |
           # Pack files WINDOWS
-          7z a -tzip "farmr-windows-${{ matrix.architecture }}.zip" "./*.exe" "./blockchain"
+          7z a -tzip "farmr-windows-${{ matrix.architecture }}.zip" "./*.exe" "./blockchain" "./*.dll"
 
       - name: Release
         uses: softprops/action-gh-release@v1
