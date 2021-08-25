@@ -65,9 +65,9 @@ class LocalColdWallet extends ColdWallet {
     //Use the database
 
     var result = db.select("""
-        SELECT amount,coinbase,spent,timestamp FROM coin_record 
+        SELECT amount,coinbase,spent,timestamp,puzzle_hash FROM coin_record 
         WHERE puzzle_hash = ?
-        """, ["${puzzleHash.scriptPubKey}"]);
+        """, [puzzleHash.scriptPubKey]);
 
     print("DEBUG: $result");
 
@@ -77,6 +77,7 @@ class LocalColdWallet extends ColdWallet {
       netBalance = 0;
 
       for (var coin in result) {
+        //print("${coin['puzzle_hash']}");
         //converts list of bytes to an uint64
         final int amountToAdd =
             (Uint8List.fromList(coin['amount'] as List<int>))

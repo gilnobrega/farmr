@@ -26,5 +26,5 @@ dependencies:
   dart_console: 1.0.0
   proper_filesize: 0.0.2
   tcp_scanner: 2.0.5
-  bech32m: 0.2.1
+  bech32m: 0.2.1-1
   sqlite3: 1.1.2
