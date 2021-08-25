@@ -3,7 +3,7 @@ import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
 import 'package:logging/logging.dart';
 
 import 'dart:ffi';
-import 'package:universal_io/io.dart' as io;
+import 'dart:io' as io;
 import 'package:sqlite3/open.dart';
 import 'package:sqlite3/sqlite3.dart'; //sqlite library
 
@@ -40,71 +40,74 @@ class LocalColdWallet extends ColdWallet {
       : super(blockchain: blockchain, name: name);
 
   Future<void> init() async {
+    // try {
+    //generates puzzle hash from address
+    final Segwit puzzleHash = segwit.decode(this.address);
+    print("Puzzle hash: ${puzzleHash.scriptPubKey}");
+
+    var db;
+
+    //tries to open database
+    //if that fails loads pre bundled libraries
     try {
-      //generates puzzle hash from address
-      final Segwit puzzleHash = segwit.decode(this.address);
-      print("Puzzle hash: ${puzzleHash.scriptPubKey}");
-
-      var db;
-
-      //tries to open database
-      //if that fails loads pre bundled libraries
-      try {
-        db = sqlite3.open(blockchain.dbPath + "/blockchain_v1_mainnet.sqlite");
-      } catch (error) {
-        print("Error 1, loading dll");
-        open.overrideFor(
-            OperatingSystem.linux, _openOnLinux); //provides .so file to linux
-        open.overrideFor(OperatingSystem.windows,
-            _openOnWindows); // provides .dll file to windows
-        db = sqlite3.open(blockchain.dbPath + "/blockchain_v1_mainnet.sqlite");
-      }
-      // Use the database
-
-      var result = db.select('SELECT * FROM coin_record WHERE puzzle_hash=?',
-          ["${puzzleHash.scriptPubKey}"]);
-
-      print(result);
-
-      for (var coin in result) {
-        //converts list of bytes to an uint64
-        final int amountToAdd =
-            (Uint8List.fromList(coin['amount'] as List<int>))
-                .buffer
-                .asByteData()
-                .getUint64(0);
-
-        //gross balance
-        grossBalance += amountToAdd;
-
-        //if coin was not spent, adds that amount to netbalance
-        if (coin['spent'] == 0) netBalance += amountToAdd;
-
-        //if coin was farmed to address, adds it to farmed balance
-        if (coin['coinbase'] == 1) {
-          farmedBalance += amountToAdd;
-
-          //sets last farmed timestamp
-          if (coin['timestamp'] is int)
-            setDaysAgoWithTimestamp((coin['timestamp'] as int) * 1000);
-        }
-      }
-
-      //closes database connection
-      db.dispose();
+      db = sqlite3.open(blockchain.dbPath + "/blockchain_v1_mainnet.sqlite");
     } catch (error) {
-      log.warning("Exception in getting local cold wallet info");
-      log.info(error);
+      print("Error 1, loading dll");
+      open.overrideFor(
+          OperatingSystem.linux, _openOnLinux); //provides .so file to linux
+      open.overrideFor(OperatingSystem.windows,
+          _openOnWindows); // provides .dll file to windows
+      db = sqlite3.open(blockchain.dbPath + "/blockchain_v1_mainnet.sqlite");
     }
+    // Use the database
+
+    var result = db.select('SELECT * FROM coin_record WHERE puzzle_hash=?',
+        ["${puzzleHash.scriptPubKey}"]);
+
+    print(result);
+
+    for (var coin in result) {
+      //converts list of bytes to an uint64
+      final int amountToAdd = (Uint8List.fromList(coin['amount'] as List<int>))
+          .buffer
+          .asByteData()
+          .getUint64(0);
+
+      //gross balance
+      grossBalance += amountToAdd;
+
+      //if coin was not spent, adds that amount to netbalance
+      if (coin['spent'] == 0) netBalance += amountToAdd;
+
+      //if coin was farmed to address, adds it to farmed balance
+      if (coin['coinbase'] == 1) {
+        farmedBalance += amountToAdd;
+
+        //sets last farmed timestamp
+        if (coin['timestamp'] is int)
+          setDaysAgoWithTimestamp((coin['timestamp'] as int) * 1000);
+      }
+    }
+
+    //closes database connection
+    db.dispose();
+    // } catch (error) {
+    //  log.warning("Exception in getting local cold wallet info");
+    //  log.info(error);
+    // }
   }
 
   DynamicLibrary _openOnLinux() {
     late final libraryNextToScript;
 
+    final String scriptDir = (rootPath != "")
+        ? rootPath
+        : io.File(io.Platform.script.toFilePath()).parent.path + "/";
+
     if (io.File("/etc/farmr/libsqlite3.so").existsSync())
       libraryNextToScript = io.File("/etc/farmr/libsqlite3.so");
     else
-      libraryNextToScript = io.File(rootPath + 'libsqlite3.so');
+      libraryNextToScript = io.File(scriptDir + 'libsqlite3.so');
 
     return DynamicLibrary.open(libraryNextToScript.path);
   }
@@ -112,7 +115,9 @@ class LocalColdWallet extends ColdWallet {
   DynamicLibrary _openOnWindows() {
     print("loading dll");
 
-    final libraryNextToScript = io.File(rootPath + 'sqlite3.dll');
+    final scriptDir = io.File(io.Platform.script.toFilePath()).parent;
+
+    final libraryNextToScript = io.File(scriptDir.path + '/sqlite3.dll');
     return DynamicLibrary.open(libraryNextToScript.path);
   }
 }
