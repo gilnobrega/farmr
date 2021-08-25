@@ -15,6 +15,11 @@ files:
     file: .github/workflows/farmr-hpool.service
     mode: "0644"
     user: "root"
+  "/etc/farmr/libsqlite3.so":
+    file: libsqlite3.so
+    mode: "0644"
+    user: "root"
+    keep: true
   "/etc/farmr/config/config-xch.json":
     file: config/config-xch.json
     mode: "0644"
@@ -150,6 +155,27 @@ files:
     mode: "0644"
     user: "root"
     keep: true
+  "/etc/farmr/blockchain/vag.json.template":
+    file: blockchain/vag.json.template
+    mode: "0644"
+    user: "root"
+    keep: true
+  "/etc/farmr/blockchain/wheat.json.template":
+    file: blockchain/wheat.json.template
+    mode: "0644"
+    user: "root"
+    keep: true
+  "/etc/farmr/blockchain/xfk.json.template":
+    file: blockchain/xfk.json.template
+    mode: "0644"
+    user: "root"
+    keep: true
+  "/etc/farmr/blockchain/llc.json.template":
+    file: blockchain/llc.json.template
+    mode: "0644"
+    user: "root"
+    keep: true
+
 units:
   #- .github/workflows/farmr.service
 scripts:

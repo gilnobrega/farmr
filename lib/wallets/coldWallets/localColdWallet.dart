@@ -3,7 +3,7 @@ import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
 import 'package:logging/logging.dart';
 
 import 'dart:ffi';
-import 'dart:io';
+import 'package:universal_io/io.dart' as io;
 import 'package:sqlite3/open.dart';
 import 'package:sqlite3/sqlite3.dart'; //sqlite library
 
@@ -44,13 +44,19 @@ class LocalColdWallet extends ColdWallet {
       //generates puzzle hash from address
       final Segwit puzzleHash = segwit.decode(this.address);
 
-      open.overrideFor(
-          OperatingSystem.linux, _openOnLinux); //provides .so file to linux
-      open.overrideFor(OperatingSystem.windows,
-          _openOnWindows); // provides .dll file to windows
+      late final db;
 
-      final db =
-          sqlite3.open(blockchain.dbPath + "/blockchain_v1_mainnet.sqlite");
+      //tries to open database
+      //if that fails loads pre bundled libraries
+      try {
+        db = sqlite3.open(blockchain.dbPath + "/blockchain_v1_mainnet.sqlite");
+      } catch (error) {
+        open.overrideFor(
+            OperatingSystem.linux, _openOnLinux); //provides .so file to linux
+        open.overrideFor(OperatingSystem.windows,
+            _openOnWindows); // provides .dll file to windows
+        db = sqlite3.open(blockchain.dbPath + "/blockchain_v1_mainnet.sqlite");
+      }
       // Use the database
 
       var result = db.select('SELECT * FROM coin_record WHERE puzzle_hash=?',
@@ -89,12 +95,18 @@ class LocalColdWallet extends ColdWallet {
   }
 
   DynamicLibrary _openOnLinux() {
-    final libraryNextToScript = File(rootPath + 'libsqlite3.so');
+    late final libraryNextToScript;
+
+    if (io.File("/etc/farmr/libsqlite3.so").existsSync())
+      libraryNextToScript = io.File("/etc/farmr/libsqlite3.so");
+    else
+      libraryNextToScript = io.File(rootPath + 'libsqlite3.so');
+
     return DynamicLibrary.open(libraryNextToScript.path);
   }
 
   DynamicLibrary _openOnWindows() {
-    final libraryNextToScript = File(rootPath + 'sqlite3.dll');
+    final libraryNextToScript = io.File(rootPath + 'sqlite3.dll');
     return DynamicLibrary.open(libraryNextToScript.path);
   }
 }
