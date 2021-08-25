@@ -48,14 +48,19 @@ class LocalColdWallet extends ColdWallet {
     late final db;
     //tries to open database
     //if that fails loads pre bundled libraries
+
+    final mode = OpenMode.readOnly;
+
     try {
-      db = sqlite3.open(blockchain.dbPath + "/blockchain_v1_mainnet.sqlite");
+      db = sqlite3.open(blockchain.dbPath + "/blockchain_v1_mainnet.sqlite",
+          mode: mode);
     } catch (error) {
       open.overrideFor(
           OperatingSystem.linux, _openOnLinux); //provides .so file to linux
       open.overrideFor(OperatingSystem.windows,
           _openOnWindows); // provides .dll file to windows
-      db = sqlite3.open(blockchain.dbPath + "/blockchain_v1_mainnet.sqlite");
+      db = sqlite3.open(blockchain.dbPath + "/blockchain_v1_mainnet.sqlite",
+          mode: mode);
     }
     //Use the database
 
