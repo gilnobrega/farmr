@@ -43,14 +43,16 @@ class LocalColdWallet extends ColdWallet {
     try {
       //generates puzzle hash from address
       final Segwit puzzleHash = segwit.decode(this.address);
+      print("Puzzle hash: ${puzzleHash.scriptPubKey}");
 
-      late final db;
+      var db;
 
       //tries to open database
       //if that fails loads pre bundled libraries
       try {
         db = sqlite3.open(blockchain.dbPath + "/blockchain_v1_mainnet.sqlite");
       } catch (error) {
+        print("Error 1, loading dll");
         open.overrideFor(
             OperatingSystem.linux, _openOnLinux); //provides .so file to linux
         open.overrideFor(OperatingSystem.windows,
@@ -61,6 +63,8 @@ class LocalColdWallet extends ColdWallet {
 
       var result = db.select('SELECT * FROM coin_record WHERE puzzle_hash=?',
           ["${puzzleHash.scriptPubKey}"]);
+
+      print(result);
 
       for (var coin in result) {
         //converts list of bytes to an uint64
@@ -106,6 +110,8 @@ class LocalColdWallet extends ColdWallet {
   }
 
   DynamicLibrary _openOnWindows() {
+    print("loading dll");
+
     final libraryNextToScript = io.File(rootPath + 'sqlite3.dll');
     return DynamicLibrary.open(libraryNextToScript.path);
   }
