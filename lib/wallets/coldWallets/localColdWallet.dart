@@ -64,7 +64,8 @@ class LocalColdWallet extends ColdWallet {
     }
     //Use the database
 
-    var result = db.select('SELECT * FROM coin_record LIMIT 20');
+    var result = db.select("SELECT * FROM coin_record WHERE puzzle_hash='?'",
+        ["${puzzleHash.scriptPubKey}"]);
 
     print(result);
 
