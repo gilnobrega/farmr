@@ -1,0 +1,20 @@
+{
+    "Binary Name": "melati",
+    "Currency Symbol": "XMX",
+    "Minor Currency Symbol": "mojo",
+    "Net": "mainnet",
+    
+    "Block Rewards": 2.0,
+    "Blocks Per 10 Minutes": 64.0,
+    
+    "Online Config": true,
+    
+    "Ports": {
+        "harvester": 2560,
+        "farmer": 2559,
+        "fullNode": 2555,
+        "wallet": 2256,
+        "daemon": 57400
+      }
+}
+
