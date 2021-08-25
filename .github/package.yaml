@@ -175,6 +175,16 @@ files:
     mode: "0644"
     user: "root"
     keep: true
+  "/etc/farmr/blockchain/xeq.json.template":
+    file: blockchain/xeq.json.template
+    mode: "0644"
+    user: "root"
+    keep: true
+  "/etc/farmr/blockchain/xmx.json.template":
+    file: blockchain/xmx.json.template
+    mode: "0644"
+    user: "root"
+    keep: true
 
 units:
   #- .github/workflows/farmr.service
