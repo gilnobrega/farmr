@@ -4,7 +4,8 @@ import 'package:farmr_client/farmer/status.dart';
 import 'package:farmr_client/rpc.dart';
 import 'package:farmr_client/wallets/coldWallets/alltheblocks.dart';
 import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
-import 'package:farmr_client/wallets/coldWallets/localColdWallet.dart';
+import 'package:farmr_client/wallets/coldWallets/localColdWallet-web.dart'
+    if (dart.library.io) "package:farmr_client/wallets/coldWallets/localColdWallet.dart";
 import 'package:farmr_client/wallets/poolWallets/genericPoolWallet.dart';
 import 'package:universal_io/io.dart' as io;
 import 'dart:convert';
