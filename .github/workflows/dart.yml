@@ -210,7 +210,8 @@ jobs:
              move ./farmr_hpool.exe ./hpool.exe
 
       - name: Moves SQLite3 library
-        run: mv .github/libsqlite3.dll ./libsqlite3.dll
+        if: matrix.os == 'windows-latest'
+        run: move ./.github/sqlite3.dll ./sqlite3.dll
 
       - name: Created windows zip file
         shell: bash
