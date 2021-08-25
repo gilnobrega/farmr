@@ -44,6 +44,17 @@ class Blockchain {
   //if _logPath is undefined then it reads log path from _getPath,
   //if it is defined then _logPath overrides _getPath
 
+  //wallet path where wallet dbs are stored
+  String _walletPath = '';
+  String get walletPath => (_walletPath == '')
+      ? this._getPath(this.binaryName, "wallet")
+      : _walletPath;
+
+  //db path where dbs are stored
+  String _dbPath = '';
+  String get dbPath =>
+      (_dbPath == '') ? this._getPath(this.binaryName, "db") : _dbPath;
+
   String _net = '';
   String get net => _net;
 

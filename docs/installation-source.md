@@ -10,3 +10,7 @@ mv farmr.exe farmr;
 ```
 4. Run ``./farmr`` once you see the main screen with your id and farmer/harvester stats you're good to go.
 5. Link your device to your discord account as shown in [First Time](./usage.md#First-time)
+
+Note: Local Cold Wallets will only work if SQLite 3 is installed in your device.
+To install it in ubuntu or debian, run the command
+```sudo apt-get install libsqlite3-dev```

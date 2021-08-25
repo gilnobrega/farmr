@@ -24,7 +24,10 @@ class HPool extends Farmer {
 
   HPool({required Blockchain blockchain, String version = ''})
       : super(
-            blockchain: blockchain, version: version, type: ClientType.HPool) {
+            blockchain: blockchain,
+            version: version,
+            type: ClientType.HPool,
+            rootPath: "") {
     _wallet = HPoolWallet(-1.0, -1.0, this.blockchain);
     _authToken = blockchain.config.hpoolAuthToken;
   }
