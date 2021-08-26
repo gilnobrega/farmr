@@ -15,12 +15,15 @@ class Wallet {
 
   late String name;
 
+  String? address;
+
   Wallet(
       {required this.type,
       required this.blockchain,
       this.syncedBlockHeight = -1,
       this.daysSinceLastBlock = -1,
-      this.name = "Wallet"});
+      this.name = "Wallet",
+      this.address});
 
   Map toJson() => {
         'type': type.index,

@@ -100,7 +100,8 @@ class HarvesterWallets {
           log.warning("Exception in getting local cold wallet info");
           log.info(error);
           success = false;
-          failedAddresses.add(wallet.address);
+          failedAddresses
+              .add(wallet.address!); //cold wallet addresses are always non-null
         }
       });
 

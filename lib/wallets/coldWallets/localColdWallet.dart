@@ -29,19 +29,18 @@ Logger log = Logger("Local Cold Wallet");
 }*/
 
 class LocalColdWallet extends ColdWallet {
-  final String address;
   final String rootPath;
 
   LocalColdWallet(
       {required Blockchain blockchain,
-      required this.address,
+      required String address,
       required this.rootPath,
       String name = "Local Cold Wallet"})
-      : super(blockchain: blockchain, name: name);
+      : super(blockchain: blockchain, name: name, address: address);
 
   Future<void> init() async {
     //generates puzzle hash from address
-    final Segwit puzzleHash = segwit.decode(this.address);
+    final Segwit puzzleHash = segwit.decode(this.address!);
     //print("Puzzle hash: ${puzzleHash.scriptPubKey}");
 
     late final Database db;
@@ -49,18 +48,17 @@ class LocalColdWallet extends ColdWallet {
     //if that fails loads pre bundled libraries
 
     final mode = OpenMode.readOnly;
+    final String dbLocation =
+        blockchain.dbPath + "/blockchain_v1_${blockchain.net}.sqlite";
 
     try {
-      db = sqlite3.open(
-          blockchain.dbPath + "/blockchain_v1_${blockchain.net}.sqlite",
-          mode: mode);
+      db = sqlite3.open(dbLocation, mode: mode);
     } catch (error) {
       open.overrideFor(
           OperatingSystem.linux, _openOnLinux); //provides .so file to linux
       open.overrideFor(OperatingSystem.windows,
           _openOnWindows); // provides .dll file to windows
-      db = sqlite3.open(blockchain.dbPath + "/blockchain_v1_mainnet.sqlite",
-          mode: mode);
+      db = sqlite3.open(dbLocation, mode: mode);
     }
     //Use the database
 

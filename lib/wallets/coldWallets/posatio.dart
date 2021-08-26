@@ -6,13 +6,11 @@ import 'package:logging/logging.dart';
 Logger log = Logger("Chia Explorer Cold Wallet");
 
 class PosatIOWallet extends ColdWallet {
-  final String address;
-
   PosatIOWallet(
       {required Blockchain blockchain,
-      required this.address,
+      required String address,
       String name = "posat.io Cold Wallet"})
-      : super(blockchain: blockchain, name: name);
+      : super(blockchain: blockchain, name: name, address: address);
 
   Future<void> init() async {
     String posatExplorerURL =
@@ -21,7 +19,7 @@ class PosatIOWallet extends ColdWallet {
     netBalance = 0;
 
     try {
-      String contents = await http.read(Uri.parse(posatExplorerURL + address));
+      String contents = await http.read(Uri.parse(posatExplorerURL + address!));
 
       RegExp regex = RegExp(
           r"balance: <strong>([0-9]+\.[0-9]+) " +

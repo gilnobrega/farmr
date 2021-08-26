@@ -42,13 +42,15 @@ class ColdWallet extends Wallet {
       double daysSinceLastBlock = -1,
       int syncedBlockHeight = -1,
       required Blockchain blockchain,
-      String name = "Cold Wallet"})
+      String name = "Cold Wallet",
+      String? address})
       : super(
             type: WalletType.Cold,
             blockchain: blockchain,
             daysSinceLastBlock: daysSinceLastBlock,
             syncedBlockHeight: syncedBlockHeight,
-            name: name);
+            name: name,
+            address: address);
 
   ColdWallet.fromJson(dynamic json) : super.fromJson(json) {
     grossBalance = json['grossBalance'] ?? -1;
@@ -59,15 +61,15 @@ class ColdWallet extends Wallet {
   ColdWallet operator *(ColdWallet wallet2) {
     if (this.blockchain.currencySymbol == wallet2.blockchain.currencySymbol)
       return ColdWallet(
-          blockchain: this.blockchain,
-          netBalance:
-              Wallet.sumTwoBalances(this.netBalance, wallet2.netBalance),
-          grossBalance:
-              Wallet.sumTwoBalances(this.grossBalance, wallet2.grossBalance),
-          farmedBalance:
-              Wallet.sumTwoBalances(this.farmedBalance, wallet2.farmedBalance),
-          daysSinceLastBlock: Wallet.compareDaysSinceBlock(
-              this.daysSinceLastBlock, wallet2.daysSinceLastBlock));
+        blockchain: this.blockchain,
+        netBalance: Wallet.sumTwoBalances(this.netBalance, wallet2.netBalance),
+        grossBalance:
+            Wallet.sumTwoBalances(this.grossBalance, wallet2.grossBalance),
+        farmedBalance:
+            Wallet.sumTwoBalances(this.farmedBalance, wallet2.farmedBalance),
+        daysSinceLastBlock: Wallet.compareDaysSinceBlock(
+            this.daysSinceLastBlock, wallet2.daysSinceLastBlock),
+      );
     else
       throw Exception("Cannot combine cold wallets of different blockchains");
   }

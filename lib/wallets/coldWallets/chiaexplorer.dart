@@ -9,18 +9,17 @@ Logger log = Logger("Chia Explorer Cold Wallet");
 
 class ChiaExplorerWallet extends ColdWallet {
   static const String _chiaExplorerURL = "https://abc.chiaexplorer.com/";
-  final String address;
 
   ChiaExplorerWallet(
       {required Blockchain blockchain,
-      required this.address,
+      required String address,
       String name = "ChiaExplorer Cold Wallet"})
-      : super(blockchain: blockchain, name: name);
+      : super(blockchain: blockchain, name: name, address: address);
 
   Future<void> init() async {
     try {
       String contents =
-          await http.read(Uri.parse(_chiaExplorerURL + "balance/" + address));
+          await http.read(Uri.parse(_chiaExplorerURL + "balance/" + address!));
 
       var object = jsonDecode(contents);
 
@@ -28,7 +27,7 @@ class ChiaExplorerWallet extends ColdWallet {
       netBalance = object['netBalance'] ?? -1;
 
       String coins = await http
-          .read(Uri.parse(_chiaExplorerURL + "coinsForAddress/" + address));
+          .read(Uri.parse(_chiaExplorerURL + "coinsForAddress/" + address!));
 
       var coinsObject = jsonDecode(coins);
 

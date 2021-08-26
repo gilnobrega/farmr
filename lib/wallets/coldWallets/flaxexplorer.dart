@@ -6,19 +6,19 @@ import 'package:logging/logging.dart';
 Logger log = Logger("Chia Explorer Cold Wallet");
 
 class FlaxExplorerWallet extends ColdWallet {
-  final String address;
   static const String _flaxExplorerURL =
       "https://flaxexplorer.org/blockchain/address/";
 
   FlaxExplorerWallet(
       {required Blockchain blockchain,
-      required this.address,
+      required String address,
       int syncedBlockHeight = -1,
       String name = "FlaxExplorer Cold Wallet"})
       : super(
             blockchain: blockchain,
             syncedBlockHeight: syncedBlockHeight,
-            name: name);
+            name: name,
+            address: address);
 
   Future<void> init() async {
     //flaxexplorer has no way to know if wallet is empty or address invalid
@@ -26,7 +26,7 @@ class FlaxExplorerWallet extends ColdWallet {
     netBalance = 0;
     farmedBalance = 0;
 
-    String contents = await http.read(Uri.parse(_flaxExplorerURL + address));
+    String contents = await http.read(Uri.parse(_flaxExplorerURL + address!));
 
     RegExp regex = RegExp(r"([0-9]+\.[0-9]+) XFX</span>", multiLine: true);
 

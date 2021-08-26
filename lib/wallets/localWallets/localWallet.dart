@@ -46,13 +46,15 @@ class LocalWallet extends Wallet {
       double daysSinceLastBlock = -1,
       this.walletHeight = -1,
       String name = "Local Wallet",
-      this.status = LocalWalletStatus.Synced})
+      this.status = LocalWalletStatus.Synced,
+      String? address})
       : super(
             type: WalletType.Local,
             blockchain: blockchain,
             daysSinceLastBlock: daysSinceLastBlock,
             syncedBlockHeight: syncedBlockHeight,
-            name: name);
+            name: name,
+            address: address);
 
   LocalWallet.fromJson(dynamic json) : super.fromJson(json) {
     confirmedBalance = json['confirmedBalance'] ?? -1;
