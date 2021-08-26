@@ -202,12 +202,12 @@ main(List<String> args) async {
   );
 
   receivePort.listen((message) {
-    var map = (message as Map<String, List<String>>);
+    var map = (message as Map<String, String>);
 
     for (var entry in map.entries)
-      outputs.update(entry.key, (value) => value + "\n\n" + entry.value.first);
+      outputs.update(entry.key, (value) => value + "\n\n" + entry.value);
 
-    if ((message).entries.first.value.first.contains("not linked")) {
+    if ((message).entries.first.value.contains("not linked")) {
       receivePort.close();
       mainIsolate.kill();
       io.exit(1);
