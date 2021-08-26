@@ -135,7 +135,7 @@ class Farmer extends Harvester with FarmerStatusMixin {
 
       final fingerprintInfo = await RPCConnection.getEndpoint(rpcConfig7);
 
-      List<int> fingerprints = [];
+      List<dynamic> fingerprints = [];
 
       if (fingerprintInfo != null && (fingerprintInfo['success'] ?? false))
         fingerprints = fingerprintInfo['public_key_fingerprints'] ?? [];
@@ -158,7 +158,8 @@ class Farmer extends Harvester with FarmerStatusMixin {
           int? fingerprint;
 
           try {
-            fingerprint = fingerprints[id - 1];
+            fingerprint =
+                fingerprints[id - 1] is int ? fingerprints[id - 1] : null;
           } catch (error) {}
           //final int walletType = walletID['type'] ?? 0;
 

@@ -121,42 +121,45 @@ class LocalWallet extends Wallet {
 
   //checks all addresses associated with it from database
   getAllAddresses() {
-    try {
-      late final Database db;
-      //tries to open database
-      //if that fails loads pre bundled libraries
-
-      final mode = OpenMode.readOnly;
-      final String dbLocation = blockchain.walletPath +
-          "/db/blockchain_wallet_v1_${blockchain.net}_$fingerprint.sqlite";
-
+    if (fingerprint != null) {
       try {
-        db = sqlite3.open(dbLocation, mode: mode);
-      } catch (error) {
-        open.overrideFor(
-            OperatingSystem.linux, _openOnLinux); //provides .so file to linux
-        open.overrideFor(OperatingSystem.windows,
-            _openOnWindows); // provides .dll file to windows
-        db = sqlite3.open(dbLocation, mode: mode);
-      }
-      //Use the database
+        late final Database db;
+        //tries to open database
+        //if that fails loads pre bundled libraries
 
-      var results = db.select("SELECT puzzle_hash FROM coin_record");
+        final mode = OpenMode.readOnly;
+        final String dbLocation = blockchain.walletPath +
+            "/db/blockchain_wallet_v1_${blockchain.net}_$fingerprint.sqlite";
 
-      for (var result in results) {
-        final String puzzleHash = result['puzzle_hash'];
+        try {
+          db = sqlite3.open(dbLocation, mode: mode);
+        } catch (error) {
+          open.overrideFor(
+              OperatingSystem.linux, _openOnLinux); //provides .so file to linux
+          open.overrideFor(OperatingSystem.windows,
+              _openOnWindows); // provides .dll file to windows
+          db = sqlite3.open(dbLocation, mode: mode);
+        }
+        //Use the database
 
-        final String address = segwit
-            .encode(Segwit(blockchain.currencySymbol, HEX.decode(puzzleHash)));
+        var results = db.select("SELECT puzzle_hash FROM coin_record");
 
-        print(address);
-        addresses.add(address);
-      }
+        for (var result in results) {
+          final String puzzleHash = result['puzzle_hash'];
 
-      io.stdin.readLineSync();
+          final String address = segwit.encode(
+              Segwit(blockchain.currencySymbol, HEX.decode(puzzleHash)));
 
-      addresses = addresses.toSet().toList(); //filters duplicate addresses;
-    } catch (error) {}
+          addresses.add(address);
+        }
+
+        io.stdin.readLineSync();
+
+        addresses = addresses.toSet().toList(); //filters duplicate addresses;
+      } catch (error) {}
+
+      print(addresses);
+    }
   }
 
   DynamicLibrary _openOnLinux() {
