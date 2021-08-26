@@ -168,12 +168,16 @@ main(List<String> args) async {
     await blockchain.init();
     outputs.putIfAbsent("View ${blockchain.currencySymbol} report",
         () => "Generating ${blockchain.currencySymbol} report");
+    outputs.putIfAbsent("View ${blockchain.currencySymbol} local addresses",
+        () => "Generating ${blockchain.currencySymbol} report");
+    outputs.putIfAbsent("View ${blockchain.currencySymbol} cold addresses",
+        () => "Generating ${blockchain.currencySymbol} report");
   }
 
   //shows info with ids to link
   final String info = await id.info(blockchains);
 
-  outputs.putIfAbsent("View IDs list", () => info);
+  outputs.putIfAbsent("View list of IDs", () => info);
   outputs.putIfAbsent("Quit", () => "quit");
 
   int maxUsers = blockchains
@@ -198,10 +202,12 @@ main(List<String> args) async {
   );
 
   receivePort.listen((message) {
-    outputs.update((message as Map<String, String>).entries.first.key,
-        (value) => value + "\n\n" + message.entries.first.value);
+    var map = (message as Map<String, List<String>>);
 
-    if ((message).entries.first.value.contains("not linked")) {
+    for (var entry in map.entries)
+      outputs.update(entry.key, (value) => value + "\n\n" + entry.value.first);
+
+    if ((message).entries.first.value.first.contains("not linked")) {
       receivePort.close();
       mainIsolate.kill();
       io.exit(1);
@@ -285,8 +291,14 @@ void spawnBlokchains(List<Object> arguments) async {
       );
 
       receivePort.listen((message) {
-        sendPort.send(
-            {"View ${blockchain.currencySymbol} report": (message as String)});
+        sendPort.send({
+          "View ${blockchain.currencySymbol} report":
+              (message as List<String>)[0],
+          "View ${blockchain.currencySymbol} local addresses":
+              (message as List<String>)[1],
+          "View ${blockchain.currencySymbol} cold addresses":
+              (message as List<String>)[2]
+        });
 
         receivePort.close();
         isolate.kill();
@@ -310,8 +322,11 @@ void handleBlockchainReport(List<Object> arguments) async {
 
   //kills isolate after 5 minutes
   Future.delayed(Duration(minutes: 5), () {
-    sendPort.send(
-        "${blockchain.currencySymbol} report killed. Are ${blockchain.binaryName} services running?");
+    sendPort.send([
+      "${blockchain.currencySymbol} report killed. Are ${blockchain.binaryName} services running?",
+      "",
+      ""
+    ]);
   });
 
   clearLog(blockchain.fileExtension); //clears log
@@ -329,6 +344,8 @@ void handleBlockchainReport(List<Object> arguments) async {
   String drives = "";
   String coldBalance = "";
   String output = "";
+  String localAddresses = "";
+  String coldAddresses = "";
 
   //PARSES DATA
   // try {
@@ -391,6 +408,9 @@ void handleBlockchainReport(List<Object> arguments) async {
 
     if (client.balance >= 0) balance = client.balance.toStringAsFixed(2);
   }
+
+  localAddresses = client.localAddresses.toString();
+  coldAddresses = client.coldAddresses.toString();
 
   status = client.status;
 
@@ -478,7 +498,8 @@ void handleBlockchainReport(List<Object> arguments) async {
           post.putIfAbsent("id", () => id + blockchain.fileExtension);
           post.update("id", (value) => id + blockchain.fileExtension);
 
-          sendReport(id, post, blockchain, type, sendPort, output);
+          sendReport(id, post, blockchain, type, sendPort, output,
+              localAddresses, coldAddresses);
         }
 
         log.info("url:$url");
@@ -493,8 +514,15 @@ void handleBlockchainReport(List<Object> arguments) async {
   }
 }
 
-Future<void> sendReport(String id, Object? post, Blockchain blockchain,
-    String type, SendPort sendPort, String previousOutput,
+Future<void> sendReport(
+    String id,
+    Object? post,
+    Blockchain blockchain,
+    String type,
+    SendPort sendPort,
+    String previousOutput,
+    String localAddresses,
+    String coldAddresses,
     [bool retry = true]) async {
   String contents = "";
   //sends report to farmr.net
@@ -507,8 +535,8 @@ Future<void> sendReport(String id, Object? post, Blockchain blockchain,
     previousOutput +=
         "\n$timestamp - Sent ${blockchain.binaryName} $type report to server $idText\nResending it in ${delay.inMinutes} minutes";
 
-    checkIfLinked(
-        contents, previousOutput, sendPort, id + blockchain.fileExtension);
+    checkIfLinked(contents, previousOutput, sendPort,
+        id + blockchain.fileExtension, localAddresses, coldAddresses);
   }).catchError((error) {
     previousOutput +=
         "Server timeout, could not access farmr.net.\nRetrying with backup domain.";
@@ -516,21 +544,31 @@ Future<void> sendReport(String id, Object? post, Blockchain blockchain,
 
     //sends report to chiabot.znc.sh (legacy/backup domain)
     if (retry)
-      sendReport(id, post, blockchain, type, sendPort, previousOutput, false);
+      sendReport(id, post, blockchain, type, sendPort, previousOutput,
+          localAddresses, coldAddresses, false);
     else
-      sendPort.send(previousOutput +=
-          "\nServer timeout, could not access farmr.net (or the backup domain chiabot.znc.sh)");
+      sendPort.send([
+        previousOutput +=
+            "\nServer timeout, could not access farmr.net (or the backup domain chiabot.znc.sh)",
+        localAddresses,
+        coldAddresses
+      ]);
   });
 }
 
-Future<void> checkIfLinked(String response, String previousOutput,
-    SendPort sendPort, String id) async {
+Future<void> checkIfLinked(
+    String response,
+    String previousOutput,
+    SendPort sendPort,
+    String id,
+    String localAddresses,
+    String coldAddresses) async {
   if (response.trim().contains("Not linked")) {
     final errorString = """\n\nID $id is not linked to an account.
 Link it in farmr.net or through farmrbot and then start this program again
 Press enter to quit""";
     print(errorString);
-    sendPort.send("not linked");
+    sendPort.send(["not linked", localAddresses, coldAddresses]);
 
     Future.delayed(Duration(minutes: 10)).then((value) {
       io.exit(1);
@@ -539,7 +577,7 @@ Press enter to quit""";
     io.stdin.readByteSync();
     io.exit(1);
   } else
-    sendPort.send(previousOutput);
+    sendPort.send([previousOutput, localAddresses, coldAddresses]);
 }
 
 void clearLog([String blockchainExtension = ""]) {

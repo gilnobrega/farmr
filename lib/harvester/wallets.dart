@@ -48,6 +48,24 @@ class HarvesterWallets {
   GenericPoolWallet get poolWalletAggregate =>
       poolWallets.reduce((w1, w2) => w1 * w2);
 
+  //selects addresses from all wallets
+  List<String> get addresses => (wallets.length > 0)
+      ? wallets.map((e) => e.addresses).reduce((l1, l2) => l1 + l2).toList()
+      : [];
+
+  //selects addresses from hot wallets
+  List<String> get coldAddresses => (coldWallets.length > 0)
+      ? coldWallets.map((e) => e.addresses).reduce((l1, l2) => l1 + l2).toList()
+      : [];
+
+  //selects addresses from local wallets
+  List<String> get localAddresses => (localWallets.length > 0)
+      ? localWallets
+          .map((e) => e.addresses)
+          .reduce((l1, l2) => l1 + l2)
+          .toList()
+      : [];
+
   //final DateTime currentTime = DateTime.now();
   int syncedBlockHeight = -1;
 

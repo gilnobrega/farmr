@@ -281,10 +281,6 @@ class Farmer extends Harvester with FarmerStatusMixin {
   //checks if any of the local addresses / cold addresses match reward addresses
   Future<void> _verifyRewardAddresses() async {
     try {
-      //selects addresses from all wallets
-      List<String> addresses =
-          wallets.map((e) => e.addresses).reduce((l1, l2) => l1 + l2).toList();
-
       //print(addresses);
 
       //gets farmer/pool reward addresses from rpc
