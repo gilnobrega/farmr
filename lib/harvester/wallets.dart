@@ -97,7 +97,8 @@ class HarvesterWallets {
     for (Wallet wallet in wallets)
       await wallet.init().catchError((error) {
         if (wallet is LocalColdWallet) {
-          log.warning("Exception in getting local cold wallet info");
+          log.warning(
+              "Failed to get local cold wallet info for ${blockchain.currencySymbol}");
           log.info(error);
           success = false;
           failedAddresses

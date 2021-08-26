@@ -253,7 +253,7 @@ class Farmer extends Harvester with FarmerStatusMixin {
             .add(AllTheBlocksWallet(blockchain: blockchain, address: address));
     }
 
-    _verifyRewardAddresses();
+    await _verifyRewardAddresses();
   }
 
   //checks if any of the local addresses / cold addresses match reward addresses
