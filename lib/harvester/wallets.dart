@@ -101,8 +101,8 @@ class HarvesterWallets {
               "Failed to get local cold wallet info for ${blockchain.currencySymbol}");
           log.info(error);
           success = false;
-          failedAddresses
-              .add(wallet.address!); //cold wallet addresses are always non-null
+          failedAddresses.add(wallet
+              .addresses.first); //cold wallet addresses are always non-null
         }
       });
 

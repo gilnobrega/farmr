@@ -26,7 +26,8 @@ class FlaxExplorerWallet extends ColdWallet {
     netBalance = 0;
     farmedBalance = 0;
 
-    String contents = await http.read(Uri.parse(_flaxExplorerURL + address!));
+    String contents =
+        await http.read(Uri.parse(_flaxExplorerURL + addresses.first));
 
     RegExp regex = RegExp(r"([0-9]+\.[0-9]+) XFX</span>", multiLine: true);
 

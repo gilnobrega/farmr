@@ -20,7 +20,7 @@ class AllTheBlocksWallet extends ColdWallet {
     try {
       String contents = await http.read(Uri.parse(_allTheBlocksURL +
           "${blockchain.allTheBlocksName}/address/" +
-          address!));
+          addresses.first));
 
       var object = jsonDecode(contents);
 
@@ -28,7 +28,7 @@ class AllTheBlocksWallet extends ColdWallet {
 
       String coins = await http.read(Uri.parse(_allTheBlocksURL +
           "${blockchain.allTheBlocksName}/coin/address/" +
-          address!));
+          addresses.first));
 
       var coinsObject = jsonDecode(coins);
 

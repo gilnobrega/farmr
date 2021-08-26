@@ -50,7 +50,7 @@ class ColdWallet extends Wallet {
             daysSinceLastBlock: daysSinceLastBlock,
             syncedBlockHeight: syncedBlockHeight,
             name: name,
-            address: address);
+            addresses: (address != null) ? [address] : []);
 
   ColdWallet.fromJson(dynamic json) : super.fromJson(json) {
     grossBalance = json['grossBalance'] ?? -1;

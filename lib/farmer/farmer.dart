@@ -213,7 +213,7 @@ class Farmer extends Harvester with FarmerStatusMixin {
                     : (syncing)
                         ? LocalWalletStatus.Syncing
                         : LocalWalletStatus.NotSynced,
-                address: address);
+                addresses: address != null ? [address] : []);
 
             RPCConfiguration rpcConfig5 = RPCConfiguration(
                 blockchain: blockchain,
@@ -260,20 +260,21 @@ class Farmer extends Harvester with FarmerStatusMixin {
   Future<void> _verifyRewardAddresses() async {
     try {
       //selects addresses from all wallets
-      List<String> addresses = wallets
-          .where((element) => element.address != null)
-          .toList()
-          .map((e) => e.address!)
-          .toList();
+      List<String> addresses =
+          wallets.map((e) => e.addresses).reduce((l1, l2) => l1 + l2).toList();
+
+      print(addresses);
 
       //gets farmer/pool reward addresses from rpc
       final RPCConfiguration rpcConfig = RPCConfiguration(
           blockchain: blockchain,
           service: RPCService.Farmer,
           endpoint: "get_reward_targets",
-          dataToSend: const {"search_for_private_keys": false});
+          dataToSend: const {"search_for_private_key": false});
 
       final rewardsInfo = await RPCConnection.getEndpoint(rpcConfig);
+
+      print(rewardsInfo);
 
       if (rewardsInfo != null) {
         if (rewardsInfo['success'] ?? false) {
@@ -281,6 +282,8 @@ class Farmer extends Harvester with FarmerStatusMixin {
             "Farmer": rewardsInfo['farmer_target'],
             "Pool": rewardsInfo['pool_target']
           };
+
+          print(targets);
 
           //wars user if these addresses do not match hot/cold wallet address
           for (var target in targets.entries) {

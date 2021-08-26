@@ -40,7 +40,7 @@ class LocalColdWallet extends ColdWallet {
 
   Future<void> init() async {
     //generates puzzle hash from address
-    final Segwit puzzleHash = segwit.decode(this.address!);
+    final Segwit puzzleHash = segwit.decode(this.addresses.first);
     //print("Puzzle hash: ${puzzleHash.scriptPubKey}");
 
     late final Database db;

@@ -19,7 +19,8 @@ class PosatIOWallet extends ColdWallet {
     netBalance = 0;
 
     try {
-      String contents = await http.read(Uri.parse(posatExplorerURL + address!));
+      String contents =
+          await http.read(Uri.parse(posatExplorerURL + addresses.first));
 
       RegExp regex = RegExp(
           r"balance: <strong>([0-9]+\.[0-9]+) " +
