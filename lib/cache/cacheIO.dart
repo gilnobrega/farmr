@@ -1,5 +1,6 @@
 import 'dart:core';
 import 'package:farmr_client/blockchain.dart';
+import 'package:farmr_client/cache/cacheStruct.dart';
 import 'package:farmr_client/log/logitem.dart';
 import 'package:farmr_client/utils/sqlite.dart';
 import 'package:universal_io/io.dart' as io;
@@ -18,33 +19,7 @@ import 'package:sqlite3/sqlite3.dart';
 
 final log = Logger('Cache');
 
-class Cache {
-  late Blockchain blockchain;
-
-  String chiaPath = '';
-
-  List<Plot> plots = []; //cached plots
-
-  List<Filter> filters = [];
-
-  List<SignagePoint> signagePoints = [];
-
-  List<ShortSync> shortSyncs = [];
-
-  List<LogItem> poolErrors = [];
-
-  List<LogItem> harvesterErrors = [];
-
-  //past values for memory (24 hour)
-  List<Memory> memories = [];
-
-  // '/home/user/.farmr' for package installs, '' (project path) for the rest
-  late String rootPath;
-  late io.File cache;
-
-  int parseUntil =
-      DateTime.now().subtract(Duration(days: 1)).millisecondsSinceEpoch;
-
+class Cache extends CacheStruct {
   String? _binPath;
   @override
   String get binPath {
@@ -59,7 +34,7 @@ class Cache {
 
   late final Database database;
 
-  Cache(this.blockchain, this.rootPath) {
+  Cache(Blockchain blockchain, String rootPath) : super(blockchain, rootPath) {
     cache = io.File(rootPath + "cache/cache${blockchain.fileExtension}.sqlite");
 
     //opens database file or creates it if it doesnt exist
