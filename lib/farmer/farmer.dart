@@ -285,7 +285,7 @@ class Farmer extends Harvester with FarmerStatusMixin {
       List<String> addresses =
           wallets.map((e) => e.addresses).reduce((l1, l2) => l1 + l2).toList();
 
-      print(addresses);
+      //print(addresses);
 
       //gets farmer/pool reward addresses from rpc
       final RPCConfiguration rpcConfig = RPCConfiguration(
@@ -296,7 +296,7 @@ class Farmer extends Harvester with FarmerStatusMixin {
 
       final rewardsInfo = await RPCConnection.getEndpoint(rpcConfig);
 
-      print(rewardsInfo);
+      //print(rewardsInfo);
 
       if (rewardsInfo != null) {
         if (rewardsInfo['success'] ?? false) {
@@ -305,7 +305,7 @@ class Farmer extends Harvester with FarmerStatusMixin {
             "Pool": rewardsInfo['pool_target']
           };
 
-          print(targets);
+          //print(targets);
 
           //wars user if these addresses do not match hot/cold wallet address
           for (var target in targets.entries) {

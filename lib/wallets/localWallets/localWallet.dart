@@ -153,12 +153,13 @@ class LocalWallet extends Wallet {
           addresses.add(address);
         }
 
-        io.stdin.readLineSync();
-
         addresses = addresses.toSet().toList(); //filters duplicate addresses;
-      } catch (error) {}
+      } catch (error) {
+        log.info("Failed to get hot wallet addresses");
+        log.info(error);
+      }
 
-      print(addresses);
+      //print(addresses);
     }
   }
 
