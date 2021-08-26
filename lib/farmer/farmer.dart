@@ -127,6 +127,19 @@ class Farmer extends Harvester with FarmerStatusMixin {
 
       final walletsObject = await RPCConnection.getEndpoint(rpcConfig);
 
+      RPCConfiguration rpcConfig7 = RPCConfiguration(
+          blockchain: blockchain,
+          service: RPCService.Wallet,
+          endpoint: "get_public_keys",
+          dataToSend: {"wallet_id": id});
+
+      final fingerprintInfo = await RPCConnection.getEndpoint(rpcConfig7);
+
+      List<int> fingerprints = [];
+
+      if (fingerprintInfo != null && (fingerprintInfo['success'] ?? false))
+        fingerprints = fingerprintInfo['public_key_fingerprints'] ?? [];
+
       int walletHeight = -1;
       String name = "Wallet";
       bool synced = true;
@@ -142,6 +155,11 @@ class Farmer extends Harvester with FarmerStatusMixin {
           final int id = walletID['id'] ?? 1;
           name = walletID['name'] ?? "Wallet";
           String? address; //wallet address
+          int? fingerprint;
+
+          try {
+            fingerprint = fingerprints[id - 1];
+          } catch (error) {}
           //final int walletType = walletID['type'] ?? 0;
 
           RPCConfiguration rpcConfig2 = RPCConfiguration(
@@ -213,7 +231,8 @@ class Farmer extends Harvester with FarmerStatusMixin {
                     : (syncing)
                         ? LocalWalletStatus.Syncing
                         : LocalWalletStatus.NotSynced,
-                addresses: address != null ? [address] : []);
+                addresses: address != null ? [address] : [],
+                fingerprint: fingerprint);
 
             RPCConfiguration rpcConfig5 = RPCConfiguration(
                 blockchain: blockchain,
@@ -234,6 +253,8 @@ class Farmer extends Harvester with FarmerStatusMixin {
               //sets wallet last farmed height
               wallet.setLastBlockFarmed(walletFarmedInfo['last_height_farmed']);
             }
+
+            wallet.getAllAddresses();
 
             wallets.add(wallet);
           }

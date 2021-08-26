@@ -1,6 +1,14 @@
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/wallets/wallet.dart';
+import 'package:hex/hex.dart';
 import 'package:universal_io/io.dart' as io;
+
+import 'dart:ffi';
+import 'dart:io' as io;
+import 'package:sqlite3/open.dart';
+import 'package:sqlite3/sqlite3.dart'; //sqlite library
+
+import 'package:bech32m/bech32m.dart'; //puzzle hash library
 
 import 'package:logging/logging.dart';
 
@@ -25,6 +33,8 @@ class LocalWallet extends Wallet {
 
   late LocalWalletStatus status;
 
+  int? fingerprint;
+
   @override
   Map toJson() {
     Map<dynamic, dynamic> walletMap = super.toJson();
@@ -47,6 +57,7 @@ class LocalWallet extends Wallet {
       this.walletHeight = -1,
       String name = "Local Wallet",
       this.status = LocalWalletStatus.Synced,
+      this.fingerprint,
       List<String> addresses = const []})
       : super(
             type: WalletType.Local,
@@ -106,5 +117,66 @@ class LocalWallet extends Wallet {
               this.daysSinceLastBlock, wallet2.daysSinceLastBlock));
     else
       throw Exception("Cannot combine local wallets of different blockchains");
+  }
+
+  //checks all addresses associated with it from database
+  getAllAddresses() {
+    try {
+      late final Database db;
+      //tries to open database
+      //if that fails loads pre bundled libraries
+
+      final mode = OpenMode.readOnly;
+      final String dbLocation = blockchain.walletPath +
+          "/db/blockchain_wallet_v1_${blockchain.net}_$fingerprint.sqlite";
+
+      try {
+        db = sqlite3.open(dbLocation, mode: mode);
+      } catch (error) {
+        open.overrideFor(
+            OperatingSystem.linux, _openOnLinux); //provides .so file to linux
+        open.overrideFor(OperatingSystem.windows,
+            _openOnWindows); // provides .dll file to windows
+        db = sqlite3.open(dbLocation, mode: mode);
+      }
+      //Use the database
+
+      var results = db.select("SELECT puzzle_hash FROM coin_record");
+
+      for (var result in results) {
+        final String puzzleHash = result['puzzle_hash'];
+
+        final String address = segwit
+            .encode(Segwit(blockchain.currencySymbol, HEX.decode(puzzleHash)));
+
+        print(address);
+        addresses.add(address);
+      }
+
+      io.stdin.readLineSync();
+
+      addresses = addresses.toSet().toList(); //filters duplicate addresses;
+    } catch (error) {}
+  }
+
+  DynamicLibrary _openOnLinux() {
+    final String scriptDir =
+        io.File(io.Platform.script.toFilePath()).parent.path + "/";
+
+    var libraryNextToScript;
+
+    if (io.File("/etc/farmr/libsqlite3.so").existsSync())
+      libraryNextToScript = io.File("/etc/farmr/libsqlite3.so");
+    else
+      libraryNextToScript = io.File(scriptDir + 'libsqlite3.so');
+
+    return DynamicLibrary.open(libraryNextToScript.path);
+  }
+
+  DynamicLibrary _openOnWindows() {
+    final scriptDir = io.File(io.Platform.script.toFilePath()).parent;
+
+    final libraryNextToScript = io.File(scriptDir.path + '/sqlite3.dll');
+    return DynamicLibrary.open(libraryNextToScript.path);
   }
 }
