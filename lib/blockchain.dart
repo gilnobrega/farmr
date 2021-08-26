@@ -1,7 +1,7 @@
 import 'dart:core';
 import 'package:farmr_client/config.dart';
 import 'package:farmr_client/debug.dart';
-import 'package:farmr_client/rpc.dart';
+import 'package:farmr_client/utils/rpc.dart';
 import 'package:universal_io/io.dart' as io;
 import 'package:farmr_client/id.dart';
 

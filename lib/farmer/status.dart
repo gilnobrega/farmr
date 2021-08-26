@@ -1,6 +1,6 @@
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/harvester/status.dart';
-import 'package:farmr_client/rpc.dart';
+import 'package:farmr_client/utils/rpc.dart';
 import 'package:farmr_client/server/netspace.dart';
 import 'package:logging/logging.dart';
 import 'package:universal_io/io.dart' as io;

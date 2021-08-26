@@ -2,9 +2,7 @@ import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
 import 'package:logging/logging.dart';
 
-import 'dart:ffi';
-import 'dart:io' as io;
-import 'package:sqlite3/open.dart';
+import 'package:farmr_client/utils/sqlite.dart';
 import 'package:sqlite3/sqlite3.dart'; //sqlite library
 
 import 'package:bech32m/bech32m.dart'; //puzzle hash library
@@ -44,24 +42,12 @@ class LocalColdWallet extends ColdWallet {
     final Segwit puzzleHash = segwit.decode(this.address);
     //print("Puzzle hash: ${puzzleHash.scriptPubKey}");
 
-    late final Database db;
     //tries to open database
     //if that fails loads pre bundled libraries
 
     final mode = OpenMode.readOnly;
-
-    try {
-      db = sqlite3.open(
-          blockchain.dbPath + "/blockchain_v1_${blockchain.net}.sqlite",
-          mode: mode);
-    } catch (error) {
-      open.overrideFor(
-          OperatingSystem.linux, _openOnLinux); //provides .so file to linux
-      open.overrideFor(OperatingSystem.windows,
-          _openOnWindows); // provides .dll file to windows
-      db = sqlite3.open(blockchain.dbPath + "/blockchain_v1_mainnet.sqlite",
-          mode: mode);
-    }
+    final Database db = openSQLiteDB(
+        blockchain.dbPath + "/blockchain_v1_${blockchain.net}.sqlite", mode);
     //Use the database
 
     var result = db.select("""
@@ -99,27 +85,5 @@ class LocalColdWallet extends ColdWallet {
 
     //closes database connection
     db.dispose();
-  }
-
-  DynamicLibrary _openOnLinux() {
-    final String scriptDir = (rootPath != "")
-        ? rootPath
-        : io.File(io.Platform.script.toFilePath()).parent.path + "/";
-
-    var libraryNextToScript;
-
-    if (io.File("/etc/farmr/libsqlite3.so").existsSync())
-      libraryNextToScript = io.File("/etc/farmr/libsqlite3.so");
-    else
-      libraryNextToScript = io.File(scriptDir + 'libsqlite3.so');
-
-    return DynamicLibrary.open(libraryNextToScript.path);
-  }
-
-  DynamicLibrary _openOnWindows() {
-    final scriptDir = io.File(io.Platform.script.toFilePath()).parent;
-
-    final libraryNextToScript = io.File(scriptDir.path + '/sqlite3.dll');
-    return DynamicLibrary.open(libraryNextToScript.path);
   }
 }

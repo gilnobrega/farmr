@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:farmr_client/blockchain.dart';
-import 'package:farmr_client/rpc.dart';
+import 'package:farmr_client/utils/rpc.dart';
 import 'package:proper_filesize/proper_filesize.dart';
 import 'package:universal_io/io.dart' as io;
 
