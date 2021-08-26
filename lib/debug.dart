@@ -5,7 +5,9 @@ import 'dart:convert';
 
 import 'package:logging/logging.dart';
 
-import 'package:farmr_client/cache.dart';
+import 'package:farmr_client/cache.dart'
+    if (dart.library.js) "package:farmr_client/cacheStruct.dart";
+
 import 'package:farmr_client/log/filter.dart';
 import 'package:farmr_client/log/subslot.dart';
 import 'package:farmr_client/log/logitem.dart';

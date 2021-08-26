@@ -14,7 +14,7 @@ import 'package:farmr_client/hardware.dart';
 
 final log = Logger('Cache');
 
-abstract class CacheStruct {
+class Cache {
   late Blockchain blockchain;
 
   String chiaPath = '';
@@ -43,7 +43,7 @@ abstract class CacheStruct {
   int parseUntil =
       DateTime.now().subtract(Duration(days: 1)).millisecondsSinceEpoch;
 
-  CacheStruct(this.blockchain, this.rootPath);
+  Cache(this.blockchain, this.rootPath);
 
   Map toJson() => {
         "binPath": binPath,
@@ -57,5 +57,13 @@ abstract class CacheStruct {
         "${blockchain.binaryName}Path": chiaPath
       };
 
-  Future<void> init();
+  Future<void> init() async {}
+  void save(dynamic object) {}
+  void savePlots(dynamic object) {}
+  void saveHarvesterErrors(dynamic object) {}
+  void saveShortSyncs(dynamic object) {}
+  void saveFilters(dynamic object) {}
+  void savePoolErrors(dynamic object) {}
+  void saveSignagePoints(dynamic object) {}
+  void saveMemories(dynamic object) {}
 }

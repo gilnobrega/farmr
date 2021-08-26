@@ -5,7 +5,8 @@ import 'package:farmr_client/utils/rpc.dart';
 import 'package:universal_io/io.dart' as io;
 import 'package:farmr_client/id.dart';
 
-import 'package:farmr_client/cache.dart';
+import 'package:farmr_client/cache.dart'
+    if (dart.library.js) "package:farmr_client/cacheStruct.dart";
 
 class Blockchain {
   List<String> _args = [];
