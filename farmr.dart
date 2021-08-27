@@ -167,10 +167,10 @@ main(List<String> args) async {
 
     await blockchain.init();
     outputs.putIfAbsent(
-        "[${blockchain.currencySymbol.toUpperCase()}] View report",
+        "${blockchain.currencySymbol.toUpperCase()} - View report",
         () => "Generating ${blockchain.currencySymbol} report");
     outputs.putIfAbsent(
-        "[${blockchain.currencySymbol.toUpperCase()}] View addresses",
+        "${blockchain.currencySymbol.toUpperCase()} - View addresses",
         () => "Generating ${blockchain.currencySymbol} report");
   }
 
@@ -296,9 +296,9 @@ void spawnBlokchains(List<Object> arguments) async {
 
       receivePort.listen((message) {
         sendPort.send({
-          "[${blockchain.currencySymbol.toUpperCase()}] View report":
+          "${blockchain.currencySymbol.toUpperCase()} - View report":
               (message as List<String>)[0],
-          "[${blockchain.currencySymbol.toUpperCase()}] View addresses": """
+          "${blockchain.currencySymbol.toUpperCase()} - View addresses": """
 Local Addresses:
 ${message[1]}
 
@@ -416,8 +416,8 @@ void handleBlockchainReport(List<Object> arguments) async {
     if (client.balance >= 0) balance = client.balance.toStringAsFixed(2);
   }
 
-  localAddresses = client.localAddresses.toString();
-  coldAddresses = client.coldAddresses.toString();
+  for (String address in client.localAddresses) localAddresses += "\n$address";
+  for (String address in client.coldAddresses) coldAddresses += "\n$address";
 
   status = client.status;
 
