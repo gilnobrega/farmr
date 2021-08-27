@@ -166,11 +166,11 @@ main(List<String> args) async {
     await blockchain.initializePorts();
 
     await blockchain.init();
-    outputs.putIfAbsent("View ${blockchain.currencySymbol} report",
+    outputs.putIfAbsent(
+        "[${blockchain.currencySymbol.toUpperCase()}] View report",
         () => "Generating ${blockchain.currencySymbol} report");
-    outputs.putIfAbsent("View ${blockchain.currencySymbol} local addresses",
-        () => "Generating ${blockchain.currencySymbol} report");
-    outputs.putIfAbsent("View ${blockchain.currencySymbol} cold addresses",
+    outputs.putIfAbsent(
+        "[${blockchain.currencySymbol.toUpperCase()}] View addresses",
         () => "Generating ${blockchain.currencySymbol} report");
   }
 
@@ -205,7 +205,11 @@ main(List<String> args) async {
     var map = (message as Map<String, String>);
 
     for (var entry in map.entries)
-      outputs.update(entry.key, (value) => value + "\n\n" + entry.value);
+      outputs.update(
+          entry.key,
+          (value) =>
+              (entry.key == map.entries.first.key ? (value + "\n\n") : "") +
+              entry.value);
 
     if ((message).entries.first.value.contains("not linked")) {
       receivePort.close();
@@ -292,12 +296,15 @@ void spawnBlokchains(List<Object> arguments) async {
 
       receivePort.listen((message) {
         sendPort.send({
-          "View ${blockchain.currencySymbol} report":
+          "[${blockchain.currencySymbol.toUpperCase()}] View report":
               (message as List<String>)[0],
-          "View ${blockchain.currencySymbol} local addresses":
-              (message as List<String>)[1],
-          "View ${blockchain.currencySymbol} cold addresses":
-              (message as List<String>)[2]
+          "[${blockchain.currencySymbol.toUpperCase()}] View addresses": """
+Local Addresses:
+${message[1]}
+
+Cold Addresses:
+${message[2]}
+""",
         });
 
         receivePort.close();

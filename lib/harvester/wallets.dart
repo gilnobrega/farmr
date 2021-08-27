@@ -49,13 +49,16 @@ class HarvesterWallets {
       poolWallets.reduce((w1, w2) => w1 * w2);
 
   //selects addresses from all wallets
-  List<String> get addresses => (wallets.length > 0)
-      ? wallets.map((e) => e.addresses).reduce((l1, l2) => l1 + l2).toList()
-      : [];
+  List<String> get addresses => localAddresses + coldAddresses;
 
   //selects addresses from hot wallets
   List<String> get coldAddresses => (coldWallets.length > 0)
-      ? coldWallets.map((e) => e.addresses).reduce((l1, l2) => l1 + l2).toList()
+      ? coldWallets
+          .map((e) => e.addresses)
+          .reduce((l1, l2) => l1 + l2)
+          .toList()
+          .toSet()
+          .toList()
       : [];
 
   //selects addresses from local wallets
@@ -63,6 +66,8 @@ class HarvesterWallets {
       ? localWallets
           .map((e) => e.addresses)
           .reduce((l1, l2) => l1 + l2)
+          .toList()
+          .toSet()
           .toList()
       : [];
 
