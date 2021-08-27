@@ -71,6 +71,9 @@ class HarvesterWallets {
           .toList()
       : [];
 
+  String farmerRewardAddress = "N/A";
+  String poolRewardAddress = "N/A";
+
   //final DateTime currentTime = DateTime.now();
   int syncedBlockHeight = -1;
 

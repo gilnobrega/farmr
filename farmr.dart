@@ -299,6 +299,9 @@ void spawnBlokchains(List<Object> arguments) async {
           "${blockchain.currencySymbol.toUpperCase()} - View report":
               (message as List<String>)[0],
           "${blockchain.currencySymbol.toUpperCase()} - View addresses": """
+Farmer Reward Address: ${message[3]}
+Pool Reward Address: ${message[4]}
+
 Local Addresses:
 ${message[1]}
 
@@ -353,6 +356,8 @@ void handleBlockchainReport(List<Object> arguments) async {
   String output = "";
   String localAddresses = "";
   String coldAddresses = "";
+  String farmerRewardAddress = "";
+  String poolRewardAddress = "";
 
   //PARSES DATA
   // try {
@@ -416,8 +421,12 @@ void handleBlockchainReport(List<Object> arguments) async {
     if (client.balance >= 0) balance = client.balance.toStringAsFixed(2);
   }
 
-  for (String address in client.localAddresses) localAddresses += "\n$address";
-  for (String address in client.coldAddresses) coldAddresses += "\n$address";
+  for (String address in client.localAddresses)
+    localAddresses += "\n    - $address";
+  for (String address in client.coldAddresses)
+    coldAddresses += "\n    - $address";
+  farmerRewardAddress = client.farmerRewardAddress;
+  poolRewardAddress = client.poolRewardAddress;
 
   status = client.status;
 
@@ -505,8 +514,17 @@ void handleBlockchainReport(List<Object> arguments) async {
           post.putIfAbsent("id", () => id + blockchain.fileExtension);
           post.update("id", (value) => id + blockchain.fileExtension);
 
-          sendReport(id, post, blockchain, type, sendPort, output,
-              localAddresses, coldAddresses);
+          sendReport(
+              id,
+              post,
+              blockchain,
+              type,
+              sendPort,
+              output,
+              localAddresses,
+              coldAddresses,
+              farmerRewardAddress,
+              poolRewardAddress);
         }
 
         log.info("url:$url");
@@ -530,6 +548,8 @@ Future<void> sendReport(
     String previousOutput,
     String localAddresses,
     String coldAddresses,
+    String farmerRewardAddress,
+    String poolRewardAddress,
     [bool retry = true]) async {
   String contents = "";
   //sends report to farmr.net
@@ -542,8 +562,15 @@ Future<void> sendReport(
     previousOutput +=
         "\n$timestamp - Sent ${blockchain.binaryName} $type report to server $idText\nResending it in ${delay.inMinutes} minutes";
 
-    checkIfLinked(contents, previousOutput, sendPort,
-        id + blockchain.fileExtension, localAddresses, coldAddresses);
+    checkIfLinked(
+        contents,
+        previousOutput,
+        sendPort,
+        id + blockchain.fileExtension,
+        localAddresses,
+        coldAddresses,
+        farmerRewardAddress,
+        poolRewardAddress);
   }).catchError((error) {
     previousOutput +=
         "Server timeout, could not access farmr.net.\nRetrying with backup domain.";
@@ -551,14 +578,26 @@ Future<void> sendReport(
 
     //sends report to chiabot.znc.sh (legacy/backup domain)
     if (retry)
-      sendReport(id, post, blockchain, type, sendPort, previousOutput,
-          localAddresses, coldAddresses, false);
+      sendReport(
+          id,
+          post,
+          blockchain,
+          type,
+          sendPort,
+          previousOutput,
+          localAddresses,
+          coldAddresses,
+          farmerRewardAddress,
+          poolRewardAddress,
+          false);
     else
       sendPort.send([
         previousOutput +=
             "\nServer timeout, could not access farmr.net (or the backup domain chiabot.znc.sh)",
         localAddresses,
-        coldAddresses
+        coldAddresses,
+        farmerRewardAddress,
+        poolRewardAddress
       ]);
   });
 }
@@ -569,13 +608,21 @@ Future<void> checkIfLinked(
     SendPort sendPort,
     String id,
     String localAddresses,
-    String coldAddresses) async {
+    String coldAddresses,
+    String farmerRewardAddress,
+    String poolRewardAddress) async {
   if (response.trim().contains("Not linked")) {
     final errorString = """\n\nID $id is not linked to an account.
 Link it in farmr.net or through farmrbot and then start this program again
 Press enter to quit""";
     print(errorString);
-    sendPort.send(["not linked", localAddresses, coldAddresses]);
+    sendPort.send([
+      "not linked",
+      localAddresses,
+      coldAddresses,
+      farmerRewardAddress,
+      poolRewardAddress
+    ]);
 
     Future.delayed(Duration(minutes: 10)).then((value) {
       io.exit(1);
@@ -584,7 +631,13 @@ Press enter to quit""";
     io.stdin.readByteSync();
     io.exit(1);
   } else
-    sendPort.send([previousOutput, localAddresses, coldAddresses]);
+    sendPort.send([
+      previousOutput,
+      localAddresses,
+      coldAddresses,
+      farmerRewardAddress,
+      poolRewardAddress
+    ]);
 }
 
 void clearLog([String blockchainExtension = ""]) {

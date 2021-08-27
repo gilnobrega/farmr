@@ -296,9 +296,12 @@ class Farmer extends Harvester with FarmerStatusMixin {
 
       if (rewardsInfo != null) {
         if (rewardsInfo['success'] ?? false) {
+          farmerRewardAddress = rewardsInfo['farmer_target'];
+          poolRewardAddress = rewardsInfo['pool_target'];
+
           final Map<String, String> targets = {
-            "Farmer": rewardsInfo['farmer_target'],
-            "Pool": rewardsInfo['pool_target']
+            "Farmer": farmerRewardAddress,
+            "Pool": poolRewardAddress
           };
 
           //print(targets);
