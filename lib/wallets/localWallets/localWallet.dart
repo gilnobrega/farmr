@@ -142,7 +142,8 @@ class LocalWallet extends Wallet {
         }
         //Use the database
 
-        var results = db.select("SELECT puzzle_hash FROM coin_record");
+        const String query = "SELECT puzzle_hash FROM coin_record";
+        var results = db.select(query);
 
         for (var result in results) {
           final String puzzleHash = result['puzzle_hash'];

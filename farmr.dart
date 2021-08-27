@@ -307,6 +307,8 @@ ${message[1]}
 
 Cold Addresses:
 ${message[2]}
+
+These addresses are NOT reported to farmr.net or farmrBot
 """,
         });
 
@@ -331,9 +333,11 @@ void handleBlockchainReport(List<Object> arguments) async {
   bool argsContainsHarvester = arguments[5] as bool;
 
   //kills isolate after 5 minutes
-  Future.delayed(Duration(minutes: 5), () {
+  Future.delayed(Duration(minutes: (!onetime) ? 5 : 1), () {
     sendPort.send([
       "${blockchain.currencySymbol} report killed. Are ${blockchain.binaryName} services running?",
+      "",
+      "",
       "",
       ""
     ]);

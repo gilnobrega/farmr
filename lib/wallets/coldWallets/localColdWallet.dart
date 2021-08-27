@@ -62,10 +62,11 @@ class LocalColdWallet extends ColdWallet {
     }
     //Use the database
 
-    var result = db.select("""
+    const String query = """
         SELECT amount,coinbase,spent,timestamp FROM coin_record 
         WHERE puzzle_hash = ?
-        """, [puzzleHash.scriptPubKey]);
+        """;
+    var result = db.select(query, [puzzleHash.scriptPubKey]);
 
     farmedBalance = 0;
     grossBalance = 0;
