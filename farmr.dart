@@ -242,7 +242,7 @@ Do not close this window or these stats will not show up in farmr.net and farmrB
 
     var chooser = Chooser<String>(
       outputs.entries.map((entry) => entry.key).toList(),
-      message: 'Select action: ',
+      message: 'Select action number: ',
     );
 
     chooser.choose().then((value) {
