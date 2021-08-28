@@ -172,24 +172,13 @@ class Cache extends CacheStruct {
 
   static _saveToDB(Database database, List list, String table,
       [String? errorType]) {
-    //deletes all rows from table
-    final String deleteQuery = "DELETE from $table";
-    database.execute(deleteQuery);
-
     if (list.length > 0) {
       final List<String> keysMap = list.first.toJson().keys.toList();
-
-      print(keysMap);
-
       final List<String> questionMarksMap = keysMap.map((e) => "?").toList();
-
-      print(questionMarksMap);
 
       final String query = (table == "errors")
           ? "INSERT or IGNORE INTO $table (${keysMap.join(',')}, type) VALUES (${questionMarksMap.join(',')}, $errorType)"
           : "INSERT or IGNORE INTO $table (${keysMap.join(',')}) VALUES (${questionMarksMap.join(',')})";
-
-      print(query);
 
       final statement = database.prepare(query);
 
@@ -200,7 +189,6 @@ class Cache extends CacheStruct {
             //converts bools to 0 (false) or 1 (true)
             .map((e) => (e is bool) ? (e ? 1 : 0) : e)
             .toList();
-        print(values);
         statement.execute(values);
       }
 
