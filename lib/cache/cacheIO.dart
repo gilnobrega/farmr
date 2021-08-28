@@ -140,7 +140,7 @@ class Cache extends CacheStruct {
       print(questionMarksMap);
 
       final String plotQuery =
-          "INSERT INTO plots (${plotKeysMap.join(',')}) VALUES (${questionMarksMap.join(',')}";
+          "INSERT INTO plots (${plotKeysMap.join(',')}) VALUES (${questionMarksMap.join(',')})";
 
       print(plotQuery);
 
