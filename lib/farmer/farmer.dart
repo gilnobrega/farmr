@@ -127,6 +127,19 @@ class Farmer extends Harvester with FarmerStatusMixin {
 
       final walletsObject = await RPCConnection.getEndpoint(rpcConfig);
 
+      RPCConfiguration rpcConfig7 = RPCConfiguration(
+          blockchain: blockchain,
+          service: RPCService.Wallet,
+          endpoint: "get_public_keys",
+          dataToSend: {"wallet_id": id});
+
+      final fingerprintInfo = await RPCConnection.getEndpoint(rpcConfig7);
+
+      List<dynamic> fingerprints = [];
+
+      if (fingerprintInfo != null && (fingerprintInfo['success'] ?? false))
+        fingerprints = fingerprintInfo['public_key_fingerprints'] ?? [];
+
       int walletHeight = -1;
       String name = "Wallet";
       bool synced = true;
@@ -141,6 +154,13 @@ class Farmer extends Harvester with FarmerStatusMixin {
         for (var walletID in walletsObject['wallets'] ?? []) {
           final int id = walletID['id'] ?? 1;
           name = walletID['name'] ?? "Wallet";
+          String? address; //wallet address
+          int? fingerprint;
+
+          try {
+            fingerprint =
+                fingerprints[id - 1] is int ? fingerprints[id - 1] : null;
+          } catch (error) {}
           //final int walletType = walletID['type'] ?? 0;
 
           RPCConfiguration rpcConfig2 = RPCConfiguration(
@@ -186,6 +206,17 @@ class Farmer extends Harvester with FarmerStatusMixin {
               walletHeight = walletHeightInfo['height'] ?? -1;
             }
 
+            RPCConfiguration rpcConfig6 = RPCConfiguration(
+                blockchain: blockchain,
+                service: RPCService.Wallet,
+                endpoint: "get_next_address",
+                dataToSend: {"wallet_id": id, "new_address": false});
+
+            final addressInfo = await RPCConnection.getEndpoint(rpcConfig6);
+
+            if (addressInfo != null && (addressInfo['success'] ?? false))
+              address = addressInfo['address'];
+
             final LocalWallet wallet = LocalWallet(
                 blockchain: blockchain,
                 confirmedBalance:
@@ -200,7 +231,9 @@ class Farmer extends Harvester with FarmerStatusMixin {
                     ? LocalWalletStatus.Synced
                     : (syncing)
                         ? LocalWalletStatus.Syncing
-                        : LocalWalletStatus.NotSynced);
+                        : LocalWalletStatus.NotSynced,
+                addresses: address != null ? [address] : [],
+                fingerprint: fingerprint);
 
             RPCConfiguration rpcConfig5 = RPCConfiguration(
                 blockchain: blockchain,
@@ -222,6 +255,8 @@ class Farmer extends Harvester with FarmerStatusMixin {
               wallet.setLastBlockFarmed(walletFarmedInfo['last_height_farmed']);
             }
 
+            wallet.getAllAddresses();
+
             wallets.add(wallet);
           }
         }
@@ -238,6 +273,53 @@ class Farmer extends Harvester with FarmerStatusMixin {
       else //else uses alltheblocks api
         wallets
             .add(AllTheBlocksWallet(blockchain: blockchain, address: address));
+    }
+
+    await _verifyRewardAddresses();
+  }
+
+  //checks if any of the local addresses / cold addresses match reward addresses
+  Future<void> _verifyRewardAddresses() async {
+    try {
+      //print(addresses);
+
+      //gets farmer/pool reward addresses from rpc
+      final RPCConfiguration rpcConfig = RPCConfiguration(
+          blockchain: blockchain,
+          service: RPCService.Farmer,
+          endpoint: "get_reward_targets",
+          dataToSend: const {"search_for_private_key": false});
+
+      final rewardsInfo = await RPCConnection.getEndpoint(rpcConfig);
+
+      //print(rewardsInfo);
+
+      if (rewardsInfo != null) {
+        if (rewardsInfo['success'] ?? false) {
+          farmerRewardAddress = rewardsInfo['farmer_target'];
+          poolRewardAddress = rewardsInfo['pool_target'];
+
+          final Map<String, String> targets = {
+            "Farmer": farmerRewardAddress,
+            "Pool": poolRewardAddress
+          };
+
+          //print(targets);
+
+          //wars user if these addresses do not match hot/cold wallet address
+          for (var target in targets.entries) {
+            if (!addresses.contains(target.value)) log.warning("""
+WARNING: ${target.key} rewards address ${target.value} does not match any of your hot/cold wallet addresses
+Make sure that you have access to the wallet associated to this wallet address.
+""");
+          }
+        } else
+          throw Exception("success: ${rewardsInfo['success']}");
+      }
+      throw Exception("RPC error");
+    } catch (error) {
+      log.info("Failed to verify reward addresses");
+      log.info(error);
     }
   }
 

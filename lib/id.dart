@@ -93,8 +93,7 @@ class ID {
     else
       output += "\nto link this client to your discord user";
 
-    output +=
-        """\nYou can interact with farmrbot in Swar's Chia Community
+    output += """\nYou can interact with farmrbot in Swar's Chia Community
 Open the following link to join the server: https://discord.gg/fghFbffYsC""";
 
     output += "\n";

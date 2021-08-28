@@ -9,19 +9,18 @@ Logger log = Logger("AllTheBlocks Wallet");
 
 class AllTheBlocksWallet extends ColdWallet {
   static const String _allTheBlocksURL = "https://api.alltheblocks.net/";
-  final String address;
 
   AllTheBlocksWallet(
       {required Blockchain blockchain,
-      required this.address,
+      required String address,
       String name = "AllTheBlocks Cold Wallet"})
-      : super(blockchain: blockchain, name: name);
+      : super(blockchain: blockchain, name: name, address: address);
 
   Future<void> init() async {
     try {
       String contents = await http.read(Uri.parse(_allTheBlocksURL +
           "${blockchain.allTheBlocksName}/address/" +
-          address));
+          addresses.first));
 
       var object = jsonDecode(contents);
 
@@ -29,7 +28,7 @@ class AllTheBlocksWallet extends ColdWallet {
 
       String coins = await http.read(Uri.parse(_allTheBlocksURL +
           "${blockchain.allTheBlocksName}/coin/address/" +
-          address));
+          addresses.first));
 
       var coinsObject = jsonDecode(coins);
 

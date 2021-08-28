@@ -27,33 +27,34 @@ Logger log = Logger("Local Cold Wallet");
 }*/
 
 class LocalColdWallet extends ColdWallet {
-  final String address;
   final String rootPath;
 
   LocalColdWallet(
       {required Blockchain blockchain,
-      required this.address,
+      required String address,
       required this.rootPath,
       String name = "Local Cold Wallet"})
-      : super(blockchain: blockchain, name: name);
+      : super(blockchain: blockchain, name: name, address: address);
 
   Future<void> init() async {
     //generates puzzle hash from address
-    final Segwit puzzleHash = segwit.decode(this.address);
+    final Segwit puzzleHash = segwit.decode(this.addresses.first);
     //print("Puzzle hash: ${puzzleHash.scriptPubKey}");
 
     //tries to open database
     //if that fails loads pre bundled libraries
 
     final mode = OpenMode.readOnly;
+
     final Database db = openSQLiteDB(
         blockchain.dbPath + "/blockchain_v1_${blockchain.net}.sqlite", mode);
-    //Use the database
 
-    var result = db.select("""
+    //Use the database
+    const String query = """
         SELECT amount,coinbase,spent,timestamp FROM coin_record 
         WHERE puzzle_hash = ?
-        """, [puzzleHash.scriptPubKey]);
+        """;
+    var result = db.select(query, [puzzleHash.scriptPubKey]);
 
     farmedBalance = 0;
     grossBalance = 0;

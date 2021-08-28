@@ -15,12 +15,15 @@ class Wallet {
 
   late String name;
 
+  late List<String> addresses;
+
   Wallet(
       {required this.type,
       required this.blockchain,
       this.syncedBlockHeight = -1,
       this.daysSinceLastBlock = -1,
-      this.name = "Wallet"});
+      this.name = "Wallet",
+      this.addresses = const []});
 
   Map toJson() => {
         'type': type.index,
@@ -33,6 +36,8 @@ class Wallet {
       };
 
   Wallet.fromJson(dynamic json) {
+    addresses = []; //doesnt load addresses
+
     type = WalletType.values[json['type'] ?? 0];
     blockchain = Blockchain.fromSymbol(json['currency'] ?? "xch",
         majorToMinorMultiplier: double.tryParse(

@@ -5,13 +5,12 @@ import 'package:logging/logging.dart';
 Logger log = Logger("Local Cold Wallet");
 
 class LocalColdWallet extends ColdWallet {
-  final String address;
   final String rootPath;
 
   LocalColdWallet(
       {required Blockchain blockchain,
-      required this.address,
+      required String address,
       required this.rootPath,
       String name = "Local Cold Wallet"})
-      : super(blockchain: blockchain, name: name);
+      : super(blockchain: blockchain, name: name, address: address);
 }

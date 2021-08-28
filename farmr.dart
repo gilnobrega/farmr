@@ -167,14 +167,18 @@ main(List<String> args) async {
     await blockchain.initializePorts();
 
     await blockchain.init();
-    outputs.putIfAbsent("View ${blockchain.currencySymbol} report",
+    outputs.putIfAbsent(
+        "${blockchain.currencySymbol.toUpperCase()} - View report",
+        () => "Generating ${blockchain.currencySymbol} report");
+    outputs.putIfAbsent(
+        "${blockchain.currencySymbol.toUpperCase()} - View addresses",
         () => "Generating ${blockchain.currencySymbol} report");
   }
 
   //shows info with ids to link
   final String info = await id.info(blockchains);
 
-  outputs.putIfAbsent("View IDs list", () => info);
+  outputs.putIfAbsent("View list of IDs", () => info);
   outputs.putIfAbsent("Quit", () => "quit");
 
   int maxUsers = blockchains
@@ -199,8 +203,14 @@ main(List<String> args) async {
   );
 
   receivePort.listen((message) {
-    outputs.update((message as Map<String, String>).entries.first.key,
-        (value) => value + "\n\n" + message.entries.first.value);
+    var map = (message as Map<String, String>);
+
+    for (var entry in map.entries)
+      outputs.update(
+          entry.key,
+          (value) =>
+              (entry.key == map.entries.first.key ? (value + "\n\n") : "") +
+              entry.value);
 
     if ((message).entries.first.value.contains("not linked")) {
       receivePort.close();
@@ -233,7 +243,7 @@ Do not close this window or these stats will not show up in farmr.net and farmrB
 
     var chooser = Chooser<String>(
       outputs.entries.map((entry) => entry.key).toList(),
-      message: 'Select action: ',
+      message: 'Select action number: ',
     );
 
     chooser.choose().then((value) {
@@ -286,8 +296,22 @@ void spawnBlokchains(List<Object> arguments) async {
       );
 
       receivePort.listen((message) {
-        sendPort.send(
-            {"View ${blockchain.currencySymbol} report": (message as String)});
+        sendPort.send({
+          "${blockchain.currencySymbol.toUpperCase()} - View report":
+              (message as List<String>)[0],
+          "${blockchain.currencySymbol.toUpperCase()} - View addresses": """
+Farmer Reward Address: ${message[3]}
+Pool Reward Address: ${message[4]}
+
+Local Addresses:
+${message[1]}
+
+Cold Addresses:
+${message[2]}
+
+These addresses are NOT reported to farmr.net or farmrBot
+""",
+        });
 
         receivePort.close();
         isolate.kill();
@@ -310,9 +334,14 @@ void handleBlockchainReport(List<Object> arguments) async {
   bool argsContainsHarvester = arguments[5] as bool;
 
   //kills isolate after 5 minutes
-  Future.delayed(Duration(minutes: 5), () {
-    sendPort.send(
-        "${blockchain.currencySymbol} report killed. Are ${blockchain.binaryName} services running?");
+  Future.delayed(Duration(minutes: (!onetime) ? 5 : 1), () {
+    sendPort.send([
+      "${blockchain.currencySymbol} report killed. Are ${blockchain.binaryName} services running?",
+      "",
+      "",
+      "",
+      ""
+    ]);
   });
 
   clearLog(blockchain.fileExtension); //clears log
@@ -330,6 +359,10 @@ void handleBlockchainReport(List<Object> arguments) async {
   String drives = "";
   String coldBalance = "";
   String output = "";
+  String localAddresses = "";
+  String coldAddresses = "";
+  String farmerRewardAddress = "";
+  String poolRewardAddress = "";
 
   //PARSES DATA
   // try {
@@ -392,6 +425,13 @@ void handleBlockchainReport(List<Object> arguments) async {
 
     if (client.balance >= 0) balance = client.balance.toStringAsFixed(2);
   }
+
+  for (String address in client.localAddresses)
+    localAddresses += "\n    - $address";
+  for (String address in client.coldAddresses)
+    coldAddresses += "\n    - $address";
+  farmerRewardAddress = client.farmerRewardAddress;
+  poolRewardAddress = client.poolRewardAddress;
 
   status = client.status;
 
@@ -479,7 +519,17 @@ void handleBlockchainReport(List<Object> arguments) async {
           post.putIfAbsent("id", () => id + blockchain.fileExtension);
           post.update("id", (value) => id + blockchain.fileExtension);
 
-          sendReport(id, post, blockchain, type, sendPort, output);
+          sendReport(
+              id,
+              post,
+              blockchain,
+              type,
+              sendPort,
+              output,
+              localAddresses,
+              coldAddresses,
+              farmerRewardAddress,
+              poolRewardAddress);
         }
 
         log.info("url:$url");
@@ -494,8 +544,17 @@ void handleBlockchainReport(List<Object> arguments) async {
   }
 }
 
-Future<void> sendReport(String id, Object? post, Blockchain blockchain,
-    String type, SendPort sendPort, String previousOutput,
+Future<void> sendReport(
+    String id,
+    Object? post,
+    Blockchain blockchain,
+    String type,
+    SendPort sendPort,
+    String previousOutput,
+    String localAddresses,
+    String coldAddresses,
+    String farmerRewardAddress,
+    String poolRewardAddress,
     [bool retry = true]) async {
   String contents = "";
   //sends report to farmr.net
@@ -509,7 +568,14 @@ Future<void> sendReport(String id, Object? post, Blockchain blockchain,
         "\n$timestamp - Sent ${blockchain.binaryName} $type report to server $idText\nResending it in ${delay.inMinutes} minutes";
 
     checkIfLinked(
-        contents, previousOutput, sendPort, id + blockchain.fileExtension);
+        contents,
+        previousOutput,
+        sendPort,
+        id + blockchain.fileExtension,
+        localAddresses,
+        coldAddresses,
+        farmerRewardAddress,
+        poolRewardAddress);
   }).catchError((error) {
     previousOutput +=
         "Server timeout, could not access farmr.net.\nRetrying with backup domain.";
@@ -517,21 +583,51 @@ Future<void> sendReport(String id, Object? post, Blockchain blockchain,
 
     //sends report to chiabot.znc.sh (legacy/backup domain)
     if (retry)
-      sendReport(id, post, blockchain, type, sendPort, previousOutput, false);
+      sendReport(
+          id,
+          post,
+          blockchain,
+          type,
+          sendPort,
+          previousOutput,
+          localAddresses,
+          coldAddresses,
+          farmerRewardAddress,
+          poolRewardAddress,
+          false);
     else
-      sendPort.send(previousOutput +=
-          "\nServer timeout, could not access farmr.net (or the backup domain chiabot.znc.sh)");
+      sendPort.send([
+        previousOutput +=
+            "\nServer timeout, could not access farmr.net (or the backup domain chiabot.znc.sh)",
+        localAddresses,
+        coldAddresses,
+        farmerRewardAddress,
+        poolRewardAddress
+      ]);
   });
 }
 
-Future<void> checkIfLinked(String response, String previousOutput,
-    SendPort sendPort, String id) async {
+Future<void> checkIfLinked(
+    String response,
+    String previousOutput,
+    SendPort sendPort,
+    String id,
+    String localAddresses,
+    String coldAddresses,
+    String farmerRewardAddress,
+    String poolRewardAddress) async {
   if (response.trim().contains("Not linked")) {
     final errorString = """\n\nID $id is not linked to an account.
 Link it in farmr.net or through farmrbot and then start this program again
 Press enter to quit""";
     print(errorString);
-    sendPort.send("not linked");
+    sendPort.send([
+      "not linked",
+      localAddresses,
+      coldAddresses,
+      farmerRewardAddress,
+      poolRewardAddress
+    ]);
 
     Future.delayed(Duration(minutes: 10)).then((value) {
       io.exit(1);
@@ -540,7 +636,13 @@ Press enter to quit""";
     io.stdin.readByteSync();
     io.exit(1);
   } else
-    sendPort.send(previousOutput);
+    sendPort.send([
+      previousOutput,
+      localAddresses,
+      coldAddresses,
+      farmerRewardAddress,
+      poolRewardAddress
+    ]);
 }
 
 void clearLog([String blockchainExtension = ""]) {

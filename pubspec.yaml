@@ -1,5 +1,5 @@
 name: farmr_client
-version: 1.7.4
+version: 1.7.5
 publish_to: none
 description: 
 environment: 
@@ -28,3 +28,4 @@ dependencies:
   tcp_scanner: 2.0.5
   bech32m: 0.2.1-1
   sqlite3: 1.1.2
+  hex: ^0.2.0

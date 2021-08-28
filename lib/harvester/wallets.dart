@@ -48,6 +48,32 @@ class HarvesterWallets {
   GenericPoolWallet get poolWalletAggregate =>
       poolWallets.reduce((w1, w2) => w1 * w2);
 
+  //selects addresses from all wallets
+  List<String> get addresses => localAddresses + coldAddresses;
+
+  //selects addresses from hot wallets
+  List<String> get coldAddresses => (coldWallets.length > 0)
+      ? coldWallets
+          .map((e) => e.addresses)
+          .reduce((l1, l2) => l1 + l2)
+          .toList()
+          .toSet()
+          .toList()
+      : [];
+
+  //selects addresses from local wallets
+  List<String> get localAddresses => (localWallets.length > 0)
+      ? localWallets
+          .map((e) => e.addresses)
+          .reduce((l1, l2) => l1 + l2)
+          .toList()
+          .toSet()
+          .toList()
+      : [];
+
+  String farmerRewardAddress = "N/A";
+  String poolRewardAddress = "N/A";
+
   //final DateTime currentTime = DateTime.now();
   int syncedBlockHeight = -1;
 
@@ -97,10 +123,12 @@ class HarvesterWallets {
     for (Wallet wallet in wallets)
       await wallet.init().catchError((error) {
         if (wallet is LocalColdWallet) {
-          log.warning("Exception in getting local cold wallet info");
+          log.warning(
+              "Failed to get local cold wallet info for ${blockchain.currencySymbol}");
           log.info(error);
           success = false;
-          failedAddresses.add(wallet.address);
+          failedAddresses.add(wallet
+              .addresses.first); //cold wallet addresses are always non-null
         }
       });
 
