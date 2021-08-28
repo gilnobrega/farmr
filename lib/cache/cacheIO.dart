@@ -147,7 +147,12 @@ class Cache extends CacheStruct {
       final statement = database.prepare(plotQuery);
 
       for (final plot in plots) {
-        final List<dynamic> values = plot.toJson().values.toList();
+        final List<dynamic> values = plot
+            .toJson()
+            .values
+            //converts bools to 0 (false) or 1 (true)
+            .map((e) => (e is bool) ? (e ? 1 : 0) : e)
+            .toList();
         print(values);
         statement.execute(values);
       }
