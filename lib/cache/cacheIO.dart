@@ -186,7 +186,7 @@ class Cache extends CacheStruct {
         "SELECT value from settings WHERE entry = 'binPath' LIMIT 1";
     final binPathResults = database.select(binPathQuery);
     for (final binPathResult in binPathResults)
-      binPath = binPathResult['value'];
+      _binPath = binPathResult['value'];
 
     const String filterQuery = "SELECT * from filters WHERE timestamp > ?";
     final filterResults = database.select(filterQuery, [parseUntil]);

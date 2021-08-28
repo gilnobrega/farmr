@@ -210,12 +210,13 @@ class Blockchain {
   Future<void> init() async {
     // Setup
     this.cache = new Cache(this, _rootPath);
-    cache.binPath; //forces asking for binPath
 
     /** Initializes config, either creates a new one or loads a config file */
     this.config = new Config(this, this.cache, _rootPath, type);
 
     await this.cache.init();
+    cache.binPath; //forces asking for binPath
+
     await this.config.init(this.onlineConfig,
         this._args.contains("headless") || this._args.contains("hpool"));
 
