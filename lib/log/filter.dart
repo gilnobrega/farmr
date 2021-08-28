@@ -17,7 +17,7 @@ class Filter extends LogItem {
   int _totalPlots = 0; //total number of plots
   int get totalPlots => _totalPlots;
 
-  Map toJson() => {
+  Map<String, dynamic> toJson() => {
         'timestamp': timestamp,
         'eligible': eligiblePlots,
         'lookupTime': time,

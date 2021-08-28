@@ -118,7 +118,7 @@ class Memory {
         _freeVirtualMemory + memory.freeVirtualMemory);
   }
 
-  toJson() => {
+  Map<String, dynamic> toJson() => {
         "timestamp": timestamp,
         "total": totalMemory,
         "free": freeMemory,
