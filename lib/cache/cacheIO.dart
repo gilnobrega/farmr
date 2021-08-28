@@ -40,6 +40,20 @@ class Cache extends CacheStruct {
     //opens database file or creates it if it doesnt exist
     database = openSQLiteDB(cache.path, OpenMode.readWriteCreate);
 
+    //plots
+    database.execute('''
+    CREATE TABLE IF NOT EXISTS plots (
+      id TEXT NOT NULL PRIMARY KEY,
+      plotSize TEXT NOT NULL,
+      size INTEGER NOT NULL,
+      begin INTEGER NOT NULL,
+      end INTEGER NOT NULL,
+      date TEXT NOT NULL,
+      isNFT BOOL NOT NULL,
+      loaded BOOL NOT NULL
+    );
+  ''');
+
     // Create a table and insert some data
     database.execute('''
     CREATE TABLE IF NOT EXISTS filters (
@@ -48,6 +62,52 @@ class Cache extends CacheStruct {
       proofs INTEGER NOT NULL,
       plotNumber INTEGER NOT NULL,
       lookupTime INTEGER NOT NULL
+    );
+  ''');
+
+    // pool errors and harvester errors
+    database.execute('''
+    CREATE TABLE IF NOT EXISTS errors (
+      timestamp INTEGER NOT NULL PRIMARY KEY,
+      type TEXT NOT NULL
+    );
+  ''');
+
+    // signage points
+    database.execute('''
+    CREATE TABLE IF NOT EXISTS signagePoints (
+      timestamp INTEGER NOT NULL PRIMARY KEY,
+      index INTEGER NOT NULL
+    );
+  ''');
+
+    // short sync events
+    database.execute('''
+    CREATE TABLE IF NOT EXISTS shortSyncs (
+      timestamp INTEGER NOT NULL PRIMARY KEY,
+      start INTEGER NOT NULL,
+      end INTEGER NOT NULL,
+      localTime TEXT NOT NULL
+    );
+  ''');
+
+    // memories
+    database.execute('''
+    CREATE TABLE IF NOT EXISTS memories (
+      timestamp INTEGER NOT NULL PRIMARY KEY,
+      total INTEGER NOT NULL,
+      free INTEGER NOT NULL,
+      totalVirtual INTEGER NOT NULL,
+      freeVirtual INTEGER NOT NULL
+    );
+  ''');
+
+    // settings
+    // example entry: binpath, value: /home/user/chia-blockchain/venv/bin/chia
+    database.execute('''
+    CREATE TABLE IF NOT EXISTS settings (
+      entry TEXT NOT NULL PRIMARY KEY,
+      value TEXT NOT NULL
     );
   ''');
   }
@@ -63,110 +123,52 @@ class Cache extends CacheStruct {
 
   void load() {
     try {
-      var contents = jsonDecode(cache.readAsStringSync());
-      //print(contents);
+      const String plotQuery = "SELECT * from plots";
+      final plotResults = database.select(plotQuery, [parseUntil]);
 
-      //LOADS IDS FROM CACHE FILE (backwards compatible)
-      //loads id from cache file
-      if (contents[0]['id'] != null) {
-        blockchain.id.ids = [];
-        blockchain.id.ids.add(contents[0]['id']);
-        blockchain.id.save();
-      }
+      for (final plotResult in plotResults)
+        plots.add(Plot.fromJson(plotResult));
 
-      chiaPath = contents[0]['${blockchain.binaryName}Path'] ?? "";
+      const String binPathQuery =
+          "SELECT value from settings WHERE entry = 'binPath' LIMIT 1";
+      final binPathResults = database.select(binPathQuery);
+      for (final binPathResult in binPathResults)
+        binPath = binPathResult['value'];
 
-      //loads ids from cache file
-      if (contents[0]['ids'] != null) {
-        blockchain.id.ids = [];
-        for (String id in contents[0]['ids']) blockchain.id.ids.add(id);
-        blockchain.id.save();
-      }
+      const String filterQuery = "SELECT * from filters WHERE timestamp > ?";
+      final filterResults = database.select(filterQuery, [parseUntil]);
+      for (var filterResult in filterResults)
+        filters.add(Filter.fromJson(filterResult, plots.length));
 
-      //loads plot list from cache file
-      if (contents[0]['plots'] != null) {
-        plots = [];
-        var plotsJson = contents[0]['plots'];
+      const String spQuery = "SELECT * from signagePoints WHERE timestamp > ?";
+      final spResults = database.select(spQuery, [parseUntil]);
+      for (final spResult in spResults)
+        signagePoints.add(SignagePoint.fromJson(spResult));
 
-        for (var plotJson in plotsJson) plots.add(Plot.fromJson(plotJson));
-      }
+      const String ssQuery = "SELECT * from shortSyncs WHERE timestamp > ?";
+      final ssResults = database.select(ssQuery, [parseUntil]);
+      for (final ssResult in ssResults)
+        shortSyncs.add(ShortSync.fromJson(ssResult));
 
-      //loads chia binary path from cache
-      if (contents[0]['binPath'] != null && contents[0]['binPath'] != "")
-        _binPath = contents[0]['binPath'];
+      const String peQuery =
+          "SELECT * from errors WHERE type = 'pool' AND timestamp > ?";
+      final peResults = database.select(peQuery, [parseUntil]);
+      for (final peResult in peResults)
+        poolErrors.add(LogItem.fromJson(peResult, LogItemType.Farmer));
 
-      //loads filters list from cache file
-      if (contents[0]['filters'] != null) {
-        filters = [];
-        var filtersJson = contents[0]['filters'];
+      const String heQuery =
+          "SELECT * from errors WHERE type = 'harvester' AND timestamp > ?";
+      final heResults = database.select(heQuery, [parseUntil]);
+      for (final heResult in heResults)
+        harvesterErrors.add(LogItem.fromJson(heResult, LogItemType.Farmer));
 
-        for (var filterJson in filtersJson) {
-          Filter filter = Filter.fromJson(filterJson, plots.length);
-          if (filter.timestamp > parseUntil) filters.add(filter);
-        }
-      }
-
-      //loads subslots list from cache file
-      if (contents[0]['signagePoints'] != null) {
-        signagePoints = [];
-        var signagePointsJson = contents[0]['signagePoints'];
-
-        for (var signagePointJson in signagePointsJson) {
-          SignagePoint signagePoint = SignagePoint.fromJson(signagePointJson);
-          if (signagePoint.timestamp > parseUntil)
-            signagePoints.add(signagePoint);
-        }
-      }
-
-      //loads shortsyncs list from cache file
-      if (contents[0]['shortSyncs'] != null) {
-        shortSyncs = [];
-        var shortSyncsJson = contents[0]['shortSyncs'];
-
-        for (var shortSyncJson in shortSyncsJson) {
-          ShortSync shortSync = ShortSync.fromJson(shortSyncJson);
-          if (shortSync.timestamp > parseUntil) shortSyncs.add(shortSync);
-        }
-      }
-
-      //loads pool errors list from cache file
-      if (contents[0]['poolErrors'] != null) {
-        poolErrors = [];
-        var poolErrorsJson = contents[0]['poolErrors'];
-
-        for (var poolErrorJson in poolErrorsJson) {
-          LogItem poolError =
-              LogItem.fromJson(poolErrorJson, LogItemType.Farmer);
-          if (poolError.timestamp > parseUntil) poolErrors.add(poolError);
-        }
-      }
-
-      //loads harvester errors list from cache file
-      if (contents[0]['harvesterErrors'] != null) {
-        harvesterErrors = [];
-        var harvesterErrorsJson = contents[0]['harvesterErrors'];
-
-        for (var harvesterErrorJson in harvesterErrorsJson) {
-          LogItem harvesterError =
-              LogItem.fromJson(harvesterErrorJson, LogItemType.Farmer);
-          if (harvesterError.timestamp > parseUntil)
-            harvesterErrors.add(harvesterError);
-        }
-      }
-
-      //loads memories list from cache file
-      if (contents[0]['memories'] != null) {
-        memories = [];
-        var memoriesJson = contents[0]['memories'];
-
-        for (var memoryJson in memoriesJson) {
-          Memory memory = Memory.fromJson(memoryJson);
-          if (memory.timestamp > parseUntil) memories.add(memory);
-        }
-      }
+      const String memoryQuery = "SELECT * from errors WHERE timestamp > ?";
+      final memoryResults = database.select(memoryQuery, [parseUntil]);
+      for (final memoryResult in memoryResults)
+        memories.add(Memory.fromJson(memoryResult));
     } catch (Exception) {
       log.severe(
-          "ERROR: Failed to load .farmr_cache${blockchain.fileExtension}.json\nGenerating a new cache file.");
+          "ERROR: Failed to load ${cache.path}\nGenerating a new cache database.");
     }
   }
 

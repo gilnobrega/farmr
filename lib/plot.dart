@@ -98,7 +98,6 @@ class Plot {
     _duration = _end.difference(_begin);
 
     _size = stat.size;
-
   }
 
   //Generate plot from json string
