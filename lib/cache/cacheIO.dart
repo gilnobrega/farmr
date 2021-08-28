@@ -129,12 +129,19 @@ class Cache extends CacheStruct {
     //opens database file or creates it if it doesnt exist
     final database = openSQLiteDB(cache.path, OpenMode.readWriteCreate);
 
-    plots = _saveToDB(database, plots, "plots");
+    _saveToDB(database, plots, "plots");
+    _saveToDB(database, filters, "filters");
+    _saveToDB(database, signagePoints, "signagePoints");
+    _saveToDB(database, shortSyncs, "shortSyncs");
+    _saveToDB(database, harvesterErrors, "errors", "harvester");
+    _saveToDB(database, poolErrors, "errors", "pool");
+    _saveToDB(database, memories, "memories");
 
     database.dispose();
   }
 
-  static _saveToDB(Database database, List list, String table) {
+  static _saveToDB(Database database, List list, String table,
+      [String? errorType]) {
     if (list.length > 0) {
       final List<String> keysMap = list.first.toJson().keys.toList();
 
@@ -144,8 +151,9 @@ class Cache extends CacheStruct {
 
       print(questionMarksMap);
 
-      final String query =
-          "INSERT or IGNORE INTO $table (${keysMap.join(',')}) VALUES (${questionMarksMap.join(',')})";
+      final String query = (table == "errors")
+          ? "INSERT or IGNORE INTO $table (${keysMap.join(',')}, type) VALUES (${questionMarksMap.join(',')}, $errorType)"
+          : "INSERT or IGNORE INTO $table (${keysMap.join(',')}) VALUES (${questionMarksMap.join(',')})";
 
       print(query);
 
@@ -164,8 +172,6 @@ class Cache extends CacheStruct {
 
       statement.dispose();
     }
-
-    return list;
   }
 
   void saveSettings() {
