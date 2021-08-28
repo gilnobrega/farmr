@@ -119,6 +119,8 @@ class Cache extends CacheStruct {
     //Tells log parser when it should stop parsing
     parseUntil =
         DateTime.now().subtract(Duration(days: 1)).millisecondsSinceEpoch;
+
+    load(); //loads variables from database
   }
 
   //saves cache file
