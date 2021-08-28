@@ -252,7 +252,7 @@ class Cache extends CacheStruct {
     for (final heResult in heResults)
       harvesterErrors.add(LogItem.fromJson(heResult, LogItemType.Farmer));
 
-    const String memoryQuery = "SELECT * from errors WHERE timestamp > ?";
+    const String memoryQuery = "SELECT * from memories WHERE timestamp > ?";
     final memoryResults = database.select(memoryQuery, [parseUntil]);
     for (final memoryResult in memoryResults)
       memories.add(Memory.fromJson(memoryResult));

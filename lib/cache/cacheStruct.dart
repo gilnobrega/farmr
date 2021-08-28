@@ -58,7 +58,6 @@ class CacheStruct {
       };
 
   Future<void> init() async {}
-  void save() {}
   void saveLogs(List<SignagePoint> newSPs, List<ShortSync> newSS,
       List<Filter> newFilters, List<LogItem> newHEs, List<LogItem> newPEs) {}
   void savePlots(List<Plot> newPlots) {}
