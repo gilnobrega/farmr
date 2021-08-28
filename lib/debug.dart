@@ -64,11 +64,8 @@ class Log {
           _type != ClientType.HPool) {
         setLogLevelToInfo(configPath);
       }
-      _cache.saveFilters(filters);
-      _cache.saveSignagePoints(signagePoints); //saves signagePoints to cache
-      _cache.saveShortSyncs(shortSyncs);
-      _cache.savePoolErrors(poolErrors);
-      _cache.saveHarvesterErrors(harvesterErrors);
+      _cache.saveLogs(
+          signagePoints, shortSyncs, filters, harvesterErrors, poolErrors);
     }
   }
 

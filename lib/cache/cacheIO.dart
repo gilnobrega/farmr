@@ -126,15 +126,45 @@ class Cache extends CacheStruct {
   //saves cache file
   void save() {
     saveSettings();
+  }
+
+  void saveLogs(List<SignagePoint> newSPs, List<ShortSync> newSS,
+      List<Filter> newFilters, List<LogItem> newHEs, List<LogItem> newPEs) {
+    filters = newFilters;
+    signagePoints = newSPs;
+    shortSyncs = newSS;
+    harvesterErrors = newHEs;
+    poolErrors = newPEs;
+
     //opens database file or creates it if it doesnt exist
     final database = openSQLiteDB(cache.path, OpenMode.readWriteCreate);
 
-    _saveToDB(database, plots, "plots");
     _saveToDB(database, filters, "filters");
     _saveToDB(database, signagePoints, "signagePoints");
     _saveToDB(database, shortSyncs, "shortSyncs");
     _saveToDB(database, harvesterErrors, "errors", "harvester");
     _saveToDB(database, poolErrors, "errors", "pool");
+
+    database.dispose();
+  }
+
+  void savePlots(List<Plot> newPlots) {
+    plots = newPlots;
+
+    //opens database file or creates it if it doesnt exist
+    final database = openSQLiteDB(cache.path, OpenMode.readWriteCreate);
+
+    _saveToDB(database, plots, "plots");
+
+    database.dispose();
+  }
+
+  void saveMemories(List<Memory> newMemories) {
+    memories = newMemories;
+
+    //opens database file or creates it if it doesnt exist
+    final database = openSQLiteDB(cache.path, OpenMode.readWriteCreate);
+
     _saveToDB(database, memories, "memories");
 
     database.dispose();
@@ -240,41 +270,6 @@ class Cache extends CacheStruct {
     // }
 
     database.dispose();
-  }
-
-  void savePlots(List<Plot> newPlots) {
-    plots = newPlots;
-    save();
-  }
-
-  void saveFilters(List<Filter> newFilters) {
-    filters = newFilters;
-    save();
-  }
-
-  void saveSignagePoints(List<SignagePoint> newSignagePoints) {
-    signagePoints = newSignagePoints;
-    save();
-  }
-
-  void saveShortSyncs(List<ShortSync> newShortSyncs) {
-    shortSyncs = newShortSyncs;
-    save();
-  }
-
-  void savePoolErrors(List<LogItem> newPoolErrors) {
-    poolErrors = newPoolErrors;
-    save();
-  }
-
-  void saveHarvesterErrors(List<LogItem> newHarvesterErrors) {
-    harvesterErrors = newHarvesterErrors;
-    save();
-  }
-
-  void saveMemories(List<Memory> newMemories) {
-    memories = newMemories;
-    save();
   }
 
   String _askForBinPath() {

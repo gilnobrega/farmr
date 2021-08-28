@@ -59,11 +59,8 @@ class CacheStruct {
 
   Future<void> init() async {}
   void save() {}
+  void saveLogs(List<SignagePoint> newSPs, List<ShortSync> newSS,
+      List<Filter> newFilters, List<LogItem> newHEs, List<LogItem> newPEs) {}
   void savePlots(List<Plot> newPlots) {}
-  void saveHarvesterErrors(List<LogItem> newPlots) {}
-  void saveShortSyncs(List<ShortSync> newPlots) {}
-  void saveFilters(List<Filter> newPlots) {}
-  void savePoolErrors(List<LogItem> newPlots) {}
-  void saveSignagePoints(List<SignagePoint> newPlots) {}
-  void saveMemories(List<Memory> newPlots) {}
+  void saveMemories(List<Memory> newMemories) {}
 }
