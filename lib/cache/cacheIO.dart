@@ -145,7 +145,7 @@ class Cache extends CacheStruct {
       print(questionMarksMap);
 
       final String query =
-          "INSERT INTO $table (${keysMap.join(',')}) VALUES (${questionMarksMap.join(',')})";
+          "INSERT or IGNORE INTO $table (${keysMap.join(',')}) VALUES (${questionMarksMap.join(',')})";
 
       print(query);
 
