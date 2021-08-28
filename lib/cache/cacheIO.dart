@@ -178,7 +178,7 @@ class Cache extends CacheStruct {
 
     //try {
     const String plotQuery = "SELECT * from plots";
-    final plotResults = database.select(plotQuery, [parseUntil]);
+    final plotResults = database.select(plotQuery);
 
     for (final plotResult in plotResults) plots.add(Plot.fromJson(plotResult));
 
