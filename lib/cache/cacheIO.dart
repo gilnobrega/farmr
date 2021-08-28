@@ -164,7 +164,7 @@ class Cache extends CacheStruct {
     database.execute("""
         INSERT INTO settings (entry, value) VALUES ('binPath', ?) 
         ON CONFLICT (entry) DO
-        UPDATE SET 'binPath' = ?
+        UPDATE SET value = ?
         """, [binPath, binPath]);
 
     database.dispose();
