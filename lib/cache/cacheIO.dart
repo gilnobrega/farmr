@@ -123,6 +123,7 @@ class Cache extends CacheStruct {
 
   //saves cache file
   void save() {
+    saveSettings();
     //opens database file or creates it if it doesnt exist
     final database = openSQLiteDB(cache.path, OpenMode.readWriteCreate);
 
@@ -152,6 +153,19 @@ class Cache extends CacheStruct {
 
       statement.dispose();
     }
+
+    database.dispose();
+  }
+
+  void saveSettings() {
+    //opens database file or creates it if it doesnt exist
+    final database = openSQLiteDB(cache.path, OpenMode.readWriteCreate);
+
+    database.execute("""
+        INSERT INTO settings (entry, value) VALUES ('binPath', ?) 
+        ON DUPLICATE KEY UPDATE
+        'binPath' = ?
+        """, [binPath, binPath]);
 
     database.dispose();
   }
