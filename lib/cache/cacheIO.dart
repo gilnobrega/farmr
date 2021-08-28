@@ -129,25 +129,30 @@ class Cache extends CacheStruct {
     //opens database file or creates it if it doesnt exist
     final database = openSQLiteDB(cache.path, OpenMode.readWriteCreate);
 
-    if (plots.length > 0) {
-      final List<String> plotKeysMap = plots.first.toJson().keys.toList();
+    plots = _saveToDB(database, plots, "plots");
 
-      print(plotKeysMap);
+    database.dispose();
+  }
 
-      final List<String> questionMarksMap =
-          plotKeysMap.map((e) => "?").toList();
+  static _saveToDB(Database database, List list, String table) {
+    if (list.length > 0) {
+      final List<String> keysMap = list.first.toJson().keys.toList();
+
+      print(keysMap);
+
+      final List<String> questionMarksMap = keysMap.map((e) => "?").toList();
 
       print(questionMarksMap);
 
-      final String plotQuery =
-          "INSERT INTO plots (${plotKeysMap.join(',')}) VALUES (${questionMarksMap.join(',')})";
+      final String query =
+          "INSERT INTO $table (${keysMap.join(',')}) VALUES (${questionMarksMap.join(',')})";
 
-      print(plotQuery);
+      print(query);
 
-      final statement = database.prepare(plotQuery);
+      final statement = database.prepare(query);
 
-      for (final plot in plots) {
-        final List<dynamic> values = plot
+      for (final object in list) {
+        final List<dynamic> values = object
             .toJson()
             .values
             //converts bools to 0 (false) or 1 (true)
@@ -160,7 +165,7 @@ class Cache extends CacheStruct {
       statement.dispose();
     }
 
-    database.dispose();
+    return list;
   }
 
   void saveSettings() {
