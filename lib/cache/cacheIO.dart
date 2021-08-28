@@ -78,7 +78,7 @@ class Cache extends CacheStruct {
       '''
     CREATE TABLE IF NOT EXISTS signagePoints (
       timestamp INTEGER NOT NULL PRIMARY KEY,
-      index INTEGER NOT NULL
+      spIndex INTEGER NOT NULL
     );
   ''',
 

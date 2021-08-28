@@ -8,7 +8,7 @@ class SignagePoint extends LogItem {
   int _index = 0;
   int get index => _index;
 
-  Map toJson() => {'timestamp': timestamp, 'index': index};
+  Map toJson() => {'timestamp': timestamp, 'spIndex': index};
 
   SignagePoint(int timestamp, this._index)
       : super(timestamp, LogItemType.FullNode) {
@@ -17,6 +17,6 @@ class SignagePoint extends LogItem {
 
   SignagePoint.fromJson(dynamic json)
       : super.fromJson(json, LogItemType.FullNode) {
-    if (json['index'] != null) _index = json['index'];
+    if (json['spIndex'] != null) _index = json['spIndex'];
   }
 }
