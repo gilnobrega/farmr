@@ -40,8 +40,9 @@ class Cache extends CacheStruct {
     //opens database file or creates it if it doesnt exist
     database = openSQLiteDB(cache.path, OpenMode.readWriteCreate);
 
-    //plots
-    database.execute('''
+    const List<String> commands = [
+      //plots
+      '''
     CREATE TABLE IF NOT EXISTS plots (
       id TEXT NOT NULL PRIMARY KEY,
       plotSize TEXT NOT NULL,
@@ -52,10 +53,10 @@ class Cache extends CacheStruct {
       isNFT BOOL NOT NULL,
       loaded BOOL NOT NULL
     );
-  ''');
+  ''',
 
-    // Create a table and insert some data
-    database.execute('''
+      //filters
+      '''
     CREATE TABLE IF NOT EXISTS filters (
       timestamp INTEGER NOT NULL PRIMARY KEY,
       eligible INTEGER NOT NULL,
@@ -63,36 +64,36 @@ class Cache extends CacheStruct {
       plotNumber INTEGER NOT NULL,
       lookupTime INTEGER NOT NULL
     );
-  ''');
+  ''',
 
-    // pool errors and harvester errors
-    database.execute('''
+      // pool errors and harvester errors
+      '''
     CREATE TABLE IF NOT EXISTS errors (
       timestamp INTEGER NOT NULL PRIMARY KEY,
       type TEXT NOT NULL
     );
-  ''');
+  ''',
 
-    // signage points
-    database.execute('''
+      // signage points
+      '''
     CREATE TABLE IF NOT EXISTS signagePoints (
       timestamp INTEGER NOT NULL PRIMARY KEY,
       index INTEGER NOT NULL
     );
-  ''');
+  ''',
 
-    // short sync events
-    database.execute('''
+      // short sync events
+      '''
     CREATE TABLE IF NOT EXISTS shortSyncs (
       timestamp INTEGER NOT NULL PRIMARY KEY,
       start INTEGER NOT NULL,
       end INTEGER NOT NULL,
       localTime TEXT NOT NULL
     );
-  ''');
+  ''',
 
-    // memories
-    database.execute('''
+      //memories
+      '''
     CREATE TABLE IF NOT EXISTS memories (
       timestamp INTEGER NOT NULL PRIMARY KEY,
       total INTEGER NOT NULL,
@@ -100,16 +101,19 @@ class Cache extends CacheStruct {
       totalVirtual INTEGER NOT NULL,
       freeVirtual INTEGER NOT NULL
     );
-  ''');
+  ''',
 
-    // settings
-    // example entry: binpath, value: /home/user/chia-blockchain/venv/bin/chia
-    database.execute('''
+      // settings
+      // example entry: binpath, value: /home/user/chia-blockchain/venv/bin/chia
+      '''
     CREATE TABLE IF NOT EXISTS settings (
       entry TEXT NOT NULL PRIMARY KEY,
       value TEXT NOT NULL
     );
-  ''');
+  '''
+    ];
+
+    for (final command in commands) database.execute(command);
   }
 
   Future<void> init() async {
@@ -119,7 +123,34 @@ class Cache extends CacheStruct {
   }
 
   //saves cache file
-  void save() {}
+  void save() {
+    if (plots.length > 0) {
+      final List<String> plotKeysMap =
+          plots.first.toJson().keys.toList() as List<String>;
+
+      print(plotKeysMap);
+
+      final List<String> questionMarksMap =
+          plotKeysMap.map((e) => "?").toList();
+
+      print(questionMarksMap);
+
+      final String plotQuery =
+          "INSERT INTO plots (${plotKeysMap.join(',')}) VALUES (${questionMarksMap.join(',')}";
+
+      print(plotQuery);
+
+      final statement = database.prepare(plotQuery);
+
+      for (final plot in plots) {
+        final List<dynamic> values = plot.toJson().values.toList();
+        print(values);
+        statement.execute(values);
+      }
+
+      statement.dispose();
+    }
+  }
 
   void load() {
     try {
