@@ -1,6 +1,8 @@
 import 'dart:core';
 import 'package:farmr_client/blockchain.dart';
+import 'package:farmr_client/cache/cacheStruct.dart';
 import 'package:farmr_client/log/logitem.dart';
+import 'package:farmr_client/utils/sqlite.dart';
 import 'package:universal_io/io.dart' as io;
 import 'dart:convert';
 
@@ -13,14 +15,13 @@ import 'package:farmr_client/log/shortsync.dart';
 
 import 'package:farmr_client/hardware.dart';
 
+import 'package:sqlite3/sqlite3.dart';
+
 final log = Logger('Cache');
 
-class Cache {
-  late Blockchain _blockchain;
-
-  String chiaPath = '';
-
+class Cache extends CacheStruct {
   String? _binPath;
+  @override
   String get binPath {
     if (Blockchain.detectOS() != OS.GitHub) {
       if (_binPath != null && io.File(_binPath!).existsSync())
@@ -31,102 +32,63 @@ class Cache {
       return "";
   }
 
-  List<Plot> _plots = []; //cached plots
-  List<Plot> get plots => _plots;
+  late final Database database;
 
-  List<Filter> _filters = [];
-  List<Filter> get filters => _filters;
+  Cache(Blockchain blockchain, String rootPath) : super(blockchain, rootPath) {
+    cache = io.File(rootPath + "cache/cache${blockchain.fileExtension}.sqlite");
 
-  List<SignagePoint> _signagePoints = [];
-  List<SignagePoint> get signagePoints => _signagePoints;
+    //opens database file or creates it if it doesnt exist
+    database = openSQLiteDB(cache.path, OpenMode.readWriteCreate);
 
-  List<ShortSync> _shortSyncs = [];
-  List<ShortSync> get shortSyncs => _shortSyncs;
-
-  List<LogItem> _poolErrors = [];
-  List<LogItem> get poolErrors => _poolErrors;
-
-  List<LogItem> _harvesterErrors = [];
-  List<LogItem> get harvesterErrors => _harvesterErrors;
-
-  //past values for memory (24 hour)
-  List<Memory> _memories = [];
-  List<Memory> get memories => _memories;
-
-  // '/home/user/.farmr' for package installs, '' (project path) for the rest
-  late String _rootPath;
-  late io.File _cache;
-
-  int parseUntil =
-      DateTime.now().subtract(Duration(days: 1)).millisecondsSinceEpoch;
-
-  Cache(this._blockchain, this._rootPath) {
-    _cache =
-        io.File(_rootPath + "cache/cache${_blockchain.fileExtension}.json");
+    // Create a table and insert some data
+    database.execute('''
+    CREATE TABLE IF NOT EXISTS filters (
+      timestamp INTEGER NOT NULL PRIMARY KEY,
+      eligible INTEGER NOT NULL,
+      proofs INTEGER NOT NULL,
+      plotNumber INTEGER NOT NULL,
+      lookupTime INTEGER NOT NULL
+    );
+  ''');
   }
-
-  Map toJson() => {
-        "binPath": binPath,
-        "plots": plots,
-        "filters": filters,
-        "signagePoints": signagePoints,
-        "shortSyncs": shortSyncs,
-        "memories": memories,
-        "poolErrors": poolErrors,
-        "harvesterErrors": harvesterErrors,
-        "${_blockchain.binaryName}Path": chiaPath
-      };
 
   Future<void> init() async {
     //Tells log parser when it should stop parsing
     parseUntil =
         DateTime.now().subtract(Duration(days: 1)).millisecondsSinceEpoch;
-
-    //Loads cache file
-    if (!_cache.existsSync())
-      save(); //creates cache file if doesnt exist
-    else {
-      load(); //.farmr_cache.json
-
-      save();
-    }
   }
 
   //saves cache file
-  void save() {
-    String contents = jsonEncode([toJson()]);
-
-    _cache.writeAsStringSync(contents);
-  }
+  void save() {}
 
   void load() {
     try {
-      var contents = jsonDecode(_cache.readAsStringSync());
+      var contents = jsonDecode(cache.readAsStringSync());
       //print(contents);
 
       //LOADS IDS FROM CACHE FILE (backwards compatible)
       //loads id from cache file
       if (contents[0]['id'] != null) {
-        _blockchain.id.ids = [];
-        _blockchain.id.ids.add(contents[0]['id']);
-        _blockchain.id.save();
+        blockchain.id.ids = [];
+        blockchain.id.ids.add(contents[0]['id']);
+        blockchain.id.save();
       }
 
-      chiaPath = contents[0]['${_blockchain.binaryName}Path'] ?? "";
+      chiaPath = contents[0]['${blockchain.binaryName}Path'] ?? "";
 
       //loads ids from cache file
       if (contents[0]['ids'] != null) {
-        _blockchain.id.ids = [];
-        for (String id in contents[0]['ids']) _blockchain.id.ids.add(id);
-        _blockchain.id.save();
+        blockchain.id.ids = [];
+        for (String id in contents[0]['ids']) blockchain.id.ids.add(id);
+        blockchain.id.save();
       }
 
       //loads plot list from cache file
       if (contents[0]['plots'] != null) {
-        _plots = [];
+        plots = [];
         var plotsJson = contents[0]['plots'];
 
-        for (var plotJson in plotsJson) _plots.add(Plot.fromJson(plotJson));
+        for (var plotJson in plotsJson) plots.add(Plot.fromJson(plotJson));
       }
 
       //loads chia binary path from cache
@@ -135,119 +97,119 @@ class Cache {
 
       //loads filters list from cache file
       if (contents[0]['filters'] != null) {
-        _filters = [];
+        filters = [];
         var filtersJson = contents[0]['filters'];
 
         for (var filterJson in filtersJson) {
           Filter filter = Filter.fromJson(filterJson, plots.length);
-          if (filter.timestamp > parseUntil) _filters.add(filter);
+          if (filter.timestamp > parseUntil) filters.add(filter);
         }
       }
 
       //loads subslots list from cache file
       if (contents[0]['signagePoints'] != null) {
-        _signagePoints = [];
+        signagePoints = [];
         var signagePointsJson = contents[0]['signagePoints'];
 
         for (var signagePointJson in signagePointsJson) {
           SignagePoint signagePoint = SignagePoint.fromJson(signagePointJson);
           if (signagePoint.timestamp > parseUntil)
-            _signagePoints.add(signagePoint);
+            signagePoints.add(signagePoint);
         }
       }
 
       //loads shortsyncs list from cache file
       if (contents[0]['shortSyncs'] != null) {
-        _shortSyncs = [];
+        shortSyncs = [];
         var shortSyncsJson = contents[0]['shortSyncs'];
 
         for (var shortSyncJson in shortSyncsJson) {
           ShortSync shortSync = ShortSync.fromJson(shortSyncJson);
-          if (shortSync.timestamp > parseUntil) _shortSyncs.add(shortSync);
+          if (shortSync.timestamp > parseUntil) shortSyncs.add(shortSync);
         }
       }
 
       //loads pool errors list from cache file
       if (contents[0]['poolErrors'] != null) {
-        _poolErrors = [];
+        poolErrors = [];
         var poolErrorsJson = contents[0]['poolErrors'];
 
         for (var poolErrorJson in poolErrorsJson) {
           LogItem poolError =
               LogItem.fromJson(poolErrorJson, LogItemType.Farmer);
-          if (poolError.timestamp > parseUntil) _poolErrors.add(poolError);
+          if (poolError.timestamp > parseUntil) poolErrors.add(poolError);
         }
       }
 
       //loads harvester errors list from cache file
       if (contents[0]['harvesterErrors'] != null) {
-        _harvesterErrors = [];
+        harvesterErrors = [];
         var harvesterErrorsJson = contents[0]['harvesterErrors'];
 
         for (var harvesterErrorJson in harvesterErrorsJson) {
           LogItem harvesterError =
               LogItem.fromJson(harvesterErrorJson, LogItemType.Farmer);
           if (harvesterError.timestamp > parseUntil)
-            _harvesterErrors.add(harvesterError);
+            harvesterErrors.add(harvesterError);
         }
       }
 
       //loads memories list from cache file
       if (contents[0]['memories'] != null) {
-        _memories = [];
+        memories = [];
         var memoriesJson = contents[0]['memories'];
 
         for (var memoryJson in memoriesJson) {
           Memory memory = Memory.fromJson(memoryJson);
-          if (memory.timestamp > parseUntil) _memories.add(memory);
+          if (memory.timestamp > parseUntil) memories.add(memory);
         }
       }
     } catch (Exception) {
       log.severe(
-          "ERROR: Failed to load .farmr_cache${_blockchain.fileExtension}.json\nGenerating a new cache file.");
+          "ERROR: Failed to load .farmr_cache${blockchain.fileExtension}.json\nGenerating a new cache file.");
     }
   }
 
-  void savePlots(List<Plot> plots) {
-    _plots = plots;
+  void savePlots(List<Plot> newPlots) {
+    plots = newPlots;
     save();
   }
 
-  void saveFilters(List<Filter> filters) {
-    _filters = filters;
+  void saveFilters(List<Filter> newFilters) {
+    filters = newFilters;
     save();
   }
 
-  void saveSignagePoints(List<SignagePoint> signagePoints) {
-    _signagePoints = signagePoints;
+  void saveSignagePoints(List<SignagePoint> newSignagePoints) {
+    signagePoints = newSignagePoints;
     save();
   }
 
-  void saveShortSyncs(List<ShortSync> shortSyncs) {
-    _shortSyncs = shortSyncs;
+  void saveShortSyncs(List<ShortSync> newShortSyncs) {
+    shortSyncs = newShortSyncs;
     save();
   }
 
-  void savePoolErrors(List<LogItem> poolErrors) {
-    _poolErrors = poolErrors;
+  void savePoolErrors(List<LogItem> newPoolErrors) {
+    poolErrors = newPoolErrors;
     save();
   }
 
-  void saveHarvesterErrors(List<LogItem> harvesterErrors) {
-    _harvesterErrors = harvesterErrors;
+  void saveHarvesterErrors(List<LogItem> newHarvesterErrors) {
+    harvesterErrors = newHarvesterErrors;
     save();
   }
 
-  void saveMemories(List<Memory> memories) {
-    _memories = memories;
+  void saveMemories(List<Memory> newMemories) {
+    memories = newMemories;
     save();
   }
 
   String _askForBinPath() {
     String exampleDir = (io.Platform.isLinux || io.Platform.isMacOS)
-        ? "/home/user/${_blockchain.binaryName}-blockchain"
+        ? "/home/user/${blockchain.binaryName}-blockchain"
         : (io.Platform.isWindows)
-            ? "C:\\Users\\user\\AppData\\Local\\${_blockchain.binaryName}-blockchain or C:\\Users\\user\\AppData\\Local\\${_blockchain.binaryName}-blockchain\\app-1.0.3\\resources\\app.asar.unpacked"
+            ? "C:\\Users\\user\\AppData\\Local\\${blockchain.binaryName}-blockchain or C:\\Users\\user\\AppData\\Local\\${blockchain.binaryName}-blockchain\\app-1.0.3\\resources\\app.asar.unpacked"
             : "";
 
     bool validDirectory = false;
@@ -256,27 +218,27 @@ class Cache {
 
     if (validDirectory)
       log.info(
-          "Automatically found ${_blockchain.binaryName} binary at: '$_binPath'");
+          "Automatically found ${blockchain.binaryName} binary at: '$_binPath'");
     else
       log.info("Could not automatically locate chia binary.");
 
     while (!validDirectory) {
       log.warning(
-          "Specify your ${_blockchain.binaryName}-blockchain directory below: (e.g.: " +
+          "Specify your ${blockchain.binaryName}-blockchain directory below: (e.g.: " +
               exampleDir +
               ")");
 
-      _blockchain.cache.chiaPath = io.stdin.readLineSync() ?? '';
-      log.info("Input chia path: '${_blockchain.cache.chiaPath}'");
+      blockchain.cache.chiaPath = io.stdin.readLineSync() ?? '';
+      log.info("Input chia path: '${blockchain.cache.chiaPath}'");
 
       _binPath = (io.Platform.isLinux || io.Platform.isMacOS)
-          ? _blockchain.cache.chiaPath + "/venv/bin/${_blockchain.binaryName}"
-          : _blockchain.cache.chiaPath +
-              "\\daemon\\${_blockchain.binaryName}.exe";
+          ? blockchain.cache.chiaPath + "/venv/bin/${blockchain.binaryName}"
+          : blockchain.cache.chiaPath +
+              "\\daemon\\${blockchain.binaryName}.exe";
 
       if (io.File(_binPath!).existsSync())
         validDirectory = true;
-      else if (io.Directory(_blockchain.cache.chiaPath).existsSync())
+      else if (io.Directory(blockchain.cache.chiaPath).existsSync())
         log.warning("""Could not locate chia binary in your directory.
 ($_binPath not found)
 Please try again.
@@ -300,12 +262,12 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
 
     if (io.Platform.isWindows) {
       //Checks if binary exist in C:\User\AppData\Local\chia-blockchain\resources\app.asar.unpacked\daemon\chia.exe
-      if (_blockchain.binaryName != "spare") {
+      if (blockchain.binaryName != "spare") {
         chiaRootDir = io.Directory(io.Platform.environment['UserProfile']! +
-            "/AppData/Local/${_blockchain.binaryName}-blockchain");
+            "/AppData/Local/${blockchain.binaryName}-blockchain");
 
         file =
-            "/resources/app.asar.unpacked/daemon/${_blockchain.binaryName}.exe";
+            "/resources/app.asar.unpacked/daemon/${blockchain.binaryName}.exe";
 
         if (chiaRootDir.existsSync()) {
           chiaRootDir.listSync(recursive: false).forEach((dir) {
@@ -323,7 +285,7 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
             "/AppData/Local/Spare-blockchain");
 
         file =
-            "/resources/app.asar.unpacked/daemon/${_blockchain.binaryName}.exe";
+            "/resources/app.asar.unpacked/daemon/${blockchain.binaryName}.exe";
 
         if (chiaRootDir.existsSync()) {
           io.File trypath = io.File(chiaRootDir.path + file);
@@ -338,8 +300,8 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
 
       if (io.Platform.isLinux) {
         chiaRootDir =
-            io.Directory("/usr/lib/${_blockchain.binaryName}-blockchain");
-        file = "/resources/app.asar.unpacked/daemon/${_blockchain.binaryName}";
+            io.Directory("/usr/lib/${blockchain.binaryName}-blockchain");
+        file = "/resources/app.asar.unpacked/daemon/${blockchain.binaryName}";
       } else if (io.Platform.isMacOS) {
         //capitalizes first letter of a string
         String capitalize(String input) {
@@ -347,8 +309,8 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
         }
 
         chiaRootDir = io.Directory(
-            "/Applications/${capitalize(_blockchain.binaryName)}.app/Contents");
-        file = "/Resources/app.asar.unpacked/daemon/${_blockchain.binaryName}";
+            "/Applications/${capitalize(blockchain.binaryName)}.app/Contents");
+        file = "/Resources/app.asar.unpacked/daemon/${blockchain.binaryName}";
       }
 
       possiblePaths = [
@@ -359,11 +321,11 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
         "/usr" + chiaRootDir.path + file,
         //checks if binary exists in /home/user/.local/bin/chia
         io.Platform.environment['HOME']! +
-            "/.local/bin/${_blockchain.binaryName}",
+            "/.local/bin/${blockchain.binaryName}",
 
         //checks for file in /home/user/chia-blockchain/venv/bin/chia
         io.Platform.environment['HOME']! +
-            "/${_blockchain.binaryName}-blockchain/venv/bin/${_blockchain.binaryName}"
+            "/${blockchain.binaryName}-blockchain/venv/bin/${blockchain.binaryName}"
       ];
 
       for (int i = 0; i < possiblePaths.length; i++) {

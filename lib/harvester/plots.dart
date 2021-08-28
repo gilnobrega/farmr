@@ -1,7 +1,7 @@
 import 'dart:core';
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/hpool/hpool.dart';
-import 'package:farmr_client/rpc.dart';
+import 'package:farmr_client/utils/rpc.dart';
 import 'package:universal_io/io.dart' as io;
 
 import 'package:yaml/yaml.dart';
@@ -136,11 +136,11 @@ class HarvesterPlots {
             else if (!duplicate) {
               //print("Found new plot " + id); // UNCOMMENT FOR DEBUGGING PLOT CACHE
               Plot plot = new Plot(file);
-              
+
               //displays warning if plot is incomplete and minimum k size is k32
               if (!plot.complete && checkPlotSize)
                 log.warning("Warning: plot " + file.path + " is incomplete!");
-              
+
               newplots.add(plot);
             }
           }
