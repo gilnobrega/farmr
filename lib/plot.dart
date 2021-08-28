@@ -128,7 +128,7 @@ class Plot {
   }
 
   //Convert plot into json
-  Map toJson() => {
+  Map<String, dynamic> toJson() => {
         'id': id,
         'plotSize': plotSize,
         'begin': begin.millisecondsSinceEpoch,

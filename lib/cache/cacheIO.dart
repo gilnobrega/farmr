@@ -130,8 +130,7 @@ class Cache extends CacheStruct {
     final database = openSQLiteDB(cache.path, OpenMode.readWriteCreate);
 
     if (plots.length > 0) {
-      final List<String> plotKeysMap =
-          plots.first.toJson().keys.toList() as List<String>;
+      final List<String> plotKeysMap = plots.first.toJson().keys.toList();
 
       print(plotKeysMap);
 
