@@ -32,13 +32,11 @@ class Cache extends CacheStruct {
       return "";
   }
 
-  late final Database database;
-
   Cache(Blockchain blockchain, String rootPath) : super(blockchain, rootPath) {
     cache = io.File(rootPath + "cache/cache${blockchain.fileExtension}.sqlite");
 
     //opens database file or creates it if it doesnt exist
-    database = openSQLiteDB(cache.path, OpenMode.readWriteCreate);
+    final database = openSQLiteDB(cache.path, OpenMode.readWriteCreate);
 
     const List<String> commands = [
       //plots
@@ -114,6 +112,8 @@ class Cache extends CacheStruct {
     ];
 
     for (final command in commands) database.execute(command);
+
+    database.dispose();
   }
 
   Future<void> init() async {
@@ -124,6 +124,9 @@ class Cache extends CacheStruct {
 
   //saves cache file
   void save() {
+    //opens database file or creates it if it doesnt exist
+    final database = openSQLiteDB(cache.path, OpenMode.readWriteCreate);
+
     if (plots.length > 0) {
       final List<String> plotKeysMap =
           plots.first.toJson().keys.toList() as List<String>;
@@ -150,9 +153,14 @@ class Cache extends CacheStruct {
 
       statement.dispose();
     }
+
+    database.dispose();
   }
 
   void load() {
+    //opens database file or creates it if it doesnt exist
+    final database = openSQLiteDB(cache.path, OpenMode.readWriteCreate);
+
     try {
       const String plotQuery = "SELECT * from plots";
       final plotResults = database.select(plotQuery, [parseUntil]);
@@ -201,6 +209,8 @@ class Cache extends CacheStruct {
       log.severe(
           "ERROR: Failed to load ${cache.path}\nGenerating a new cache database.");
     }
+
+    database.dispose();
   }
 
   void savePlots(List<Plot> newPlots) {
