@@ -176,54 +176,53 @@ class Cache extends CacheStruct {
     //opens database file or creates it if it doesnt exist
     final database = openSQLiteDB(cache.path, OpenMode.readWriteCreate);
 
-    try {
-      const String plotQuery = "SELECT * from plots";
-      final plotResults = database.select(plotQuery, [parseUntil]);
+    //try {
+    const String plotQuery = "SELECT * from plots";
+    final plotResults = database.select(plotQuery, [parseUntil]);
 
-      for (final plotResult in plotResults)
-        plots.add(Plot.fromJson(plotResult));
+    for (final plotResult in plotResults) plots.add(Plot.fromJson(plotResult));
 
-      const String binPathQuery =
-          "SELECT value from settings WHERE entry = 'binPath' LIMIT 1";
-      final binPathResults = database.select(binPathQuery);
-      for (final binPathResult in binPathResults)
-        binPath = binPathResult['value'];
+    const String binPathQuery =
+        "SELECT value from settings WHERE entry = 'binPath' LIMIT 1";
+    final binPathResults = database.select(binPathQuery);
+    for (final binPathResult in binPathResults)
+      binPath = binPathResult['value'];
 
-      const String filterQuery = "SELECT * from filters WHERE timestamp > ?";
-      final filterResults = database.select(filterQuery, [parseUntil]);
-      for (var filterResult in filterResults)
-        filters.add(Filter.fromJson(filterResult, plots.length));
+    const String filterQuery = "SELECT * from filters WHERE timestamp > ?";
+    final filterResults = database.select(filterQuery, [parseUntil]);
+    for (var filterResult in filterResults)
+      filters.add(Filter.fromJson(filterResult, plots.length));
 
-      const String spQuery = "SELECT * from signagePoints WHERE timestamp > ?";
-      final spResults = database.select(spQuery, [parseUntil]);
-      for (final spResult in spResults)
-        signagePoints.add(SignagePoint.fromJson(spResult));
+    const String spQuery = "SELECT * from signagePoints WHERE timestamp > ?";
+    final spResults = database.select(spQuery, [parseUntil]);
+    for (final spResult in spResults)
+      signagePoints.add(SignagePoint.fromJson(spResult));
 
-      const String ssQuery = "SELECT * from shortSyncs WHERE timestamp > ?";
-      final ssResults = database.select(ssQuery, [parseUntil]);
-      for (final ssResult in ssResults)
-        shortSyncs.add(ShortSync.fromJson(ssResult));
+    const String ssQuery = "SELECT * from shortSyncs WHERE timestamp > ?";
+    final ssResults = database.select(ssQuery, [parseUntil]);
+    for (final ssResult in ssResults)
+      shortSyncs.add(ShortSync.fromJson(ssResult));
 
-      const String peQuery =
-          "SELECT * from errors WHERE type = 'pool' AND timestamp > ?";
-      final peResults = database.select(peQuery, [parseUntil]);
-      for (final peResult in peResults)
-        poolErrors.add(LogItem.fromJson(peResult, LogItemType.Farmer));
+    const String peQuery =
+        "SELECT * from errors WHERE type = 'pool' AND timestamp > ?";
+    final peResults = database.select(peQuery, [parseUntil]);
+    for (final peResult in peResults)
+      poolErrors.add(LogItem.fromJson(peResult, LogItemType.Farmer));
 
-      const String heQuery =
-          "SELECT * from errors WHERE type = 'harvester' AND timestamp > ?";
-      final heResults = database.select(heQuery, [parseUntil]);
-      for (final heResult in heResults)
-        harvesterErrors.add(LogItem.fromJson(heResult, LogItemType.Farmer));
+    const String heQuery =
+        "SELECT * from errors WHERE type = 'harvester' AND timestamp > ?";
+    final heResults = database.select(heQuery, [parseUntil]);
+    for (final heResult in heResults)
+      harvesterErrors.add(LogItem.fromJson(heResult, LogItemType.Farmer));
 
-      const String memoryQuery = "SELECT * from errors WHERE timestamp > ?";
-      final memoryResults = database.select(memoryQuery, [parseUntil]);
-      for (final memoryResult in memoryResults)
-        memories.add(Memory.fromJson(memoryResult));
-    } catch (Exception) {
-      log.severe(
-          "ERROR: Failed to load ${cache.path}\nGenerating a new cache database.");
-    }
+    const String memoryQuery = "SELECT * from errors WHERE timestamp > ?";
+    final memoryResults = database.select(memoryQuery, [parseUntil]);
+    for (final memoryResult in memoryResults)
+      memories.add(Memory.fromJson(memoryResult));
+    // } catch (Exception) {
+    //  log.severe(
+    //       "ERROR: Failed to load ${cache.path}\nGenerating a new cache database.");
+    // }
 
     database.dispose();
   }
