@@ -120,11 +120,11 @@ class Cache extends CacheStruct {
     parseUntil =
         DateTime.now().subtract(Duration(days: 1)).millisecondsSinceEpoch;
 
-    load(); //loads variables from database
+    _load(); //loads variables from database
   }
 
   //saves cache file
-  void save() {
+  void _save() {
     saveSettings();
   }
 
@@ -172,6 +172,10 @@ class Cache extends CacheStruct {
 
   static _saveToDB(Database database, List list, String table,
       [String? errorType]) {
+    //deletes all rows from table
+    final String deleteQuery = "DELETE from $table";
+    database.execute(deleteQuery);
+
     if (list.length > 0) {
       final List<String> keysMap = list.first.toJson().keys.toList();
 
@@ -217,7 +221,7 @@ class Cache extends CacheStruct {
     database.dispose();
   }
 
-  void load() {
+  void _load() {
     //opens database file or creates it if it doesnt exist
     final database = openSQLiteDB(cache.path, OpenMode.readWriteCreate);
 
@@ -315,7 +319,7 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
             "Uh oh, that directory could not be found! Please try again.");
     }
 
-    save(); //saves bin path to cache
+    _save(); //saves bin path to cache
 
     return _binPath!;
   }
