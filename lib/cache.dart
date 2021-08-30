@@ -307,10 +307,6 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
         file =
             "/resources/app.asar.unpacked/daemon/${_blockchain.binaryName}.exe";
 
-        //cryptodoge only
-        if (_blockchain.binaryName == "cryptodoge")
-          file = file.replaceAll("/daemon", "");
-
         if (chiaRootDir.existsSync()) {
           chiaRootDir.listSync(recursive: false).forEach((dir) {
             io.File trypath = io.File(dir.path + file);
@@ -341,8 +337,9 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
       List<String> possiblePaths = [];
 
       if (io.Platform.isLinux) {
-        chiaRootDir =
-            io.Directory("/usr/lib/${_blockchain.binaryName}-blockchain");
+        chiaRootDir = io.Directory(
+            //different structure for cryptodoge
+            "/usr/lib/${_blockchain.binaryName}${(_blockchain.binaryName != "cryptodoge") ? "-blockchain" : ""}");
         file = "/resources/app.asar.unpacked/daemon/${_blockchain.binaryName}";
       } else if (io.Platform.isMacOS) {
         //capitalizes first letter of a string
@@ -359,13 +356,9 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
         // checks if binary exists in /package:farmr_client/chia-blockchain/resources/app.asar.unpacked/daemon/chia in linux or
         // checks if binary exists in /Applications/Chia.app/Contents/Resources/app.asar.unpacked/daemon/chia in macOS
         chiaRootDir.path + file,
-        //cryptodoge only
-        chiaRootDir.path + file.replaceAll("/daemon", ""),
 
         // Checks if binary exists in /usr/package:farmr_client/chia-blockchain/resources/app.asar.unpacked/daemon/chia
         "/usr" + chiaRootDir.path + file,
-        //cryptodoge only
-        "/usr" + chiaRootDir.path + file.replaceAll("/daemon", ""),
 
         //checks if binary exists in /home/user/.local/bin/chia
         io.Platform.environment['HOME']! +
