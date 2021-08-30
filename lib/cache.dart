@@ -360,12 +360,12 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
         // checks if binary exists in /Applications/Chia.app/Contents/Resources/app.asar.unpacked/daemon/chia in macOS
         chiaRootDir.path + file,
         //cryptodoge only
-        chiaRootDir.path.replaceAll("/daemon", "") + file,
+        chiaRootDir.path + file.replaceAll("/daemon", ""),
 
         // Checks if binary exists in /usr/package:farmr_client/chia-blockchain/resources/app.asar.unpacked/daemon/chia
         "/usr" + chiaRootDir.path + file,
         //cryptodoge only
-        "/usr" + chiaRootDir.path.replaceAll("/daemon", "") + file,
+        "/usr" + chiaRootDir.path + file.replaceAll("/daemon", ""),
 
         //checks if binary exists in /home/user/.local/bin/chia
         io.Platform.environment['HOME']! +
