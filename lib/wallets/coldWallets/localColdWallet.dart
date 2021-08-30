@@ -48,8 +48,8 @@ class LocalColdWallet extends ColdWallet {
     //if that fails loads pre bundled libraries
 
     final mode = OpenMode.readOnly;
-    final String dbLocation =
-        blockchain.dbPath + "/blockchain_v1_${blockchain.net}.sqlite";
+    final String dbLocation = blockchain.dbPath +
+        "/blockchain_v1_${blockchain.currencySymbol != "tsit" ? blockchain.net : "testnet"}.sqlite";
 
     try {
       db = sqlite3.open(dbLocation, mode: mode);

@@ -129,7 +129,7 @@ class LocalWallet extends Wallet {
 
         final mode = OpenMode.readOnly;
         final String dbLocation = blockchain.walletPath +
-            "/db/blockchain_wallet_v1_${blockchain.net}_$fingerprint.sqlite";
+            "/blockchain_v1_${blockchain.currencySymbol != "tsit" ? blockchain.net : "testnet"}.sqlite";
 
         try {
           db = sqlite3.open(dbLocation, mode: mode);
