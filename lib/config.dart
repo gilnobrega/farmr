@@ -121,22 +121,20 @@ class Config {
   }
 
   Future<void> loadOnlineConfig() async {
-    String contents = "{}";
-
     try {
       String url = "https://farmr.net/login.php?action=readconfig&id=" +
           _blockchain.id.ids.first +
           _blockchain.fileExtension;
 
-      contents = (await http.read(Uri.parse(url))).trim();
-    } catch (error) {
-      log.warning("Failed to read online config");
-    }
+      final String contents = (await http.read(Uri.parse(url))).trim();
 
-    try {
-      loadfromJson(jsonDecode(contents));
+      try {
+        loadfromJson(jsonDecode(contents));
+      } catch (error) {
+        log.warning("Failed to decode online config");
+      }
     } catch (error) {
-      log.warning("Failed to decode online config");
+      log.info("Failed to read online config");
     }
   }
 
@@ -208,14 +206,6 @@ class Config {
   }
 
   loadfromJson(dynamic json) {
-    coldWalletAddresses = [];
-    foxyPoolPublicKeys = [];
-    flexpoolAddresses = [];
-    plottersClubPublicKeys = [];
-    spacePoolPublicKeys = [];
-    xchGardenPublicKeys = [];
-    elysiumPoolLauncherIDs = [];
-
     //sets default name according to client type
     name = defaultNames[type] ?? "Harvester";
 
