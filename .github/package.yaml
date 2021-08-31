@@ -185,6 +185,16 @@ files:
     mode: "0644"
     user: "root"
     keep: true
+  "/etc/farmr/blockchain/six.json.template":
+    file: blockchain/six.json.template
+    mode: "0644"
+    user: "root"
+    keep: true
+  "/etc/farmr/blockchain/nch.json.template":
+    file: blockchain/nch.json.template
+    mode: "0644"
+    user: "root"
+    keep: true
 
 units:
   #- .github/workflows/farmr.service
