@@ -1,0 +1,19 @@
+{
+    "Binary Name": "ext9",
+    "Currency Symbol": "NCH",
+    "Minor Currency Symbol": "mojo",
+    "Net": "mainnet",
+    
+    "Block Rewards": 2.0,
+    "Blocks Per 10 Minutes": 32.0,
+    
+    "Online Config": true,
+    
+    "Ports": {
+        "harvester": 38560,
+        "farmer": 38559,
+        "fullNode": 38555,
+        "wallet": 39265,
+        "daemon": 35400
+      }
+}
