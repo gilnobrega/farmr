@@ -1,0 +1,20 @@
+{
+    "Binary Name": "pipscoin",
+    "Folder Name": ".pipscoin",
+    "Currency Symbol": "PIPS",
+    "Minor Currency Symbol": "mojo",
+    "Net": "mainnet",
+    
+    "Block Rewards": 5.0,
+    "Blocks Per 10 Minutes": 32.0,
+    
+    "Online Config": true,
+    
+    "Ports": {
+        "harvester": 16220,
+        "farmer": 16349,
+        "fullNode": 18868,
+        "wallet": 20288,
+        "daemon": 42527
+      }
+}
