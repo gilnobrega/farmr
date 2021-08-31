@@ -177,7 +177,7 @@ class Cache extends CacheStruct {
       final List<String> questionMarksMap = keysMap.map((e) => "?").toList();
 
       final String query = (table == "errors")
-          ? "INSERT or IGNORE INTO $table (${keysMap.join(',')}, type) VALUES (${questionMarksMap.join(',')}, $errorType)"
+          ? "INSERT or IGNORE INTO $table (${keysMap.join(',')}, type) VALUES (${questionMarksMap.join(',')}, '$errorType')"
           : "INSERT or IGNORE INTO $table (${keysMap.join(',')}) VALUES (${questionMarksMap.join(',')})";
 
       final statement = database.prepare(query);
