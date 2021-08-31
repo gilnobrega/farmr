@@ -1,7 +1,7 @@
 {
     "Binary Name": "hddcoin",
     "Currency Symbol": "HDD",
-    "Minor Currency Symbol": "mojo",
+    "Minor Currency Symbol": "byte",
     "Net": "mainnet",
     
     "Block Rewards": 2.0,
