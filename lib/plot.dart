@@ -13,6 +13,9 @@ class Plot {
   String _id = "N/A";
   String get id => _id;
 
+  String _filename = "N/A";
+  String get filename => filename;
+
   String _plotSize = "k32"; //defaults to plot size k32
   String get plotSize => _plotSize;
   int get plotSizeInt => int.parse(_plotSize.substring(1));
@@ -55,9 +58,9 @@ class Plot {
   bool isNFT = false;
   bool get isOG => !isNFT;
 
-  Plot(io.File file, String id) {
+  Plot(io.File file, this._filename) {
+    _id = _filename;
     log.info("Added plot: " + file.path);
-    _id = id;
 
     try {
       int _year;
@@ -131,11 +134,14 @@ class Plot {
         loaded = json['loaded'];
       else if (json['loaded'] is int) loaded = json['loaded'] == 1;
     }
+
+    if (json['filename'] != null) _filename = json['filename'];
   }
 
   //Convert plot into json
   Map<String, dynamic> toJson() => {
         'id': id,
+        'filename': filename,
         'plotSize': plotSize,
         'begin': begin.millisecondsSinceEpoch,
         'end': end.millisecondsSinceEpoch,
@@ -144,11 +150,6 @@ class Plot {
         'isNFT': isNFT,
         'loaded': loaded
       };
-
-  //Replaces long hash with timestamp id before sending to server
-  /*void clearID() {
-    _id = null;
-  }*/
 
   void updateSize(int size) {
     _size = size;

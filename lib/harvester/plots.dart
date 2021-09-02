@@ -116,19 +116,18 @@ class HarvesterPlots {
           //Checks if file extension is .plot
           //also checks that it is a File and not a directory
           if (extension(file.path) == ".plot" && file is io.File) {
-            final id = getPlotId(file.path);
+            final String filename = getPlotId(file.path);
 
-            bool inCache = (id != null)
-                ? allPlots.any((cachedPlot) => cachedPlot.id == id)
-                : false;
-            bool duplicate =
-                (id != null) ? newplots.any((plot) => plot.id == id) : false;
+            bool inCache =
+                allPlots.any((cachedPlot) => cachedPlot.filename == filename);
+            bool duplicate = newplots.any((plot) => plot.filename == filename);
 
             //If plot id it is in cache then adds old plot information (timestamps, etc.)
             //but updates plot size
+            Plot? plot;
             if (inCache && !duplicate) {
-              Plot plot =
-                  allPlots.firstWhere((cachedPlot) => cachedPlot.id == id);
+              plot = allPlots
+                  .firstWhere((cachedPlot) => cachedPlot.filename == filename);
 
               //updates file size in case plot was being moved while cached
               if (!plot.complete) {
@@ -141,28 +140,30 @@ class HarvesterPlots {
             //Adds plot if it's not in cache already
             else if (!duplicate) {
               //print("Found new plot " + id); // UNCOMMENT FOR DEBUGGING PLOT CACHE
-              Plot plot = new Plot(file, id);
+              plot = new Plot(file, filename);
 
               //displays warning if plot is incomplete and minimum k size is k32
               if (!plot.complete && checkPlotSize)
                 log.warning("Warning: plot " + file.path + " is incomplete!");
+            }
 
-              //updates plots public key and sets if its nft
+            //updates plots public key and sets if its nft
+            if (rpcPlotInfo != null)
               for (var rpcPlot in rpcPlotInfo) {
                 if (rpcPlot['filename'] is String) {
                   try {
-                    if (plot.id == getPlotId(rpcPlot['filename'])) {
-                      plot.readRPC(rpcPlot);
-                    }
+                    if ((plot?.filename ?? "N/A") ==
+                        getPlotId(rpcPlot['filename'])) plot?.readRPC(rpcPlot);
                   } catch (error) {
                     log.info(
                         "Failed to get RPC info about plot ${rpcPlot['filename']}");
                   }
                 }
               }
+            else //assumes plot is loaded if it cant load rpc info
+              plot?.loaded = true;
 
-              newplots.add(plot);
-            }
+            if (plot != null) newplots.add(plot);
           }
         });
       } catch (error) {

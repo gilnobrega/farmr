@@ -42,6 +42,7 @@ class Cache extends CacheStruct {
       '''
     CREATE TABLE IF NOT EXISTS plots (
       id TEXT NOT NULL PRIMARY KEY,
+      filename TEXT NOT NULL,
       plotSize TEXT NOT NULL,
       size INTEGER NOT NULL,
       begin INTEGER NOT NULL,
