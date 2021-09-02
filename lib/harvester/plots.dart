@@ -172,28 +172,19 @@ class HarvesterPlots {
       if (rpcOutput != null &&
           rpcOutput['plots'] != null &&
           rpcOutput['plots'] != null)
-        for (var plot in rpcOutput['plots']) {
-          if (plot['filename'] is String) {
+        for (var rpcPlot in rpcOutput['plots']) {
+          if (rpcPlot['filename'] is String) {
             try {
-              final String id = getPlotId(plot['filename'] as String);
+              final Plot plot = allPlots
+                  .firstWhere((element) => element.id == rpcPlot['filename']);
 
-              loadedIDs.add(id);
-
-              //nft plot if pool_public_key is defined
-              if (plot['pool_contract_puzzle_hash'] != null) {
-                nftIDs.add(id);
-              }
+              plot.readRPC(rpcPlot); //updates plot details with rpc results
             } catch (error) {
-              log.info("Failed to get RPC info about plot ${plot['filename']}");
+              log.info(
+                  "Failed to get RPC info about plot ${rpcPlot['filename']}");
             }
           }
         }
-
-      for (Plot plot in allPlots) {
-        if (loadedIDs.length > 0 && !loadedIDs.contains(plot.id))
-          plot.loaded = false;
-        if (nftIDs.contains(plot.id)) plot.isNFT = true;
-      }
     } catch (error) {
       log.warning(
           "Failed to load RPC list of ${blockchain.currencySymbol} plots");

@@ -11,7 +11,8 @@ final log = Logger('Plot');
 
 class Plot {
   String _id = "N/A";
-  String get id => _id;
+  String get id => _publicKey ?? _id;
+  String? _publicKey;
 
   String _plotSize = "k32"; //defaults to plot size k32
   String get plotSize => _plotSize;
@@ -50,14 +51,10 @@ class Plot {
   bool get complete => _size > _expectedSize;
 
   //Plot properties from RPC server
-  bool loaded = true;
+  bool loaded = false;
   bool get failed => !loaded;
   bool isNFT = false;
   bool get isOG => !isNFT;
-
-  String? publicKey;
-
-  bool winner = false;
 
   Plot(io.File file) {
     log.info("Added plot: " + file.path);
@@ -138,9 +135,6 @@ class Plot {
         loaded = json['loaded'];
       else if (json['loaded'] is int) loaded = json['loaded'] == 1;
     }
-
-    if (json['winner'] != null && json['winner'] is bool)
-      winner = json['winner'];
   }
 
   //Convert plot into json
@@ -152,8 +146,7 @@ class Plot {
         'size': size,
         'date': date,
         'isNFT': isNFT,
-        'loaded': loaded,
-        'winner': winner
+        'loaded': loaded
       };
 
   //Replaces long hash with timestamp id before sending to server
@@ -163,6 +156,19 @@ class Plot {
 
   void updateSize(int size) {
     _size = size;
+  }
+
+  void updateID(String id) {
+    _id = id;
+  }
+
+  void readRPC(dynamic rpcResult) {
+    loaded = true;
+    _publicKey = rpcResult['plot_public_key'];
+    //nft plot if pool_public_key is defined
+    if (rpcResult['pool_contract_puzzle_hash'] != null) {
+      isNFT = true;
+    }
   }
 }
 
