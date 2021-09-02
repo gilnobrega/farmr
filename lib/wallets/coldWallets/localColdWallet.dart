@@ -94,6 +94,7 @@ class LocalColdWallet extends ColdWallet {
       }
     } catch (error) {
       success = false;
+      log.info(success);
     }
 
     //closes database connection
