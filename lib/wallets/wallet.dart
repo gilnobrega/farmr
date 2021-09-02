@@ -17,13 +17,17 @@ class Wallet {
 
   late List<String> addresses;
 
+  //heights of farmed blocks
+  late List<int> farmedHeights;
+
   Wallet(
       {required this.type,
       required this.blockchain,
       this.syncedBlockHeight = -1,
       this.daysSinceLastBlock = -1,
       this.name = "Wallet",
-      this.addresses = const []});
+      this.addresses = const [],
+      this.farmedHeights = const []});
 
   Map toJson() => {
         'type': type.index,
@@ -55,7 +59,8 @@ class Wallet {
           blockchain: blockchain,
           syncedBlockHeight: -1,
           daysSinceLastBlock: compareDaysSinceBlock(
-              this.daysSinceLastBlock, wallet2.daysSinceLastBlock));
+              this.daysSinceLastBlock, wallet2.daysSinceLastBlock),
+          farmedHeights: this.farmedHeights + wallet2.farmedHeights);
     else
       throw Exception("Cannot combine wallets of different blockchains");
   }

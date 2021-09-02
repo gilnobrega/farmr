@@ -56,7 +56,7 @@ class LocalColdWallet extends ColdWallet {
 
       //Use the database
       const String query = """
-        SELECT amount,coinbase,spent,timestamp FROM coin_record 
+        SELECT amount,coinbase,spent,timestamp,confirmed_index FROM coin_record 
         WHERE puzzle_hash = ?
         """;
       var result = db.select(query, [puzzleHash.scriptPubKey]);
@@ -83,6 +83,9 @@ class LocalColdWallet extends ColdWallet {
         //if coin was farmed to address, adds it to farmed balance
         if (coin['coinbase'] == 1) {
           farmedBalance += amountToAdd;
+
+          if (coin['confirmed_index'] is int)
+            farmedHeights.add(coin['confirmed_index']);
 
           //sets last farmed timestamp
           if (coin['timestamp'] is int)

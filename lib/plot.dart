@@ -55,6 +55,10 @@ class Plot {
   bool isNFT = false;
   bool get isOG => !isNFT;
 
+  String? publicKey;
+
+  bool winner = false;
+
   Plot(io.File file) {
     log.info("Added plot: " + file.path);
 
@@ -134,6 +138,9 @@ class Plot {
         loaded = json['loaded'];
       else if (json['loaded'] is int) loaded = json['loaded'] == 1;
     }
+
+    if (json['winner'] != null && json['winner'] is bool)
+      winner = json['winner'];
   }
 
   //Convert plot into json
@@ -145,7 +152,8 @@ class Plot {
         'size': size,
         'date': date,
         'isNFT': isNFT,
-        'loaded': loaded
+        'loaded': loaded,
+        'winner': winner
       };
 
   //Replaces long hash with timestamp id before sending to server

@@ -173,7 +173,16 @@ class Cache extends CacheStruct {
   static _saveToDB(Database database, List list, String table,
       [String? errorType]) {
     if (list.length > 0) {
-      final List<String> keysMap = list.first.toJson().keys.toList();
+      //excludes winner entry from cache as that's dynamically set according to RPC info
+      final List<String> keysMap = (table != "plots")
+          ? list.first.toJson().keys.toList()
+          : list.first
+              .toJson()
+              .keys
+              .toList()
+              .where((name) => name != "winner")
+              .toList();
+
       final List<String> questionMarksMap = keysMap.map((e) => "?").toList();
 
       final String query = (table == "errors")

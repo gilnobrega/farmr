@@ -424,6 +424,10 @@ void handleBlockchainReport(List<Object> arguments) async {
     }
 
     if (client.balance >= 0) balance = client.balance.toStringAsFixed(2);
+
+    //debug line
+    print(
+        "${blockchain.binaryName} farmed heights: ${client.walletAggregate.farmedHeights}");
   }
 
   for (String address in client.localAddresses)
