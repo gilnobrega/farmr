@@ -139,9 +139,16 @@ class Plot {
   }
 
   //Convert plot into json
+  Map<String, dynamic> toJsonPrivate() {
+    var privateMap = toJson();
+    privateMap.addEntries({"filename": filename}.entries);
+
+    return privateMap;
+  }
+
+  //Convert plot into json
   Map<String, dynamic> toJson() => {
         'id': id,
-        'filename': filename,
         'plotSize': plotSize,
         'begin': begin.millisecondsSinceEpoch,
         'end': end.millisecondsSinceEpoch,

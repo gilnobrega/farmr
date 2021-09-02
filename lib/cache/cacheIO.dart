@@ -177,12 +177,7 @@ class Cache extends CacheStruct {
       //excludes winner entry from cache as that's dynamically set according to RPC info
       final List<String> keysMap = (table != "plots")
           ? list.first.toJson().keys.toList()
-          : list.first
-              .toJson()
-              .keys
-              .toList()
-              .where((name) => name != "winner")
-              .toList();
+          : list.first.toJsonPrivate().keys.toList();
 
       final List<String> questionMarksMap = keysMap.map((e) => "?").toList();
 
@@ -200,15 +195,8 @@ class Cache extends CacheStruct {
                 //converts bools to 0 (false) or 1 (true)
                 .map((e) => (e is bool) ? (e ? 1 : 0) : e)
                 .toList()
-            : object
-                .toJson()
-                .entries
-                .toList()
-                .where((name) => name.key != "winner")
-                .toList()
-                .map((entry) =>
-                    (entry.value is bool) ? (entry.value ? 1 : 0) : entry.value)
-                .toList();
+            : object.toJsonPrivate().values;
+
         statement.execute(values);
       }
 
