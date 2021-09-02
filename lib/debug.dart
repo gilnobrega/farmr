@@ -119,119 +119,116 @@ class Log {
     bool keepParsingHarvesterErrors = true;
 
     log.info("Started parsing logs");
-    //parses debug.log, debug.log.1, debug.log.2, ...
-    for (int i = 0; i <= 10; i++) {
-      if (keepParsing) {
-        String ext = (i == 0) ? '' : ('.' + i.toString());
-        log.info("Started parsing debug.log$ext");
+    //parses debug.log
+    //no longer parses all debug files (debug.log.1, debug.log.2, ...)
+    if (keepParsing) {
+      log.info("Started parsing debug.log");
 
-        try {
-          _debugFile = io.File(debugPath + ext);
+      try {
+        _debugFile = io.File(debugPath);
 
-          //stops parsing once it reaches parseUntil date limit
-          if (_debugFile.existsSync()) {
-            String content;
+        //stops parsing once it reaches parseUntil date limit
+        if (_debugFile.existsSync()) {
+          String content;
+
+          try {
+            content = _debugFile.readAsStringSync();
+          } catch (e) {
+            var bytes = _debugFile.readAsBytesSync();
+
+            //reads files this way because of UTF 16 decoding??
+            content = utf8.decode(bytes, allowMalformed: true);
+          }
+
+          //parses filters
+          if (keepParsingFilters) {
+            log.info("Started parsing filters in debug.log");
+            try {
+              keepParsingFilters = _parseFilters(content, _parseUntil);
+            } catch (e) {
+              log.warning(
+                  "Warning: could not parse filters in debug.log, make sure $_binaryName log level is set to INFO");
+            }
+            log.info(
+                "Finished parsing filters in debug.log - keepParsingFilters: $keepParsingFilters");
+          }
+
+          //parses signage points
+          if (keepParsingSignagePoints) {
+            log.info("Started parsing Signage Points in debug.log");
 
             try {
-              content = _debugFile.readAsStringSync();
+              keepParsingSignagePoints =
+                  _parseSignagePoints(content, _parseUntil);
             } catch (e) {
-              var bytes = _debugFile.readAsBytesSync();
-
-              //reads files this way because of UTF 16 decoding??
-              content = utf8.decode(bytes, allowMalformed: true);
+              log.info(
+                  "Warning: could not parse SubSlots in debug.log, make sure $_binaryName log level is set to INFO");
             }
 
-            //parses filters
-            if (keepParsingFilters) {
-              log.info("Started parsing filters in debug.log$ext");
-              try {
-                keepParsingFilters = _parseFilters(content, _parseUntil);
-              } catch (e) {
-                log.warning(
-                    "Warning: could not parse filters in debug.log$ext, make sure $_binaryName log level is set to INFO");
-              }
-              log.info(
-                  "Finished parsing filters in debug.log$ext - keepParsingFilters: $keepParsingFilters");
-            }
-
-            //parses signage points
-            if (keepParsingSignagePoints) {
-              log.info("Started parsing Signage Points in debug.log$ext");
-
-              try {
-                keepParsingSignagePoints =
-                    _parseSignagePoints(content, _parseUntil);
-              } catch (e) {
-                log.info(
-                    "Warning: could not parse SubSlots in debug.log$ext, make sure $_binaryName log level is set to INFO");
-              }
-
-              log.info(
-                  "Finished parsing SignagePoints in debug.log$ext - keepParsingSignagePoints: $keepParsingSignagePoints");
-            }
-
-            //parses signage points
-            if (keepParsingShortSyncs) {
-              log.info("Started parsing Short Sync events in debug.log$ext");
-
-              try {
-                keepParsingShortSyncs = _parseShortSyncs(content, _parseUntil);
-              } catch (e) {
-                log.info(
-                    "Warning: could not parse Short Sync events in debug.log$ext, make sure $_binaryName log level is set to INFO");
-              }
-
-              log.info(
-                  "Finished Short Sync events in debug.log$ext - keepParsingShortSyncs: $keepParsingShortSyncs");
-            }
-
-            //parses signage points
-            if (keepParsingPoolErrors) {
-              log.info("Started parsing Pool Errors events in debug.log$ext");
-
-              try {
-                keepParsingPoolErrors =
-                    _parseErrors(content, _parseUntil, ErrorType.Pool);
-              } catch (e) {
-                log.info(
-                    "Warning: could not parse Pool Error events in debug.log$ext, make sure $_binaryName log level is set to INFO");
-              }
-
-              log.info(
-                  "Finished pool error events in debug.log$ext - keepParsingPoolErrors: $keepParsingPoolErrors");
-            }
-
-            //parses signage points
-            if (keepParsingHarvesterErrors) {
-              log.info(
-                  "Started parsing Harvester Errors events in debug.log$ext");
-
-              try {
-                keepParsingHarvesterErrors =
-                    _parseErrors(content, _parseUntil, ErrorType.Harvester);
-              } catch (e) {
-                log.info(
-                    "Warning: could not parse Harvester Error events in debug.log$ext, make sure $_binaryName log level is set to INFO");
-              }
-
-              log.info(
-                  "Finished Harvester Error events in debug.log$ext - keepParsingHarvesterErrors: $keepParsingHarvesterErrors");
-            }
+            log.info(
+                "Finished parsing SignagePoints in debug.log - keepParsingSignagePoints: $keepParsingSignagePoints");
           }
-        } catch (Exception) {
-          log.warning(
-              "Warning: could not parse debug.log$ext, make sure $_binaryName log level is set to INFO");
+
+          //parses signage points
+          if (keepParsingShortSyncs) {
+            log.info("Started parsing Short Sync events in debug.log");
+
+            try {
+              keepParsingShortSyncs = _parseShortSyncs(content, _parseUntil);
+            } catch (e) {
+              log.info(
+                  "Warning: could not parse Short Sync events in debug.log, make sure $_binaryName log level is set to INFO");
+            }
+
+            log.info(
+                "Finished Short Sync events in debug.log - keepParsingShortSyncs: $keepParsingShortSyncs");
+          }
+
+          //parses signage points
+          if (keepParsingPoolErrors) {
+            log.info("Started parsing Pool Errors events in debug.log");
+
+            try {
+              keepParsingPoolErrors =
+                  _parseErrors(content, _parseUntil, ErrorType.Pool);
+            } catch (e) {
+              log.info(
+                  "Warning: could not parse Pool Error events in debug.log, make sure $_binaryName log level is set to INFO");
+            }
+
+            log.info(
+                "Finished pool error events in debug.log - keepParsingPoolErrors: $keepParsingPoolErrors");
+          }
+
+          //parses signage points
+          if (keepParsingHarvesterErrors) {
+            log.info("Started parsing Harvester Errors events in debug.log");
+
+            try {
+              keepParsingHarvesterErrors =
+                  _parseErrors(content, _parseUntil, ErrorType.Harvester);
+            } catch (e) {
+              log.info(
+                  "Warning: could not parse Harvester Error events in debug.log, make sure $_binaryName log level is set to INFO");
+            }
+
+            log.info(
+                "Finished Harvester Error events in debug.log - keepParsingHarvesterErrors: $keepParsingHarvesterErrors");
+          }
         }
-
-        //stops loading more files when all of the logging items stop parsing
-        keepParsing = keepParsingFilters &&
-            keepParsingSignagePoints &&
-            keepParsingShortSyncs &&
-            keepParsingPoolErrors &&
-            keepParsingPoolErrors;
-
-        log.info("Finished parsing debug.log$ext - keepParsing: $keepParsing");
+      } catch (Exception) {
+        log.warning(
+            "Warning: could not parse debug.log, make sure $_binaryName log level is set to INFO");
       }
+
+      //stops loading more files when all of the logging items stop parsing
+      keepParsing = keepParsingFilters &&
+          keepParsingSignagePoints &&
+          keepParsingShortSyncs &&
+          keepParsingPoolErrors &&
+          keepParsingPoolErrors;
+
+      log.info("Finished parsing debug.log - keepParsing: $keepParsing");
     }
 
     filterDuplicateFilters();
