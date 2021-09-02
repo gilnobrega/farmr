@@ -55,8 +55,9 @@ class Plot {
   bool isNFT = false;
   bool get isOG => !isNFT;
 
-  Plot(io.File file) {
+  Plot(io.File file, String id) {
     log.info("Added plot: " + file.path);
+    _id = id;
 
     try {
       int _year;
@@ -75,16 +76,12 @@ class Plot {
       _hour = int.parse(list[5]);
       _minute = int.parse(list[6]);
 
-      _id = list[7];
-
       _begin = new DateTime(_year, _month, _day, _hour, _minute);
 
       //in the client plotid is that long hash, while in the server its based on timestamps
       //this solves problems with copying plots
     } catch (e) {
       _plotSize = "k32";
-      //if plot has been renamed then the id will be its name
-      _id = basenameWithoutExtension(file.path);
       //if failed to parse timestamp, set begin date to current date
       _begin = DateTime.now();
       log.info("Failed to parse timestamp about plot in ${file.path}");
@@ -164,6 +161,8 @@ class Plot {
   void readRPC(dynamic rpcResult) {
     loaded = true;
     _id = rpcResult['plot_public_key'] ?? _id;
+
+    print(rpcResult['plot_public_key']);
     //nft plot if pool_public_key is defined
     if (rpcResult['pool_contract_puzzle_hash'] != null) {
       isNFT = true;

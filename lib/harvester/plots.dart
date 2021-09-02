@@ -141,7 +141,7 @@ class HarvesterPlots {
             //Adds plot if it's not in cache already
             else if (!duplicate) {
               //print("Found new plot " + id); // UNCOMMENT FOR DEBUGGING PLOT CACHE
-              Plot plot = new Plot(file);
+              Plot plot = new Plot(file, id);
 
               //displays warning if plot is incomplete and minimum k size is k32
               if (!plot.complete && checkPlotSize)
@@ -151,8 +151,9 @@ class HarvesterPlots {
               for (var rpcPlot in rpcPlotInfo) {
                 if (rpcPlot['filename'] is String) {
                   try {
-                    if (plot.id == getPlotId(rpcPlot['filename']))
+                    if (plot.id == getPlotId(rpcPlot['filename'])) {
                       plot.readRPC(rpcPlot);
+                    }
                   } catch (error) {
                     log.info(
                         "Failed to get RPC info about plot ${rpcPlot['filename']}");
