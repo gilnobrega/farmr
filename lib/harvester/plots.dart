@@ -171,19 +171,15 @@ class HarvesterPlots {
 
       var rpcOutput = await RPCConnection.getEndpoint(rpcConfig);
 
-      List<String> loadedIDs = [];
-      List<String> nftIDs = [];
-
       if (rpcOutput != null &&
           rpcOutput['plots'] != null &&
           rpcOutput['plots'] != null)
         for (var rpcPlot in rpcOutput['plots']) {
           if (rpcPlot['filename'] is String) {
             try {
-              final Plot plot = allPlots
-                  .firstWhere((element) => element.id == rpcPlot['filename']);
-
-              plot.readRPC(rpcPlot); //updates plot details with rpc results
+              allPlots
+                  .firstWhere((element) => element.id == rpcPlot['filename'])
+                  .readRPC(rpcPlot);
             } catch (error) {
               log.info(
                   "Failed to get RPC info about plot ${rpcPlot['filename']}");

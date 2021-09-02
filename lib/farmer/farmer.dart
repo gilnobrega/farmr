@@ -325,7 +325,6 @@ Make sure that you have access to the wallet associated to this wallet address.
   }
 
   Future<void> _getWinnerPlots() async {
-    print(walletAggregate.farmedHeights);
     for (final farmedHeight in walletAggregate.farmedHeights) {
       //https://github.com/Chia-Network/chia-blockchain/wiki/RPCExamples#11-get-block-record-by-height
       final RPCConfiguration getBlockRecordByHeight = RPCConfiguration(
@@ -337,11 +336,8 @@ Make sure that you have access to the wallet associated to this wallet address.
       final dynamic result =
           await RPCConnection.getEndpoint(getBlockRecordByHeight);
 
-      print(result);
-
       if (result['success'] ?? false) {
         final String headerHash = result['block_record']['header_hash'];
-        print("Header hash: $headerHash");
 
         //https://github.com/Chia-Network/chia-blockchain/wiki/RPCExamples#12-get-block
         final RPCConfiguration getWonBlockPublicKey = RPCConfiguration(
@@ -352,13 +348,9 @@ Make sure that you have access to the wallet associated to this wallet address.
         final dynamic result2 =
             await RPCConnection.getEndpoint(getWonBlockPublicKey);
 
-        print(result2);
-
         if (result2['success'] ?? false) {
           final String plotPublicKey = result2['block']['reward_chain_block']
               ['proof_of_space']['plot_public_key'];
-
-          print("Key: $plotPublicKey");
 
           winnerPlotPublicKeys.add(plotPublicKey);
         }

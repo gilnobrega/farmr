@@ -11,8 +11,7 @@ final log = Logger('Plot');
 
 class Plot {
   String _id = "N/A";
-  String get id => _publicKey ?? _id;
-  String? _publicKey;
+  String get id => _id;
 
   String _plotSize = "k32"; //defaults to plot size k32
   String get plotSize => _plotSize;
@@ -164,7 +163,7 @@ class Plot {
 
   void readRPC(dynamic rpcResult) {
     loaded = true;
-    _publicKey = rpcResult['plot_public_key'];
+    _id = rpcResult['plot_public_key'] ?? _id;
     //nft plot if pool_public_key is defined
     if (rpcResult['pool_contract_puzzle_hash'] != null) {
       isNFT = true;
