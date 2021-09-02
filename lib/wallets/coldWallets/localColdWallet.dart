@@ -84,7 +84,7 @@ class LocalColdWallet extends ColdWallet {
         if (coin['coinbase'] == 1) {
           farmedBalance += amountToAdd;
 
-          print(coin['coin_parent']);
+          //print(coin['coin_parent']); //debug purposes
 
           if (coinbaseParentHeight(coin['coin_parent']) != null)
             farmedHeights.add(coinbaseParentHeight(coin['coin_parent'])!);
@@ -95,7 +95,6 @@ class LocalColdWallet extends ColdWallet {
         }
       }
     } catch (error) {
-      print(error);
       success = false;
       log.info(success);
     }
