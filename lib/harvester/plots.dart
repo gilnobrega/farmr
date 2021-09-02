@@ -54,6 +54,8 @@ class HarvesterPlots {
   List<Plot> get winnerPlots =>
       allPlots.where((plot) => winnerPlotPublicKeys.contains(plot.id)).toList();
 
+  dynamic rpcPlotInfo;
+
   //Parses chia's config.yaml and finds plot destionation paths
   List<String> listPlotDest(String chiaConfigPath) {
     String configPath = (chiaConfigPath != "")
@@ -146,6 +148,18 @@ class HarvesterPlots {
               if (!plot.complete && checkPlotSize)
                 log.warning("Warning: plot " + file.path + " is incomplete!");
 
+              //updates plots public key and sets if its nft
+              for (var rpcPlot in rpcPlotInfo) {
+                if (rpcPlot['filename'] is String) {
+                  try {
+                    if (plot.id == rpcPlot['filename']) plot.readRPC(rpcPlot);
+                  } catch (error) {
+                    log.info(
+                        "Failed to get RPC info about plot ${rpcPlot['filename']}");
+                  }
+                }
+              }
+
               newplots.add(plot);
             }
           }
@@ -173,19 +187,7 @@ class HarvesterPlots {
 
       if (rpcOutput != null &&
           rpcOutput['plots'] != null &&
-          rpcOutput['plots'] != null)
-        for (var rpcPlot in rpcOutput['plots']) {
-          if (rpcPlot['filename'] is String) {
-            try {
-              allPlots
-                  .firstWhere((element) => element.id == rpcPlot['filename'])
-                  .readRPC(rpcPlot);
-            } catch (error) {
-              log.info(
-                  "Failed to get RPC info about plot ${rpcPlot['filename']}");
-            }
-          }
-        }
+          rpcOutput['plots'] != null) rpcPlotInfo = rpcOutput['plots'];
     } catch (error) {
       log.warning(
           "Failed to load RPC list of ${blockchain.currencySymbol} plots");

@@ -234,9 +234,9 @@ class Harvester
     //LOADS CHIA CONFIG FILE AND PARSES PLOT DIRECTORIES
     _plotDests = listPlotDest(this.blockchain.configPath);
 
-    await listPlots(_plotDests, _config);
-
     if (type != ClientType.HPool) await readRPCPlotList(blockchain);
+
+    await listPlots(_plotDests, _config);
 
     await getWallets(blockchain, syncedBlockHeight);
 
