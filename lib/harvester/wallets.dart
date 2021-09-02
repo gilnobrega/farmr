@@ -116,17 +116,22 @@ class HarvesterWallets {
       wallets.add(
           ElysiumPoolWallet(blockchain: blockchain, launcherID: launcherID));
 
+    List<String> failedAddresses = [];
     for (Wallet wallet in wallets) {
       await wallet.init();
 
       //adds failed local cold wallet addresses as alltheblocks wallets
       if (wallet is LocalColdWallet && !wallet.success) {
-        final AllTheBlocksWallet backupWallet = AllTheBlocksWallet(
-            blockchain: blockchain, address: wallet.addresses.first);
-        await backupWallet.init();
-
-        wallets.add(backupWallet);
+        failedAddresses.addAll(wallet.addresses);
       }
+    }
+
+    for (final address in failedAddresses) {
+      final AllTheBlocksWallet backupWallet =
+          AllTheBlocksWallet(blockchain: blockchain, address: address);
+      await backupWallet.init();
+
+      wallets.add(backupWallet);
     }
   }
 

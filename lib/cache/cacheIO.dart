@@ -192,12 +192,22 @@ class Cache extends CacheStruct {
       final statement = database.prepare(query);
 
       for (final object in list) {
-        final List<dynamic> values = object
-            .toJson()
-            .values
-            //converts bools to 0 (false) or 1 (true)
-            .map((e) => (e is bool) ? (e ? 1 : 0) : e)
-            .toList();
+        final List<dynamic> values = (table != "plots")
+            ? object
+                .toJson()
+                .values
+                //converts bools to 0 (false) or 1 (true)
+                .map((e) => (e is bool) ? (e ? 1 : 0) : e)
+                .toList()
+            : object
+                .toJson()
+                .entries
+                .toList()
+                .where((name) => name.key != "winner")
+                .toList()
+                .map((entry) =>
+                    (entry.value is bool) ? (entry.value ? 1 : 0) : entry.value)
+                .toList();
         statement.execute(values);
       }
 
