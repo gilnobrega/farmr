@@ -62,7 +62,9 @@ class Wallet {
           syncedBlockHeight: -1,
           daysSinceLastBlock: compareDaysSinceBlock(
               this.daysSinceLastBlock, wallet2.daysSinceLastBlock),
-          farmedHeightsToAdd: this.farmedHeights + wallet2.farmedHeights);
+          //combines farmed heights and filters duplicate farmed heights
+          farmedHeightsToAdd:
+              (this.farmedHeights + wallet2.farmedHeights).toSet().toList());
     else
       throw Exception("Cannot combine wallets of different blockchains");
   }
