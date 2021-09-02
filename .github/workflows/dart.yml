@@ -59,6 +59,14 @@ jobs:
              chmod +x ./farmr.sh
              chmod +x ./hpool.sh
 
+      - name: Moves SQLite3 library (x86_64)
+        if: matrix.architecture == 'x86_64'
+        run: mv .github/libsqlite3.so ./libsqlite3.so
+
+      - name: Moves SQLite3 library (aarch64)
+        if: matrix.architecture == 'aarch64'
+        run: mv .github/libsqlite3-arm64.so ./libsqlite3.so
+
       - uses: uraimo/run-on-arch-action@v2.1.0
         name: Compile aarch64
         id: runcmd
@@ -89,14 +97,6 @@ jobs:
              chmod +x ./farmr.exe
              mv ./farmr.exe ./farmr
              mv ./farmr_package.exe ./farmr_package
-
-      - name: Moves SQLite3 library (x86_64)
-        if: matrix.architecture == 'x86_64'
-        run: mv .github/libsqlite3.so ./libsqlite3.so
-
-      - name: Moves SQLite3 library (aarch64)
-        if: matrix.architecture == 'aarch64'
-        run: mv .github/libsqlite3-arm64.so ./libsqlite3.so
 
       - name: Load .env file
         uses: xom9ikk/dotenv@v1.0.2
