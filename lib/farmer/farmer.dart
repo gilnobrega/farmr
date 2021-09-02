@@ -85,6 +85,7 @@ class Farmer extends Harvester with FarmerStatusMixin {
       "peakBlockHeight": peakBlockHeight,
       "poolErrors": poolErrors,
       "harvesterErrors": harvesterErrors,
+      "winnerPlots": winnerPlotPublicKeys
     }.entries);
 
     //returns complete map with both farmer's + harvester's entries
@@ -324,7 +325,9 @@ Make sure that you have access to the wallet associated to this wallet address.
   }
 
   Future<void> _getWinnerPlots() async {
+    print(walletAggregate.farmedHeights);
     for (final farmedHeight in walletAggregate.farmedHeights) {
+      //https://github.com/Chia-Network/chia-blockchain/wiki/RPCExamples#11-get-block-record-by-height
       final RPCConfiguration getBlockRecordByHeight = RPCConfiguration(
           blockchain: blockchain,
           service: RPCService.Full_Node,
@@ -340,12 +343,14 @@ Make sure that you have access to the wallet associated to this wallet address.
         final String headerHash = result['block_record']['header_hash'];
         print("Header hash: $headerHash");
 
+        //https://github.com/Chia-Network/chia-blockchain/wiki/RPCExamples#12-get-block
         final RPCConfiguration getWonBlockPublicKey = RPCConfiguration(
             blockchain: blockchain,
             service: RPCService.Full_Node,
             endpoint: "get_block",
             dataToSend: {"header_hash": headerHash});
-        final dynamic result2 = RPCConnection.getEndpoint(getWonBlockPublicKey);
+        final dynamic result2 =
+            await RPCConnection.getEndpoint(getWonBlockPublicKey);
 
         print(result2);
 
@@ -429,10 +434,11 @@ Make sure that you have access to the wallet associated to this wallet address.
       await _getPeakHeight(); // attempts to get peak height
       //only works for blockchains supported by alltheblocks.net
 
-      await _getWinnerPlots();
     }
 
     await super.init();
+
+    await _getWinnerPlots();
   }
 
   //Server side function to read farm from json file
@@ -519,6 +525,10 @@ Make sure that you have access to the wallet associated to this wallet address.
       for (var countryConnected in object['countriesConnected'])
         _countriesConnected.add(CountryCount.fromJson(countryConnected));
     }
+
+    if (object['winnerPlots'] != null)
+      for (final winnerPlot in object['winnerPlots'])
+        if (winnerPlot is String) winnerPlotPublicKeys.add(winnerPlot);
   }
 
   //Adds harvester's plots into farm's plots
@@ -528,6 +538,8 @@ Make sure that you have access to the wallet associated to this wallet address.
     if (harvester is Farmer) {
       _completeSubSlots += harvester.completeSubSlots;
       _looseSignagePoints += harvester._looseSignagePoints;
+
+      winnerPlotPublicKeys.addAll(winnerPlotPublicKeys);
 
       shortSyncs.addAll(harvester.shortSyncs);
     }
