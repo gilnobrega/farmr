@@ -170,7 +170,6 @@ class Plot {
     loaded = true;
     _id = rpcResult['plot_public_key'] ?? _id;
 
-    print(rpcResult['plot_public_key']);
     //nft plot if pool_public_key is defined
     if (rpcResult['pool_contract_puzzle_hash'] != null) {
       isNFT = true;
