@@ -16,7 +16,7 @@ class ShortSync extends LogItem {
   late String _localTime = "";
   String get localTime => _localTime;
 
-  Map toJson() => {
+  Map<String, dynamic> toJson() => {
         "timestamp": timestamp,
         "localTime": localTime,
         "start": start,

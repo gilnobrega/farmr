@@ -5,7 +5,8 @@ import 'dart:convert';
 
 import 'package:logging/logging.dart';
 
-import 'package:farmr_client/cache.dart';
+import 'package:farmr_client/cache/cacheIO.dart'
+    if (dart.library.js) "package:farmr_client/cache/cacheJS.dart";
 
 import 'package:http/http.dart' as http;
 

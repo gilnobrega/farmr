@@ -17,11 +17,11 @@ class Filter extends LogItem {
   int _totalPlots = 0; //total number of plots
   int get totalPlots => _totalPlots;
 
-  Map toJson() => {
+  Map<String, dynamic> toJson() => {
         'timestamp': timestamp,
         'eligible': eligiblePlots,
-        'time': time,
-        'totalPlots': totalPlots,
+        'lookupTime': time,
+        'plotNumber': totalPlots,
         'proofs': proofs
       };
 
@@ -33,11 +33,11 @@ class Filter extends LogItem {
       : super.fromJson(json, LogItemType.Harvester) {
     if (json['eligible'] != null) _eligiblePlots = json['eligible'];
     if (json['proofs'] != null) _proofs = json['proofs'];
-    if (json['time'] != null) _time = json['time'];
+    if (json['lookupTime'] != null) _time = json['lookupTime'];
 
     //if totalPlots does not exist in cache then it will use cache's plots.length
-    if (json['totalPlots'] != null)
-      _totalPlots = json['totalPlots'];
+    if (json['plotNumber'] != null)
+      _totalPlots = json['plotNumber'];
     else
       _totalPlots = plotCount;
   }

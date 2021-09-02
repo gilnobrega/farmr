@@ -1,7 +1,7 @@
 import 'dart:core';
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/farmer/status.dart';
-import 'package:farmr_client/rpc.dart';
+import 'package:farmr_client/utils/rpc.dart';
 import 'package:farmr_client/wallets/coldWallets/alltheblocks.dart';
 import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
 import 'package:farmr_client/wallets/coldWallets/localColdWallet-web.dart'

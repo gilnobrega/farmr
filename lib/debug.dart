@@ -5,7 +5,9 @@ import 'dart:convert';
 
 import 'package:logging/logging.dart';
 
-import 'package:farmr_client/cache.dart';
+import 'package:farmr_client/cache/cacheIO.dart'
+    if (dart.library.js) "package:farmr_client/cache/cacheJS.dart";
+
 import 'package:farmr_client/log/filter.dart';
 import 'package:farmr_client/log/subslot.dart';
 import 'package:farmr_client/log/logitem.dart';
@@ -62,11 +64,8 @@ class Log {
           _type != ClientType.HPool) {
         setLogLevelToInfo(configPath);
       }
-      _cache.saveFilters(filters);
-      _cache.saveSignagePoints(signagePoints); //saves signagePoints to cache
-      _cache.saveShortSyncs(shortSyncs);
-      _cache.savePoolErrors(poolErrors);
-      _cache.saveHarvesterErrors(harvesterErrors);
+      _cache.saveLogs(
+          signagePoints, shortSyncs, filters, harvesterErrors, poolErrors);
     }
   }
 

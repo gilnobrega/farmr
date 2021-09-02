@@ -98,7 +98,6 @@ class Plot {
     _duration = _end.difference(_begin);
 
     _size = stat.size;
-
   }
 
   //Generate plot from json string
@@ -124,12 +123,21 @@ class Plot {
     _duration = _end.difference(_begin);
 
     //RPC properties
-    if (json['isNFT'] != null) isNFT = json['isNFT'];
-    if (json['loaded'] != null) loaded = json['loaded'];
+    if (json['isNFT'] != null) {
+      if (json['isNFT'] is bool)
+        isNFT = json['isNFT'];
+      else if (json['isNFT'] is int) isNFT = json['isNFT'] == 1;
+    }
+
+    if (json['loaded'] != null) {
+      if (json['loaded'] is bool)
+        loaded = json['loaded'];
+      else if (json['loaded'] is int) loaded = json['loaded'] == 1;
+    }
   }
 
   //Convert plot into json
-  Map toJson() => {
+  Map<String, dynamic> toJson() => {
         'id': id,
         'plotSize': plotSize,
         'begin': begin.millisecondsSinceEpoch,
