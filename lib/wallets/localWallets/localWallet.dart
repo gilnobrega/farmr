@@ -142,6 +142,8 @@ class LocalWallet extends Wallet {
         for (var result in results) {
           final String puzzleHash = result['puzzle_hash'];
 
+          print(result['coin_parent']);
+
           if (result['coinbase'] == 1 &&
               int.tryParse(result['coin_parent'], radix: 32) != null)
             farmedHeights.add(int.parse(result['coin_parent'], radix: 32));

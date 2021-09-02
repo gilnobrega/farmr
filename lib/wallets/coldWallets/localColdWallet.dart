@@ -56,7 +56,7 @@ class LocalColdWallet extends ColdWallet {
 
       //Use the database
       const String query = """
-        SELECT amount,coinbase,spent,timestamp,parent_coin_info FROM coin_record 
+        SELECT amount,coinbase,spent,timestamp,coin_parent FROM coin_record 
         WHERE puzzle_hash = ?
         """;
       var result = db.select(query, [puzzleHash.scriptPubKey]);
