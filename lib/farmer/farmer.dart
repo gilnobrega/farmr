@@ -112,7 +112,7 @@ class Farmer extends Harvester with FarmerStatusMixin {
     }
   }
 
-  Future<void> getLocalWallets() async {
+  Future<void> _getLocalWallets() async {
     final bool? isWalletServiceRunning =
         ((await blockchain.rpcPorts?.isServiceRunning([RPCService.Wallet])) ??
             {})[RPCService.Wallet];
@@ -323,6 +323,44 @@ Make sure that you have access to the wallet associated to this wallet address.
     }
   }
 
+  Future<void> _getWinnerPlots() async {
+    for (final farmedHeight in walletAggregate.farmedHeights) {
+      final RPCConfiguration getBlockRecordByHeight = RPCConfiguration(
+          blockchain: blockchain,
+          service: RPCService.Full_Node,
+          endpoint: "get_block_record_by_height",
+          dataToSend: {"height": farmedHeight});
+
+      final dynamic result =
+          await RPCConnection.getEndpoint(getBlockRecordByHeight);
+
+      print(result);
+
+      if (result['success'] ?? false) {
+        final String headerHash = result['block_record']['header_hash'];
+        print("Header hash: $headerHash");
+
+        final RPCConfiguration getWonBlockPublicKey = RPCConfiguration(
+            blockchain: blockchain,
+            service: RPCService.Full_Node,
+            endpoint: "get_block",
+            dataToSend: {"header_hash": headerHash});
+        final dynamic result2 = RPCConnection.getEndpoint(getWonBlockPublicKey);
+
+        print(result2);
+
+        if (result2['success'] ?? false) {
+          final String plotPublicKey = result2['block']['reward_chain_block']
+              ['proof_of_space']['plot_public_key'];
+
+          print("Key: $plotPublicKey");
+
+          winnerPlotPublicKeys.add(plotPublicKey);
+        }
+      }
+    }
+  }
+
   //legacy mode for getting local wallet
   //basically uses cli (chia wallet show)
   void _getLegacyLocalWallets() {
@@ -353,7 +391,7 @@ Make sure that you have access to the wallet associated to this wallet address.
     }
   }
 
-  Future<void> getPeakHeight() async {
+  Future<void> _getPeakHeight() async {
     //tries to get peak block height from all the blocks
     try {
       final String url =
@@ -386,10 +424,12 @@ Make sure that you have access to the wallet associated to this wallet address.
 
       await updateFarmerStatus(blockchain);
 
-      await getLocalWallets();
+      await _getLocalWallets();
 
-      await getPeakHeight(); // attempts to get peak height
+      await _getPeakHeight(); // attempts to get peak height
       //only works for blockchains supported by alltheblocks.net
+
+      await _getWinnerPlots();
     }
 
     await super.init();

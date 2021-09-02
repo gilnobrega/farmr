@@ -49,6 +49,11 @@ class HarvesterPlots {
   //creates a map with the following structure { 'k32' : 3, 'k33' : 2 } etc.
   Map<String, int> get typeCount => genPlotTypes(plots);
 
+  List<String> winnerPlotPublicKeys = []; //ids of plots which won blocks
+
+  List<Plot> get winnerPlots =>
+      allPlots.where((plot) => winnerPlotPublicKeys.contains(plot.id)).toList();
+
   //Parses chia's config.yaml and finds plot destionation paths
   List<String> listPlotDest(String chiaConfigPath) {
     String configPath = (chiaConfigPath != "")
