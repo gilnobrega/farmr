@@ -30,6 +30,7 @@ Logger log = Logger("Local Cold Wallet");
 
 class LocalColdWallet extends ColdWallet {
   final String rootPath;
+  bool success = true;
 
   LocalColdWallet(
       {required Blockchain blockchain,
@@ -39,65 +40,71 @@ class LocalColdWallet extends ColdWallet {
       : super(blockchain: blockchain, name: name, address: address);
 
   Future<void> init() async {
-    //generates puzzle hash from address
-    final Segwit puzzleHash = segwit.decode(this.addresses.first);
-    //print("Puzzle hash: ${puzzleHash.scriptPubKey}");
-
-    late final Database db;
-    //tries to open database
-    //if that fails loads pre bundled libraries
-
-    final mode = OpenMode.readOnly;
-    final String dbLocation = blockchain.dbPath +
-        "/blockchain_v1_${blockchain.currencySymbol != "tsit" ? blockchain.net : "testnet"}.sqlite";
+    Database? db;
 
     try {
-      db = sqlite3.open(dbLocation, mode: mode);
-    } catch (error) {
-      open.overrideFor(
-          OperatingSystem.linux, _openOnLinux); //provides .so file to linux
-      open.overrideFor(OperatingSystem.windows,
-          _openOnWindows); // provides .dll file to windows
-      db = sqlite3.open(dbLocation, mode: mode);
-    }
-    //Use the database
+      //generates puzzle hash from address
+      final Segwit puzzleHash = segwit.decode(this.addresses.first);
+      //print("Puzzle hash: ${puzzleHash.scriptPubKey}");
 
-    const String query = """
+      //tries to open database
+      //if that fails loads pre bundled libraries
+
+      const mode = OpenMode.readOnly;
+      final String dbLocation = blockchain.dbPath +
+          "/blockchain_v1_${blockchain.currencySymbol != "tsit" ? blockchain.net : "testnet"}.sqlite";
+
+      try {
+        db = sqlite3.open(dbLocation, mode: mode);
+      } catch (error) {
+        open.overrideFor(
+            OperatingSystem.linux, _openOnLinux); //provides .so file to linux
+        open.overrideFor(OperatingSystem.windows,
+            _openOnWindows); // provides .dll file to windows
+        db = sqlite3.open(dbLocation, mode: mode);
+      }
+      //Use the database
+
+      const String query = """
         SELECT amount,coinbase,spent,timestamp FROM coin_record 
         WHERE puzzle_hash = ?
         """;
-    var result = db.select(query, [puzzleHash.scriptPubKey]);
+      var result = db.select(query, [puzzleHash.scriptPubKey]);
 
-    farmedBalance = 0;
-    grossBalance = 0;
-    netBalance = 0;
+      farmedBalance = 0;
+      grossBalance = 0;
+      netBalance = 0;
 
-    for (var coin in result) {
-      //print("${coin['puzzle_hash']}");
-      //converts list of bytes to an uint64
-      final int amountToAdd = (Uint8List.fromList(coin['amount'] as List<int>))
-          .buffer
-          .asByteData()
-          .getUint64(0);
+      for (var coin in result) {
+        //print("${coin['puzzle_hash']}");
+        //converts list of bytes to an uint64
+        final int amountToAdd =
+            (Uint8List.fromList(coin['amount'] as List<int>))
+                .buffer
+                .asByteData()
+                .getUint64(0);
 
-      //gross balance
-      grossBalance += amountToAdd;
+        //gross balance
+        grossBalance += amountToAdd;
 
-      //if coin was not spent, adds that amount to netbalance
-      if (coin['spent'] == 0) netBalance += amountToAdd;
+        //if coin was not spent, adds that amount to netbalance
+        if (coin['spent'] == 0) netBalance += amountToAdd;
 
-      //if coin was farmed to address, adds it to farmed balance
-      if (coin['coinbase'] == 1) {
-        farmedBalance += amountToAdd;
+        //if coin was farmed to address, adds it to farmed balance
+        if (coin['coinbase'] == 1) {
+          farmedBalance += amountToAdd;
 
-        //sets last farmed timestamp
-        if (coin['timestamp'] is int)
-          setDaysAgoWithTimestamp((coin['timestamp'] as int) * 1000);
+          //sets last farmed timestamp
+          if (coin['timestamp'] is int)
+            setDaysAgoWithTimestamp((coin['timestamp'] as int) * 1000);
+        }
       }
+    } catch (error) {
+      success = false;
     }
 
     //closes database connection
-    db.dispose();
+    db?.dispose();
   }
 
   DynamicLibrary _openOnLinux() {

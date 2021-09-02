@@ -6,6 +6,7 @@ Logger log = Logger("Local Cold Wallet");
 
 class LocalColdWallet extends ColdWallet {
   final String rootPath;
+  bool success = true;
 
   LocalColdWallet(
       {required Blockchain blockchain,
