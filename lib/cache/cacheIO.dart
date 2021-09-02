@@ -31,7 +31,7 @@ class Cache extends CacheStruct {
       return "";
   }
 
-  Cache(Blockchain blockchain, String rootPath) : super(blockchain, rootPath) {
+  Cache(Blockchain blockchain, rootPath) : super(blockchain, rootPath) {
     cache = io.File(rootPath + "cache/cache${blockchain.fileExtension}.sqlite");
 
     //opens database file or creates it if it doesnt exist
@@ -242,6 +242,11 @@ class Cache extends CacheStruct {
     final binPathResults = database.select(binPathQuery);
     for (final binPathResult in binPathResults)
       _binPath = binPathResult['value'];
+
+    final io.File binPathOverride =
+        io.File(rootPath + "override${blockchain.fileExtension}-binary.txt");
+    if (binPathOverride.existsSync())
+      _binPath = binPathOverride.readAsStringSync().trim();
 
     const String filterQuery = "SELECT * from filters WHERE timestamp > ?";
     final filterResults = database.select(filterQuery, [parseUntil]);
