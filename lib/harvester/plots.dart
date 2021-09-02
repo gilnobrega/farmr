@@ -134,8 +134,6 @@ class HarvesterPlots {
                 io.FileStat stat = io.FileStat.statSync(file.path);
                 plot.updateSize(stat.size);
               }
-
-              newplots.add(plot);
             }
             //Adds plot if it's not in cache already
             else if (!duplicate) {
