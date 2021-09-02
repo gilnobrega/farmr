@@ -14,7 +14,7 @@ class Plot {
   String get id => _id;
 
   String _filename = "N/A";
-  String get filename => filename;
+  String get filename => _filename;
 
   String _plotSize = "k32"; //defaults to plot size k32
   String get plotSize => _plotSize;
