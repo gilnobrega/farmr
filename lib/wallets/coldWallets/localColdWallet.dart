@@ -84,10 +84,10 @@ class LocalColdWallet extends ColdWallet {
         if (coin['coinbase'] == 1) {
           farmedBalance += amountToAdd;
 
-          print(coin['parent_coin_info']);
+          print(coin['coin_parent']);
 
-          if (int.tryParse(coin['parent_coin_info'], radix: 32) != null)
-            farmedHeights.add(int.parse(coin['parent_coin_info'], radix: 32));
+          if (int.tryParse(coin['coin_parent'], radix: 32) != null)
+            farmedHeights.add(int.parse(coin['coin_parent'], radix: 32));
 
           //sets last farmed timestamp
           if (coin['timestamp'] is int)
@@ -95,6 +95,7 @@ class LocalColdWallet extends ColdWallet {
         }
       }
     } catch (error) {
+      print(error);
       success = false;
       log.info(success);
     }

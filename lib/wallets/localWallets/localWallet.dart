@@ -136,14 +136,15 @@ class LocalWallet extends Wallet {
         //Use the database
 
         const String query =
-            "SELECT puzzle_hash,coinbase,confirmed_index FROM coin_record";
+            "SELECT puzzle_hash,coinbase,coin_parent FROM coin_record";
         var results = db.select(query);
 
         for (var result in results) {
           final String puzzleHash = result['puzzle_hash'];
 
-          if (result['coinbase'] == 1 && result['confirmed_index'] is int)
-            farmedHeights.add(result['confirmed_index']);
+          if (result['coinbase'] == 1 &&
+              int.tryParse(result['coin_parent'], radix: 32) != null)
+            farmedHeights.add(int.parse(result['coin_parent'], radix: 32));
 
           final String address = segwit.encode(
               Segwit(blockchain.currencySymbol, HEX.decode(puzzleHash)));
