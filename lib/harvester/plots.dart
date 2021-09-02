@@ -99,8 +99,7 @@ class HarvesterPlots {
   //returns last bit of plot filename if plot contains '-' (such as chia plotter and madmax)
   //else returns whole filename
   static String getPlotId(String path) {
-    final String fileName = basenameWithoutExtension(path);
-    return (fileName.contains("-")) ? fileName.split('-').last : fileName;
+    return basenameWithoutExtension(path);
   }
 
 //makes a list of available plots in all plot destination paths
@@ -152,7 +151,8 @@ class HarvesterPlots {
               for (var rpcPlot in rpcPlotInfo) {
                 if (rpcPlot['filename'] is String) {
                   try {
-                    if (plot.id == rpcPlot['filename']) plot.readRPC(rpcPlot);
+                    if (plot.id == getPlotId(rpcPlot['filename']))
+                      plot.readRPC(rpcPlot);
                   } catch (error) {
                     log.info(
                         "Failed to get RPC info about plot ${rpcPlot['filename']}");
