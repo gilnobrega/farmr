@@ -195,7 +195,11 @@ class Cache extends CacheStruct {
                 //converts bools to 0 (false) or 1 (true)
                 .map((e) => (e is bool) ? (e ? 1 : 0) : e)
                 .toList()
-            : object.toJsonPrivate().values;
+            : object
+                .toJsonPrivate()
+                .values //converts bools to 0 (false) or 1 (true)
+                .map((e) => (e is bool) ? (e ? 1 : 0) : e)
+                .toList();
 
         statement.execute(values);
       }
