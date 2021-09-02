@@ -86,8 +86,8 @@ class LocalColdWallet extends ColdWallet {
 
           print(coin['coin_parent']);
 
-          if (int.tryParse(coin['coin_parent'], radix: 32) != null)
-            farmedHeights.add(int.parse(coin['coin_parent'], radix: 32));
+          if (coinbaseParentHeight(coin['coin_parent']) != null)
+            farmedHeights.add(coinbaseParentHeight(coin['coin_parent'])!);
 
           //sets last farmed timestamp
           if (coin['timestamp'] is int)

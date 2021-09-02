@@ -142,11 +142,9 @@ class LocalWallet extends Wallet {
         for (var result in results) {
           final String puzzleHash = result['puzzle_hash'];
 
-          print(result['coin_parent']);
-
           if (result['coinbase'] == 1 &&
-              int.tryParse(result['coin_parent'], radix: 32) != null)
-            farmedHeights.add(int.parse(result['coin_parent'], radix: 32));
+              coinbaseParentHeight(result['coin_parent']) != null)
+            farmedHeights.add(coinbaseParentHeight(result['coin_parent'])!);
 
           final String address = segwit.encode(
               Segwit(blockchain.currencySymbol, HEX.decode(puzzleHash)));
