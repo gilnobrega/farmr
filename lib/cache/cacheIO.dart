@@ -291,9 +291,9 @@ class Cache extends CacheStruct {
       log.info("Input chia path: '${blockchain.cache.chiaPath}'");
 
       _binPath = (io.Platform.isLinux || io.Platform.isMacOS)
-          ? blockchain.cache.chiaPath + "/venv/bin/${blockchain.binaryName}"
+          ? blockchain.cache.chiaPath + "/venv/bin/${blockchain.binaryFilename}"
           : blockchain.cache.chiaPath +
-              "\\daemon\\${blockchain.binaryName}.exe";
+              "\\daemon\\${blockchain.binaryFilename}.exe";
 
       if (io.File(_binPath!).existsSync())
         validDirectory = true;
@@ -326,7 +326,7 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
             "/AppData/Local/${blockchain.binaryName}-blockchain");
 
         file =
-            "/resources/app.asar.unpacked/daemon/${blockchain.binaryName}.exe";
+            "/resources/app.asar.unpacked/daemon/${blockchain.binaryFilename}.exe";
 
         if (chiaRootDir.existsSync()) {
           chiaRootDir.listSync(recursive: false).forEach((dir) {
@@ -344,7 +344,7 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
             "/AppData/Local/Spare-blockchain");
 
         file =
-            "/resources/app.asar.unpacked/daemon/${blockchain.binaryName}.exe";
+            "/resources/app.asar.unpacked/daemon/${blockchain.binaryFilename}.exe";
 
         if (chiaRootDir.existsSync()) {
           io.File trypath = io.File(chiaRootDir.path + file);
@@ -360,7 +360,8 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
       if (io.Platform.isLinux) {
         chiaRootDir =
             io.Directory("/usr/lib/${blockchain.binaryName}-blockchain");
-        file = "/resources/app.asar.unpacked/daemon/${blockchain.binaryName}";
+        file =
+            "/resources/app.asar.unpacked/daemon/${blockchain.binaryFilename}";
       } else if (io.Platform.isMacOS) {
         //capitalizes first letter of a string
         String capitalize(String input) {
@@ -369,7 +370,8 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
 
         chiaRootDir = io.Directory(
             "/Applications/${capitalize(blockchain.binaryName)}.app/Contents");
-        file = "/Resources/app.asar.unpacked/daemon/${blockchain.binaryName}";
+        file =
+            "/Resources/app.asar.unpacked/daemon/${blockchain.binaryFilename}";
       }
 
       possiblePaths = [
@@ -380,11 +382,11 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
         "/usr" + chiaRootDir.path + file,
         //checks if binary exists in /home/user/.local/bin/chia
         io.Platform.environment['HOME']! +
-            "/.local/bin/${blockchain.binaryName}",
+            "/.local/bin/${blockchain.binaryFilename}",
 
         //checks for file in /home/user/chia-blockchain/venv/bin/chia
         io.Platform.environment['HOME']! +
-            "/${blockchain.binaryName}-blockchain/venv/bin/${blockchain.binaryName}"
+            "/${blockchain.binaryName}-blockchain/venv/bin/${blockchain.binaryFilename}"
       ];
 
       for (int i = 0; i < possiblePaths.length; i++) {

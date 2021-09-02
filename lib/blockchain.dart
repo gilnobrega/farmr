@@ -16,9 +16,13 @@ class Blockchain {
 
   String _binaryName = '';
   String get binaryName => _binaryName.toLowerCase();
+
+  //nchain uses a different name for some reason
+  String get binaryFilename => binaryName != "ext9" ? binaryName : "chia";
+
   String get allTheBlocksName => (currencySymbol == "vag")
       ? "c_nt"
-      : binaryName; //this is how "c*nt" blockchain is named in alltheblocksapi
+      : binaryName; //this is how "c*nt" blockchain is named in alltheblocks api
 
   String _folderName = '';
   String get folderName => _folderName;
@@ -55,6 +59,10 @@ class Blockchain {
   String _dbPath = '';
   String get dbPath =>
       (_dbPath == '') ? this._getPath(this.binaryName, "db") : _dbPath;
+
+  //tsit uses a different net for databases for some reason
+  //only affects their .sqlite filename
+  String get dbNet => currencySymbol != "tsit" ? net : "testnet";
 
   String _net = '';
   String get net => _net;

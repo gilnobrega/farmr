@@ -129,7 +129,7 @@ class LocalWallet extends Wallet {
 
         const mode = OpenMode.readOnly;
         final String dbLocation = blockchain.walletPath +
-            "/db/blockchain_wallet_v1_${blockchain.currencySymbol != "tsit" ? blockchain.net : "testnet"}_$fingerprint.sqlite";
+            "/db/blockchain_wallet_v1_${blockchain.dbNet}_$fingerprint.sqlite";
 
         final Database db = openSQLiteDB(dbLocation, mode);
 
