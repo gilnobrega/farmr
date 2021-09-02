@@ -28,6 +28,7 @@ Logger log = Logger("Local Cold Wallet");
 
 class LocalColdWallet extends ColdWallet {
   final String rootPath;
+  bool success = true;
 
   LocalColdWallet(
       {required Blockchain blockchain,
@@ -37,54 +38,61 @@ class LocalColdWallet extends ColdWallet {
       : super(blockchain: blockchain, name: name, address: address);
 
   Future<void> init() async {
-    //generates puzzle hash from address
-    final Segwit puzzleHash = segwit.decode(this.addresses.first);
-    //print("Puzzle hash: ${puzzleHash.scriptPubKey}");
+    Database? db;
 
-    //tries to open database
-    //if that fails loads pre bundled libraries
+    try {
+      //generates puzzle hash from address
+      final Segwit puzzleHash = segwit.decode(this.addresses.first);
+      //print("Puzzle hash: ${puzzleHash.scriptPubKey}");
 
-    final mode = OpenMode.readOnly;
+      //tries to open database
+      //if that fails loads pre bundled libraries
 
-    final Database db = openSQLiteDB(
-        blockchain.dbPath + "/blockchain_v1_${blockchain.net}.sqlite", mode);
+      final mode = OpenMode.readOnly;
 
-    //Use the database
-    const String query = """
+      db = openSQLiteDB(
+          blockchain.dbPath + "/blockchain_v1_${blockchain.net}.sqlite", mode);
+
+      //Use the database
+      const String query = """
         SELECT amount,coinbase,spent,timestamp FROM coin_record 
         WHERE puzzle_hash = ?
         """;
-    var result = db.select(query, [puzzleHash.scriptPubKey]);
+      var result = db.select(query, [puzzleHash.scriptPubKey]);
 
-    farmedBalance = 0;
-    grossBalance = 0;
-    netBalance = 0;
+      farmedBalance = 0;
+      grossBalance = 0;
+      netBalance = 0;
 
-    for (var coin in result) {
-      //print("${coin['puzzle_hash']}");
-      //converts list of bytes to an uint64
-      final int amountToAdd = (Uint8List.fromList(coin['amount'] as List<int>))
-          .buffer
-          .asByteData()
-          .getUint64(0);
+      for (var coin in result) {
+        //print("${coin['puzzle_hash']}");
+        //converts list of bytes to an uint64
+        final int amountToAdd =
+            (Uint8List.fromList(coin['amount'] as List<int>))
+                .buffer
+                .asByteData()
+                .getUint64(0);
 
-      //gross balance
-      grossBalance += amountToAdd;
+        //gross balance
+        grossBalance += amountToAdd;
 
-      //if coin was not spent, adds that amount to netbalance
-      if (coin['spent'] == 0) netBalance += amountToAdd;
+        //if coin was not spent, adds that amount to netbalance
+        if (coin['spent'] == 0) netBalance += amountToAdd;
 
-      //if coin was farmed to address, adds it to farmed balance
-      if (coin['coinbase'] == 1) {
-        farmedBalance += amountToAdd;
+        //if coin was farmed to address, adds it to farmed balance
+        if (coin['coinbase'] == 1) {
+          farmedBalance += amountToAdd;
 
-        //sets last farmed timestamp
-        if (coin['timestamp'] is int)
-          setDaysAgoWithTimestamp((coin['timestamp'] as int) * 1000);
+          //sets last farmed timestamp
+          if (coin['timestamp'] is int)
+            setDaysAgoWithTimestamp((coin['timestamp'] as int) * 1000);
+        }
       }
+    } catch (error) {
+      success = false;
     }
 
     //closes database connection
-    db.dispose();
+    db?.dispose();
   }
 }

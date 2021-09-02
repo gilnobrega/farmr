@@ -120,14 +120,16 @@ class LocalWallet extends Wallet {
 
   //checks all addresses associated with it from database
   getAllAddresses() {
+    Database? db;
+
     if (fingerprint != null) {
       try {
         //tries to open database
         //if that fails loads pre bundled libraries
 
-        final mode = OpenMode.readOnly;
+        const mode = OpenMode.readOnly;
         final String dbLocation = blockchain.walletPath +
-            "/db/blockchain_wallet_v1_${blockchain.net}_$fingerprint.sqlite";
+            "/db/blockchain_wallet_v1_${blockchain.currencySymbol != "tsit" ? blockchain.net : "testnet"}_$fingerprint.sqlite";
 
         final Database db = openSQLiteDB(dbLocation, mode);
 
@@ -150,6 +152,8 @@ class LocalWallet extends Wallet {
         log.info("Failed to get hot wallet addresses");
         log.info(error);
       }
+
+      db?.dispose();
 
       //print(addresses);
     }
