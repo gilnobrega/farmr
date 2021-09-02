@@ -47,9 +47,7 @@ class Cache extends CacheStruct {
       size INTEGER NOT NULL,
       begin INTEGER NOT NULL,
       end INTEGER NOT NULL,
-      date TEXT NOT NULL,
-      isNFT BOOL NOT NULL,
-      loaded BOOL NOT NULL
+      date TEXT NOT NULL
     );
   ''',
 
@@ -175,9 +173,17 @@ class Cache extends CacheStruct {
       [String? errorType]) {
     if (list.length > 0) {
       //excludes winner entry from cache as that's dynamically set according to RPC info
-      final List<String> keysMap = (table != "plots")
+
+      final List<dynamic> keysMap = (table != "plots")
           ? list.first.toJson().keys.toList()
-          : list.first.toJsonPrivate().keys.toList();
+          : list.first
+              .toJsonPrivate()
+              .entries
+              .toList()
+              .where((e) => !(e.value is bool) && (e.key is String))
+              .toList()
+              .map((e) => e.key as String)
+              .toList();
 
       final List<String> questionMarksMap = keysMap.map((e) => "?").toList();
 
@@ -198,7 +204,7 @@ class Cache extends CacheStruct {
             : object
                 .toJsonPrivate()
                 .values //converts bools to 0 (false) or 1 (true)
-                .map((e) => (e is bool) ? (e ? 1 : 0) : e)
+                .where((e) => !(e is bool))
                 .toList();
 
         statement.execute(values);
