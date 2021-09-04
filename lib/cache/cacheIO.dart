@@ -381,8 +381,9 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
       List<String> possiblePaths = [];
 
       if (io.Platform.isLinux) {
-        chiaRootDir =
-            io.Directory("/usr/lib/${blockchain.binaryName}-blockchain");
+        chiaRootDir = io.Directory(
+            //different structure for cryptodoge
+            "/lib/${blockchain.binaryName}${(blockchain.binaryName != "cryptodoge") ? "-blockchain" : ""}");
         file =
             "/resources/app.asar.unpacked/daemon/${blockchain.binaryFilename}";
       } else if (io.Platform.isMacOS) {
@@ -401,8 +402,10 @@ Make sure this folder has the same structure as Chia's GitHub repo.""");
         // checks if binary exists in /package:farmr_client/chia-blockchain/resources/app.asar.unpacked/daemon/chia in linux or
         // checks if binary exists in /Applications/Chia.app/Contents/Resources/app.asar.unpacked/daemon/chia in macOS
         chiaRootDir.path + file,
+
         // Checks if binary exists in /usr/package:farmr_client/chia-blockchain/resources/app.asar.unpacked/daemon/chia
         "/usr" + chiaRootDir.path + file,
+
         //checks if binary exists in /home/user/.local/bin/chia
         io.Platform.environment['HOME']! +
             "/.local/bin/${blockchain.binaryFilename}",
