@@ -33,7 +33,12 @@ class Filter extends LogItem {
       : super.fromJson(json, LogItemType.Harvester) {
     if (json['eligible'] != null) _eligiblePlots = json['eligible'];
     if (json['proofs'] != null) _proofs = json['proofs'];
-    if (json['lookupTime'] != null) _time = json['lookupTime'];
+    if (json['lookupTime'] != null) {
+      if (json['lookupTime'] is double)
+        _time = json['lookupTime'];
+      else if (json['lookupTime'] is int)
+        _time = (json['lookupTime'] as int).toDouble();
+    }
 
     //if totalPlots does not exist in cache then it will use cache's plots.length
     if (json['plotNumber'] != null)
