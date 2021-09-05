@@ -337,7 +337,7 @@ Make sure that you have access to the wallet associated to this wallet address.
       final dynamic result =
           await RPCConnection.getEndpoint(getBlockRecordByHeight);
 
-      if (result['success'] ?? false) {
+      if ((result != null) && (result['success'] ?? false)) {
         final String headerHash = result['block_record']['header_hash'];
 
         //https://github.com/Chia-Network/chia-blockchain/wiki/RPCExamples#12-get-block
@@ -349,7 +349,7 @@ Make sure that you have access to the wallet associated to this wallet address.
         final dynamic result2 =
             await RPCConnection.getEndpoint(getWonBlockPublicKey);
 
-        if (result2['success'] ?? false) {
+        if ((result2 != null) && (result2['success'] ?? false)) {
           final String plotPublicKey = result2['block']['reward_chain_block']
               ['proof_of_space']['plot_public_key'];
 
