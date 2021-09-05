@@ -196,7 +196,16 @@ class Harvester
     loadDisksFromJson(object);
 
     for (int i = 0; i < object['plots'].length; i++) {
-      allPlots.add(Plot.fromJson(object['plots'][i]));
+      Plot plot = Plot.fromJson(object['plots'][i]);
+
+      //assigns drive to plot
+      if (plot.driveID != null) {
+        final int driveID = object['plots'][i]['drive'];
+
+        if (drives.length > driveID) plot.drive = drives.elementAt(driveID);
+      }
+
+      allPlots.add(plot);
     }
 
     if (object['checkPlotSize'] != null && object['checkPlotSize'] is bool)

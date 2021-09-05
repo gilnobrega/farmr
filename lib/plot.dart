@@ -1,6 +1,7 @@
 import 'dart:core';
 import 'package:intl/intl.dart';
 import 'package:proper_filesize/proper_filesize.dart';
+import 'package:universal_disk_space/universal_disk_space.dart';
 import 'package:universal_io/io.dart' as io;
 import 'dart:math' as Math;
 
@@ -58,7 +59,8 @@ class Plot {
   bool isNFT = false;
   bool get isOG => !isNFT;
 
-  int driveID = -1;
+  int? driveID;
+  Disk? drive; //this is only used after deserialized
 
   Plot(io.File file, this._filename) {
     _id = _filename;
@@ -138,6 +140,8 @@ class Plot {
     }
 
     if (json['filename'] != null) _filename = json['filename'];
+
+    if (json['drive'] != null && json['drive'] is int) driveID = json['drive'];
   }
 
   //Convert plot into json
