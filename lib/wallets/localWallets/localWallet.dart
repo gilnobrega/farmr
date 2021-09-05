@@ -120,9 +120,9 @@ class LocalWallet extends Wallet {
 
   //checks all addresses associated with it from database
   getAllAddresses() {
-    Database? db;
-
     if (fingerprint != null) {
+      Database? db;
+
       try {
         //tries to open database
         //if that fails loads pre bundled libraries
@@ -131,7 +131,7 @@ class LocalWallet extends Wallet {
         final String dbLocation = blockchain.walletPath +
             "/db/blockchain_wallet_v1_${blockchain.dbNet}_$fingerprint.sqlite";
 
-        final Database db = openSQLiteDB(dbLocation, mode);
+        db = openSQLiteDB(dbLocation, mode);
 
         //Use the database
 
@@ -158,9 +158,9 @@ class LocalWallet extends Wallet {
         log.info(error);
       }
 
-      db?.dispose();
-
       //print(addresses);
+      db?.dispose(); //disposes database and closes connection
+      //only if it was initialized
     }
   }
 }
