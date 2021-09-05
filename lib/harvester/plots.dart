@@ -104,8 +104,8 @@ class HarvesterPlots {
   }
 
 //makes a list of available plots in all plot destination paths
-  Future<void> listPlots(
-      List<String> paths, Config config, List<Disk> drives) async {
+  Future<void> listPlots(List<String> paths, Config config, List<Disk> drives,
+      DiskSpace? diskSpace) async {
     List<Plot> newplots = [];
 
     for (int i = 0; i < paths.length; i++) {
@@ -164,11 +164,13 @@ class HarvesterPlots {
               plot?.loaded = true;
 
             try {
-              final Disk drive = DiskSpace().getDisk(file);
+              final Disk drive = diskSpace!.getDisk(file);
+
               plot?.driveID = drives.lastIndexWhere(
                   (element) => drive.mountPath == element.mountPath);
             } catch (error) {
               log.info("Unable to find drive for plot ${file.path}");
+              log.info(error);
             }
 
             if (plot != null) newplots.add(plot);

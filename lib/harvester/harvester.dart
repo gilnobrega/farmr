@@ -243,7 +243,7 @@ class Harvester
 
     if (type != ClientType.HPool) await readRPCPlotList(blockchain);
 
-    await listPlots(_plotDests, _config, drives);
+    await listPlots(_plotDests, _config, drives, diskspace);
 
     await getWallets(blockchain, syncedBlockHeight);
 

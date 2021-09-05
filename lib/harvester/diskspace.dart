@@ -25,20 +25,20 @@ class HarvesterDiskSpace {
     _drivesCount = value;
   } //setter is used in case it's from a serialized harvester
 
+  uds.DiskSpace? diskspace;
+
   //Gets info about total and available disk space, there's a library for each platform
   Future<void> getDiskSpace(List<String> plotDests) async {
-    uds.DiskSpace diskspace;
-
     try {
       // uses own universal_disk_space library
       diskspace = new uds.DiskSpace();
-      await diskspace.scan(); //scans disks
+      await diskspace?.scan(); //scans disks
 
       for (int i = 0; i < plotDests.length; i++) {
         try {
           if (io.Directory(plotDests[i]).existsSync()) {
             uds.Disk currentdrive =
-                diskspace.getDisk(io.Directory(plotDests[i]));
+                diskspace!.getDisk(io.Directory(plotDests[i]));
 
             //only adds disk sizes/space if it has not been added before
             if (!drives.contains(currentdrive)) {
