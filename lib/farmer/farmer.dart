@@ -2,7 +2,6 @@ import 'dart:core';
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/farmer/status.dart';
 import 'package:farmr_client/utils/rpc.dart';
-import 'package:farmr_client/wallets/coldWallets/alltheblocks.dart';
 import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
 import 'package:farmr_client/wallets/coldWallets/localColdWallet-web.dart'
     if (dart.library.io) "package:farmr_client/wallets/coldWallets/localColdWallet.dart";
@@ -349,7 +348,7 @@ Make sure that you have access to the wallet associated to this wallet address.
         final dynamic result2 =
             await RPCConnection.getEndpoint(getWonBlockPublicKey);
 
-        if ((result2 != null) && (result2['success'] ?? false)) {
+        if (result2 != null && (result2['success'] ?? false)) {
           final String plotPublicKey = result2['block']['reward_chain_block']
               ['proof_of_space']['plot_public_key'];
 

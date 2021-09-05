@@ -234,22 +234,22 @@ class Harvester
     //LOADS CHIA CONFIG FILE AND PARSES PLOT DIRECTORIES
     _plotDests = listPlotDest(this.blockchain.configPath);
 
-    if (type != ClientType.HPool) await readRPCPlotList(blockchain);
-
-    await listPlots(_plotDests, _config);
-
-    await getWallets(blockchain, syncedBlockHeight);
-
-    filterDuplicates(); //removes plots with duplicate ids
-
-    _lastUpdated = DateTime.now();
-
     if (!_config.ignoreDiskSpace)
       await getDiskSpace(_plotDests);
     else {
       totalDiskSpace = 1;
       freeDiskSpace = 1;
     }
+
+    if (type != ClientType.HPool) await readRPCPlotList(blockchain);
+
+    await listPlots(_plotDests, _config, drives);
+
+    await getWallets(blockchain, syncedBlockHeight);
+
+    filterDuplicates(); //removes plots with duplicate ids
+
+    _lastUpdated = DateTime.now();
   }
 
   //Merges another harvester with this harvester

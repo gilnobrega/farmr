@@ -2,6 +2,7 @@ import 'dart:core';
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/hpool/hpool.dart';
 import 'package:farmr_client/utils/rpc.dart';
+import 'package:universal_disk_space/universal_disk_space.dart';
 import 'package:universal_io/io.dart' as io;
 
 import 'package:yaml/yaml.dart';
@@ -103,7 +104,8 @@ class HarvesterPlots {
   }
 
 //makes a list of available plots in all plot destination paths
-  Future<void> listPlots(List<String> paths, Config config) async {
+  Future<void> listPlots(
+      List<String> paths, Config config, List<Disk> drives) async {
     List<Plot> newplots = [];
 
     for (int i = 0; i < paths.length; i++) {
@@ -160,6 +162,14 @@ class HarvesterPlots {
               }
             else //assumes plot is loaded if it cant load rpc info
               plot?.loaded = true;
+
+            try {
+              final Disk drive = DiskSpace().getDisk(file);
+              plot?.driveID = drives.lastIndexWhere(
+                  (element) => drive.mountPath == element.mountPath);
+            } catch (error) {
+              log.info("Unable to find drive for plot ${file.path}");
+            }
 
             if (plot != null) newplots.add(plot);
           }

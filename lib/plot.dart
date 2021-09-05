@@ -58,6 +58,8 @@ class Plot {
   bool isNFT = false;
   bool get isOG => !isNFT;
 
+  int driveID = -1;
+
   Plot(io.File file, this._filename) {
     _id = _filename;
     log.info("Added plot: " + file.path);
@@ -142,6 +144,7 @@ class Plot {
   Map<String, dynamic> toJsonPrivate() {
     var privateMap = toJson();
     privateMap.addEntries({"filename": filename}.entries);
+    privateMap.remove("drive");
 
     return privateMap;
   }
@@ -155,7 +158,8 @@ class Plot {
         'size': size,
         'date': date,
         'isNFT': isNFT,
-        'loaded': loaded
+        'loaded': loaded,
+        'drive': driveID
       };
 
   void updateSize(int size) {
