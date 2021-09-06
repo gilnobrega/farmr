@@ -54,7 +54,7 @@ class Plot {
   bool get complete => _size > _expectedSize;
 
   //Plot properties from RPC server
-  bool loaded = false;
+  bool loaded = true;
   bool get failed => !loaded;
   bool isNFT = false;
   bool get isOG => !isNFT;
@@ -63,6 +63,7 @@ class Plot {
   Disk? drive; //this is only used after deserialized
 
   Plot(io.File file, this._filename) {
+    loaded = false; //defaults to false
     _id = _filename;
     log.info("Added plot: " + file.path);
 
