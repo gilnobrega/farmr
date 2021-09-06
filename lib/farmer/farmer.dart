@@ -87,8 +87,7 @@ class Farmer extends Harvester with FarmerStatusMixin {
       "peakBlockHeight": peakBlockHeight,
       "poolErrors": poolErrors,
       "harvesterErrors": harvesterErrors,
-      //filters out duplicate blocks before sending
-      "winnerBlocks": winnerBlocks.toSet().toList()
+      "winnerBlocks": winnerBlocks
     }.entries);
 
     //returns complete map with both farmer's + harvester's entries
@@ -330,36 +329,39 @@ Make sure that you have access to the wallet associated to this wallet address.
 
   Future<void> _getWinnerPlots() async {
     for (final farmedBlock in walletAggregate.farmedBlocks) {
-      //https://github.com/Chia-Network/chia-blockchain/wiki/RPCExamples#11-get-block-record-by-height
-      final RPCConfiguration getBlockRecordByHeight = RPCConfiguration(
-          blockchain: blockchain,
-          service: RPCService.Full_Node,
-          endpoint: "get_block_record_by_height",
-          dataToSend: {"height": farmedBlock.height});
-
-      final dynamic result =
-          await RPCConnection.getEndpoint(getBlockRecordByHeight);
-
-      if ((result != null) && (result['success'] ?? false)) {
-        final String headerHash = result['block_record']['header_hash'];
-
-        //https://github.com/Chia-Network/chia-blockchain/wiki/RPCExamples#12-get-block
-        final RPCConfiguration getWonBlockPublicKey = RPCConfiguration(
+      //doesnt add block twice
+      if (!winnerBlocks.map((e) => e.height).contains(farmedBlock.height)) {
+        //https://github.com/Chia-Network/chia-blockchain/wiki/RPCExamples#11-get-block-record-by-height
+        final RPCConfiguration getBlockRecordByHeight = RPCConfiguration(
             blockchain: blockchain,
             service: RPCService.Full_Node,
-            endpoint: "get_block",
-            dataToSend: {"header_hash": headerHash});
-        final dynamic result2 =
-            await RPCConnection.getEndpoint(getWonBlockPublicKey);
+            endpoint: "get_block_record_by_height",
+            dataToSend: {"height": farmedBlock.height});
 
-        if (result2 != null && (result2['success'] ?? false)) {
-          final String plotPublicKey = result2['block']['reward_chain_block']
-              ['proof_of_space']['plot_public_key'];
+        final dynamic result =
+            await RPCConnection.getEndpoint(getBlockRecordByHeight);
 
-          farmedBlock.plotPublicKey = plotPublicKey;
+        if ((result != null) && (result['success'] ?? false)) {
+          final String headerHash = result['block_record']['header_hash'];
 
-          //adds farmed block with plot public key to list of winner blocks in farmer
-          winnerBlocks.add(farmedBlock);
+          //https://github.com/Chia-Network/chia-blockchain/wiki/RPCExamples#12-get-block
+          final RPCConfiguration getWonBlockPublicKey = RPCConfiguration(
+              blockchain: blockchain,
+              service: RPCService.Full_Node,
+              endpoint: "get_block",
+              dataToSend: {"header_hash": headerHash});
+          final dynamic result2 =
+              await RPCConnection.getEndpoint(getWonBlockPublicKey);
+
+          if (result2 != null && (result2['success'] ?? false)) {
+            final String plotPublicKey = result2['block']['reward_chain_block']
+                ['proof_of_space']['plot_public_key'];
+
+            farmedBlock.plotPublicKey = plotPublicKey;
+
+            //adds farmed block with plot public key to list of winner blocks in farmer
+            winnerBlocks.add(farmedBlock);
+          }
         }
       }
     }
