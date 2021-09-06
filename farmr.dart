@@ -263,6 +263,14 @@ Do not close this window or these stats will not show up in farmr.net and farmrB
   } catch (error) {}
 }
 
+void timeoutIsolate(SendPort timeoutPort) {
+  const int timeOutMins = 6;
+
+  io.sleep(Duration(minutes: timeOutMins));
+
+  timeoutPort.send("timeout");
+}
+
 void spawnBlokchains(List<Object> arguments) async {
   SendPort sendPort = arguments[0] as SendPort;
   List<Blockchain> blockchains = arguments[1] as List<Blockchain>;
@@ -282,7 +290,6 @@ void spawnBlokchains(List<Object> arguments) async {
 
     for (Blockchain blockchain in blockchains) {
       final receivePort = ReceivePort();
-
       final isolate = await Isolate.spawn(
         handleBlockchainReport,
         [
@@ -294,6 +301,12 @@ void spawnBlokchains(List<Object> arguments) async {
           argsContainsHarvester
         ],
       );
+
+      void killMainIsolate() {
+        receivePort.close();
+        isolate.kill();
+        if (standalone) io.exit(0);
+      }
 
       receivePort.listen((message) {
         sendPort.send({
@@ -313,9 +326,17 @@ These addresses are NOT reported to farmr.net or farmrBot
 """,
         });
 
-        receivePort.close();
-        isolate.kill();
-        if (standalone) io.exit(0);
+        killMainIsolate();
+      });
+
+      //kills main isolate after 10 minutes
+      final timeoutPort = ReceivePort();
+      final timeOutIsolate =
+          await Isolate.spawn(timeoutIsolate, timeoutPort.sendPort);
+
+      timeoutPort.listen((message) {
+        timeOutIsolate.kill();
+        killMainIsolate();
       });
     }
 
