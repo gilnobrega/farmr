@@ -5,6 +5,7 @@ import 'package:farmr_client/wallets/coldWallets/localColdWallet-web.dart'
     if (dart.library.io) "package:farmr_client/wallets/coldWallets/localColdWallet.dart";
 import 'package:farmr_client/wallets/localWallets/localWalletJS.dart'
     if (dart.library.io) 'package:farmr_client/wallets/localWallets/localWalletIO.dart';
+import 'package:farmr_client/wallets/localWallets/localWalletStruct.dart';
 import 'package:farmr_client/wallets/poolWallets/elysiumPoolWallet.dart';
 import 'package:farmr_client/wallets/poolWallets/flexPoolWallet.dart';
 import 'package:farmr_client/wallets/poolWallets/foxyPoolWallet.dart';
@@ -24,13 +25,13 @@ class HarvesterWallets {
   Wallet get walletAggregate => wallets.reduce((w1, w2) => w1 + w2);
 
   //list of local wallets
-  List<LocalWallet> get localWallets => wallets
+  List<LocalWalletStruct> get localWallets => wallets
       .where((wallet) => wallet.type == WalletType.Local)
-      .map((e) => e as LocalWallet)
+      .map((e) => e as LocalWalletStruct)
       .toList();
   //sums all local wallets into one
-  LocalWallet get localWalletAggregate =>
-      localWallets.reduce((w1, w2) => (w1 * w2) as LocalWallet);
+  LocalWalletStruct get localWalletAggregate =>
+      localWallets.reduce((w1, w2) => (w1 * w2));
 
   //list of cold wallets
   List<ColdWallet> get coldWallets => wallets
