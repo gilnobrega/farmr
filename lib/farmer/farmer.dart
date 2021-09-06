@@ -5,6 +5,7 @@ import 'package:farmr_client/utils/rpc.dart';
 import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
 import 'package:farmr_client/wallets/coldWallets/localColdWallet-web.dart'
     if (dart.library.io) "package:farmr_client/wallets/coldWallets/localColdWallet.dart";
+import 'package:farmr_client/wallets/localWallets/localWalletStruct.dart';
 import 'package:farmr_client/wallets/poolWallets/genericPoolWallet.dart';
 import 'package:universal_io/io.dart' as io;
 import 'dart:convert';
@@ -14,7 +15,8 @@ import 'package:logging/logging.dart';
 import 'package:farmr_client/config.dart';
 import 'package:farmr_client/harvester/harvester.dart';
 import 'package:farmr_client/debug.dart' as Debug;
-import 'package:farmr_client/wallets/localWallets/localWallet.dart';
+import 'package:farmr_client/wallets/localWallets/localWalletJS.dart'
+    if (dart.library.io) 'package:farmr_client/wallets/localWallets/localWalletIO.dart';
 import 'package:farmr_client/farmer/connections.dart';
 import 'package:farmr_client/log/shortsync.dart';
 import 'package:http/http.dart' as http;

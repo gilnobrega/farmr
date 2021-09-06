@@ -10,7 +10,8 @@ import 'package:farmr_client/log/shortsync.dart';
 
 import 'package:farmr_client/extensions/swarpm.dart';
 import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
-import 'package:farmr_client/wallets/localWallets/localWallet.dart';
+import 'package:farmr_client/wallets/localWallets/localWalletJS.dart'
+    if (dart.library.io) 'package:farmr_client/wallets/localWallets/localWalletIO.dart';
 import 'package:farmr_client/wallets/poolWallets/genericPoolWallet.dart';
 import 'package:farmr_client/wallets/wallet.dart';
 import 'package:proper_filesize/proper_filesize.dart';

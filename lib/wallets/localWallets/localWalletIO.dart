@@ -1,6 +1,6 @@
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/utils/sqlite.dart';
-import 'package:farmr_client/wallets/wallet.dart';
+import 'package:farmr_client/wallets/localWallets/localWalletStruct.dart';
 import 'package:hex/hex.dart';
 import 'package:universal_io/io.dart' as io;
 
@@ -13,65 +13,30 @@ import 'package:logging/logging.dart';
 
 final log = Logger('FarmerWallet');
 
-enum LocalWalletStatus { Synced, Syncing, NotSynced }
-
-class LocalWallet extends Wallet {
-  //wallet balance
-  int get balance => confirmedBalance; //-1.0 is default value if disabled
-  double get balanceMajor => balance / blockchain.majorToMinorMultiplier;
-
-  late int confirmedBalance;
-  double get confirmedBalanceMajor =>
-      confirmedBalance / blockchain.majorToMinorMultiplier;
-
-  late int unconfirmedBalance;
-  double get unconfirmedBalanceMajor =>
-      unconfirmedBalance / blockchain.majorToMinorMultiplier;
-
-  late int walletHeight;
-
-  late LocalWalletStatus status;
-
-  int? fingerprint;
-
-  @override
-  Map toJson() {
-    Map<dynamic, dynamic> walletMap = super.toJson();
-
-    walletMap.addAll({
-      "confirmedBalance": confirmedBalance,
-      "unconfirmedBalance": unconfirmedBalance,
-      "walletHeight": walletHeight,
-      "status": status.index
-    });
-    return walletMap;
-  }
-
+class LocalWallet extends LocalWalletStruct {
   LocalWallet(
-      {this.confirmedBalance = -1,
-      this.unconfirmedBalance = -1,
+      {int confirmedBalance = -1,
+      int unconfirmedBalance = -1,
       int syncedBlockHeight = -1,
       required Blockchain blockchain,
       double daysSinceLastBlock = -1,
-      this.walletHeight = -1,
+      int walletHeight = -1,
       String name = "Local Wallet",
-      this.status = LocalWalletStatus.Synced,
-      this.fingerprint,
+      LocalWalletStatus status = LocalWalletStatus.Synced,
+      int? fingerprint,
       List<String> addresses = const []})
       : super(
-            type: WalletType.Local,
+            confirmedBalance: confirmedBalance,
+            unconfirmedBalance: unconfirmedBalance,
+            walletHeight: walletHeight,
+            fingerprint: fingerprint,
             blockchain: blockchain,
             daysSinceLastBlock: daysSinceLastBlock,
             syncedBlockHeight: syncedBlockHeight,
             name: name,
             addresses: addresses);
 
-  LocalWallet.fromJson(dynamic json) : super.fromJson(json) {
-    confirmedBalance = json['confirmedBalance'] ?? -1;
-    unconfirmedBalance = json['unconfirmedBalance'] ?? -1;
-    walletHeight = json['walletHeight'] ?? -1;
-    status = LocalWalletStatus.values[json['status'] ?? 0];
-  }
+  LocalWallet.fromJson(dynamic json) : super.fromJson(json);
 
   void parseWalletBalance(String binPath) {
     var walletOutput =
@@ -103,23 +68,8 @@ class LocalWallet extends Wallet {
     }
   }
 
-  LocalWallet operator *(LocalWallet wallet2) {
-    if (this.blockchain.currencySymbol == wallet2.blockchain.currencySymbol)
-      return LocalWallet(
-          blockchain: blockchain,
-          confirmedBalance: Wallet.sumTwoBalances(
-              this.confirmedBalance, wallet2.unconfirmedBalance),
-          unconfirmedBalance: Wallet.sumTwoBalances(
-              this.unconfirmedBalance, wallet2.unconfirmedBalance),
-          walletHeight: this.walletHeight,
-          daysSinceLastBlock: Wallet.compareDaysSinceBlock(
-              this.daysSinceLastBlock, wallet2.daysSinceLastBlock));
-    else
-      throw Exception("Cannot combine local wallets of different blockchains");
-  }
-
   //checks all addresses associated with it from database
-  getAllAddresses() {
+  void getAllAddresses() {
     if (fingerprint != null) {
       Database? db;
 

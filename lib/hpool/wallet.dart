@@ -1,5 +1,6 @@
 import 'package:farmr_client/blockchain.dart';
-import 'package:farmr_client/wallets/localWallets/localWallet.dart';
+import 'package:farmr_client/wallets/localWallets/localWalletJS.dart'
+    if (dart.library.io) 'package:farmr_client/wallets/localWallets/localWalletIO.dart';
 
 class HPoolWallet extends LocalWallet {
   double _undistributedBalance = -1.0;
