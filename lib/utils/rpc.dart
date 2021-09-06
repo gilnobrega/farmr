@@ -124,6 +124,9 @@ class RPCConnection {
   }
 
   static Future<dynamic> getEndpoint(RPCConfiguration rpcConfig) async {
+    HttpClient? client;
+    var result;
+
     try {
       HttpOverrides.global = MyHttpOverrides();
 
@@ -138,7 +141,7 @@ class RPCConnection {
       var context = SecurityContext.defaultContext;
       context.useCertificateChain(certFile);
       context.usePrivateKey(privateKey);
-      HttpClient client = new HttpClient(context: context);
+      client = new HttpClient(context: context);
 
       //reads service port
       int? port =
@@ -154,16 +157,17 @@ class RPCConnection {
         request.write(data);
         var response = await request.close();
         // Process the response and returns dynamic array with contents
-        return jsonDecode(await response.transform(Utf8Decoder()).join(''));
+        result = jsonDecode(await response.transform(Utf8Decoder()).join(''));
       } else {
         log.info("Invalid port for ${rpcConfig.blockchain.currencySymbol}");
-        return null;
       }
     } catch (error) {
       log.warning(
           "Failed to load RPC info for ${rpcConfig.blockchain.currencySymbol}");
       log.info(error);
-      return null;
     }
+
+    client?.close(force: true);
+    return result;
   }
 }
