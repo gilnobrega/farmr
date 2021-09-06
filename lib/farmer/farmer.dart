@@ -328,7 +328,23 @@ Make sure that you have access to the wallet associated to this wallet address.
   }
 
   Future<void> _getWinnerPlots() async {
-    for (final farmedBlock in walletAggregate.farmedBlocks) {
+    final List<Block> farmedBlocks = walletAggregate.farmedBlocks;
+
+    //places null timestamps at the end of list
+    farmedBlocks.sort((a, b) {
+      int result;
+      if (a.timestamp == null) {
+        result = 1;
+      } else if (b.timestamp == null) {
+        result = -1;
+      } else {
+        // Ascending Order
+        result = a.timestamp!.compareTo(b.timestamp!);
+      }
+      return result;
+    });
+
+    for (final farmedBlock in farmedBlocks) {
       //doesnt add block twice
       if (!winnerBlocks.map((e) => e.height).contains(farmedBlock.height)) {
         //https://github.com/Chia-Network/chia-blockchain/wiki/RPCExamples#11-get-block-record-by-height
