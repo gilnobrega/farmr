@@ -41,7 +41,7 @@ class Plot {
   Duration get finishedAgo => DateTime.now().difference(end);
   String get humanReadableFinishedAgo =>
       (finishedAgo.inMilliseconds > Duration(days: 1).inMilliseconds)
-          ? DateFormat('y/MM/dd HH:mm:ss').format(end)
+          ? DateFormat('y/MM/dd HH:mm').format(end)
           : durationToTime(finishedAgo) + " ago";
 
   int _size = 0;
