@@ -87,7 +87,8 @@ class Farmer extends Harvester with FarmerStatusMixin {
       "peakBlockHeight": peakBlockHeight,
       "poolErrors": poolErrors,
       "harvesterErrors": harvesterErrors,
-      "winnerBlocks": winnerBlocks
+      //filters out duplicate blocks before sending
+      "winnerBlocks": winnerBlocks.toSet().toList()
     }.entries);
 
     //returns complete map with both farmer's + harvester's entries
