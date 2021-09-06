@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'package:farmr_client/block.dart';
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/farmer/status.dart';
 import 'package:farmr_client/utils/rpc.dart';
@@ -86,7 +87,7 @@ class Farmer extends Harvester with FarmerStatusMixin {
       "peakBlockHeight": peakBlockHeight,
       "poolErrors": poolErrors,
       "harvesterErrors": harvesterErrors,
-      "winnerPlots": winnerPlotPublicKeys
+      "winnerBlocks": winnerBlocks
     }.entries);
 
     //returns complete map with both farmer's + harvester's entries
@@ -327,13 +328,13 @@ Make sure that you have access to the wallet associated to this wallet address.
   }
 
   Future<void> _getWinnerPlots() async {
-    for (final farmedHeight in walletAggregate.farmedHeights) {
+    for (final farmedBlock in walletAggregate.farmedBlocks) {
       //https://github.com/Chia-Network/chia-blockchain/wiki/RPCExamples#11-get-block-record-by-height
       final RPCConfiguration getBlockRecordByHeight = RPCConfiguration(
           blockchain: blockchain,
           service: RPCService.Full_Node,
           endpoint: "get_block_record_by_height",
-          dataToSend: {"height": farmedHeight});
+          dataToSend: {"height": farmedBlock.height});
 
       final dynamic result =
           await RPCConnection.getEndpoint(getBlockRecordByHeight);
@@ -354,7 +355,10 @@ Make sure that you have access to the wallet associated to this wallet address.
           final String plotPublicKey = result2['block']['reward_chain_block']
               ['proof_of_space']['plot_public_key'];
 
-          winnerPlotPublicKeys.add(plotPublicKey);
+          farmedBlock.plotPublicKey = plotPublicKey;
+
+          //adds farmed block with plot public key to list of winner blocks in farmer
+          winnerBlocks.add(farmedBlock);
         }
       }
     }
@@ -522,7 +526,12 @@ Make sure that you have access to the wallet associated to this wallet address.
 
     if (object['winnerPlots'] != null)
       for (final winnerPlot in object['winnerPlots'])
-        if (winnerPlot is String) winnerPlotPublicKeys.add(winnerPlot);
+        if (winnerPlot is String)
+          winnerBlocks.add(Block(plotPublicKey: winnerPlot));
+
+    if (object['winnerBlocks'] != null)
+      for (final winnerBlock in object['winnerBlocks'])
+        winnerBlocks.add(Block.fromJson(winnerBlock));
   }
 
   //Adds harvester's plots into farm's plots
@@ -533,7 +542,7 @@ Make sure that you have access to the wallet associated to this wallet address.
       _completeSubSlots += harvester.completeSubSlots;
       _looseSignagePoints += harvester._looseSignagePoints;
 
-      winnerPlotPublicKeys.addAll(winnerPlotPublicKeys);
+      winnerBlocks.addAll(harvester.winnerBlocks);
 
       shortSyncs.addAll(harvester.shortSyncs);
     }

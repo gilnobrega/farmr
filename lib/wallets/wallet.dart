@@ -1,3 +1,4 @@
+import 'package:farmr_client/block.dart';
 import 'package:farmr_client/blockchain.dart';
 import 'dart:math' as Math;
 
@@ -18,7 +19,7 @@ class Wallet {
   late List<String> addresses;
 
   //heights of farmed blocks
-  List<int> farmedHeights = [];
+  List<Block> farmedBlocks = [];
 
   Wallet(
       {required this.type,
@@ -27,8 +28,8 @@ class Wallet {
       this.daysSinceLastBlock = -1,
       this.name = "Wallet",
       this.addresses = const [],
-      List<int> farmedHeightsToAdd = const []}) {
-    farmedHeights.addAll(farmedHeightsToAdd);
+      List<Block> farmedBlocksToAdd = const []}) {
+    farmedBlocks.addAll(farmedBlocksToAdd);
   }
 
   Map toJson() => {
@@ -63,8 +64,8 @@ class Wallet {
           daysSinceLastBlock: compareDaysSinceBlock(
               this.daysSinceLastBlock, wallet2.daysSinceLastBlock),
           //combines farmed heights and filters duplicate farmed heights
-          farmedHeightsToAdd:
-              (this.farmedHeights + wallet2.farmedHeights).toSet().toList());
+          farmedBlocksToAdd:
+              (this.farmedBlocks + wallet2.farmedBlocks).toSet().toList());
     else
       throw Exception("Cannot combine wallets of different blockchains");
   }

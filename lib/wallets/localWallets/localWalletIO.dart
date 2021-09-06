@@ -1,3 +1,4 @@
+import 'package:farmr_client/block.dart';
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/utils/sqlite.dart';
 import 'package:farmr_client/wallets/localWallets/localWalletStruct.dart';
@@ -86,15 +87,20 @@ class LocalWallet extends LocalWalletStruct {
         //Use the database
 
         const String query =
-            "SELECT puzzle_hash,coinbase,coin_parent FROM coin_record";
+            "SELECT puzzle_hash,coinbase,coin_parent,timestamp FROM coin_record";
         var results = db.select(query);
 
         for (var result in results) {
           final String puzzleHash = result['puzzle_hash'];
 
-          if (result['coinbase'] == 1 &&
-              coinbaseParentHeight(result['coin_parent']) != null)
-            farmedHeights.add(coinbaseParentHeight(result['coin_parent'])!);
+          if (result['coinbase'] == 1) {
+            int? farmedHeight = coinbaseParentHeight(result['coin_parent']);
+            int? timestamp = result['timestamp'];
+
+            if (farmedHeight != null)
+              farmedBlocks
+                  .add(Block(height: farmedHeight, timestamp: timestamp));
+          }
 
           final String address = segwit.encode(
               Segwit(blockchain.currencySymbol, HEX.decode(puzzleHash)));

@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'package:farmr_client/block.dart';
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/hpool/hpool.dart';
 import 'package:farmr_client/utils/rpc.dart';
@@ -50,10 +51,12 @@ class HarvesterPlots {
   //creates a map with the following structure { 'k32' : 3, 'k33' : 2 } etc.
   Map<String, int> get typeCount => genPlotTypes(plots);
 
-  List<String> winnerPlotPublicKeys = []; //ids of plots which won blocks
+  List<Block> winnerBlocks = []; //ids of plots which won blocks
 
-  List<Plot> get winnerPlots =>
-      allPlots.where((plot) => winnerPlotPublicKeys.contains(plot.id)).toList();
+  List<Plot> get winnerPlots => allPlots
+      .where((plot) =>
+          winnerBlocks.map((block) => block.plotPublicKey).contains(plot.id))
+      .toList();
 
   dynamic rpcPlotInfo;
 

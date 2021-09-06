@@ -1,3 +1,4 @@
+import 'package:farmr_client/block.dart';
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/wallets/coldWallets/coldwallet.dart';
 import 'package:logging/logging.dart';
@@ -86,8 +87,11 @@ class LocalColdWallet extends ColdWallet {
 
           //print(coin['coin_parent']); //debug purposes
 
-          if (coinbaseParentHeight(coin['coin_parent']) != null)
-            farmedHeights.add(coinbaseParentHeight(coin['coin_parent'])!);
+          int? farmedHeight = coinbaseParentHeight(coin['coin_parent']);
+          int? timestamp = coin['timestamp'];
+
+          if (farmedHeight != null)
+            farmedBlocks.add(Block(height: farmedHeight, timestamp: timestamp));
 
           //sets last farmed timestamp
           if (coin['timestamp'] is int)
