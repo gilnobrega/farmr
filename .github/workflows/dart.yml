@@ -179,8 +179,8 @@ jobs:
       - name: Generate EnvironmentConfig
         run: dart run environment_config:generate
 
-      - name: Analyze project source
-        run: dart analyze
+     # - name: Analyze project source
+     #   run: dart analyze
 
       - name: Load .env file
         uses: xom9ikk/dotenv@v1.0.2
