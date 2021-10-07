@@ -30,7 +30,7 @@ import 'package:dart_console/dart_console.dart' as dartconsole;
 
 final log = Logger('Client');
 
-final Duration delay = Duration(minutes: 10); //10 minutes delay between updates
+const Duration delay = Duration(minutes: 10); //10 minutes delay between updates
 
 // '/home/user/.farmr' for package installs, '.' (project path) for the rest
 String rootPath = "";
@@ -271,6 +271,9 @@ void timeoutIsolate(SendPort timeoutPort) {
   timeoutPort.send("timeout");
 }
 
+//blockchain spawner
+//evenly distributes blockchains within delay time
+//e.g.: 3 blockchains over 10 mins -> 3.33 mins per blockchain
 void spawnBlokchains(List<Object> arguments) async {
   SendPort sendPort = arguments[0] as SendPort;
   List<Blockchain> blockchains = arguments[1] as List<Blockchain>;
@@ -282,13 +285,23 @@ void spawnBlokchains(List<Object> arguments) async {
 
   int counter = 0;
 
+  final int delayBetweenInMilliseconds =
+      (delay.inMilliseconds / blockchains.length).round();
+
   while (true) {
     clearLog(); //clears log
 
-    counter += 1;
+    counter++;
+
     log.info("Generating new report #$counter");
 
-    for (Blockchain blockchain in blockchains) {
+    for (int i = 0; i < blockchains.length; i++) {
+      Blockchain blockchain = blockchains[i];
+
+      //evenly distributes blockchains
+      final int blockchainDelay =
+          (counter > 1) ? i * delayBetweenInMilliseconds : 0;
+
       final receivePort = ReceivePort();
       final isolate = await Isolate.spawn(
         handleBlockchainReport,
@@ -298,7 +311,7 @@ void spawnBlokchains(List<Object> arguments) async {
           blockchains.length,
           onetime,
           standalone,
-          argsContainsHarvester
+          blockchainDelay
         ],
       );
 
@@ -352,7 +365,7 @@ void handleBlockchainReport(List<Object> arguments) async {
   int blockchainsLength = arguments[2] as int;
   bool onetime = arguments[3] as bool;
   bool standalone = arguments[4] as bool;
-  bool argsContainsHarvester = arguments[5] as bool;
+  int blockchainDelay = arguments[5] as int;
 
   //kills isolate after 5 minutes
   Future.delayed(Duration(minutes: (!onetime) ? 5 : 1), () {
@@ -384,6 +397,9 @@ void handleBlockchainReport(List<Object> arguments) async {
   String coldAddresses = "";
   String farmerRewardAddress = "";
   String poolRewardAddress = "";
+
+  //delays blockchain report by amount defined in isolate spawner
+  await Future.delayed(Duration(milliseconds: blockchainDelay));
 
   //PARSES DATA
   // try {
