@@ -264,7 +264,7 @@ Do not close this window or these stats will not show up in farmr.net and farmrB
 }
 
 void timeoutIsolate(SendPort timeoutPort) {
-  const int timeOutMins = 6;
+  final int timeOutMins = delay.inMinutes * 2;
 
   io.sleep(Duration(minutes: timeOutMins));
 
@@ -342,7 +342,7 @@ These addresses are NOT reported to farmr.net or farmrBot
         killMainIsolate();
       });
 
-      //kills main isolate after 10 minutes
+      //kills main isolate after 20 minutes
       final timeoutPort = ReceivePort();
       final timeOutIsolate =
           await Isolate.spawn(timeoutIsolate, timeoutPort.sendPort);
