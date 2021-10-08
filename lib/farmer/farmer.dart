@@ -319,8 +319,8 @@ Make sure that you have access to the wallet associated to this wallet address.
           }
         } else
           throw Exception("success: ${rewardsInfo['success']}");
-      }
-      throw Exception("RPC error");
+      } else
+        throw Exception("RPC error: get_reward_targets failed");
     } catch (error) {
       log.info("Failed to verify reward addresses");
       log.info(error);
