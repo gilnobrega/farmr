@@ -1,0 +1,19 @@
+{
+    "Binary Name": "tranzact",
+    "Currency Symbol": "trz",
+    "Minor Currency Symbol": "toto",
+    "Net": "mainnet",
+    
+    "Block Rewards": 5.0,
+    "Blocks Per 10 Minutes": 32.0,
+    
+    "Online Config": true,
+    
+    "Ports": {
+        "harvester": 8660,
+        "farmer": 8649,
+        "fullNode": 8673,
+        "wallet": 8675,
+        "daemon": 52684
+      }
+}
