@@ -200,6 +200,11 @@ files:
     mode: "0644"
     user: "root"
     keep: true
+  "/etc/farmr/blockchain/tsit.json.template":
+    file: blockchain/tsit.json.template
+    mode: "0644"
+    user: "root"
+    keep: true
 
 units:
   #- .github/workflows/farmr.service

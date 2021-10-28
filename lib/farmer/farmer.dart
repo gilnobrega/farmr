@@ -370,13 +370,15 @@ Make sure that you have access to the wallet associated to this wallet address.
               await RPCConnection.getEndpoint(getWonBlockPublicKey);
 
           if (result2 != null && (result2['success'] ?? false)) {
-            final String plotPublicKey = result2['block']['reward_chain_block']
+            final dynamic plotPublicKey = result2['block']['reward_chain_block']
                 ['proof_of_space']['plot_public_key'];
 
-            farmedBlock.plotPublicKey = plotPublicKey;
+            if (plotPublicKey is String) {
+              farmedBlock.plotPublicKey = plotPublicKey;
 
-            //adds farmed block with plot public key to list of winner blocks in farmer
-            winnerBlocks.add(farmedBlock);
+              //adds farmed block with plot public key to list of winner blocks in farmer
+              winnerBlocks.add(farmedBlock);
+            }
           }
         }
       }
