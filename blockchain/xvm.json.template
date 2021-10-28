@@ -1,0 +1,22 @@
+{
+    
+    "Binary Name": "venidium",
+    "Currency Symbol": "XVM",
+    "Minor Currency Symbol": "rays",
+    "Major to Minor Multiplier": 1e12,
+    "Net": "mainnet",
+
+    "Block Rewards": 640.0,
+    "Blocks Per 10 Minutes": 32.0,
+    
+    "Online Config": true,
+
+    "Ports": {
+        "harvester": 5860,
+        "farmer": 5859,
+        "fullNode": 5855,
+        "wallet": 6000,
+        "daemon": 52700
+      }
+    
+}
