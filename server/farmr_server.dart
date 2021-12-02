@@ -233,7 +233,7 @@ Future<List<Harvester>> _getUserData(String userID, String blockchain) async {
         port: 3306,
         user: dotenv.env['MYSQL_USER'],
         password: dotenv.env['MYSQL_PASSWORD'],
-        db: 'chiabot');
+        db: 'farmr');
     var conn = await mysql.MySqlConnection.connect(settings);
 
     String mysqlQuery = "SELECT data FROM farms WHERE user='$userID'";

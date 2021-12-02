@@ -29,9 +29,10 @@ class HarvesterWallets {
       .where((wallet) => wallet.type == WalletType.Local)
       .map((e) => e as LocalWalletStruct)
       .toList();
+
   //sums all local wallets into one
-  LocalWalletStruct get localWalletAggregate =>
-      localWallets.reduce((w1, w2) => (w1 * w2));
+  LocalWalletStruct get localWalletAggregate => localWallets.reduce(
+      (w1, w2) => ((w1 as LocalWalletStruct) * (w2 as LocalWalletStruct)));
 
   //list of cold wallets
   List<ColdWallet> get coldWallets => wallets
