@@ -155,7 +155,9 @@ class Farmer extends Harvester with FarmerStatusMixin {
         //   walletsObject['wallets'].length > 0) farmedBalance = 0;
 
         for (var walletID in walletsObject['wallets'] ?? []) {
+          final int type = walletID['type'] ?? 0;
           final int id = walletID['id'] ?? 1;
+
           name = walletID['name'] ?? "Wallet";
           String? address; //wallet address
           int? fingerprint;
@@ -209,16 +211,18 @@ class Farmer extends Harvester with FarmerStatusMixin {
               walletHeight = walletHeightInfo['height'] ?? -1;
             }
 
-            RPCConfiguration rpcConfig6 = RPCConfiguration(
-                blockchain: blockchain,
-                service: RPCService.Wallet,
-                endpoint: "get_next_address",
-                dataToSend: {"wallet_id": id, "new_address": false});
+            if (type != 9) {
+              RPCConfiguration rpcConfig6 = RPCConfiguration(
+                  blockchain: blockchain,
+                  service: RPCService.Wallet,
+                  endpoint: "get_next_address",
+                  dataToSend: {"wallet_id": id, "new_address": false});
 
-            final addressInfo = await RPCConnection.getEndpoint(rpcConfig6);
+              final addressInfo = await RPCConnection.getEndpoint(rpcConfig6);
 
-            if (addressInfo != null && (addressInfo['success'] ?? false))
-              address = addressInfo['address'];
+              if (addressInfo != null && (addressInfo['success'] ?? false))
+                address = addressInfo['address'];
+            }
 
             final LocalWallet wallet = LocalWallet(
                 blockchain: blockchain,
