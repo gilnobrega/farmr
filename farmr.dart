@@ -53,7 +53,7 @@ prepareRootPath(bool package) {
   io.Directory defaultFolder = io.Directory("/etc/farmr/blockchain");
 
   if (package) {
-    io.Directory blockchainDir = io.Directory(rootPath + "blockchain/");
+    io.Directory blockchainDir = io.Directory(rootPath + "blockchain");
 
     //Links /etc/farmr/blockchain to user's .farmr/blockchain folder
     if (!blockchainDir.existsSync()) {
