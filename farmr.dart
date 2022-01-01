@@ -52,12 +52,22 @@ prepareRootPath(bool package) {
 
   io.Directory defaultFolder = io.Directory("/etc/farmr/blockchain");
 
+  //copies blockchain templates to .farmr
   if (package) {
-    io.Directory blockchainDir = io.Directory(rootPath + "blockchain");
+    String blockchainDir = rootPath + "blockchain";
 
-    //Links /etc/farmr/blockchain to user's .farmr/blockchain folder
-    if (!blockchainDir.existsSync()) {
-      io.Link(blockchainDir.path).createSync(defaultFolder.path);
+    if (!io.Directory(blockchainDir).existsSync()) {
+      io.Directory(blockchainDir).createSync();
+    }
+
+    //Links files from /etc/farmr/blockchain to user's .farmr/blockchain folder
+    for (var path in defaultFolder.listSync()) {
+      io.File file = io.File(path.path);
+      io.File destFile = io.File(blockchainDir + "/" + basename(file.path));
+
+      if (file.existsSync() && !destFile.existsSync()) {
+        io.Link(destFile.path).createSync(file.path);
+      }
     }
   }
 }
