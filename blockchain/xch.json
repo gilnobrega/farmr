@@ -1,21 +1,17 @@
 {
-    "Binary Name": "chia",
-    "Currency Symbol": "XCH",
-    "Minor Currency Symbol": "mojo",
-    "Major to Minor Multiplier": 1e12,
-    "Net": "mainnet",
-
-    "Block Rewards": 2.0,
-    "Blocks Per 10 Minutes": 32.0,
-    
-    "Online Config": true,
-
-    "Ports": {
-        "harvester": 8560,
-        "farmer": 8559,
-        "fullNode": 8555,
-        "wallet": 9256,
-        "daemon": 55400
-      }
-    
+  "Binary Name": "chia",
+  "Currency Symbol": "XCH",
+  "Minor Currency Symbol": "mojo",
+  "Major to Minor Multiplier": 1e12,
+  "Net": "mainnet",
+  "Block Rewards": 2.0,
+  "Blocks Per 10 Minutes": 32.0,
+  "Online Config": true,
+  "Ports": {
+    "harvester": 8560,
+    "farmer": 8559,
+    "fullNode": 8555,
+    "wallet": 9256,
+    "daemon": 55400
+  }
 }

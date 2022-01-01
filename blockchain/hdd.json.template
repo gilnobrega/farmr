@@ -1,19 +1,16 @@
 {
-    "Binary Name": "hddcoin",
-    "Currency Symbol": "HDD",
-    "Minor Currency Symbol": "byte",
-    "Net": "mainnet",
-    
-    "Block Rewards": 2.0,
-    "Blocks Per 10 Minutes": 32.0,
-    
-    "Online Config": true,
-    
-    "Ports": {
-        "harvester": 28560,
-        "farmer": 28559,
-        "fullNode": 28555,
-        "wallet": 29256,
-        "daemon": 25400
-      }
+  "Binary Name": "hddcoin",
+  "Currency Symbol": "HDD",
+  "Minor Currency Symbol": "byte",
+  "Net": "mainnet",
+  "Block Rewards": 2.0,
+  "Blocks Per 10 Minutes": 32.0,
+  "Online Config": true,
+  "Ports": {
+    "harvester": 28560,
+    "farmer": 28559,
+    "fullNode": 28555,
+    "wallet": 29256,
+    "daemon": 25400
+  }
 }

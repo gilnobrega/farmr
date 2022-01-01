@@ -1,19 +1,16 @@
 {
-    "Binary Name": "fork",
-    "Currency Symbol": "XFK",
-    "Minor Currency Symbol": "mojo",
-    "Net": "mainnet",
-    
-    "Block Rewards": 2.0,
-    "Blocks Per 10 Minutes": 32.0,
-    
-    "Online Config": true,
-    
-    "Ports": {
-        "harvester": 16624,
-        "farmer": 16525,
-        "fullNode": 16500,
-        "wallet": 17431,
-        "daemon": 33376
-      }
+  "Binary Name": "fork",
+  "Currency Symbol": "XFK",
+  "Minor Currency Symbol": "mojo",
+  "Net": "mainnet",
+  "Block Rewards": 2.0,
+  "Blocks Per 10 Minutes": 32.0,
+  "Online Config": true,
+  "Ports": {
+    "harvester": 16624,
+    "farmer": 16525,
+    "fullNode": 16500,
+    "wallet": 17431,
+    "daemon": 33376
+  }
 }

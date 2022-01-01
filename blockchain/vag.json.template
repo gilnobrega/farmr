@@ -1,21 +1,17 @@
 {
-    "Binary Name": "cunt",
-    "Folder Name": ".cunt",
-    "Currency Symbol": "VAG",
-    "Minor Currency Symbol": "mojo",
-    "Net": "mainnet",
-    
-    "Block Rewards": 69.0,
-    "Blocks Per 10 Minutes": 32.0,
-    
-    "Online Config": true,
-    
-    "Ports": {
-        "harvester": 18694,
-        "farmer": 18696,
-        "fullNode": 18678,
-        "wallet": 19699,
-        "daemon": 42099
-      }
+  "Binary Name": "cunt",
+  "Folder Name": ".cunt",
+  "Currency Symbol": "VAG",
+  "Minor Currency Symbol": "mojo",
+  "Net": "mainnet",
+  "Block Rewards": 69.0,
+  "Blocks Per 10 Minutes": 32.0,
+  "Online Config": true,
+  "Ports": {
+    "harvester": 18694,
+    "farmer": 18696,
+    "fullNode": 18678,
+    "wallet": 19699,
+    "daemon": 42099
+  }
 }
-

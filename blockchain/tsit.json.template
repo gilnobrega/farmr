@@ -1,20 +1,17 @@
 {
-    "Binary Name": "silicoin",
-    "Folder Name": ".silicoin",
-    "Currency Symbol": "tSIT",
-    "Minor Currency Symbol": "mojo",
-    "Net": "mainnet",
-    
-    "Block Rewards": 2.0,
-    "Blocks Per 10 Minutes": 32.0,
-    
-    "Online Config": true,
-    
-    "Ports": {
-        "harvester": 10560,
-        "farmer": 10559,
-        "fullNode": 10555,
-        "wallet": 10256,
-        "daemon": 56401
-      }
+  "Binary Name": "silicoin",
+  "Folder Name": ".silicoin",
+  "Currency Symbol": "tSIT",
+  "Minor Currency Symbol": "mojo",
+  "Net": "mainnet",
+  "Block Rewards": 2.0,
+  "Blocks Per 10 Minutes": 32.0,
+  "Online Config": true,
+  "Ports": {
+    "harvester": 10560,
+    "farmer": 10559,
+    "fullNode": 10555,
+    "wallet": 10256,
+    "daemon": 56401
+  }
 }

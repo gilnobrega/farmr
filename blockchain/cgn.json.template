@@ -1,19 +1,16 @@
 {
-    "Binary Name": "chaingreen",
-    "Currency Symbol": "CGN",
-    "Minor Currency Symbol": "mio",
-    "Net": "mainnet",
-    
-    "Block Rewards": 500.0,
-    "Blocks Per 10 Minutes": 32.0,
-    
-    "Online Config": true,
-    
-    "Ports": {
-        "harvester": 8860,
-        "farmer": 8859,
-        "fullNode": 8855,
-        "wallet": 9556,
-        "daemon": 55700
-      }
+  "Binary Name": "chaingreen",
+  "Currency Symbol": "CGN",
+  "Minor Currency Symbol": "mio",
+  "Net": "mainnet",
+  "Block Rewards": 500.0,
+  "Blocks Per 10 Minutes": 32.0,
+  "Online Config": true,
+  "Ports": {
+    "harvester": 8860,
+    "farmer": 8859,
+    "fullNode": 8855,
+    "wallet": 9556,
+    "daemon": 55700
+  }
 }

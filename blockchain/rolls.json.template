@@ -1,0 +1,17 @@
+{
+    "Binary Name": "rolls",
+    "Folder Name": ".rolls",
+    "Currency Symbol": "ROLLS",
+    "Minor Currency Symbol": "pecan",
+    "Net": "mainnet",
+    "Block Rewards": 6.0,
+    "Blocks Per 10 Minutes": 32.0,
+    "Online Config": true,
+    "Ports": {
+        "harvester": 5433,
+        "farmer": 6540,
+        "fullNode": 9877,
+        "wallet": 58765,
+        "daemon": 10987
+    }
+}

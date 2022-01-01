@@ -1,19 +1,16 @@
 {
-    "Binary Name": "cannabis",
-    "Currency Symbol": "CANS",
-    "Minor Currency Symbol": "mojo",
-    "Net": "mainnet",
-    
-    "Block Rewards": 16.0,
-    "Blocks Per 10 Minutes": 32.0,
-    
-    "Online Config": true,
-    
-    "Ports": {
-        "harvester": 5569,
-        "farmer": 5459,
-        "fullNode": 5540,
-        "wallet": 9656,
-        "daemon": 54400
-      }
+  "Binary Name": "cannabis",
+  "Currency Symbol": "CANS",
+  "Minor Currency Symbol": "mojo",
+  "Net": "mainnet",
+  "Block Rewards": 16.0,
+  "Blocks Per 10 Minutes": 32.0,
+  "Online Config": true,
+  "Ports": {
+    "harvester": 5569,
+    "farmer": 5459,
+    "fullNode": 5540,
+    "wallet": 9656,
+    "daemon": 54400
+  }
 }

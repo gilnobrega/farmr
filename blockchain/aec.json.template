@@ -1,0 +1,17 @@
+{
+    "Binary Name": "aedge",
+    "Folder Name": ".aedge",
+    "Currency Symbol": "aec",
+    "Minor Currency Symbol": "mojo",
+    "Net": "mainnet",
+    "Block Rewards": 2.0,
+    "Blocks Per 10 Minutes": 32.0,
+    "Online Config": true,
+    "Ports": {
+        "harvester": 9072,
+        "farmer": 9071,
+        "fullNode": 9067,
+        "wallet": 9768,
+        "daemon": 55912
+    }
+}

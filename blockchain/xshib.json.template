@@ -1,0 +1,17 @@
+{
+    "Binary Name": "SHIBGreen",
+    "Currency Symbol": "XShib",
+    "Minor Currency Symbol": "byte",
+    "Major to Minor Multiplier": 1e3,
+    "Net": "mainnet",
+    "Block Rewards": 100000.0,
+    "Blocks Per 10 Minutes": 32.0,
+    "Online Config": true,
+    "Ports": {
+        "harvester": 18785,
+        "farmer": 18989,
+        "fullNode": 18793,
+        "wallet": 19587,
+        "daemon": 44428
+    }
+}

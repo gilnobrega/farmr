@@ -1,21 +1,17 @@
 {
-    "Binary Name": "lucky",
-    "Currency Symbol": "SIX",
-    "Minor Currency Symbol": "mojo",
-    "Major to Minor Multiplier": 1e12,
-    "Net": "mainnet",
-
-    "Block Rewards": 6.0,
-    "Blocks Per 10 Minutes": 32.0,
-    
-    "Online Config": true,
-
-    "Ports": {
-        "harvester": 16660,
-        "farmer": 16659,
-        "fullNode": 16655,
-        "wallet": 16656,
-        "daemon": 55666
-      }
-    
+  "Binary Name": "lucky",
+  "Currency Symbol": "SIX",
+  "Minor Currency Symbol": "mojo",
+  "Major to Minor Multiplier": 1e12,
+  "Net": "mainnet",
+  "Block Rewards": 6.0,
+  "Blocks Per 10 Minutes": 32.0,
+  "Online Config": true,
+  "Ports": {
+    "harvester": 16660,
+    "farmer": 16659,
+    "fullNode": 16655,
+    "wallet": 16656,
+    "daemon": 55666
+  }
 }

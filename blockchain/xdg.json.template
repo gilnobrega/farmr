@@ -1,19 +1,16 @@
 {
-    "Binary Name": "dogechia",
-    "Currency Symbol": "XDG",
-    "Minor Currency Symbol": "mojo",
-    "Net": "mainnet",
-    
-    "Block Rewards": 2.0,
-    "Blocks Per 10 Minutes": 32.0,
-    
-    "Online Config": true,
-    
-    "Ports": {
-        "harvester": 6770,
-        "farmer": 16759,
-        "fullNode": 6769,
-        "wallet": 16761,
-        "daemon": 56669
-      }
+  "Binary Name": "dogechia",
+  "Currency Symbol": "XDG",
+  "Minor Currency Symbol": "mojo",
+  "Net": "mainnet",
+  "Block Rewards": 2.0,
+  "Blocks Per 10 Minutes": 32.0,
+  "Online Config": true,
+  "Ports": {
+    "harvester": 6770,
+    "farmer": 16759,
+    "fullNode": 6769,
+    "wallet": 16761,
+    "daemon": 56669
+  }
 }

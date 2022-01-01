@@ -1,21 +1,17 @@
 {
-    "Binary Name": "stor",
-    "Currency Symbol": "STOR",
-    "Minor Currency Symbol": "storoshi",
-    "Major to Minor Multiplier": 1e12,
-    "Net": "mainnet",
-
-    "Block Rewards": 4.0,
-    "Blocks Per 10 Minutes": 32.0,
-
-    "Online Config": true,
-
-    "Ports": {
-        "harvester": 8360,
-        "farmer": 8553,
-        "fullNode": 8155,
-        "wallet": 9236,
-        "daemon": 55600
-      }
-
+  "Binary Name": "stor",
+  "Currency Symbol": "STOR",
+  "Minor Currency Symbol": "storoshi",
+  "Major to Minor Multiplier": 1e12,
+  "Net": "mainnet",
+  "Block Rewards": 4.0,
+  "Blocks Per 10 Minutes": 32.0,
+  "Online Config": true,
+  "Ports": {
+    "harvester": 8360,
+    "farmer": 8553,
+    "fullNode": 8155,
+    "wallet": 9236,
+    "daemon": 55600
+  }
 }

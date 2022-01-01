@@ -41,6 +41,8 @@ class Log {
   List<LogItem> poolErrors = [];
   List<LogItem> harvesterErrors = [];
 
+  late final String floraProxy;
+
   Log(String logPath, this._cache, bool parseLogs, this._binaryName, this._type,
       String configPath) {
     _parseUntil = _cache.parseUntil;
@@ -52,6 +54,11 @@ class Log {
 
     debugPath = logPath + "/debug.log";
     _debugFile = io.File(debugPath);
+
+    if (_binaryName == "flora")
+      floraProxy = "flora_proxy:";
+    else
+      floraProxy = "";
 
     if (parseLogs) {
       loadLogItems();
@@ -247,7 +254,7 @@ class Log {
 
     try {
       RegExp filtersRegex = RegExp(
-          "([0-9-]+)T([0-9:]+)\\.([0-9]+) harvester [a-z]+\\.harvester\\.harvester\\s*:\\s+INFO\\s+([0-9]+) plots were eligible for farming \\S+ Found ([0-9]+) proofs\\. Time: ([0-9\\.]+) s\\. Total ([0-9]+) plots",
+          "([0-9-]+)T([0-9:]+)\\.([0-9]+) harvester $floraProxy [a-z]+\\.harvester\\.harvester\\s*:\\s+INFO\\s+([0-9]+) plots were eligible for farming \\S+ Found ([0-9]+) proofs\\. Time: ([0-9\\.]+) s\\. Total ([0-9]+) plots",
           multiLine: true);
 
       var matches = filtersRegex.allMatches(contents).toList();
@@ -301,7 +308,7 @@ class Log {
 
     try {
       RegExp signagePointsRegex = RegExp(
-          "([0-9-]+)T([0-9:]+)\\.([0-9]+) full_node [a-z]+\\.full\\_node\\.full\\_node\\s*:\\s+INFO\\W+Finished[\\S ]+ ([0-9]+)\\/64",
+          "([0-9-]+)T([0-9:]+)\\.([0-9]+) full_node $floraProxy [a-z]+\\.full\\_node\\.full\\_node\\s*:\\s+INFO\\W+Finished[\\S ]+ ([0-9]+)\\/64",
           multiLine: true);
 
       var matches = signagePointsRegex.allMatches(contents).toList();
@@ -374,7 +381,7 @@ class Log {
 
     try {
       RegExp shortSyncsRegex = RegExp(
-          "([0-9-]+)T([0-9:]+)\\.([0-9]+) full_node [a-z]+\\.full\\_node\\.full\\_node\\s*:\\s+INFO\\W+Starting batch short sync from ([0-9]+) to height ([0-9]+)",
+          "([0-9-]+)T([0-9:]+)\\.([0-9]+) full_node $floraProxy [a-z]+\\.full\\_node\\.full\\_node\\s*:\\s+INFO\\W+Starting batch short sync from ([0-9]+) to height ([0-9]+)",
           multiLine: true);
 
       var matches = shortSyncsRegex.allMatches(contents).toList();
@@ -427,7 +434,7 @@ class Log {
       }
 
       RegExp errorsRegex = RegExp(
-          "([0-9-]+)T([0-9:]+)\\.([0-9]+) farmer [a-z]+\\.farmer\\.farmer\\s*:\\s+ERROR\\s+$errorText",
+          "([0-9-]+)T([0-9:]+)\\.([0-9]+) farmer $floraProxy [a-z]+\\.farmer\\.farmer\\s*:\\s+ERROR\\s+$errorText",
           multiLine: true);
 
       var matches = errorsRegex.allMatches(contents).toList();
