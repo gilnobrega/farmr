@@ -145,6 +145,8 @@ Future<void> main(List<String> args) async {
           .where((client) => (client is Farmer || client is HPool))
           .first as Farmer; //Selects newest farm as main farm
 
+      List<String> lines = [];
+
       if (args.contains("workers")) {
         //Sorts workers by alphabetical order
         harvesters.sort((harvester1, harvester2) =>
@@ -158,7 +160,7 @@ Future<void> main(List<String> args) async {
           harvester.filterDuplicates(false);
           harvester.sortPlots();
 
-          print(Stats.showHarvester(
+          lines.add(Stats.showHarvester(
               harvester,
               harvestersCount,
               farmersCount,
@@ -170,8 +172,6 @@ Future<void> main(List<String> args) async {
               (blockchain == "xch")
                   ? price.rates[harvester.currency]
                   : Price().rates[harvester.currency]));
-
-          if (harvester != harvesters.last) print(';;');
         }
       } else {
         //Sorts harvesters by farmer/harvester type
@@ -189,11 +189,10 @@ Future<void> main(List<String> args) async {
 
         if (args.contains("wallets")) {
           for (Wallet wallet in farm.wallets) {
-            print(Stats.showWalletInfo(wallet, blockchain));
-            if (wallet != farm.wallets.last) print(';;');
+            lines.add(Stats.showWalletInfo(wallet, blockchain));
           }
         } else
-          print(Stats.showHarvester(
+          lines.add(Stats.showHarvester(
               farm,
               harvestersCount,
               farmersCount,
@@ -205,6 +204,25 @@ Future<void> main(List<String> args) async {
               (blockchain == "xch")
                   ? price.rates[farm.currency]
                   : Price().rates[farm.currency]));
+      }
+
+      const discordLimit = 4000; //actually 4096
+
+      for (var line in lines) {
+        if (line.length < discordLimit) {
+          print(line);
+          if (line != lines.last) print(';;');
+          //splits line into two discord messages if longer than 4000 characters
+        } else {
+          RegExp exp = new RegExp(r"\d{" + "$discordLimit}");
+          var matches = exp.allMatches(line);
+          var list = matches.map((m) => m.group(0) ?? "");
+
+          for (String splitLine in list) {
+            print(splitLine);
+            if (splitLine != list.last) print(';;');
+          }
+        }
       }
     } catch (Exception) {
       if (farmersCount == 0) print("Error: Farmer not found.");

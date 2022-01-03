@@ -158,6 +158,9 @@ class Harvester
             .stdout
             .toString()
             .trim();
+
+        if (_blockchainVersion.length > 32 && _blockchainVersion.contains("\n"))
+          _blockchainVersion = _blockchainVersion.split("\n").last;
       } catch (error) {
         log.warning("Failed to get ${blockchain.binaryName} version");
       }
@@ -190,8 +193,10 @@ class Harvester
     //loads version from json
     if (object['version'] != null) _version = object['version'];
 
-    if (object['blockchainVersion'] != null)
+    if (object['blockchainVersion'] != null) {
       _blockchainVersion = object['blockchainVersion'];
+      if (_blockchainVersion.length > 32) _blockchainVersion = "N/A";
+    }
 
     loadDisksFromJson(object);
 
