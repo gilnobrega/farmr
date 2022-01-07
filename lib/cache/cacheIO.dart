@@ -134,17 +134,6 @@ class Cache extends CacheStruct {
     shortSyncs = newSS;
     harvesterErrors = newHEs;
     poolErrors = newPEs;
-
-    //opens database file or creates it if it doesnt exist
-    final database = openSQLiteDB(cache.path, OpenMode.readWriteCreate);
-
-    _saveToDB(database, filters, "filters");
-    _saveToDB(database, signagePoints, "signagePoints");
-    _saveToDB(database, shortSyncs, "shortSyncs");
-    _saveToDB(database, harvesterErrors, "errors", "harvester");
-    _saveToDB(database, poolErrors, "errors", "pool");
-
-    database.dispose();
   }
 
   void savePlots(List<Plot> newPlots) {
@@ -152,8 +141,6 @@ class Cache extends CacheStruct {
 
     //opens database file or creates it if it doesnt exist
     final database = openSQLiteDB(cache.path, OpenMode.readWriteCreate);
-
-    _saveToDB(database, plots, "plots");
 
     database.dispose();
   }
@@ -164,12 +151,10 @@ class Cache extends CacheStruct {
     //opens database file or creates it if it doesnt exist
     final database = openSQLiteDB(cache.path, OpenMode.readWriteCreate);
 
-    _saveToDB(database, memories, "memories");
-
     database.dispose();
   }
 
-  static _saveToDB(Database database, List list, String table,
+  static saveToDB(Database database, List list, String table,
       [String? errorType]) {
     if (list.length > 0) {
       //excludes winner entry from cache as that's dynamically set according to RPC info
@@ -194,20 +179,22 @@ class Cache extends CacheStruct {
       final statement = database.prepare(query);
 
       for (final object in list) {
-        final List<dynamic> values = (table != "plots")
-            ? object
-                .toJson()
-                .values
-                //converts bools to 0 (false) or 1 (true)
-                .map((e) => (e is bool) ? (e ? 1 : 0) : e)
-                .toList()
-            : object
-                .toJsonPrivate()
-                .values //converts bools to 0 (false) or 1 (true)
-                .where((e) => !(e is bool))
-                .toList();
+        if (object != null) {
+          final List<dynamic> values = (table != "plots")
+              ? object
+                  .toJson()
+                  .values
+                  //converts bools to 0 (false) or 1 (true)
+                  .map((e) => (e is bool) ? (e ? 1 : 0) : e)
+                  .toList()
+              : object
+                  .toJsonPrivate()
+                  .values //converts bools to 0 (false) or 1 (true)
+                  .where((e) => !(e is bool))
+                  .toList();
 
-        statement.execute(values);
+          statement.execute(values);
+        }
       }
 
       statement.dispose();

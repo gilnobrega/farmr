@@ -215,7 +215,7 @@ class Blockchain {
     //io.stdin.readByteSync(); //DEBUGGING, comment
   }
 
-  Future<void> init() async {
+  Future<void> init(bool firstInit) async {
     // Setup
     this.cache = new Cache(this, _rootPath);
 
@@ -229,13 +229,13 @@ class Blockchain {
         this._args.contains("headless") || this._args.contains("hpool"));
 
     //TODO: find a way to not have to run this logUpdate command twice (in blockchain.init and every 10 minutes)
-    logUpdate();
+    logUpdate(firstInit);
   }
 
   //reparses log and adds new filters/shortsyncs/signagepoints
-  void logUpdate() {
+  void logUpdate(bool firstInit) {
     this.log = new Log(this.logPath, this.cache, this.config.parseLogs,
-        this.binaryName, this.config.type, configPath);
+        this.binaryName, this.config.type, configPath, firstInit);
   }
 
   /** Returns configPath & logPath for the coin based on platform */

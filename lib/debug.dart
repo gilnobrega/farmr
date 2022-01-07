@@ -1,5 +1,7 @@
 import 'dart:core';
 import 'package:farmr_client/config.dart';
+import 'package:farmr_client/utils/sqlite.dart';
+import 'package:sqlite3/sqlite3.dart';
 import 'package:universal_io/io.dart' as io;
 import 'dart:convert';
 
@@ -25,8 +27,6 @@ class Log {
   String _binaryName;
 
   late String debugPath;
-  late io.File _debugFile;
-  late int _parseUntil;
 
   List<Filter> _filters = [];
   List<Filter> get filters => _filters;
@@ -43,25 +43,29 @@ class Log {
 
   late final String floraProxy;
 
+  late final List<String> regexes;
+
+  late final String dbPath;
+
   Log(String logPath, this._cache, bool parseLogs, this._binaryName, this._type,
-      String configPath) {
-    _parseUntil = _cache.parseUntil;
+      String configPath, bool firstInit) {
     _filters = _cache.filters; //loads cached filters
     signagePoints = _cache.signagePoints; //loads cached subslots
     shortSyncs = _cache.shortSyncs;
     poolErrors = _cache.poolErrors;
     harvesterErrors = _cache.harvesterErrors;
+    dbPath = this._cache.cache.path;
 
     debugPath = logPath + "/debug.log";
-    _debugFile = io.File(debugPath);
 
     if (_binaryName == "flora")
       floraProxy = "flora_proxy: ";
     else
       floraProxy = "";
 
-    if (parseLogs) {
-      loadLogItems();
+    //starts logging if first time
+    if (parseLogs && firstInit) {
+      logStreamer();
 
       //if nothing was found then it
       //assumes log level is not set to info
@@ -71,8 +75,6 @@ class Log {
           _type != ClientType.HPool) {
         setLogLevelToInfo(configPath);
       }
-      _cache.saveLogs(
-          signagePoints, shortSyncs, filters, harvesterErrors, poolErrors);
     }
   }
 
@@ -111,133 +113,238 @@ class Log {
 
           print("Waiting for services to restart...");
           io.sleep(Duration(seconds: 60));
-          loadLogItems();
         }
       }
     } catch (error) {}
   }
 
-  loadLogItems() {
-    bool keepParsing = true;
-    bool keepParsingFilters = true;
-    bool keepParsingSignagePoints = true;
-    bool keepParsingShortSyncs = true;
-    bool keepParsingPoolErrors = true;
-    bool keepParsingHarvesterErrors = true;
+  Future<void> logStreamer() async {
+    //opens database file or creates it if it doesnt exist
+    final database = openSQLiteDB(dbPath, OpenMode.readWriteCreate);
 
-    log.info("Started parsing logs");
-    //parses debug.log
-    //no longer parses all debug files (debug.log.1, debug.log.2, ...)
-    if (keepParsing) {
-      log.info("Started parsing debug.log");
+    var result = <int>[];
+    var initial = 0;
 
-      try {
-        _debugFile = io.File(debugPath);
+    final newLine = '\n'.codeUnitAt(0);
 
-        //stops parsing once it reaches parseUntil date limit
-        if (_debugFile.existsSync()) {
-          String content;
+    final io.File debugFile = io.File(debugPath);
 
-          try {
-            content = _debugFile.readAsStringSync();
-          } catch (e) {
-            var bytes = _debugFile.readAsBytesSync();
+    while (true) {
+      final size = debugFile.statSync().size;
+      initial = initial > size ? 0 : initial;
 
-            //reads files this way because of UTF 16 decoding??
-            content = utf8.decode(bytes, allowMalformed: true);
-          }
+      List<String> linesToParse = <String>[];
 
-          //parses filters
-          if (keepParsingFilters) {
-            log.info("Started parsing filters in debug.log");
-            try {
-              keepParsingFilters = _parseFilters(content, _parseUntil);
-            } catch (e) {
-              log.warning(
-                  "Warning: could not parse filters in debug.log, make sure $_binaryName log level is set to INFO");
-            }
-            log.info(
-                "Finished parsing filters in debug.log - keepParsingFilters: $keepParsingFilters");
-          }
+      Stream<List<int>> stream = io.File(debugPath).openRead(initial);
 
-          //parses signage points
-          if (keepParsingSignagePoints) {
-            log.info("Started parsing Signage Points in debug.log");
-
-            try {
-              keepParsingSignagePoints =
-                  _parseSignagePoints(content, _parseUntil);
-            } catch (e) {
-              log.info(
-                  "Warning: could not parse SubSlots in debug.log, make sure $_binaryName log level is set to INFO");
-            }
-
-            log.info(
-                "Finished parsing SignagePoints in debug.log - keepParsingSignagePoints: $keepParsingSignagePoints");
-          }
-
-          //parses signage points
-          if (keepParsingShortSyncs) {
-            log.info("Started parsing Short Sync events in debug.log");
-
-            try {
-              keepParsingShortSyncs = _parseShortSyncs(content, _parseUntil);
-            } catch (e) {
-              log.info(
-                  "Warning: could not parse Short Sync events in debug.log, make sure $_binaryName log level is set to INFO");
-            }
-
-            log.info(
-                "Finished Short Sync events in debug.log - keepParsingShortSyncs: $keepParsingShortSyncs");
-          }
-
-          //parses signage points
-          if (keepParsingPoolErrors) {
-            log.info("Started parsing Pool Errors events in debug.log");
-
-            try {
-              keepParsingPoolErrors =
-                  _parseErrors(content, _parseUntil, ErrorType.Pool);
-            } catch (e) {
-              log.info(
-                  "Warning: could not parse Pool Error events in debug.log, make sure $_binaryName log level is set to INFO");
-            }
-
-            log.info(
-                "Finished pool error events in debug.log - keepParsingPoolErrors: $keepParsingPoolErrors");
-          }
-
-          //parses signage points
-          if (keepParsingHarvesterErrors) {
-            log.info("Started parsing Harvester Errors events in debug.log");
-
-            try {
-              keepParsingHarvesterErrors =
-                  _parseErrors(content, _parseUntil, ErrorType.Harvester);
-            } catch (e) {
-              log.info(
-                  "Warning: could not parse Harvester Error events in debug.log, make sure $_binaryName log level is set to INFO");
-            }
-
-            log.info(
-                "Finished Harvester Error events in debug.log - keepParsingHarvesterErrors: $keepParsingHarvesterErrors");
-          }
+      await for (final data in stream) {
+        for (int i = 0; i < data.length; i++) {
+          if (data[i] == newLine) {
+            linesToParse.add(String.fromCharCodes(result));
+            result = <int>[];
+          } else
+            result.add(data[i]);
         }
-      } catch (Exception) {
-        log.warning(
-            "Warning: could not parse debug.log, make sure $_binaryName log level is set to INFO");
+
+        if (result.isNotEmpty) {
+          linesToParse.add(String.fromCharCodes(result));
+          result = <int>[];
+        }
+
+        initial += data.length;
       }
 
-      //stops loading more files when all of the logging items stop parsing
-      keepParsing = keepParsingFilters &&
-          keepParsingSignagePoints &&
-          keepParsingShortSyncs &&
-          keepParsingPoolErrors &&
-          keepParsingPoolErrors;
+      print("Read! " + initial.toString());
 
-      log.info("Finished parsing debug.log - keepParsing: $keepParsing");
+      List<Filter?> newFilters = [];
+      List<SignagePoint?> newSignagePoints = [];
+      List<ShortSync?> newShortSyncs = [];
+      List<LogItem?> newHarvesterErrors = [];
+      List<LogItem?> newPoolErrors = [];
+
+      for (final line in linesToParse) {
+        newFilters.add(parseFilters(line));
+        newSignagePoints.add(parseSignagePoints(line));
+        newShortSyncs.add(parseShortSyncs(line));
+        newPoolErrors.add(parseErrors(line, ErrorType.Pool));
+        newHarvesterErrors.add(parseErrors(line, ErrorType.Harvester));
+      }
+
+      Cache.saveToDB(database, newFilters, "filters");
+      Cache.saveToDB(database, newSignagePoints, "signagePoints");
+      Cache.saveToDB(database, newShortSyncs, "shortSyncs");
+      Cache.saveToDB(database, newPoolErrors, "errors");
+      Cache.saveToDB(database, newHarvesterErrors, "errors");
+
+      filters.addAll(newFilters.whereType());
+      signagePoints.addAll(newSignagePoints.whereType());
+      shortSyncs.addAll(newShortSyncs.whereType());
+      poolErrors.addAll(newPoolErrors.whereType());
+      harvesterErrors.addAll(newHarvesterErrors.whereType());
+
+      await Future.delayed(Duration(seconds: 5));
     }
+  }
 
+  Filter? parseFilters(String line) {
+    try {
+      RegExp filtersRegex = RegExp(
+          "([0-9-]+)T([0-9:]+)\\.([0-9]+) harvester $floraProxy[a-z]+\\.harvester\\.harvester\\s*:\\s+INFO\\s+([0-9]+) plots were eligible for farming \\S+ Found ([0-9]+) proofs\\. Time: ([0-9\\.]+) s\\. Total ([0-9]+) plots",
+          multiLine: false);
+
+      var match = filtersRegex.firstMatch(line);
+
+      if (match == null) return null;
+
+      int timestamp = DateTime.now().millisecondsSinceEpoch;
+
+      try {
+        //Parses date from debug.log
+        timestamp = parseTimestamp(match.group(1) ?? '1971-01-01',
+            match.group(2) ?? '00:00:00', match.group(3) ?? '0000');
+
+        //if filter is in cache
+        bool inCache =
+            filters.any((cachedFilter) => cachedFilter.timestamp == timestamp);
+
+        if (!inCache) {
+          //print(timestamp);
+
+          int eligiblePlots = int.parse(match.group(4) ?? '0');
+          int proofs = int.parse(match.group(5) ?? '0');
+          double time = double.parse(match.group(6) ?? '0.0');
+          int totalPlots = int.parse(match.group(7) ?? '0');
+
+          final Filter filter =
+              Filter(timestamp, eligiblePlots, proofs, time, totalPlots);
+
+          return filter;
+        }
+      } catch (Exception) {
+        log.warning("Error parsing filters!");
+      }
+    } catch (e) {}
+
+    return null;
+  }
+
+  SignagePoint? parseSignagePoints(String line) {
+    try {
+      RegExp signagePointsRegex = RegExp(
+          "([0-9-]+)T([0-9:]+)\\.([0-9]+) full_node $floraProxy[a-z]+\\.full\\_node\\.full\\_node\\s*:\\s+INFO\\W+Finished[\\S ]+ ([0-9]+)\\/64",
+          multiLine: false);
+
+      var match = signagePointsRegex.firstMatch(line);
+
+      if (match == null) return null;
+
+      int timestamp = 0;
+
+      try {
+        //Parses date from debug.log
+        timestamp = parseTimestamp(match.group(1) ?? '1971-01-01',
+            match.group(2) ?? '00:00:00', match.group(3) ?? '0000');
+
+        bool inCache = signagePoints
+            .any((signagePoint) => signagePoint.timestamp == timestamp);
+
+        //only adds subslot if its not already in cache
+        if (!inCache) {
+          int index = int.parse(match.group(4) ?? '0');
+
+          final SignagePoint signagePoint = SignagePoint(timestamp, index);
+          return signagePoint;
+        }
+      } catch (Exception) {
+        log.warning("Error parsing filters!");
+      }
+    } catch (e) {}
+
+    return null;
+  }
+
+  ShortSync? parseShortSyncs(String line) {
+    try {
+      RegExp shortSyncsRegex = RegExp(
+          "([0-9-]+)T([0-9:]+)\\.([0-9]+) full_node $floraProxy[a-z]+\\.full\\_node\\.full\\_node\\s*:\\s+INFO\\W+Starting batch short sync from ([0-9]+) to height ([0-9]+)",
+          multiLine: false);
+
+      var match = shortSyncsRegex.firstMatch(line);
+
+      if (match == null) return null;
+
+      int timestamp = 0;
+
+      try {
+        //Parses date from debug.log
+        timestamp = parseTimestamp(match.group(1) ?? '1971-01-01',
+            match.group(2) ?? '00:00:00', match.group(3) ?? '0000');
+
+        bool inCache =
+            shortSyncs.any((shortSync) => shortSync.timestamp == timestamp);
+
+        //only adds subslot if its not already in cache
+        if (!inCache) {
+          int start = int.parse(match.group(4) ?? '1');
+          int end = int.parse(match.group(5) ?? '2');
+
+          final ShortSync shortSync = ShortSync(timestamp, start, end);
+
+          return shortSync;
+        }
+      } catch (Exception) {
+        log.warning("Error parsing filters!");
+      }
+    } catch (e) {}
+
+    return null;
+  }
+
+  LogItem? parseErrors(String line, ErrorType type) {
+    try {
+      final errorText;
+
+      switch (type) {
+        case ErrorType.Pool:
+          errorText = "Error sending partial to";
+          break;
+        case ErrorType.Harvester:
+          errorText = "Harvester did not respond";
+          break;
+      }
+
+      RegExp errorsRegex = RegExp(
+          "([0-9-]+)T([0-9:]+)\\.([0-9]+) farmer $floraProxy[a-z]+\\.farmer\\.farmer\\s*:\\s+ERROR\\s+$errorText",
+          multiLine: false);
+
+      var match = errorsRegex.firstMatch(line);
+
+      if (match == null) return null;
+
+      int timestamp = 0;
+
+      try {
+        //Parses date from debug.log
+        timestamp = parseTimestamp(match.group(1) ?? '1971-01-01',
+            match.group(2) ?? '00:00:00', match.group(3) ?? '0000');
+
+        bool inCache = (type == ErrorType.Pool ? poolErrors : harvesterErrors)
+            .any((cached) => cached.timestamp == timestamp);
+        //only adds subslot if its not already in cache
+        if (!inCache) {
+          final LogItem error = LogItem(timestamp, LogItemType.Farmer);
+
+          return error;
+        }
+      } catch (Exception) {
+        log.warning("Error parsing filters!");
+      }
+    } catch (e) {}
+
+    return null;
+  }
+
+  filterDuplicateLogs() {
     filterDuplicateFilters();
     filters.shuffle();
 
@@ -245,103 +352,6 @@ class Log {
     _genSubSlots();
 
     filterDuplicateErrors();
-  }
-
-  //Parses debug file and looks for filters
-  bool _parseFilters(String contents, int parseUntil) {
-    bool keepParsing = true;
-    bool inCache = false;
-
-    try {
-      RegExp filtersRegex = RegExp(
-          "([0-9-]+)T([0-9:]+)\\.([0-9]+) harvester $floraProxy[a-z]+\\.harvester\\.harvester\\s*:\\s+INFO\\s+([0-9]+) plots were eligible for farming \\S+ Found ([0-9]+) proofs\\. Time: ([0-9\\.]+) s\\. Total ([0-9]+) plots",
-          multiLine: true);
-
-      var matches = filtersRegex.allMatches(contents).toList();
-
-      int timestamp = DateTime.now().millisecondsSinceEpoch;
-
-      for (int i = matches.length - 1; i >= 0; i--) {
-        try {
-          if (keepParsing && !inCache) {
-            RegExpMatch match = matches[i];
-
-            //Parses date from debug.log
-            timestamp = parseTimestamp(match.group(1) ?? '1971-01-01',
-                match.group(2) ?? '00:00:00', match.group(3) ?? '0000');
-
-            //if filter's timestamp is outside parsing date rang
-            keepParsing = timestamp > parseUntil;
-
-            //if filter is in cache
-            inCache = filters
-                .any((cachedFilter) => cachedFilter.timestamp == timestamp);
-
-            if (!inCache && keepParsing) {
-              //print(timestamp);
-
-              int eligiblePlots = int.parse(match.group(4) ?? '0');
-              int proofs = int.parse(match.group(5) ?? '0');
-              double time = double.parse(match.group(6) ?? '0.0');
-              int totalPlots = int.parse(match.group(7) ?? '0');
-              Filter filter =
-                  Filter(timestamp, eligiblePlots, proofs, time, totalPlots);
-
-              _filters.add(filter);
-            }
-          }
-        } catch (Exception) {
-          log.warning("Error parsing filters!");
-        }
-      }
-    } catch (e) {
-      log.warning(
-          "Warning: could not parse filters, make sure $_binaryName log level is set to INFO");
-    }
-
-    return keepParsing & !inCache;
-  }
-
-  bool _parseSignagePoints(String contents, int parseUntil) {
-    bool keepParsing = true;
-    bool inCache = false;
-
-    try {
-      RegExp signagePointsRegex = RegExp(
-          "([0-9-]+)T([0-9:]+)\\.([0-9]+) full_node $floraProxy[a-z]+\\.full\\_node\\.full\\_node\\s*:\\s+INFO\\W+Finished[\\S ]+ ([0-9]+)\\/64",
-          multiLine: true);
-
-      var matches = signagePointsRegex.allMatches(contents).toList();
-      int timestamp = 0;
-
-      for (int i = matches.length - 1; i >= 0; i--) {
-        if (keepParsing && !inCache) {
-          var match = matches[i];
-
-          //Parses date from debug.log
-          timestamp = parseTimestamp(match.group(1) ?? '1971-01-01',
-              match.group(2) ?? '00:00:00', match.group(3) ?? '0000');
-
-          //if filter's timestamp is outside parsing date rang
-          keepParsing = timestamp > parseUntil;
-
-          inCache = signagePoints
-              .any((signagePoint) => signagePoint.timestamp == timestamp);
-
-          //only adds subslot if its not already in cache
-          if (keepParsing && !inCache) {
-            int index = int.parse(match.group(4) ?? '0');
-
-            SignagePoint signagePoint = SignagePoint(timestamp, index);
-            signagePoints.add(signagePoint);
-          }
-        }
-      }
-    } catch (Exception) {
-      log.info("Error parsing signage points.");
-    }
-
-    return keepParsing && !inCache;
   }
 
   _genSubSlots() {
@@ -373,111 +383,6 @@ class Log {
       //Won't count with last SubSlot if it's incomplete
       if (!subSlots.last.complete) subSlots.removeLast();
     } catch (e) {}
-  }
-
-  bool _parseShortSyncs(String contents, int parseUntil) {
-    bool keepParsing = true;
-    bool inCache = false;
-
-    try {
-      RegExp shortSyncsRegex = RegExp(
-          "([0-9-]+)T([0-9:]+)\\.([0-9]+) full_node $floraProxy[a-z]+\\.full\\_node\\.full\\_node\\s*:\\s+INFO\\W+Starting batch short sync from ([0-9]+) to height ([0-9]+)",
-          multiLine: true);
-
-      var matches = shortSyncsRegex.allMatches(contents).toList();
-      int timestamp = 0;
-
-      for (int i = matches.length - 1; i >= 0; i--) {
-        if (keepParsing && !inCache) {
-          var match = matches[i];
-
-          //Parses date from debug.log
-          timestamp = parseTimestamp(match.group(1) ?? '1971-01-01',
-              match.group(2) ?? '00:00:00', match.group(3) ?? '0000');
-
-          keepParsing = timestamp > parseUntil;
-
-          inCache =
-              shortSyncs.any((shortSync) => shortSync.timestamp == timestamp);
-
-          //only adds subslot if its not already in cache
-          if (keepParsing && !inCache) {
-            int start = int.parse(match.group(4) ?? '1');
-            int end = int.parse(match.group(5) ?? '2');
-
-            ShortSync shortSync = ShortSync(timestamp, start, end);
-            shortSyncs.add(shortSync);
-          }
-        }
-      }
-    } catch (Exception) {
-      log.info("Error parsing short sync events.");
-    }
-    return keepParsing && !inCache;
-  }
-
-  //Parses debug file and looks for pool errors
-  bool _parseErrors(String contents, int parseUntil, ErrorType type) {
-    bool keepParsing = true;
-    bool inCache = false;
-
-    try {
-      final errorText;
-
-      switch (type) {
-        case ErrorType.Pool:
-          errorText = "Error sending partial to";
-          break;
-        case ErrorType.Harvester:
-          errorText = "Harvester did not respond";
-          break;
-      }
-
-      RegExp errorsRegex = RegExp(
-          "([0-9-]+)T([0-9:]+)\\.([0-9]+) farmer $floraProxy[a-z]+\\.farmer\\.farmer\\s*:\\s+ERROR\\s+$errorText",
-          multiLine: true);
-
-      var matches = errorsRegex.allMatches(contents).toList();
-
-      int timestamp = DateTime.now().millisecondsSinceEpoch;
-
-      for (int i = matches.length - 1; i >= 0; i--) {
-        try {
-          if (keepParsing && !inCache) {
-            RegExpMatch match = matches[i];
-
-            //Parses date from debug.log
-            timestamp = parseTimestamp(match.group(1) ?? '1971-01-01',
-                match.group(2) ?? '00:00:00', match.group(3) ?? '0000');
-
-            //if filter's timestamp is outside parsing date rang
-            keepParsing = timestamp > parseUntil;
-
-            //if filter is in cache
-            inCache = (type == ErrorType.Pool ? poolErrors : harvesterErrors)
-                .any((cached) => cached.timestamp == timestamp);
-
-            if (!inCache && keepParsing) {
-              //print(timestamp);
-
-              LogItem error = LogItem(timestamp, LogItemType.Farmer);
-
-              (type == ErrorType.Pool ? poolErrors : harvesterErrors)
-                  .add(error);
-            }
-          }
-        } catch (Exception) {
-          log.warning("""Error parsing pool errors!
-Ignore this warning if you are not farming in a pool.""");
-        }
-      }
-    } catch (e) {
-      log.warning(
-          """Warning: could not parse pool errors, make sure $_binaryName log level is set to INFO
-Ignore this warning if you are not farming in a pool.""");
-    }
-
-    return keepParsing & !inCache;
   }
 
   void filterDuplicateFilters() {

@@ -169,7 +169,8 @@ main(List<String> args) async {
     //initializes ports and detects harvester/farmer mode
     await blockchain.initializePorts();
 
-    await blockchain.init();
+    //starts parsing logs
+    await blockchain.init(true);
     outputs.putIfAbsent(
         "${blockchain.currencySymbol.toUpperCase()} - View report",
         () => "Generating ${blockchain.currencySymbol} report");
@@ -406,9 +407,9 @@ void handleBlockchainReport(List<Object> arguments) async {
 
   //PARSES DATA
   // try {
-  //loads and updates cache every 10 minutes
+  //loads cache every 10 minutes
   //loads config every 10 minutes
-  await blockchain.init();
+  await blockchain.init(false);
 
   var client;
 
