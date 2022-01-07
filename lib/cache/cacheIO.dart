@@ -156,6 +156,8 @@ class Cache extends CacheStruct {
 
   static saveToDB(Database database, List list, String table,
       [String? errorType]) {
+    list = list.where((object) => object != null).toList();
+
     if (list.length > 0) {
       //excludes winner entry from cache as that's dynamically set according to RPC info
 
@@ -179,22 +181,20 @@ class Cache extends CacheStruct {
       final statement = database.prepare(query);
 
       for (final object in list) {
-        if (object != null) {
-          final List<dynamic> values = (table != "plots")
-              ? object
-                  .toJson()
-                  .values
-                  //converts bools to 0 (false) or 1 (true)
-                  .map((e) => (e is bool) ? (e ? 1 : 0) : e)
-                  .toList()
-              : object
-                  .toJsonPrivate()
-                  .values //converts bools to 0 (false) or 1 (true)
-                  .where((e) => !(e is bool))
-                  .toList();
+        final List<dynamic> values = (table != "plots")
+            ? object
+                .toJson()
+                .values
+                //converts bools to 0 (false) or 1 (true)
+                .map((e) => (e is bool) ? (e ? 1 : 0) : e)
+                .toList()
+            : object
+                .toJsonPrivate()
+                .values //converts bools to 0 (false) or 1 (true)
+                .where((e) => !(e is bool))
+                .toList();
 
-          statement.execute(values);
-        }
+        statement.execute(values);
       }
 
       statement.dispose();
