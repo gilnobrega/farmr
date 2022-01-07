@@ -46,6 +46,8 @@ class Log {
 
   late final String dbPath;
 
+  final Duration _refreshLogsInterval = Duration(seconds: 5);
+
   Log(String logPath, this._cache, bool parseLogs, this._binaryName, this._type,
       String configPath, bool firstInit) {
     _filters = _cache.filters; //loads cached filters
@@ -62,10 +64,12 @@ class Log {
     else
       floraProxy = "";
 
-    if (parseLogs && firstInit) {
+    if (parseLogs) {
+      _genSubSlots();
       //if nothing was found then it
       //assumes log level is not set to info
-      if (filters.length == 0 &&
+      if (firstInit &&
+          filters.length == 0 &&
           signagePoints.length == 0 &&
           shortSyncs.length == 0 &&
           _type != ClientType.HPool) {
@@ -115,12 +119,8 @@ class Log {
   }
 
   Future<void> initLogParsing(bool parseLogs, bool onetime) async {
-    if (parseLogs) {
-      await logStreamer(onetime);
-    }
-  }
+    if (!parseLogs) return;
 
-  Future<void> logStreamer(bool onetime) async {
     //opens database file or creates it if it doesnt exist
     final database = openSQLiteDB(dbPath, OpenMode.readWrite);
 
@@ -162,18 +162,27 @@ class Log {
       List<LogItem> newErrors = [];
 
       for (final line in linesToParse) {
-        SignagePoint? sp = parseSignagePoints(line);
-        if (sp != null)
+        SignagePoint? sp = _parseSignagePoint(line);
+        if (sp != null) {
           newSignagePoints.add(sp);
-        else {
-          Filter? filter = parseFilters(line);
-          if (filter != null)
-            newFilters.add(filter);
-          else {
-            LogItem? error = parseErrors(line, ErrorType.Pool) ??
-                parseErrors(line, ErrorType.Harvester);
-            if (error != null) newErrors.add(error);
-          }
+          break;
+        }
+        Filter? filter = _parseFilter(line);
+        if (filter != null) {
+          newFilters.add(filter);
+          break;
+        }
+        ShortSync? shortSync = _parseShortSync(line);
+        if (shortSync != null) {
+          newShortSyncs.add(shortSync);
+          break;
+        }
+
+        LogItem? error = _parseError(line, ErrorType.Pool) ??
+            _parseError(line, ErrorType.Harvester);
+        if (error != null) {
+          newErrors.add(error);
+          break;
         }
       }
 
@@ -191,13 +200,13 @@ class Log {
       harvesterErrors.addAll(
           newErrors.where((element) => element.type == ErrorType.Harvester));
 
-      await Future.delayed(Duration(seconds: 5));
+      await Future.delayed(_refreshLogsInterval);
 
       if (onetime) break;
     }
   }
 
-  Filter? parseFilters(String line) {
+  Filter? _parseFilter(String line) {
     try {
       RegExp filtersRegex = RegExp(
           "([0-9-]+)T([0-9:]+)\\.([0-9]+) harvester $floraProxy[a-z]+\\.harvester\\.harvester\\s*:\\s+INFO\\s+([0-9]+) plots were eligible for farming \\S+ Found ([0-9]+) proofs\\. Time: ([0-9\\.]+) s\\. Total ([0-9]+) plots",
@@ -238,7 +247,7 @@ class Log {
     return null;
   }
 
-  SignagePoint? parseSignagePoints(String line) {
+  SignagePoint? _parseSignagePoint(String line) {
     try {
       RegExp signagePointsRegex = RegExp(
           "([0-9-]+)T([0-9:]+)\\.([0-9]+) full_node $floraProxy[a-z]+\\.full\\_node\\.full\\_node\\s*:\\s+INFO\\W+Finished[\\S ]+ ([0-9]+)\\/64",
@@ -271,7 +280,7 @@ class Log {
     return null;
   }
 
-  ShortSync? parseShortSyncs(String line) {
+  ShortSync? _parseShortSync(String line) {
     try {
       RegExp shortSyncsRegex = RegExp(
           "([0-9-]+)T([0-9:]+)\\.([0-9]+) full_node $floraProxy[a-z]+\\.full\\_node\\.full\\_node\\s*:\\s+INFO\\W+Starting batch short sync from ([0-9]+) to height ([0-9]+)",
@@ -306,7 +315,7 @@ class Log {
     return null;
   }
 
-  LogItem? parseErrors(String line, ErrorType type) {
+  LogItem? _parseError(String line, ErrorType type) {
     try {
       final errorText;
 
@@ -348,16 +357,6 @@ class Log {
     return null;
   }
 
-  filterDuplicateLogs() {
-    filterDuplicateFilters();
-    filters.shuffle();
-
-    filterDuplicateSignagePoints();
-    _genSubSlots();
-
-    filterDuplicateErrors();
-  }
-
   _genSubSlots() {
     subSlots = [];
     //orders signage points by timestamps
@@ -387,32 +386,5 @@ class Log {
       //Won't count with last SubSlot if it's incomplete
       if (!subSlots.last.complete) subSlots.removeLast();
     } catch (e) {}
-  }
-
-  void filterDuplicateFilters() {
-//Removes filters with same timestamps!
-    final ids = _filters.map((filter) => filter.timestamp).toSet();
-    _filters.retainWhere((filter) => ids.remove(filter.timestamp));
-  }
-
-  void filterDuplicateSignagePoints() {
-//Removes subslots with same timestamps!
-    final ids =
-        signagePoints.map((signagePoint) => signagePoint.timestamp).toSet();
-    signagePoints
-        .retainWhere((signagePoint) => ids.remove(signagePoint.timestamp));
-  }
-
-  void filterDuplicateErrors() {
-    final List<ErrorType> types = ErrorType.values;
-
-    for (var type in types) {
-//Removes pool/harvester errors with same timestamps!
-      final ids = (type == ErrorType.Pool ? poolErrors : harvesterErrors)
-          .map((error) => error.timestamp)
-          .toSet();
-      (type == ErrorType.Pool ? poolErrors : harvesterErrors)
-          .retainWhere((error) => ids.remove(error.timestamp));
-    }
   }
 }
