@@ -409,7 +409,7 @@ void handleBlockchainReport(List<Object> arguments) async {
   // try {
   //loads cache every 10 minutes
   //loads config every 10 minutes
-  await blockchain.init(false);
+  await blockchain.init(false, onetime);
 
   var client;
 
