@@ -1,0 +1,4 @@
+this is a test file
+2022-01-06T15:50:34.294 harvester chia.harvester.harvester: INFO     11 plots were eligible for farming bc8f63ccac... Found 2 proofs. Time: 0.85744 s. Total 4777 plots
+2022-01-06T15:45:47.118 full_node chia.full_node.full_node: INFO     ⏲️  Finished signage point 27/64: CC: 64a14efc60c8f8459bd9057b15c853c3fd37d1ef9994e73f1f7cae6c51970f15 RC: fddb8893af49d5b98fcdd051d172ae0f39021a9ad8d1db461064689cec071b0c 
+12345
