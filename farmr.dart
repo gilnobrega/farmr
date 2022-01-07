@@ -29,7 +29,8 @@ import 'package:dart_console/dart_console.dart' as dartconsole;
 
 final log = Logger('Client');
 
-const Duration delay = Duration(minutes: 10); //10 minutes delay between updates
+Duration reportIntervalDuration =
+    Duration(minutes: 10); //10 minutes delay between updates
 
 // '/home/user/.farmr' for package installs, '.' (project path) for the rest
 String rootPath = "";
@@ -112,6 +113,9 @@ List<Blockchain> readBlockchains(ID id, String rootPath, List<String> args) {
         Blockchain blockchain = Blockchain(id, rootPath, args,
             jsonDecode(io.File(file.path).readAsStringSync()));
         blockchains.add(blockchain);
+
+        if (blockchain.binaryName == "chia")
+          reportIntervalDuration = blockchain.reportIntervalDuration;
       }
     }
   }
@@ -284,7 +288,7 @@ Do not close this window or these stats will not show up in farmr.net and farmrB
 }
 
 void timeoutIsolate(SendPort timeoutPort) {
-  final int timeOutMins = delay.inMinutes * 2;
+  final int timeOutMins = reportIntervalDuration.inMinutes * 2;
 
   io.sleep(Duration(minutes: timeOutMins));
 
@@ -306,7 +310,7 @@ void spawnBlokchains(List<Object> arguments) async {
   int counter = 0;
 
   final int delayBetweenInMilliseconds =
-      (delay.inMilliseconds / blockchains.length).round();
+      (reportIntervalDuration.inMilliseconds / blockchains.length).round();
 
   while (true) {
     clearLog(); //clears log
@@ -373,7 +377,7 @@ These addresses are NOT reported to farmr.net or farmrBot
       });
     }
 
-    await Future.delayed(delay);
+    await Future.delayed(reportIntervalDuration);
     if (onetime) io.exit(0);
   }
 }
@@ -403,7 +407,10 @@ void handleBlockchainReport(List<Object> arguments) async {
   int blockchainDelay = arguments[5] as int;
 
   //kills isolate after 20 minutes
-  Future.delayed(Duration(minutes: (!onetime) ? (delay.inMinutes * 2) : 1), () {
+  Future.delayed(
+      Duration(
+          minutes: (!onetime) ? (reportIntervalDuration.inMinutes * 2) : 1),
+      () {
     sendPort.send([
       "${blockchain.currencySymbol} report killed. Are ${blockchain.binaryName} services running?",
       "",
@@ -638,7 +645,7 @@ Future<void> sendReport(
         : "for id " + id + blockchain.fileExtension;
     String timestamp = DateFormat.Hms().format(DateTime.now());
     previousOutput +=
-        "\n$timestamp - Sent ${blockchain.binaryName} $type report to server $idText\nResending it in ${delay.inMinutes} minutes";
+        "\n$timestamp - Sent ${blockchain.binaryName} $type report to server $idText\nResending it in ${reportIntervalDuration.inMinutes} minutes";
 
     checkIfLinked(
         contents,
