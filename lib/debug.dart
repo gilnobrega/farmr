@@ -156,33 +156,40 @@ class Log {
         initial += data.length;
       }
 
-      // print("Read! " + initial.toString());
-
-      List<Filter?> newFilters = [];
-      List<SignagePoint?> newSignagePoints = [];
-      List<ShortSync?> newShortSyncs = [];
-      List<LogItem?> newHarvesterErrors = [];
-      List<LogItem?> newPoolErrors = [];
+      List<Filter> newFilters = [];
+      List<SignagePoint> newSignagePoints = [];
+      List<ShortSync> newShortSyncs = [];
+      List<LogItem> newErrors = [];
 
       for (final line in linesToParse) {
-        newFilters.add(parseFilters(line));
-        newSignagePoints.add(parseSignagePoints(line));
-        newShortSyncs.add(parseShortSyncs(line));
-        newPoolErrors.add(parseErrors(line, ErrorType.Pool));
-        newHarvesterErrors.add(parseErrors(line, ErrorType.Harvester));
+        SignagePoint? sp = parseSignagePoints(line);
+        if (sp != null)
+          newSignagePoints.add(sp);
+        else {
+          Filter? filter = parseFilters(line);
+          if (filter != null)
+            newFilters.add(filter);
+          else {
+            LogItem? error = parseErrors(line, ErrorType.Pool) ??
+                parseErrors(line, ErrorType.Harvester);
+            if (error != null) newErrors.add(error);
+          }
+        }
       }
 
       Cache.saveToDB(database, newFilters, "filters");
       Cache.saveToDB(database, newSignagePoints, "signagePoints");
       Cache.saveToDB(database, newShortSyncs, "shortSyncs");
-      Cache.saveToDB(database, newPoolErrors, "errors");
-      Cache.saveToDB(database, newHarvesterErrors, "errors");
+      Cache.saveToDB(database, newErrors, "errors");
 
       filters.addAll(newFilters.whereType());
       signagePoints.addAll(newSignagePoints.whereType());
       shortSyncs.addAll(newShortSyncs.whereType());
-      poolErrors.addAll(newPoolErrors.whereType());
-      harvesterErrors.addAll(newHarvesterErrors.whereType());
+
+      poolErrors
+          .addAll(newErrors.where((element) => element.type == ErrorType.Pool));
+      harvesterErrors.addAll(
+          newErrors.where((element) => element.type == ErrorType.Harvester));
 
       await Future.delayed(Duration(seconds: 5));
 

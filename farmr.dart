@@ -180,8 +180,11 @@ main(List<String> args) async {
 
     receivePort.listen((message) {
       log.warning(message);
-      receivePort.close();
-      isolate.kill();
+
+      if ((message as String).contains("stopped")) {
+        receivePort.close();
+        isolate.kill();
+      }
     });
 
     outputs.putIfAbsent(
@@ -380,10 +383,14 @@ void startLogParsing(List<Object> arguments) async {
   Blockchain blockchain = arguments[1] as Blockchain;
   bool onetime = arguments[2] as bool;
 
+  sendPort
+      .send("${blockchain.currencySymbol.toUpperCase()}: started log parser");
+
   await Future.delayed(Duration(minutes: 1));
   await blockchain.log.initLogParsing(blockchain.config.parseLogs, onetime);
 
-  sendPort.send("${blockchain.currencySymbol}: stopped log parsing");
+  sendPort
+      .send("${blockchain.currencySymbol.toUpperCase()}: stopped log parser");
 }
 
 //blockchain isolate
