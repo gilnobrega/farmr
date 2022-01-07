@@ -216,7 +216,7 @@ class Cache extends CacheStruct {
 
   void _load() {
     //opens database file or creates it if it doesnt exist
-    final database = openSQLiteDB(cache.path, OpenMode.readWriteCreate);
+    final database = openSQLiteDB(cache.path, OpenMode.readOnly);
 
     //try {
     const String plotQuery = "SELECT * from plots";

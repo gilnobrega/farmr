@@ -232,8 +232,8 @@ class Blockchain {
         this.binaryName, this.config.type, configPath, firstInit);
   }
 
-  Future<void> startLogging(bool firstInit, onetime) async {
-    await this.log.initLogParsing(this.config.parseLogs, firstInit, onetime);
+  Future<void> startLogging(onetime) async {
+    await this.log.initLogParsing(this.config.parseLogs, onetime);
   }
 
   /** Returns configPath & logPath for the coin based on platform */

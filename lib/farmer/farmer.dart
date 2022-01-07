@@ -274,14 +274,8 @@ class Farmer extends Harvester with FarmerStatusMixin {
       _getLegacyLocalWallets();
 
     for (String address in blockchain.config.coldWalletAddresses) {
-      //TODO: FIX THIS PART, it is throwing notifications when farmerStatus changes and switches from alltheblocks to localcoldwallet
-      //if full node is synced then uses local cold wallet
-      // if (farmerStatus == FarmerStatus.Farming)
       wallets.add(LocalColdWallet(
           blockchain: blockchain, address: address, rootPath: rootPath));
-      // else //else uses alltheblocks api
-      // wallets
-      //  .add(AllTheBlocksWallet(blockchain: blockchain, address: address));
     }
 
     await _verifyRewardAddresses();

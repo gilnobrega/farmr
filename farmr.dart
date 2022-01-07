@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
 import 'package:path/path.dart';
@@ -171,8 +170,19 @@ main(List<String> args) async {
 
     //initializes blockchain class
     await blockchain.init(true);
-    //starts parsing logs every x seconds
-    blockchain.startLogging(true, false);
+
+    //starts isolate for log parsing
+    final receivePort = ReceivePort();
+    final isolate = await Isolate.spawn(
+      startLogParsing,
+      [receivePort.sendPort, blockchain, onetime],
+    );
+
+    receivePort.listen((message) {
+      log.warning(message);
+      receivePort.close();
+      isolate.kill();
+    });
 
     outputs.putIfAbsent(
         "${blockchain.currencySymbol.toUpperCase()} - View report",
@@ -365,6 +375,16 @@ These addresses are NOT reported to farmr.net or farmrBot
   }
 }
 
+void startLogParsing(List<Object> arguments) async {
+  SendPort sendPort = arguments[0] as SendPort;
+  Blockchain blockchain = arguments[1] as Blockchain;
+  bool onetime = arguments[2] as bool;
+
+  await blockchain.startLogging(onetime);
+
+  sendPort.send("${blockchain.currencySymbol}: stopped log parsing");
+}
+
 //blockchain isolate
 void handleBlockchainReport(List<Object> arguments) async {
   SendPort sendPort = arguments[0] as SendPort;
@@ -413,6 +433,7 @@ void handleBlockchainReport(List<Object> arguments) async {
   //loads cache every 10 minutes
   //loads config every 10 minutes
   await blockchain.init(false);
+  //starts parsing logs every x seconds
 
   var client;
 

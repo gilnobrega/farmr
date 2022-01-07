@@ -3,7 +3,6 @@ import 'package:farmr_client/config.dart';
 import 'package:farmr_client/utils/sqlite.dart';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:universal_io/io.dart' as io;
-import 'dart:convert';
 
 import 'package:logging/logging.dart';
 
@@ -115,17 +114,15 @@ class Log {
     } catch (error) {}
   }
 
-  Future<void> initLogParsing(
-      bool parseLogs, bool firstInit, bool onetime) async {
-    //starts logging if first time
-    if (parseLogs && firstInit) {
+  Future<void> initLogParsing(bool parseLogs, bool onetime) async {
+    if (parseLogs) {
       await logStreamer(onetime);
     }
   }
 
   Future<void> logStreamer(bool onetime) async {
     //opens database file or creates it if it doesnt exist
-    final database = openSQLiteDB(dbPath, OpenMode.readWriteCreate);
+    final database = openSQLiteDB(dbPath, OpenMode.readWrite);
 
     var result = <int>[];
     var initial = 0;
@@ -205,32 +202,31 @@ class Log {
 
       int timestamp = DateTime.now().millisecondsSinceEpoch;
 
-      try {
-        //Parses date from debug.log
-        timestamp = parseTimestamp(match.group(1) ?? '1971-01-01',
-            match.group(2) ?? '00:00:00', match.group(3) ?? '0000');
+      //Parses date from debug.log
+      timestamp = parseTimestamp(match.group(1) ?? '1971-01-01',
+          match.group(2) ?? '00:00:00', match.group(3) ?? '0000');
 
-        //if filter is in cache
-        bool inCache =
-            filters.any((cachedFilter) => cachedFilter.timestamp == timestamp);
+      //if filter is in cache
+      bool inCache =
+          filters.any((cachedFilter) => cachedFilter.timestamp == timestamp);
 
-        if (!inCache) {
-          //print(timestamp);
+      if (!inCache) {
+        //print(timestamp);
 
-          int eligiblePlots = int.parse(match.group(4) ?? '0');
-          int proofs = int.parse(match.group(5) ?? '0');
-          double time = double.parse(match.group(6) ?? '0.0');
-          int totalPlots = int.parse(match.group(7) ?? '0');
+        int eligiblePlots = int.parse(match.group(4) ?? '0');
+        int proofs = int.parse(match.group(5) ?? '0');
+        double time = double.parse(match.group(6) ?? '0.0');
+        int totalPlots = int.parse(match.group(7) ?? '0');
 
-          final Filter filter =
-              Filter(timestamp, eligiblePlots, proofs, time, totalPlots);
+        final Filter filter =
+            Filter(timestamp, eligiblePlots, proofs, time, totalPlots);
 
-          return filter;
-        }
-      } catch (Exception) {
-        log.warning("Error parsing filters!");
+        return filter;
       }
-    } catch (e) {}
+    } catch (e) {
+      log.warning("Error parsing filter! " + e.toString());
+      log.warning(line);
+    }
 
     return null;
   }
@@ -247,26 +243,24 @@ class Log {
 
       int timestamp = 0;
 
-      try {
-        //Parses date from debug.log
-        timestamp = parseTimestamp(match.group(1) ?? '1971-01-01',
-            match.group(2) ?? '00:00:00', match.group(3) ?? '0000');
+      //Parses date from debug.log
+      timestamp = parseTimestamp(match.group(1) ?? '1971-01-01',
+          match.group(2) ?? '00:00:00', match.group(3) ?? '0000');
 
-        bool inCache = signagePoints
-            .any((signagePoint) => signagePoint.timestamp == timestamp);
+      bool inCache = signagePoints
+          .any((signagePoint) => signagePoint.timestamp == timestamp);
 
-        //only adds subslot if its not already in cache
-        if (!inCache) {
-          int index = int.parse(match.group(4) ?? '0');
+      //only adds subslot if its not already in cache
+      if (!inCache) {
+        int index = int.parse(match.group(4) ?? '0');
 
-          final SignagePoint signagePoint = SignagePoint(timestamp, index);
-          return signagePoint;
-        }
-      } catch (Exception) {
-        log.warning("Error parsing filters!");
+        final SignagePoint signagePoint = SignagePoint(timestamp, index);
+        return signagePoint;
       }
-    } catch (e) {}
-
+    } catch (e) {
+      log.warning("Error parsing signage point! " + e.toString());
+      log.warning(line);
+    }
     return null;
   }
 
@@ -282,28 +276,26 @@ class Log {
 
       int timestamp = 0;
 
-      try {
-        //Parses date from debug.log
-        timestamp = parseTimestamp(match.group(1) ?? '1971-01-01',
-            match.group(2) ?? '00:00:00', match.group(3) ?? '0000');
+      //Parses date from debug.log
+      timestamp = parseTimestamp(match.group(1) ?? '1971-01-01',
+          match.group(2) ?? '00:00:00', match.group(3) ?? '0000');
 
-        bool inCache =
-            shortSyncs.any((shortSync) => shortSync.timestamp == timestamp);
+      bool inCache =
+          shortSyncs.any((shortSync) => shortSync.timestamp == timestamp);
 
-        //only adds subslot if its not already in cache
-        if (!inCache) {
-          int start = int.parse(match.group(4) ?? '1');
-          int end = int.parse(match.group(5) ?? '2');
+      //only adds subslot if its not already in cache
+      if (!inCache) {
+        int start = int.parse(match.group(4) ?? '1');
+        int end = int.parse(match.group(5) ?? '2');
 
-          final ShortSync shortSync = ShortSync(timestamp, start, end);
+        final ShortSync shortSync = ShortSync(timestamp, start, end);
 
-          return shortSync;
-        }
-      } catch (Exception) {
-        log.warning("Error parsing filters!");
+        return shortSync;
       }
-    } catch (e) {}
-
+    } catch (e) {
+      log.warning("Error parsing short sync event! " + e.toString());
+      log.warning(line);
+    }
     return null;
   }
 
@@ -330,24 +322,22 @@ class Log {
 
       int timestamp = 0;
 
-      try {
-        //Parses date from debug.log
-        timestamp = parseTimestamp(match.group(1) ?? '1971-01-01',
-            match.group(2) ?? '00:00:00', match.group(3) ?? '0000');
+      //Parses date from debug.log
+      timestamp = parseTimestamp(match.group(1) ?? '1971-01-01',
+          match.group(2) ?? '00:00:00', match.group(3) ?? '0000');
 
-        bool inCache = (type == ErrorType.Pool ? poolErrors : harvesterErrors)
-            .any((cached) => cached.timestamp == timestamp);
-        //only adds subslot if its not already in cache
-        if (!inCache) {
-          final LogItem error = LogItem(timestamp, LogItemType.Farmer);
+      bool inCache = (type == ErrorType.Pool ? poolErrors : harvesterErrors)
+          .any((cached) => cached.timestamp == timestamp);
+      //only adds subslot if its not already in cache
+      if (!inCache) {
+        final LogItem error = LogItem(timestamp, LogItemType.Farmer);
 
-          return error;
-        }
-      } catch (Exception) {
-        log.warning("Error parsing filters!");
+        return error;
       }
-    } catch (e) {}
-
+    } catch (e) {
+      log.warning("Error parsing ${type} error! " + e.toString());
+      log.warning(line);
+    }
     return null;
   }
 
