@@ -9,7 +9,7 @@ In the event that your coin is not listed here, you will need to create a templa
 
 1. Create the file with the proper name
 1. Place the boilerplate inside of this file
-    ```
+```
 {
   "Binary Name": "chia",
   "Currency Symbol": "XCH",
@@ -28,8 +28,9 @@ In the event that your coin is not listed here, you will need to create a templa
   },
   "Report Interval": 600,
   "Log Parse Interval": 5
-}
-    ```
+} 
+```
+
 1. Edit the values as shown below. All defaults below are the `Chia-Network/chia-blockchain` values 
 1. Ensure it is working in [farmr](https://farmr.net/#/)
     - If you are feeling adventurous and want to help the community grow, submit a PR to [farmr's Github](https://github.com/joaquimguimaraes/farmr/pulls)
