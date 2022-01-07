@@ -228,12 +228,6 @@ class Blockchain {
     await this.config.init(this.onlineConfig,
         this._args.contains("headless") || this._args.contains("hpool"));
 
-    //TODO: find a way to not have to run this logUpdate command twice (in blockchain.init and every 10 minutes)
-    logUpdate(firstInit);
-  }
-
-  //reparses log and adds new filters/shortsyncs/signagepoints
-  void logUpdate(bool firstInit) {
     this.log = new Log(this.logPath, this.cache, this.config.parseLogs,
         this.binaryName, this.config.type, configPath, firstInit);
   }

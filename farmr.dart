@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
 import 'package:path/path.dart';
@@ -140,7 +139,7 @@ Map<String, String> outputs = {};
 
 main(List<String> args) async {
   clearLog();
-  initLogger(); //initializes logger
+  initLogger(); //initializes farmr logger
 
   //Kills command on ctrl c
   io.ProcessSignal.sigint.watch().listen((signal) {
@@ -169,8 +168,25 @@ main(List<String> args) async {
     //initializes ports and detects harvester/farmer mode
     await blockchain.initializePorts();
 
-    //starts parsing logs
+    //initializes blockchain class
     await blockchain.init(true);
+
+    //starts isolate for log parsing
+    final receivePort = ReceivePort();
+    final isolate = await Isolate.spawn(
+      startLogParsing,
+      [receivePort.sendPort, blockchain, onetime],
+    );
+
+    receivePort.listen((message) {
+      log.warning(message);
+
+      if ((message as String).contains("stopped")) {
+        receivePort.close();
+        isolate.kill();
+      }
+    });
+
     outputs.putIfAbsent(
         "${blockchain.currencySymbol.toUpperCase()} - View report",
         () => "Generating ${blockchain.currencySymbol} report");
@@ -362,6 +378,21 @@ These addresses are NOT reported to farmr.net or farmrBot
   }
 }
 
+void startLogParsing(List<Object> arguments) async {
+  SendPort sendPort = arguments[0] as SendPort;
+  Blockchain blockchain = arguments[1] as Blockchain;
+  bool onetime = arguments[2] as bool;
+
+  sendPort
+      .send("${blockchain.currencySymbol.toUpperCase()}: started log parser");
+
+  await Future.delayed(Duration(minutes: 1));
+  await blockchain.log.initLogParsing(blockchain.config.parseLogs, onetime);
+
+  sendPort
+      .send("${blockchain.currencySymbol.toUpperCase()}: stopped log parser");
+}
+
 //blockchain isolate
 void handleBlockchainReport(List<Object> arguments) async {
   SendPort sendPort = arguments[0] as SendPort;
@@ -410,6 +441,7 @@ void handleBlockchainReport(List<Object> arguments) async {
   //loads cache every 10 minutes
   //loads config every 10 minutes
   await blockchain.init(false);
+  //starts parsing logs every x seconds
 
   var client;
 

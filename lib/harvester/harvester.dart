@@ -26,7 +26,7 @@ class Harvester
         HarvesterWallets,
         HarvesterStatusMixin {
   late Config _config;
-  late Blockchain blockchain; // TODO: Why is late necessary here?
+  late Blockchain blockchain;
 
   //if there are multiple harvesters associated to this device a.k.a. if it is the head farmer/harvester of farm
   bool _isAggregate = false;

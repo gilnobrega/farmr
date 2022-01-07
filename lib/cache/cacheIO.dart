@@ -156,6 +156,8 @@ class Cache extends CacheStruct {
 
   static saveToDB(Database database, List list, String table,
       [String? errorType]) {
+    list = list.where((object) => object != null).toList();
+
     if (list.length > 0) {
       //excludes winner entry from cache as that's dynamically set according to RPC info
 
@@ -179,22 +181,20 @@ class Cache extends CacheStruct {
       final statement = database.prepare(query);
 
       for (final object in list) {
-        if (object != null) {
-          final List<dynamic> values = (table != "plots")
-              ? object
-                  .toJson()
-                  .values
-                  //converts bools to 0 (false) or 1 (true)
-                  .map((e) => (e is bool) ? (e ? 1 : 0) : e)
-                  .toList()
-              : object
-                  .toJsonPrivate()
-                  .values //converts bools to 0 (false) or 1 (true)
-                  .where((e) => !(e is bool))
-                  .toList();
+        final List<dynamic> values = (table != "plots")
+            ? object
+                .toJson()
+                .values
+                //converts bools to 0 (false) or 1 (true)
+                .map((e) => (e is bool) ? (e ? 1 : 0) : e)
+                .toList()
+            : object
+                .toJsonPrivate()
+                .values //converts bools to 0 (false) or 1 (true)
+                .where((e) => !(e is bool))
+                .toList();
 
-          statement.execute(values);
-        }
+        statement.execute(values);
       }
 
       statement.dispose();
@@ -216,9 +216,8 @@ class Cache extends CacheStruct {
 
   void _load() {
     //opens database file or creates it if it doesnt exist
-    final database = openSQLiteDB(cache.path, OpenMode.readWriteCreate);
+    final database = openSQLiteDB(cache.path, OpenMode.readOnly);
 
-    //try {
     const String plotQuery = "SELECT * from plots";
     final plotResults = database.select(plotQuery);
 
@@ -266,10 +265,6 @@ class Cache extends CacheStruct {
     final memoryResults = database.select(memoryQuery, [parseUntil]);
     for (final memoryResult in memoryResults)
       memories.add(Memory.fromJson(memoryResult));
-    // } catch (Exception) {
-    //  log.severe(
-    //       "ERROR: Failed to load ${cache.path}\nGenerating a new cache database.");
-    // }
 
     database.dispose();
   }
