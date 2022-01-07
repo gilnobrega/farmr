@@ -140,7 +140,7 @@ Map<String, String> outputs = {};
 
 main(List<String> args) async {
   clearLog();
-  initLogger(); //initializes logger
+  initLogger(); //initializes farmr logger
 
   //Kills command on ctrl c
   io.ProcessSignal.sigint.watch().listen((signal) {
@@ -169,8 +169,11 @@ main(List<String> args) async {
     //initializes ports and detects harvester/farmer mode
     await blockchain.initializePorts();
 
-    //starts parsing logs
-    await blockchain.init(true, onetime);
+    //initializes blockchain class
+    await blockchain.init(true);
+    //starts parsing logs every x seconds
+    blockchain.startLogging(true, false);
+
     outputs.putIfAbsent(
         "${blockchain.currencySymbol.toUpperCase()} - View report",
         () => "Generating ${blockchain.currencySymbol} report");
@@ -409,7 +412,7 @@ void handleBlockchainReport(List<Object> arguments) async {
   // try {
   //loads cache every 10 minutes
   //loads config every 10 minutes
-  await blockchain.init(false, onetime);
+  await blockchain.init(false);
 
   var client;
 

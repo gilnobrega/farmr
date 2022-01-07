@@ -48,7 +48,7 @@ class Log {
   late final String dbPath;
 
   Log(String logPath, this._cache, bool parseLogs, this._binaryName, this._type,
-      String configPath, bool firstInit, bool onetime) {
+      String configPath, bool firstInit) {
     _filters = _cache.filters; //loads cached filters
     signagePoints = _cache.signagePoints; //loads cached subslots
     shortSyncs = _cache.shortSyncs;
@@ -63,10 +63,7 @@ class Log {
     else
       floraProxy = "";
 
-    //starts logging if first time
     if (parseLogs && firstInit) {
-      logStreamer(onetime);
-
       //if nothing was found then it
       //assumes log level is not set to info
       if (filters.length == 0 &&
@@ -116,6 +113,14 @@ class Log {
         }
       }
     } catch (error) {}
+  }
+
+  Future<void> initLogParsing(
+      bool parseLogs, bool firstInit, bool onetime) async {
+    //starts logging if first time
+    if (parseLogs && firstInit) {
+      await logStreamer(onetime);
+    }
   }
 
   Future<void> logStreamer(bool onetime) async {
