@@ -13,5 +13,7 @@
     "fullNode": 8555,
     "wallet": 9256,
     "daemon": 55400
-  }
+  },
+  "Report Interval": 600,
+  "Log Parse Interval": 5
 }

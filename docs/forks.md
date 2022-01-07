@@ -10,17 +10,25 @@ In the event that your coin is not listed here, you will need to create a templa
 1. Create the file with the proper name
 1. Place the boilerplate inside of this file
     ```
-    {
-        "Binary Name": "chia",
-        "Folder Name": ".chia",
-        "Currency Symbol": "XCH",
-        "Minor Currency Symbol": "mojo",
-        "Net": "mainnet",
-        "Block Rewards": 2.0,
-        "Blocks Per 10 Minutes": 32.0,
-        "Config Path": "/home/user/.chia/mainnet/config",
-        "Log Path": "/home/user/.chia/mainnet/log"
-    }
+{
+  "Binary Name": "chia",
+  "Currency Symbol": "XCH",
+  "Minor Currency Symbol": "mojo",
+  "Major to Minor Multiplier": 1e12,
+  "Net": "mainnet",
+  "Block Rewards": 2.0,
+  "Blocks Per 10 Minutes": 32.0,
+  "Online Config": true,
+  "Ports": {
+    "harvester": 8560,
+    "farmer": 8559,
+    "fullNode": 8555,
+    "wallet": 9256,
+    "daemon": 55400
+  },
+  "Report Interval": 600,
+  "Log Parse Interval": 5
+}
     ```
 1. Edit the values as shown below. All defaults below are the `Chia-Network/chia-blockchain` values 
 1. Ensure it is working in [farmr](https://farmr.net/#/)
@@ -69,3 +77,20 @@ OPTIONAL: to the log files.
     Linux: `/home/user/.chia/mainnet/log`
     Windows: `C:\\Users\\USER\\.chia\\mainnet\\log`
     ```
+
+#### Online Config
+OPTIONAL: Allows configuring settings through farmr.net dashboard.
+Defaults to true.
+When false, these can be set in local ```config-###.json``` files.
+
+#### Ports
+RPC Service Ports
+
+#### Report Interval
+OPTIONAL: Interval between farmr reports in seconds. 
+Defaults to 10 minutes (600 seconds). 
+May not be shorter than 1 minute (60 seconds) or higher than 30 minutes (1800 seconds).
+
+#### Log Parse Interval
+OPTIONAL: Interval between debug.log parses 
+Defaults to 5 seconds. 

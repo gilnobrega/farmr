@@ -46,10 +46,17 @@ class Log {
 
   late final String dbPath;
 
-  final Duration _refreshLogsInterval = Duration(seconds: 5);
+  late final Duration logParseIntervalDuration;
 
-  Log(String logPath, this._cache, bool parseLogs, this._binaryName, this._type,
-      String configPath, bool firstInit) {
+  Log(
+      String logPath,
+      this._cache,
+      bool parseLogs,
+      this._binaryName,
+      this._type,
+      String configPath,
+      bool firstInit,
+      Duration this.logParseIntervalDuration) {
     _filters = _cache.filters; //loads cached filters
     signagePoints = _cache.signagePoints; //loads cached subslots
     shortSyncs = _cache.shortSyncs;
@@ -200,7 +207,7 @@ class Log {
       harvesterErrors.addAll(
           newErrors.where((element) => element.type == ErrorType.Harvester));
 
-      await Future.delayed(_refreshLogsInterval);
+      await Future.delayed(logParseIntervalDuration);
 
       if (onetime) break;
     }

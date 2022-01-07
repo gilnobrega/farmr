@@ -94,6 +94,15 @@ class Blockchain {
   late final ClientType type;
   String get typeName => type.toString().split('.')[1];
 
+  int _reportInterval = 600;
+  int get reportInterval => reportInterval;
+  Duration get reportIntervalDuration => Duration(seconds: _reportInterval);
+
+  int _logParseInterval = 5;
+  int get logParseInterval => reportInterval;
+  Duration get logParsingIntervalDuration =>
+      Duration(seconds: _logParseInterval);
+
   Blockchain(this.id, this._rootPath, this._args, [dynamic json]) {
     _fromJson(json); //loads properties from serialized blokchain
 
@@ -137,7 +146,13 @@ class Blockchain {
       _onlineConfig = json['Online Config'] ?? true;
       _majorToMinorMultiplier = json['Major to Minor Multiplier'] ?? 1e12;
       _checkPlotSize = json['Check for Complete Plots'] ?? true;
+      _reportInterval = json['Report Interval'] ?? 600;
+      _logParseInterval = json['Log Parse Interval'] ?? 5;
     }
+
+    //sets limits of report interval
+    if (_reportInterval < 60) _reportInterval = 60;
+    if (_reportInterval > 1800) _reportInterval = 1800;
 
     //initializes default rpc ports for xch
     if (currencySymbol == "xch") {
@@ -228,8 +243,15 @@ class Blockchain {
     await this.config.init(this.onlineConfig,
         this._args.contains("headless") || this._args.contains("hpool"));
 
-    this.log = new Log(this.logPath, this.cache, this.config.parseLogs,
-        this.binaryName, this.config.type, configPath, firstInit);
+    this.log = new Log(
+        this.logPath,
+        this.cache,
+        this.config.parseLogs,
+        this.binaryName,
+        this.config.type,
+        configPath,
+        firstInit,
+        this.logParsingIntervalDuration);
   }
 
   /** Returns configPath & logPath for the coin based on platform */
