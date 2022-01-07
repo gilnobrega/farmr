@@ -170,7 +170,7 @@ main(List<String> args) async {
     await blockchain.initializePorts();
 
     //starts parsing logs
-    await blockchain.init(true);
+    await blockchain.init(true, onetime);
     outputs.putIfAbsent(
         "${blockchain.currencySymbol.toUpperCase()} - View report",
         () => "Generating ${blockchain.currencySymbol} report");

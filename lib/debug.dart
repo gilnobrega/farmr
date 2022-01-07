@@ -48,7 +48,7 @@ class Log {
   late final String dbPath;
 
   Log(String logPath, this._cache, bool parseLogs, this._binaryName, this._type,
-      String configPath, bool firstInit) {
+      String configPath, bool firstInit, bool onetime) {
     _filters = _cache.filters; //loads cached filters
     signagePoints = _cache.signagePoints; //loads cached subslots
     shortSyncs = _cache.shortSyncs;
@@ -65,7 +65,7 @@ class Log {
 
     //starts logging if first time
     if (parseLogs && firstInit) {
-      logStreamer();
+      logStreamer(onetime);
 
       //if nothing was found then it
       //assumes log level is not set to info
@@ -118,7 +118,7 @@ class Log {
     } catch (error) {}
   }
 
-  Future<void> logStreamer() async {
+  Future<void> logStreamer(bool onetime) async {
     //opens database file or creates it if it doesnt exist
     final database = openSQLiteDB(dbPath, OpenMode.readWriteCreate);
 
@@ -154,7 +154,7 @@ class Log {
         initial += data.length;
       }
 
-      print("Read! " + initial.toString());
+      // print("Read! " + initial.toString());
 
       List<Filter?> newFilters = [];
       List<SignagePoint?> newSignagePoints = [];
@@ -183,6 +183,8 @@ class Log {
       harvesterErrors.addAll(newHarvesterErrors.whereType());
 
       await Future.delayed(Duration(seconds: 5));
+
+      if (onetime) break;
     }
   }
 
