@@ -98,8 +98,7 @@ class Farmer extends Harvester with FarmerStatusMixin {
       {required Blockchain blockchain,
       String version = '',
       required this.type,
-      required this.rootPath,
-      bool firstInit = false})
+      required this.rootPath})
       : super(blockchain, version) {
     if (type != ClientType.HPool) {
       getNodeHeight(); //sets _syncedBlockHeight
