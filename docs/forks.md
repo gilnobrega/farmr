@@ -35,35 +35,35 @@ In the event that your coin is not listed here, you will need to create a templa
 1. Ensure it is working in [farmr](https://farmr.net/#/)
     - If you are feeling adventurous and want to help the community grow, submit a PR to [farmr's Github](https://github.com/joaquimguimaraes/farmr/pulls)
 
-#### Binary Name
+### Binary Name
 Command used to execute from the CLI.
 - Chia Example: `chia`
 
-#### Folder Name
+### Folder Name
 OPTIONAL: Name of the root folder of configuration/log files
 - Chia Example: `.chia`
 
-#### Currency Symbol
+### Currency Symbol
 Symbol to use to recognize the coin.
 - Chia Example: `XCH`
 
-#### Minor Currency Symbol
+### Minor Currency Symbol
 Symbol to use to recognize smaller parts of the coin.
 - Chia Example: `mojo`
 
-#### Net
+### Net
 What net to retrieve data from.
 - Default: `mainnet`
 
-#### Block Rewards
+### Block Rewards
 How much is won per block?
 - Chia Example: `2.0`
 
-#### Blocks Per 10 Minutes
+### Blocks Per 10 Minutes
 How many Blocks occur per 10 Minutes?
 - Chia Example: `32.0`
 
-#### Config Path
+### Config Path
 OPTIONAL: Path to the config files.
 - Chia Example:
     ```
@@ -71,7 +71,7 @@ OPTIONAL: Path to the config files.
     Windows: `C:\\Users\\USER\\.chia\\mainnet\\config`
     ```
 
-#### Log Path
+### Log Path
 OPTIONAL: to the log files.
 - Chia Example:
     ```
@@ -79,19 +79,24 @@ OPTIONAL: to the log files.
     Windows: `C:\\Users\\USER\\.chia\\mainnet\\log`
     ```
 
-#### Online Config
+### Online Config
 OPTIONAL: Allows configuring settings through farmr.net dashboard.
 Defaults to true.
 When false, these can be set in local ```config-###.json``` files.
 
-#### Ports
+### Ports
 RPC Service Ports
 
-#### Report Interval
-OPTIONAL: Interval between farmr reports in seconds. 
-Defaults to 10 minutes (600 seconds). 
-May not be shorter than 1 minute (60 seconds) or higher than 30 minutes (1800 seconds).
 
-#### Log Parse Interval
-OPTIONAL: Interval between debug.log parses 
-Defaults to 5 seconds. 
+### Report Interval
+  OPTIONAL: Interval between farmr reports (in seconds). 
+
+  Defaults to 10 minutes (600 seconds). 
+
+  Cannot be shorter than 1 minute (60 seconds) or longer than 30 minutes (1800 seconds).
+
+
+### Log Parse Interval
+  OPTIONAL: Interval between debug.log lookups (in seconds). 
+
+  Defaults to 5 seconds. 
