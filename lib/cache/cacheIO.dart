@@ -218,7 +218,6 @@ class Cache extends CacheStruct {
     //opens database file or creates it if it doesnt exist
     final database = openSQLiteDB(cache.path, OpenMode.readOnly);
 
-    //try {
     const String plotQuery = "SELECT * from plots";
     final plotResults = database.select(plotQuery);
 
@@ -266,10 +265,6 @@ class Cache extends CacheStruct {
     final memoryResults = database.select(memoryQuery, [parseUntil]);
     for (final memoryResult in memoryResults)
       memories.add(Memory.fromJson(memoryResult));
-    // } catch (Exception) {
-    //  log.severe(
-    //       "ERROR: Failed to load ${cache.path}\nGenerating a new cache database.");
-    // }
 
     database.dispose();
   }

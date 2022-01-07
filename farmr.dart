@@ -380,7 +380,8 @@ void startLogParsing(List<Object> arguments) async {
   Blockchain blockchain = arguments[1] as Blockchain;
   bool onetime = arguments[2] as bool;
 
-  await blockchain.startLogging(onetime);
+  await Future.delayed(Duration(minutes: 1));
+  await blockchain.log.initLogParsing(blockchain.config.parseLogs, onetime);
 
   sendPort.send("${blockchain.currencySymbol}: stopped log parsing");
 }
