@@ -293,8 +293,14 @@ void spawnBlokchains(List<Object> arguments) async {
   final int delayBetweenInMilliseconds =
       (reportIntervalDuration.inMilliseconds / blockchains.length).round();
 
+  int completeFirstIterations = 0;
   //log parser isolate
   for (Blockchain blockchain in blockchains) {
+    if (!blockchain.config.parseLogs) {
+      completeFirstIterations++;
+      break;
+    }
+
     //starts isolate for log parsing
     final receivePort = ReceivePort();
     final isolate = await Isolate.spawn(
@@ -302,11 +308,16 @@ void spawnBlokchains(List<Object> arguments) async {
       [receivePort.sendPort, blockchain, onetime],
     );
 
+    log.warning(
+        "${blockchain.currencySymbol.toUpperCase()}: starting log parser...");
+
     receivePort.listen((message) {
       if (message is String) {
         log.warning(message);
 
         if (message.contains("stopped")) {
+          completeFirstIterations++;
+
           receivePort.close();
           isolate.kill();
         }
@@ -318,8 +329,17 @@ void spawnBlokchains(List<Object> arguments) async {
         blockchain.log.harvesterErrors = message[4] as List<LogItem>;
 
         blockchain.log.genSubSlots();
+
+        completeFirstIterations++;
+
+        log.warning(
+            "${blockchain.currencySymbol.toUpperCase()}: first log parse complete.");
       }
     });
+  }
+
+  while (completeFirstIterations < blockchains.length) {
+    await Future.delayed(Duration(milliseconds: 100));
   }
 
   while (true) {
@@ -397,10 +417,6 @@ void startLogParsing(List<Object> arguments) async {
   Blockchain blockchain = arguments[1] as Blockchain;
   bool onetime = arguments[2] as bool;
 
-  sendPort
-      .send("${blockchain.currencySymbol.toUpperCase()}: started log parser");
-
-  await Future.delayed(Duration(minutes: 1));
   await blockchain.log
       .initLogParsing(blockchain.config.parseLogs, onetime, sendPort);
 
