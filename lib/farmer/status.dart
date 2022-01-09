@@ -100,7 +100,7 @@ class FarmerStatusMixin {
           farmerStatus = FarmerStatus.Not_Synced;
         //checks if there were signage points in the last 10 minutes
         else if (HarvesterStatusMixin.harvestingStatus(
-            blockchain.config.parseLogs, blockchain.cache.signagePoints))
+            blockchain.config.parseLogs, blockchain.log.signagePoints))
           farmerStatus = FarmerStatus.Farming;
         else
           farmerStatus = FarmerStatus.Not_Farming;

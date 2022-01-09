@@ -111,8 +111,8 @@ class Farmer extends Harvester with FarmerStatusMixin {
 
       shortSyncs = blockchain.log.shortSyncs; //loads short sync events
 
-      _poolErrors = blockchain.cache.poolErrors.length;
-      _harvesterErrors = blockchain.cache.harvesterErrors.length;
+      _poolErrors = blockchain.log.poolErrors.length;
+      _harvesterErrors = blockchain.log.harvesterErrors.length;
     }
   }
 

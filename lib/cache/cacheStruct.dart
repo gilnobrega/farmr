@@ -25,14 +25,6 @@ class CacheStruct {
 
   List<Filter> filters = [];
 
-  List<SignagePoint> signagePoints = [];
-
-  List<ShortSync> shortSyncs = [];
-
-  List<LogItem> poolErrors = [];
-
-  List<LogItem> harvesterErrors = [];
-
   //past values for memory (24 hour)
   List<Memory> memories = [];
 
@@ -49,11 +41,7 @@ class CacheStruct {
         "binPath": binPath,
         "plots": plots,
         "filters": filters,
-        "signagePoints": signagePoints,
-        "shortSyncs": shortSyncs,
         "memories": memories,
-        "poolErrors": poolErrors,
-        "harvesterErrors": harvesterErrors,
         "${blockchain.binaryName}Path": chiaPath
       };
 

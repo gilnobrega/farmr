@@ -243,15 +243,17 @@ class Blockchain {
     await this.config.init(this.onlineConfig,
         this._args.contains("headless") || this._args.contains("hpool"));
 
-    this.log = new Log(
-        this.logPath,
-        this.cache,
-        this.config.parseLogs,
-        this.binaryName,
-        this.config.type,
-        configPath,
-        firstInit,
-        this.logParsingIntervalDuration);
+    if (firstInit) {
+      this.log = new Log(
+          this.logPath,
+          this.config.parseLogs,
+          this.binaryName,
+          this.config.type,
+          configPath,
+          this.cache.binPath,
+          firstInit,
+          this.logParsingIntervalDuration);
+    }
   }
 
   /** Returns configPath & logPath for the coin based on platform */
@@ -267,7 +269,6 @@ class Blockchain {
       //test mode for github releases
       OS.GitHub: ".github/workflows",
     };
-    // TODO: Potentially leverage String os = io.Platform.operatingSystem;
 
     return configPathMap[_os]!;
   }

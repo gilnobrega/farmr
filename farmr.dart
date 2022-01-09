@@ -16,6 +16,10 @@ import 'package:farmr_client/config.dart';
 import 'package:farmr_client/blockchain.dart';
 import 'package:farmr_client/hpool/hpool.dart';
 import 'package:farmr_client/id.dart';
+import 'package:farmr_client/log/filter.dart';
+import 'package:farmr_client/log/signagepoint.dart';
+import 'package:farmr_client/log/shortsync.dart';
+import 'package:farmr_client/log/logitem.dart';
 
 import 'package:farmr_client/environment_config.dart';
 
@@ -175,22 +179,6 @@ main(List<String> args) async {
     //initializes blockchain class
     await blockchain.init(true);
 
-    //starts isolate for log parsing
-    final receivePort = ReceivePort();
-    final isolate = await Isolate.spawn(
-      startLogParsing,
-      [receivePort.sendPort, blockchain, onetime],
-    );
-
-    receivePort.listen((message) {
-      log.warning(message);
-
-      if ((message as String).contains("stopped")) {
-        receivePort.close();
-        isolate.kill();
-      }
-    });
-
     outputs.putIfAbsent(
         "${blockchain.currencySymbol.toUpperCase()} - View report",
         () => "Generating ${blockchain.currencySymbol} report");
@@ -217,13 +205,7 @@ main(List<String> args) async {
 
   final mainIsolate = await Isolate.spawn(
     spawnBlokchains,
-    [
-      receivePort.sendPort,
-      blockchains,
-      onetime,
-      standalone,
-      args.contains("harvester")
-    ],
+    [receivePort.sendPort, blockchains, onetime, standalone],
   );
 
   receivePort.listen((message) {
@@ -303,7 +285,6 @@ void spawnBlokchains(List<Object> arguments) async {
   List<Blockchain> blockchains = arguments[1] as List<Blockchain>;
   bool onetime = arguments[2] as bool;
   bool standalone = arguments[3] as bool;
-  bool argsContainsHarvester = arguments[4] as bool;
 
   initLogger(); //initializes logger
 
@@ -311,6 +292,35 @@ void spawnBlokchains(List<Object> arguments) async {
 
   final int delayBetweenInMilliseconds =
       (reportIntervalDuration.inMilliseconds / blockchains.length).round();
+
+  //log parser isolate
+  for (Blockchain blockchain in blockchains) {
+    //starts isolate for log parsing
+    final receivePort = ReceivePort();
+    final isolate = await Isolate.spawn(
+      startLogParsing,
+      [receivePort.sendPort, blockchain, onetime],
+    );
+
+    receivePort.listen((message) {
+      if (message is String) {
+        log.warning(message);
+
+        if (message.contains("stopped")) {
+          receivePort.close();
+          isolate.kill();
+        }
+      } else if (message is List<Object>) {
+        blockchain.log.filters = message[0] as List<Filter>;
+        blockchain.log.signagePoints = message[1] as List<SignagePoint>;
+        blockchain.log.shortSyncs = message[2] as List<ShortSync>;
+        blockchain.log.poolErrors = message[3] as List<LogItem>;
+        blockchain.log.harvesterErrors = message[4] as List<LogItem>;
+
+        blockchain.log.genSubSlots();
+      }
+    });
+  }
 
   while (true) {
     clearLog(); //clears log
@@ -391,7 +401,8 @@ void startLogParsing(List<Object> arguments) async {
       .send("${blockchain.currencySymbol.toUpperCase()}: started log parser");
 
   await Future.delayed(Duration(minutes: 1));
-  await blockchain.log.initLogParsing(blockchain.config.parseLogs, onetime);
+  await blockchain.log
+      .initLogParsing(blockchain.config.parseLogs, onetime, sendPort);
 
   sendPort
       .send("${blockchain.currencySymbol.toUpperCase()}: stopped log parser");
