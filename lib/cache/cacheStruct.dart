@@ -23,8 +23,6 @@ class CacheStruct {
 
   List<Plot> plots = []; //cached plots
 
-  List<Filter> filters = [];
-
   //past values for memory (24 hour)
   List<Memory> memories = [];
 
@@ -40,7 +38,6 @@ class CacheStruct {
   Map toJson() => {
         "binPath": binPath,
         "plots": plots,
-        "filters": filters,
         "memories": memories,
         "${blockchain.binaryName}Path": chiaPath
       };

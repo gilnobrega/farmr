@@ -24,7 +24,7 @@ class HarvesterStatusMixin {
   }
 
   void updateHarvesterStatus(Blockchain blockchain) {
-    if (harvestingStatus(blockchain.config.parseLogs, blockchain.cache.filters))
+    if (harvestingStatus(blockchain.config.parseLogs, blockchain.log.filters))
       harvesterStatus = HarvesterStatus.Harvesting;
     else
       harvesterStatus = HarvesterStatus.Not_Harvesting;
