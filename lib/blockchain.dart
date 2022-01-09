@@ -103,6 +103,8 @@ class Blockchain {
   Duration get logParsingIntervalDuration =>
       Duration(seconds: _logParseInterval);
 
+  bool completedFirstLogParse = false;
+
   Blockchain(this.id, this._rootPath, this._args, [dynamic json]) {
     _fromJson(json); //loads properties from serialized blokchain
 

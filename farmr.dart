@@ -293,13 +293,9 @@ void spawnBlokchains(List<Object> arguments) async {
   final int delayBetweenInMilliseconds =
       (reportIntervalDuration.inMilliseconds / blockchains.length).round();
 
-  int completeFirstIterations = 0;
   //log parser isolate
   for (Blockchain blockchain in blockchains) {
-    if (!blockchain.config.parseLogs) {
-      completeFirstIterations++;
-      break;
-    }
+    if (!blockchain.config.parseLogs) break;
 
     //starts isolate for log parsing
     final receivePort = ReceivePort();
@@ -316,7 +312,7 @@ void spawnBlokchains(List<Object> arguments) async {
         log.warning(message);
 
         if (message.contains("stopped")) {
-          completeFirstIterations++;
+          blockchain.completedFirstLogParse = true;
 
           receivePort.close();
           isolate.kill();
@@ -330,15 +326,19 @@ void spawnBlokchains(List<Object> arguments) async {
 
         blockchain.log.genSubSlots();
 
-        completeFirstIterations++;
+        if (!blockchain.completedFirstLogParse) {
+          blockchain.completedFirstLogParse = true;
 
-        log.warning(
-            "${blockchain.currencySymbol.toUpperCase()}: first log parse complete.");
+          log.warning(
+              "${blockchain.currencySymbol.toUpperCase()}: first log parse complete.");
+        }
       }
     });
   }
 
-  while (completeFirstIterations < blockchains.length) {
+  //if log parsing is enabled then that implies blockchain must have completed first log parse
+  while (blockchains.any((blockchain) =>
+      !(!blockchain.config.parseLogs || blockchain.completedFirstLogParse))) {
     await Future.delayed(Duration(milliseconds: 100));
   }
 
