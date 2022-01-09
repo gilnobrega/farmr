@@ -232,7 +232,7 @@ class Blockchain {
 
   Future<void> init(bool firstInit) async {
     // Setup
-    this.cache = new Cache(this, _rootPath);
+    this.cache = new Cache(this, _rootPath, firstInit);
 
     /** Initializes config, either creates a new one or loads a config file */
     this.config = new Config(this, this.cache, _rootPath, type);

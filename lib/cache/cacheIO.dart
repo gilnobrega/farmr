@@ -31,9 +31,15 @@ class Cache extends CacheStruct {
       return "";
   }
 
-  Cache(Blockchain blockchain, rootPath) : super(blockchain, rootPath) {
+  Cache(Blockchain blockchain, rootPath, bool firstInit)
+      : super(blockchain, rootPath) {
     cache = io.File(rootPath + "cache/cache${blockchain.fileExtension}.sqlite");
+    if (firstInit) {
+      _createTables();
+    }
+  }
 
+  void _createTables() {
     //opens database file or creates it if it doesnt exist
     final database = openSQLiteDB(cache.path, OpenMode.readWriteCreate);
 
