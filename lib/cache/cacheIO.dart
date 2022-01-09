@@ -220,7 +220,7 @@ class Cache extends CacheStruct {
 
   void saveSettings() {
     //opens database file or creates it if it doesnt exist
-    final database = openSQLiteDB(cache.path, OpenMode.readWriteCreate);
+    final database = openSQLiteDB(cache.path, OpenMode.readWrite);
 
     database.execute("""
         INSERT INTO settings (entry, value) VALUES ('binPath', ?) 
