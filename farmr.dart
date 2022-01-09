@@ -316,6 +316,11 @@ void spawnBlokchains(List<Object> arguments) async {
 
           receivePort.close();
           isolate.kill();
+        } else if (message.contains("not found")) {
+          blockchain.config.parseLogs = false;
+
+          receivePort.close();
+          isolate.kill();
         }
       } else if (message is List<Object>) {
         blockchain.log.filters = message[0] as List<Filter>;

@@ -119,6 +119,12 @@ class Log {
 
     final io.File debugFile = io.File(debugPath);
 
+    if (!debugFile.existsSync()) {
+      sendPort.send(
+          "${debugFile.path} not found. Disabling Log Parser for ${this._binaryName}");
+      return;
+    }
+
     while (true) {
       final size = debugFile.statSync().size;
       initial = initial > size ? 0 : initial;
