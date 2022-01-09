@@ -6,6 +6,6 @@ environment_config:
   fields: # set of fields for command
     version: # key name
       const: true # optional, default to TRUE
-      default: 1.8.0.0 # optional, default value for key, if not provided key will be required during command run
+      default: 1.8.0.1 # optional, default value for key, if not provided key will be required during command run
       dotenv: true # optional, default to FALSE, if this field should be added to .env file
    

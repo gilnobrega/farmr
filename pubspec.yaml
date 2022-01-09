@@ -27,5 +27,5 @@ dependencies:
   proper_filesize: 0.0.2
   tcp_scanner: 2.0.5
   bech32m: 0.2.2
-  sqlite3: 1.1.2
+  sqlite3: 1.4.0
   hex: 0.2.0
