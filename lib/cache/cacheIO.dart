@@ -194,7 +194,18 @@ class Cache extends CacheStruct {
                 .where((e) => !(e is bool))
                 .toList();
 
-        statement.execute(values);
+        bool keepTrying = true;
+        int iteration = 0;
+        while (keepTrying && iteration < 100) {
+          try {
+            statement.execute(values);
+            keepTrying = false;
+          } catch (e) {
+            iteration++;
+            //if database throws exception reattempts 100 milisseconds later, limit to 10 seconds
+            io.sleep(Duration(milliseconds: 100));
+          }
+        }
       }
 
       statement.dispose();
