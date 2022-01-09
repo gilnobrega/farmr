@@ -298,29 +298,29 @@ void spawnBlokchains(List<Object> arguments) async {
     if (!blockchain.config.parseLogs) break;
 
     //starts isolate for log parsing
-    final receivePort = ReceivePort();
-    final isolate = await Isolate.spawn(
+    final loggerReceivePort = ReceivePort();
+    final loggerIsolate = await Isolate.spawn(
       startLogParsing,
-      [receivePort.sendPort, blockchain, onetime],
+      [loggerReceivePort.sendPort, blockchain, onetime],
     );
 
     log.warning(
         "${blockchain.currencySymbol.toUpperCase()}: starting log parser...");
 
-    receivePort.listen((message) {
+    loggerReceivePort.listen((message) {
       if (message is String) {
         log.warning(message);
 
         if (message.contains("stopped")) {
           blockchain.completedFirstLogParse = true;
 
-          receivePort.close();
-          isolate.kill();
+          loggerReceivePort.close();
+          loggerIsolate.kill();
         } else if (message.contains("not found")) {
           blockchain.config.parseLogs = false;
 
-          receivePort.close();
-          isolate.kill();
+          loggerReceivePort.close();
+          loggerIsolate.kill();
         }
       } else if (message is List<Object>) {
         blockchain.log.filters = message[0] as List<Filter>;
@@ -361,11 +361,11 @@ void spawnBlokchains(List<Object> arguments) async {
       final int blockchainDelay =
           (counter > 1) ? i * delayBetweenInMilliseconds : 0;
 
-      final receivePort = ReceivePort();
-      final isolate = await Isolate.spawn(
+      final reporterReceivePort = ReceivePort();
+      final reporterIsolate = await Isolate.spawn(
         handleBlockchainReport,
         [
-          receivePort.sendPort,
+          reporterReceivePort.sendPort,
           blockchain,
           blockchains.length,
           onetime,
@@ -375,12 +375,12 @@ void spawnBlokchains(List<Object> arguments) async {
       );
 
       void killMainIsolate() {
-        receivePort.close();
-        isolate.kill();
+        reporterReceivePort.close();
+        reporterIsolate.kill();
         if (standalone) io.exit(0);
       }
 
-      receivePort.listen((message) {
+      reporterReceivePort.listen((message) {
         sendPort.send({
           "${blockchain.currencySymbol.toUpperCase()} - View report":
               (message as List<String>)[0],

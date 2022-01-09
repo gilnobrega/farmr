@@ -69,7 +69,7 @@ class Log {
     }
   }
 
-  void setLogLevelToInfo(String configPath, String binPath) {
+  Future<void> setLogLevelToInfo(String configPath, String binPath) async {
     try {
       String configFile =
           configPath + io.Platform.pathSeparator + "config.yaml";
@@ -97,12 +97,9 @@ class Log {
           print("$_binaryName's log level has been set to INFO");
           print("Restarting $_binaryName's services");
           if (_type == ClientType.Farmer)
-            io.Process.runSync(binPath, const ["start", "-r", "farmer"]);
+            io.Process.run(binPath, const ["start", "-r", "farmer"]);
           else if (_type == ClientType.Harvester)
-            io.Process.runSync(binPath, const ["start", "-r", "harvester"]);
-
-          print("Waiting for services to restart...");
-          io.sleep(Duration(seconds: 60));
+            io.Process.run(binPath, const ["start", "-r", "harvester"]);
         }
       }
     } catch (error) {}
@@ -127,7 +124,8 @@ class Log {
 
     while (true) {
       final size = debugFile.statSync().size;
-      initial = initial > size ? 0 : initial;
+
+      if (initial > size) initial = 0;
 
       List<String> linesToParse = <String>[];
 
@@ -150,44 +148,36 @@ class Log {
         initial += data.length;
       }
 
-      List<Filter> newFilters = [];
-      List<SignagePoint> newSignagePoints = [];
-      List<ShortSync> newShortSyncs = [];
-      List<LogItem> newErrors = [];
-
       for (final line in linesToParse) {
         SignagePoint? sp = _parseSignagePoint(line);
         if (sp != null) {
-          newSignagePoints.add(sp);
+          signagePoints.add(sp);
           break;
         }
+
         Filter? filter = _parseFilter(line);
         if (filter != null) {
-          newFilters.add(filter);
+          filters.add(filter);
           break;
         }
+
         ShortSync? shortSync = _parseShortSync(line);
         if (shortSync != null) {
-          newShortSyncs.add(shortSync);
+          shortSyncs.add(shortSync);
           break;
         }
 
         LogItem? error = _parseError(line, ErrorType.Pool) ??
             _parseError(line, ErrorType.Harvester);
         if (error != null) {
-          newErrors.add(error);
+          if (error.type == ErrorType.Pool)
+            poolErrors.add(error);
+          else if (error.type == ErrorType.Harvester)
+            harvesterErrors.add(error);
+
           break;
         }
       }
-
-      filters.addAll(newFilters.whereType());
-      signagePoints.addAll(newSignagePoints.whereType());
-      shortSyncs.addAll(newShortSyncs.whereType());
-
-      poolErrors
-          .addAll(newErrors.where((element) => element.type == ErrorType.Pool));
-      harvesterErrors.addAll(
-          newErrors.where((element) => element.type == ErrorType.Harvester));
 
       final parseUntil =
           DateTime.now().subtract(Duration(days: 1)).millisecondsSinceEpoch;
