@@ -152,19 +152,19 @@ class Log {
         SignagePoint? sp = _parseSignagePoint(line);
         if (sp != null) {
           signagePoints.add(sp);
-          break;
+          continue;
         }
 
         Filter? filter = _parseFilter(line);
         if (filter != null) {
           filters.add(filter);
-          break;
+          continue;
         }
 
         ShortSync? shortSync = _parseShortSync(line);
         if (shortSync != null) {
           shortSyncs.add(shortSync);
-          break;
+          continue;
         }
 
         LogItem? error = _parseError(line, ErrorType.Pool) ??
@@ -175,7 +175,7 @@ class Log {
           else if (error.type == ErrorType.Harvester)
             harvesterErrors.add(error);
 
-          break;
+          continue;
         }
       }
 
