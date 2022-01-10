@@ -295,7 +295,7 @@ void spawnBlokchains(List<Object> arguments) async {
 
   //log parser isolate
   for (Blockchain blockchain in blockchains) {
-    if (!blockchain.config.parseLogs) break;
+    if (!blockchain.config.parseLogs) continue;
 
     //starts isolate for log parsing
     final loggerReceivePort = ReceivePort();
