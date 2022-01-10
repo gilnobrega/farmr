@@ -23,16 +23,6 @@ class CacheStruct {
 
   List<Plot> plots = []; //cached plots
 
-  List<Filter> filters = [];
-
-  List<SignagePoint> signagePoints = [];
-
-  List<ShortSync> shortSyncs = [];
-
-  List<LogItem> poolErrors = [];
-
-  List<LogItem> harvesterErrors = [];
-
   //past values for memory (24 hour)
   List<Memory> memories = [];
 
@@ -48,18 +38,11 @@ class CacheStruct {
   Map toJson() => {
         "binPath": binPath,
         "plots": plots,
-        "filters": filters,
-        "signagePoints": signagePoints,
-        "shortSyncs": shortSyncs,
         "memories": memories,
-        "poolErrors": poolErrors,
-        "harvesterErrors": harvesterErrors,
         "${blockchain.binaryName}Path": chiaPath
       };
 
   Future<void> init() async {}
-  void saveLogs(List<SignagePoint> newSPs, List<ShortSync> newSS,
-      List<Filter> newFilters, List<LogItem> newHEs, List<LogItem> newPEs) {}
   void savePlots(List<Plot> newPlots) {}
   void saveMemories(List<Memory> newMemories) {}
 }

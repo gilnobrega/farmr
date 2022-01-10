@@ -1,13 +1,9 @@
 import 'dart:core';
+import 'dart:isolate';
 import 'package:farmr_client/config.dart';
-import 'package:farmr_client/utils/sqlite.dart';
-import 'package:sqlite3/sqlite3.dart';
 import 'package:universal_io/io.dart' as io;
 
 import 'package:logging/logging.dart';
-
-import 'package:farmr_client/cache/cacheIO.dart'
-    if (dart.library.js) "package:farmr_client/cache/cacheJS.dart";
 
 import 'package:farmr_client/log/filter.dart';
 import 'package:farmr_client/log/subslot.dart';
@@ -22,13 +18,11 @@ enum ErrorType { Pool, Harvester }
 
 class Log {
   ClientType _type;
-  Cache _cache;
   String _binaryName;
 
   late String debugPath;
 
-  List<Filter> _filters = [];
-  List<Filter> get filters => _filters;
+  List<Filter> filters = [];
 
   List<SignagePoint> signagePoints = [];
 
@@ -44,26 +38,17 @@ class Log {
 
   late final List<String> regexes;
 
-  late final String dbPath;
-
   late final Duration logParseIntervalDuration;
 
   Log(
       String logPath,
-      this._cache,
       bool parseLogs,
       this._binaryName,
       this._type,
       String configPath,
+      String binPath,
       bool firstInit,
       Duration this.logParseIntervalDuration) {
-    _filters = _cache.filters; //loads cached filters
-    signagePoints = _cache.signagePoints; //loads cached subslots
-    shortSyncs = _cache.shortSyncs;
-    poolErrors = _cache.poolErrors;
-    harvesterErrors = _cache.harvesterErrors;
-    dbPath = this._cache.cache.path;
-
     debugPath = logPath + "/debug.log";
 
     if (_binaryName == "flora")
@@ -72,7 +57,6 @@ class Log {
       floraProxy = "";
 
     if (parseLogs) {
-      _genSubSlots();
       //if nothing was found then it
       //assumes log level is not set to info
       if (firstInit &&
@@ -80,12 +64,12 @@ class Log {
           signagePoints.length == 0 &&
           shortSyncs.length == 0 &&
           _type != ClientType.HPool) {
-        setLogLevelToInfo(configPath);
+        setLogLevelToInfo(configPath, binPath);
       }
     }
   }
 
-  void setLogLevelToInfo(String configPath) {
+  Future<void> setLogLevelToInfo(String configPath, String binPath) async {
     try {
       String configFile =
           configPath + io.Platform.pathSeparator + "config.yaml";
@@ -102,7 +86,7 @@ class Log {
         print("Attempting to set $_binaryName's log level to INFO");
 
         io.Process.runSync(
-            _cache.binPath, const ["configure", "--set-log-level", "INFO"]);
+            binPath, const ["configure", "--set-log-level", "INFO"]);
 
         configYaml = loadYaml(
             io.File(configFile).readAsStringSync().replaceAll("!!set", ""));
@@ -113,23 +97,17 @@ class Log {
           print("$_binaryName's log level has been set to INFO");
           print("Restarting $_binaryName's services");
           if (_type == ClientType.Farmer)
-            io.Process.runSync(_cache.binPath, const ["start", "-r", "farmer"]);
+            io.Process.run(binPath, const ["start", "-r", "farmer"]);
           else if (_type == ClientType.Harvester)
-            io.Process.runSync(
-                _cache.binPath, const ["start", "-r", "harvester"]);
-
-          print("Waiting for services to restart...");
-          io.sleep(Duration(seconds: 60));
+            io.Process.run(binPath, const ["start", "-r", "harvester"]);
         }
       }
     } catch (error) {}
   }
 
-  Future<void> initLogParsing(bool parseLogs, bool onetime) async {
+  Future<void> initLogParsing(
+      bool parseLogs, bool onetime, SendPort sendPort) async {
     if (!parseLogs) return;
-
-    //opens database file or creates it if it doesnt exist
-    final database = openSQLiteDB(dbPath, OpenMode.readWrite);
 
     var result = <int>[];
     var initial = 0;
@@ -138,9 +116,16 @@ class Log {
 
     final io.File debugFile = io.File(debugPath);
 
+    if (!debugFile.existsSync()) {
+      sendPort.send(
+          "${debugFile.path} not found. Disabling Log Parser for ${this._binaryName}");
+      return;
+    }
+
     while (true) {
       final size = debugFile.statSync().size;
-      initial = initial > size ? 0 : initial;
+
+      if (initial > size) initial = 0;
 
       List<String> linesToParse = <String>[];
 
@@ -163,49 +148,53 @@ class Log {
         initial += data.length;
       }
 
-      List<Filter> newFilters = [];
-      List<SignagePoint> newSignagePoints = [];
-      List<ShortSync> newShortSyncs = [];
-      List<LogItem> newErrors = [];
-
       for (final line in linesToParse) {
         SignagePoint? sp = _parseSignagePoint(line);
         if (sp != null) {
-          newSignagePoints.add(sp);
+          signagePoints.add(sp);
           break;
         }
+
         Filter? filter = _parseFilter(line);
         if (filter != null) {
-          newFilters.add(filter);
+          filters.add(filter);
           break;
         }
+
         ShortSync? shortSync = _parseShortSync(line);
         if (shortSync != null) {
-          newShortSyncs.add(shortSync);
+          shortSyncs.add(shortSync);
           break;
         }
 
         LogItem? error = _parseError(line, ErrorType.Pool) ??
             _parseError(line, ErrorType.Harvester);
         if (error != null) {
-          newErrors.add(error);
+          if (error.type == ErrorType.Pool)
+            poolErrors.add(error);
+          else if (error.type == ErrorType.Harvester)
+            harvesterErrors.add(error);
+
           break;
         }
       }
 
-      Cache.saveToDB(database, newFilters, "filters");
-      Cache.saveToDB(database, newSignagePoints, "signagePoints");
-      Cache.saveToDB(database, newShortSyncs, "shortSyncs");
-      Cache.saveToDB(database, newErrors, "errors");
+      final parseUntil =
+          DateTime.now().subtract(Duration(days: 1)).millisecondsSinceEpoch;
 
-      filters.addAll(newFilters.whereType());
-      signagePoints.addAll(newSignagePoints.whereType());
-      shortSyncs.addAll(newShortSyncs.whereType());
+      filters.removeWhere((element) => element.timestamp < parseUntil);
+      signagePoints.removeWhere((element) => element.timestamp < parseUntil);
+      shortSyncs.removeWhere((element) => element.timestamp < parseUntil);
+      poolErrors.removeWhere((element) => element.timestamp < parseUntil);
+      harvesterErrors.removeWhere((element) => element.timestamp < parseUntil);
 
-      poolErrors
-          .addAll(newErrors.where((element) => element.type == ErrorType.Pool));
-      harvesterErrors.addAll(
-          newErrors.where((element) => element.type == ErrorType.Harvester));
+      sendPort.send(<Object>[
+        filters,
+        signagePoints,
+        shortSyncs,
+        poolErrors,
+        harvesterErrors
+      ]);
 
       await Future.delayed(logParseIntervalDuration);
 
@@ -364,7 +353,7 @@ class Log {
     return null;
   }
 
-  _genSubSlots() {
+  genSubSlots() {
     subSlots = [];
     //orders signage points by timestamps
     signagePoints.sort((s1, s2) => s1.timestamp.compareTo(s2.timestamp));
