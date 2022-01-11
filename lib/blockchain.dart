@@ -98,7 +98,7 @@ class Blockchain {
   int get reportInterval => reportInterval;
   Duration get reportIntervalDuration => Duration(seconds: _reportInterval);
 
-  int _logParseInterval = 5;
+  int _logParseInterval = 60;
   int get logParseInterval => reportInterval;
   Duration get logParsingIntervalDuration =>
       Duration(seconds: _logParseInterval);
@@ -149,7 +149,7 @@ class Blockchain {
       _majorToMinorMultiplier = json['Major to Minor Multiplier'] ?? 1e12;
       _checkPlotSize = json['Check for Complete Plots'] ?? true;
       _reportInterval = json['Report Interval'] ?? 600;
-      _logParseInterval = json['Log Parse Interval'] ?? 5;
+      _logParseInterval = json['Log Parse Interval'] ?? 60;
     }
 
     //sets limits of report interval

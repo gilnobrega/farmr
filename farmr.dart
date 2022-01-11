@@ -235,7 +235,8 @@ bool firstTime = true;
 
 late dartconsole.Console console;
 Future<void> reportSelector() async {
-  print("""\nfarmr sends a report every 10 minutes.
+  print(
+      """\nfarmr sends a report every 10 minutes.
 Do not close this window or these stats will not show up in farmr.net and farmrBot
 """);
 
@@ -269,10 +270,10 @@ Do not close this window or these stats will not show up in farmr.net and farmrB
   } catch (error) {}
 }
 
-void timeoutIsolate(SendPort timeoutPort) {
+Future<void> timeoutIsolate(SendPort timeoutPort) async {
   final int timeOutMins = reportIntervalDuration.inMinutes * 2;
 
-  io.sleep(Duration(minutes: timeOutMins));
+  await Future.delayed(Duration(minutes: timeOutMins));
 
   timeoutPort.send("timeout");
 }
@@ -290,37 +291,51 @@ void spawnBlokchains(List<Object> arguments) async {
 
   int counter = 0;
 
-  final int delayBetweenInMilliseconds =
+  final int reportDelayBetweenInMilliseconds =
       (reportIntervalDuration.inMilliseconds / blockchains.length).round();
 
   //log parser isolate
   for (Blockchain blockchain in blockchains) {
     if (!blockchain.config.parseLogs) continue;
 
+    //Starts log parsers for each blockchain evenly
+    final int index = blockchains.indexOf(blockchain);
+
+    final int loggerDelayInMilliseconds =
+        ((blockchain.logParsingIntervalDuration.inMilliseconds /
+                    blockchains.length)
+                .round() *
+            index);
+
     //starts isolate for log parsing
-    final loggerReceivePort = ReceivePort();
-    final loggerIsolate = await Isolate.spawn(
+    final logParserReceivePort = ReceivePort();
+    final logParserIsolate = await Isolate.spawn(
       startLogParsing,
-      [loggerReceivePort.sendPort, blockchain, onetime],
+      [
+        logParserReceivePort.sendPort,
+        blockchain,
+        onetime,
+        loggerDelayInMilliseconds
+      ],
     );
 
     log.warning(
         "${blockchain.currencySymbol.toUpperCase()}: starting log parser...");
 
-    loggerReceivePort.listen((message) {
+    logParserReceivePort.listen((message) {
       if (message is String) {
         log.warning(message);
 
         if (message.contains("stopped")) {
           blockchain.completedFirstLogParse = true;
 
-          loggerReceivePort.close();
-          loggerIsolate.kill();
+          logParserReceivePort.close();
+          logParserIsolate.kill();
         } else if (message.contains("not found")) {
           blockchain.config.parseLogs = false;
 
-          loggerReceivePort.close();
-          loggerIsolate.kill();
+          logParserReceivePort.close();
+          logParserIsolate.kill();
         }
       } else if (message is List<Object>) {
         blockchain.log.filters = message[0] as List<Filter>;
@@ -359,7 +374,7 @@ void spawnBlokchains(List<Object> arguments) async {
 
       //evenly distributes blockchains
       final int blockchainDelay =
-          (counter > 1) ? i * delayBetweenInMilliseconds : 0;
+          (counter > 1) ? i * reportDelayBetweenInMilliseconds : 0;
 
       final reporterReceivePort = ReceivePort();
       final reporterIsolate = await Isolate.spawn(
@@ -384,7 +399,8 @@ void spawnBlokchains(List<Object> arguments) async {
         sendPort.send({
           "${blockchain.currencySymbol.toUpperCase()} - View report":
               (message as List<String>)[0],
-          "${blockchain.currencySymbol.toUpperCase()} - View addresses": """
+          "${blockchain.currencySymbol.toUpperCase()} - View addresses":
+              """
 Farmer Reward Address: ${message[3]}
 Pool Reward Address: ${message[4]}
 
@@ -421,6 +437,9 @@ void startLogParsing(List<Object> arguments) async {
   SendPort sendPort = arguments[0] as SendPort;
   Blockchain blockchain = arguments[1] as Blockchain;
   bool onetime = arguments[2] as bool;
+  int logParserDelay = arguments[3] as int;
+
+  await Future.delayed(Duration(milliseconds: logParserDelay));
 
   await blockchain.log
       .initLogParsing(blockchain.config.parseLogs, onetime, sendPort);
@@ -729,7 +748,8 @@ Future<void> checkIfLinked(
     String farmerRewardAddress,
     String poolRewardAddress) async {
   if (response.trim().contains("Not linked")) {
-    final errorString = """\n\nID $id is not linked to an account.
+    final errorString =
+        """\n\nID $id is not linked to an account.
 Link it in farmr.net or through farmrbot and then start this program again
 Press enter to quit""";
     print(errorString);
