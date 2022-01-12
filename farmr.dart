@@ -294,52 +294,54 @@ void spawnBlokchains(List<Object> arguments) async {
       (reportIntervalDuration.inMilliseconds / blockchains.length).round();
 
   //log parser isolate
-  for (Blockchain blockchain in blockchains) {
-    if (!blockchain.config.parseLogs) continue;
 
-    //starts isolate for log parsing
-    final loggerReceivePort = ReceivePort();
-    final loggerIsolate = await Isolate.spawn(
-      startLogParsing,
-      [loggerReceivePort.sendPort, blockchain, onetime],
-    );
+  //starts isolate for log parsing
+  final loggerReceivePort = ReceivePort();
+  final loggerIsolate = await Isolate.spawn(
+    startLogParsing,
+    [loggerReceivePort.sendPort, blockchains, onetime],
+  );
 
-    log.warning(
-        "${blockchain.currencySymbol.toUpperCase()}: starting log parser...");
+  log.warning("Starting log parsers...");
 
-    loggerReceivePort.listen((message) {
-      if (message is String) {
+  loggerReceivePort.listen((message) {
+    if (message[0] is int) {
+      int key = message[0] as int;
+
+      if (message[1] is String) {
         log.warning(message);
 
-        if (message.contains("stopped")) {
-          blockchain.completedFirstLogParse = true;
+        if (message[1].contains("stopped")) {
+          blockchains[key].completedFirstLogParse = true;
 
           loggerReceivePort.close();
           loggerIsolate.kill();
-        } else if (message.contains("not found")) {
-          blockchain.config.parseLogs = false;
+        } else if (message[1].contains("not found")) {
+          blockchains[key].config.parseLogs = false;
 
           loggerReceivePort.close();
           loggerIsolate.kill();
         }
-      } else if (message is List<Object>) {
-        blockchain.log.filters = message[0] as List<Filter>;
-        blockchain.log.signagePoints = message[1] as List<SignagePoint>;
-        blockchain.log.shortSyncs = message[2] as List<ShortSync>;
-        blockchain.log.poolErrors = message[3] as List<LogItem>;
-        blockchain.log.harvesterErrors = message[4] as List<LogItem>;
+      } else if (message[1] is List<Object>) {
+        List<Object> logItems = message[1] as List<Object>;
 
-        blockchain.log.genSubSlots();
+        blockchains[key].log.filters = logItems[0] as List<Filter>;
+        blockchains[key].log.signagePoints = logItems[1] as List<SignagePoint>;
+        blockchains[key].log.shortSyncs = logItems[2] as List<ShortSync>;
+        blockchains[key].log.poolErrors = logItems[3] as List<LogItem>;
+        blockchains[key].log.harvesterErrors = logItems[4] as List<LogItem>;
 
-        if (!blockchain.completedFirstLogParse) {
-          blockchain.completedFirstLogParse = true;
+        blockchains[key].log.genSubSlots();
+
+        if (!blockchains[key].completedFirstLogParse) {
+          blockchains[key].completedFirstLogParse = true;
 
           log.warning(
-              "${blockchain.currencySymbol.toUpperCase()}: first log parse complete.");
+              "${blockchains[key].currencySymbol.toUpperCase()}: first log parse complete.");
         }
       }
-    });
-  }
+    }
+  });
 
   //if log parsing is enabled then that implies blockchain must have completed first log parse
   while (blockchains.any((blockchain) =>
@@ -419,14 +421,19 @@ These addresses are NOT reported to farmr.net or farmrBot
 
 void startLogParsing(List<Object> arguments) async {
   SendPort sendPort = arguments[0] as SendPort;
-  Blockchain blockchain = arguments[1] as Blockchain;
+  List<Blockchain> blockchains = arguments[1] as List<Blockchain>;
   bool onetime = arguments[2] as bool;
 
-  await blockchain.log
-      .initLogParsing(blockchain.config.parseLogs, onetime, sendPort);
+  List<Future<void>> blockchainFutures = blockchains
+      .map((blockchain) => blockchain.log.initLogParsing(
+          blockchain.config.parseLogs,
+          onetime,
+          blockchain.currencySymbol,
+          blockchains.indexOf(blockchain),
+          sendPort))
+      .toList();
 
-  sendPort
-      .send("${blockchain.currencySymbol.toUpperCase()}: stopped log parser");
+  await Future.wait(blockchainFutures);
 }
 
 //blockchain isolate
