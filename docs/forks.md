@@ -27,7 +27,7 @@ In the event that your coin is not listed here, you will need to create a templa
     "daemon": 55400
   },
   "Report Interval": 600,
-  "Log Parse Interval": 5
+  "Log Parse Interval": 60
 } 
 ```
 
@@ -99,4 +99,4 @@ RPC Service Ports
 ### Log Parse Interval
   OPTIONAL: Interval between debug.log lookups (in seconds). 
 
-  Defaults to 5 seconds. 
+  Defaults to 60 seconds. 

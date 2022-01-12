@@ -269,10 +269,10 @@ Do not close this window or these stats will not show up in farmr.net and farmrB
   } catch (error) {}
 }
 
-void timeoutIsolate(SendPort timeoutPort) {
+Future<void> timeoutIsolate(SendPort timeoutPort) async {
   final int timeOutMins = reportIntervalDuration.inMinutes * 2;
 
-  io.sleep(Duration(minutes: timeOutMins));
+  await Future.delayed(Duration(minutes: timeOutMins));
 
   timeoutPort.send("timeout");
 }
@@ -290,21 +290,21 @@ void spawnBlokchains(List<Object> arguments) async {
 
   int counter = 0;
 
-  final int delayBetweenInMilliseconds =
+  final int reportDelayBetweenInMilliseconds =
       (reportIntervalDuration.inMilliseconds / blockchains.length).round();
 
   //log parser isolate
 
   //starts isolate for log parsing
-  final loggerReceivePort = ReceivePort();
-  final loggerIsolate = await Isolate.spawn(
+  final logParserReceivePort = ReceivePort();
+  final logParserIsolate = await Isolate.spawn(
     startLogParsing,
-    [loggerReceivePort.sendPort, blockchains, onetime],
+    [logParserReceivePort.sendPort, blockchains, onetime],
   );
 
   log.warning("Starting log parsers...");
 
-  loggerReceivePort.listen((message) {
+  logParserReceivePort.listen((message) {
     if (message[0] is int) {
       int key = message[0] as int;
 
@@ -314,13 +314,13 @@ void spawnBlokchains(List<Object> arguments) async {
         if (message[1].contains("stopped")) {
           blockchains[key].completedFirstLogParse = true;
 
-          loggerReceivePort.close();
-          loggerIsolate.kill();
+          logParserReceivePort.close();
+          logParserIsolate.kill();
         } else if (message[1].contains("not found")) {
           blockchains[key].config.parseLogs = false;
 
-          loggerReceivePort.close();
-          loggerIsolate.kill();
+          logParserReceivePort.close();
+          logParserIsolate.kill();
         }
       } else if (message[1] is List<Object>) {
         List<Object> logItems = message[1] as List<Object>;
@@ -361,7 +361,7 @@ void spawnBlokchains(List<Object> arguments) async {
 
       //evenly distributes blockchains
       final int blockchainDelay =
-          (counter > 1) ? i * delayBetweenInMilliseconds : 0;
+          (counter > 1) ? i * reportDelayBetweenInMilliseconds : 0;
 
       final reporterReceivePort = ReceivePort();
       final reporterIsolate = await Isolate.spawn(
