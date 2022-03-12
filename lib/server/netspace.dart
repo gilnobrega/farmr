@@ -65,7 +65,7 @@ class NetSpace {
     }
   }
 
-  _getNetSpace() async {
+  Future<void> _getNetSpace() async {
     try {
       String contents = await http.read(
           Uri.parse("https://chianetspace.azurewebsites.net/data/summary"));
@@ -101,7 +101,7 @@ class NetSpace {
     } catch (e) {}
   }
 
-  _getPastSizes() async {
+  Future<void> _getPastSizes() async {
     try {
       String contents =
           await http.read(Uri.parse("http://alpha2.chianetspace.com/data.php"));

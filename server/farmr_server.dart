@@ -164,8 +164,8 @@ Future<void> main(List<String> args) async {
               harvester,
               harvestersCount,
               farmersCount,
-              //for other blockchains loads local value for netspace
-              (blockchain == "xch") ? netspace : farm.netSpace,
+              //it used to get netspace from chianetspace.com in the past but this service has become unreliable
+              farm.netSpace,
               args.contains("full"),
               args.contains("workers"),
               //doesnt load Price for blockchains other than chia
@@ -196,8 +196,8 @@ Future<void> main(List<String> args) async {
               farm,
               harvestersCount,
               farmersCount,
-              //for other blockchains loads local value for netspace
-              (blockchain == "xch") ? netspace : farm.netSpace,
+              //it used to get netspace from chianetspace.com in the past but this service has become unreliable
+              farm.netSpace,
               args.contains("full"),
               args.contains("workers"),
               //doesnt load Price for blockchains other than chia
