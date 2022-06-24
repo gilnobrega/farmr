@@ -235,8 +235,7 @@ bool firstTime = true;
 
 late dartconsole.Console console;
 Future<void> reportSelector() async {
-  print(
-      """\nfarmr sends a report every 10 minutes.
+  print("""\nfarmr sends a report every 10 minutes.
 Do not close this window or these stats will not show up in farmr.net and farmrBot
 """);
 
@@ -295,66 +294,54 @@ void spawnBlokchains(List<Object> arguments) async {
       (reportIntervalDuration.inMilliseconds / blockchains.length).round();
 
   //log parser isolate
-  for (Blockchain blockchain in blockchains) {
-    if (!blockchain.config.parseLogs) continue;
 
-    //Starts log parsers for each blockchain evenly
-    final int index = blockchains.indexOf(blockchain);
+  //starts isolate for log parsing
+  final logParserReceivePort = ReceivePort();
+  final logParserIsolate = await Isolate.spawn(
+    startLogParsing,
+    [logParserReceivePort.sendPort, blockchains, onetime],
+  );
 
-    final int loggerDelayInMilliseconds =
-        ((blockchain.logParsingIntervalDuration.inMilliseconds /
-                    blockchains.length)
-                .round() *
-            index);
+  log.warning("Starting log parsers...");
 
-    //starts isolate for log parsing
-    final logParserReceivePort = ReceivePort();
-    final logParserIsolate = await Isolate.spawn(
-      startLogParsing,
-      [
-        logParserReceivePort.sendPort,
-        blockchain,
-        onetime,
-        loggerDelayInMilliseconds
-      ],
-    );
+  logParserReceivePort.listen((message) {
+    if (message[0] is int) {
+      int key = message[0] as int;
 
-    log.warning(
-        "${blockchain.currencySymbol.toUpperCase()}: starting log parser...");
-
-    logParserReceivePort.listen((message) {
-      if (message is String) {
+      if (message[1] is String) {
         log.warning(message);
 
-        if (message.contains("stopped")) {
-          blockchain.completedFirstLogParse = true;
+        if (message[1].contains("stopped")) {
+          blockchains[key].completedFirstLogParse = true;
 
           logParserReceivePort.close();
           logParserIsolate.kill();
-        } else if (message.contains("not found")) {
-          blockchain.config.parseLogs = false;
+        } else if (message[1].contains("not found")) {
+          blockchains[key].config.parseLogs = false;
 
           logParserReceivePort.close();
           logParserIsolate.kill();
         }
-      } else if (message is List<Object>) {
-        blockchain.log.filters = message[0] as List<Filter>;
-        blockchain.log.signagePoints = message[1] as List<SignagePoint>;
-        blockchain.log.shortSyncs = message[2] as List<ShortSync>;
-        blockchain.log.poolErrors = message[3] as List<LogItem>;
-        blockchain.log.harvesterErrors = message[4] as List<LogItem>;
+      } else if (message[1] is List<Object>) {
+        List<Object> logItems = message[1] as List<Object>;
 
-        blockchain.log.genSubSlots();
+        blockchains[key].log.filters = logItems[0] as List<Filter>;
+        blockchains[key].log.signagePoints = logItems[1] as List<SignagePoint>;
+        blockchains[key].log.shortSyncs = logItems[2] as List<ShortSync>;
+        blockchains[key].log.poolErrors = logItems[3] as List<LogItem>;
+        blockchains[key].log.harvesterErrors = logItems[4] as List<LogItem>;
 
-        if (!blockchain.completedFirstLogParse) {
-          blockchain.completedFirstLogParse = true;
+        blockchains[key].log.genSubSlots();
+
+        if (!blockchains[key].completedFirstLogParse) {
+          blockchains[key].completedFirstLogParse = true;
 
           log.warning(
-              "${blockchain.currencySymbol.toUpperCase()}: first log parse complete.");
+              "${blockchains[key].currencySymbol.toUpperCase()}: first log parse complete.");
         }
       }
-    });
-  }
+    }
+  });
 
   //if log parsing is enabled then that implies blockchain must have completed first log parse
   while (blockchains.any((blockchain) =>
@@ -399,8 +386,7 @@ void spawnBlokchains(List<Object> arguments) async {
         sendPort.send({
           "${blockchain.currencySymbol.toUpperCase()} - View report":
               (message as List<String>)[0],
-          "${blockchain.currencySymbol.toUpperCase()} - View addresses":
-              """
+          "${blockchain.currencySymbol.toUpperCase()} - View addresses": """
 Farmer Reward Address: ${message[3]}
 Pool Reward Address: ${message[4]}
 
@@ -435,17 +421,19 @@ These addresses are NOT reported to farmr.net or farmrBot
 
 void startLogParsing(List<Object> arguments) async {
   SendPort sendPort = arguments[0] as SendPort;
-  Blockchain blockchain = arguments[1] as Blockchain;
+  List<Blockchain> blockchains = arguments[1] as List<Blockchain>;
   bool onetime = arguments[2] as bool;
-  int logParserDelay = arguments[3] as int;
 
-  await Future.delayed(Duration(milliseconds: logParserDelay));
+  List<Future<void>> blockchainFutures = blockchains
+      .map((blockchain) => blockchain.log.initLogParsing(
+          blockchain.config.parseLogs,
+          onetime,
+          blockchain.currencySymbol,
+          blockchains.indexOf(blockchain),
+          sendPort))
+      .toList();
 
-  await blockchain.log
-      .initLogParsing(blockchain.config.parseLogs, onetime, sendPort);
-
-  sendPort
-      .send("${blockchain.currencySymbol.toUpperCase()}: stopped log parser");
+  await Future.wait(blockchainFutures);
 }
 
 //blockchain isolate
@@ -748,8 +736,7 @@ Future<void> checkIfLinked(
     String farmerRewardAddress,
     String poolRewardAddress) async {
   if (response.trim().contains("Not linked")) {
-    final errorString =
-        """\n\nID $id is not linked to an account.
+    final errorString = """\n\nID $id is not linked to an account.
 Link it in farmr.net or through farmrbot and then start this program again
 Press enter to quit""";
     print(errorString);

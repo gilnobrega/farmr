@@ -105,8 +105,8 @@ class Log {
     } catch (error) {}
   }
 
-  Future<void> initLogParsing(
-      bool parseLogs, bool onetime, SendPort sendPort) async {
+  Future<void> initLogParsing(bool parseLogs, bool onetime,
+      String currencySymbol, int index, SendPort sendPort) async {
     if (!parseLogs) return;
 
     var result = <int>[];
@@ -117,8 +117,10 @@ class Log {
     final io.File debugFile = io.File(debugPath);
 
     if (!debugFile.existsSync()) {
-      sendPort.send(
-          "${debugFile.path} not found. Disabling Log Parser for ${this._binaryName}");
+      sendPort.send([
+        index,
+        "${debugFile.path} not found. Disabling Log Parser for ${currencySymbol}"
+      ]);
       return;
     }
 
@@ -188,18 +190,24 @@ class Log {
       poolErrors.removeWhere((element) => element.timestamp < parseUntil);
       harvesterErrors.removeWhere((element) => element.timestamp < parseUntil);
 
-      sendPort.send(<Object>[
-        filters,
-        signagePoints,
-        shortSyncs,
-        poolErrors,
-        harvesterErrors
+      sendPort.send([
+        index,
+        <Object>[
+          filters,
+          signagePoints,
+          shortSyncs,
+          poolErrors,
+          harvesterErrors
+        ]
       ]);
 
       await Future.delayed(logParseIntervalDuration);
 
       if (onetime) break;
     }
+
+    sendPort
+        .send([index, "${currencySymbol.toUpperCase()}: stopped log parser"]);
   }
 
   Filter? _parseFilter(String line) {
