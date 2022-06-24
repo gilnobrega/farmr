@@ -59,14 +59,6 @@ jobs:
              chmod +x ./farmr.sh
              chmod +x ./hpool.sh
 
-      - name: Moves SQLite3 library (x86_64)
-        if: matrix.architecture == 'x86_64'
-        run: mv .github/libsqlite3.so ./libsqlite3.so
-
-      - name: Moves SQLite3 library (aarch64)
-        if: matrix.architecture == 'aarch64'
-        run: mv .github/libsqlite3-arm64.so ./libsqlite3.so
-
       - uses: uraimo/run-on-arch-action@v2.1.0
         name: Compile aarch64
         id: runcmd
@@ -102,7 +94,7 @@ jobs:
         uses: xom9ikk/dotenv@v1.0.2
 
       - name: Compressing ${{ matrix.architecture }} .tar.gz
-        run: tar -czvf ./farmr-linux-${{ matrix.architecture }}.tar.gz farmr blockchain farmr.sh hpool.sh  libsqlite3.so
+        run: tar -czvf ./farmr-linux-${{ matrix.architecture }}.tar.gz farmr blockchain farmr.sh hpool.sh 
 
       - name: Build .deb file for ${{ matrix.architecture }}
         uses: kentik/pkg@v1.0.0-rc7
@@ -208,10 +200,6 @@ jobs:
              ./farmr.exe harvester onetime standalone headless
              move ./farmr.exe ./farmr.exe
              move ./farmr_hpool.exe ./hpool.exe
-
-      - name: Moves SQLite3 library
-        if: matrix.os == 'windows-latest'
-        run: move ./.github/sqlite3.dll ./sqlite3.dll
 
       - name: Created windows zip file
         shell: bash
