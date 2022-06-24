@@ -15,6 +15,11 @@ files:
     file: .github/workflows/farmr-hpool.service
     mode: "0644"
     user: "root"
+  "/etc/farmr/libsqlite3.so":
+    file: libsqlite3.so
+    mode: "0644"
+    user: "root"
+    keep: true
   "/etc/farmr/config/config-xch.json":
     file: config/config-xch.json
     mode: "0644"

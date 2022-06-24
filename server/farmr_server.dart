@@ -113,18 +113,14 @@ Future<void> main(List<String> args) async {
     int farmersCount = 0;
     int harvestersCount = 0;
 
-    NetSpace netspace = NetSpace();
-
     try {
       //Gets user data and Price in parallel, since both are parsed from web
       final async1 = _getUserData(userID, blockchain);
 
       final async2 = _getPrice();
-      final async3 = netspace.init();
 
       harvesters = await async1;
       price = await async2;
-      await async3;
     } catch (e) {
       print("Failed to connect to server.");
     }
