@@ -21,7 +21,7 @@ dependencies:
     git:
       url: https://github.com/joaquimguimaraes/system_info.git
       ref: e81ac3a5777eb486e6853b64a7c68ee22eba7389
-  collection: 1.15.0
+  collection: ^1.15.0
   console: 4.1.0
   dart_console: 1.0.0
   proper_filesize: 0.0.2
