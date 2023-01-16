@@ -39,8 +39,8 @@ Duration reportIntervalDuration =
 // '/home/user/.farmr' for package installs, '.' (project path) for the rest
 String rootPath = "";
 
-const String url = "https://farmr.net/send12.php";
-const String urlBackup = "https://chiabot.znc.sh/send12.php";
+const String url = "http://farmr2.net/send12.php";
+//const String urlBackup = "https://chiabot.znc.sh/send12.php";
 
 //prepares rootPath
 prepareRootPath(bool package) {
@@ -448,7 +448,7 @@ void handleBlockchainReport(List<Object> arguments) async {
   //kills isolate after 20 minutes
   Future.delayed(
       Duration(
-          minutes: (!onetime) ? (reportIntervalDuration.inMinutes * 2) : 1),
+          seconds: (!onetime) ? (reportIntervalDuration.inSeconds * 2) : 1),
       () {
     sendPort.send([
       "${blockchain.currencySymbol} report killed. Are ${blockchain.binaryName} services running?",

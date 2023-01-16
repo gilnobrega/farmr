@@ -277,7 +277,7 @@ Future<List<Harvester>> _getUserData(String userID, String blockchain) async {
   //reads from public api in case connection to mysql database fails
   catch (e) {
     String contents =
-        await http.read(Uri.parse("http://farmr.net/read.php?user=$userID"));
+        await http.read(Uri.parse("http://farmr2.net/read.php?user=$userID"));
 
     contents = contents
         .trim(); //filters last , of send page, can be fixed on server side later
