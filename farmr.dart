@@ -39,7 +39,7 @@ Duration reportIntervalDuration =
 // '/home/user/.farmr' for package installs, '.' (project path) for the rest
 String rootPath = "";
 
-const String url = "http://farmr2.net/send12.php";
+const String url = "https://farmr2.net/send12.php";
 //const String urlBackup = "https://chiabot.znc.sh/send12.php";
 
 //prepares rootPath

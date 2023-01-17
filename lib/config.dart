@@ -123,7 +123,7 @@ class Config {
 
   Future<void> loadOnlineConfig() async {
     try {
-      String url = "http://farmr2.net/login.php?action=readconfig&id=" +
+      String url = "https://farmr2.net/login.php?action=readconfig&id=" +
           _blockchain.id.ids.first +
           _blockchain.fileExtension;
 
