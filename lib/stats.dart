@@ -40,7 +40,7 @@ class Stats {
   double get balanceFiat => calculateFiat(balance, _price, crypto);
 
   static double calculateFiat(double balance, Rate? price, String crypto) =>
-      (crypto == "xch") ? balance * (price?.rate ?? 0.0) : 0.0;
+      balance * (price?.rate ?? 0.0);
 
   static double calculateFiatChange(double balanceFiat, Rate? price) =>
       balanceFiat - (balanceFiat / (1 + (price?.change ?? 0.0)));
