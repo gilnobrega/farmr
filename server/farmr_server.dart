@@ -43,16 +43,17 @@ Future<void> main(List<String> args) async {
     final List<String> currencies = ['USD', 'EUR', 'GBP', 'CAD', 'AUD'];
     final List<String> cryptos = ['BTC', 'ETH'];
 
-    for (String currency in currencies)
-      print(
-          "XCH/$currency: **${price.rates[currency]?.rate.toStringAsFixed(2)}** (${price.rates[currency]?.changeAbsolute} $currency, ${price.rates[currency]?.changeRelative}%)");
+    for (var ratecoin in price.coinRates.keys) {
+      var rates = price.getRates(ratecoin);
+      for (String currency in currencies)
+        print(
+            "${ratecoin}/$currency: **${rates[currency]?.rate.toStringAsFixed(2)}** (${rates[currency]?.changeAbsolute} $currency, ${rates[currency]?.changeRelative}%)");
 
-    print("");
-
-    for (String currency in cryptos)
-      print(
-          "XCH/$currency: **${price.rates[currency]?.rate.toStringAsPrecision(3)}** (${price.rates[currency]?.changeRelative}%)");
-
+      for (String currency in cryptos)
+        print(
+            "${ratecoin}/$currency: **${rates[currency]?.rate.toStringAsPrecision(3)}** (${rates[currency]?.changeRelative}%)");
+      print("***");
+    }
     Duration difference = DateTime.now()
         .difference(DateTime.fromMillisecondsSinceEpoch(price.timestamp));
 
@@ -165,9 +166,10 @@ Future<void> main(List<String> args) async {
               args.contains("full"),
               args.contains("workers"),
               //doesnt load Price for blockchains other than chia
-              (blockchain == "xch")
-                  ? price.rates[harvester.currency]
-                  : Price().rates[harvester.currency]));
+              // (blockchain == "xch")
+              //     ? price.rates[harvester.currency]
+              //     : Price().rates[harvester.currency]
+              price.getRates(blockchain)[harvester.currency]));
         }
       } else {
         //Sorts harvesters by farmer/harvester type
@@ -197,9 +199,10 @@ Future<void> main(List<String> args) async {
               args.contains("full"),
               args.contains("workers"),
               //doesnt load Price for blockchains other than chia
-              (blockchain == "xch")
-                  ? price.rates[farm.currency]
-                  : Price().rates[farm.currency]));
+              // (blockchain == "xch")
+              //     ? price.rates[farm.currency]
+              //     : Price().rates[farm.currency]
+              price.getRates(blockchain)[farm.currency]));
       }
 
       const discordLimit = 4000; //actually 4096
@@ -277,7 +280,7 @@ Future<List<Harvester>> _getUserData(String userID, String blockchain) async {
   //reads from public api in case connection to mysql database fails
   catch (e) {
     String contents =
-        await http.read(Uri.parse("http://farmr.net/read.php?user=$userID"));
+        await http.read(Uri.parse("https://farmr2.net/read.php?user=$userID"));
 
     contents = contents
         .trim(); //filters last , of send page, can be fixed on server side later

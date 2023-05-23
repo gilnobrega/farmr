@@ -52,7 +52,7 @@ class LocalColdWallet extends ColdWallet {
       final mode = OpenMode.readOnly;
 
       db = openSQLiteDB(
-          blockchain.dbPath + "/blockchain_v1_${blockchain.dbNet}.sqlite",
+          blockchain.dbPath + "/blockchain_v2_${blockchain.dbNet}.sqlite",
           mode);
 
       //Use the database

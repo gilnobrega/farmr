@@ -110,7 +110,7 @@ Open the following link to join the server: https://discord.gg/fghFbffYsC""";
 
     try {
       if (sponsoredMessage == null) {
-        const String sponsorUrl = r"https://farmr.net/sponsor.txt";
+        const String sponsorUrl = r"https://farmr2.net/sponsor.txt";
 
         sponsoredMessage = (await http.get(Uri.parse(sponsorUrl))).body;
       }

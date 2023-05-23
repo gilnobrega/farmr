@@ -7,5 +7,5 @@ import 'package:logging/logging.dart';
 final log = Logger('Cache');
 
 class Cache extends CacheStruct {
-  Cache(Blockchain blockchain, String rootPath) : super(blockchain, rootPath);
+  Cache(Blockchain blockchain, String rootPath, bool firstInit) : super(blockchain, rootPath);
 }

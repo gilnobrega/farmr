@@ -1,10 +1,17 @@
 {
-    "Binary Name": "staicoin",
+    "Binary Name": "stai",
     "Currency Symbol": "STAI",
     "Minor Currency Symbol": "mojo",
     "Major to Minor Multiplier": 1e9,
     "Net": "mainnet",
     "Block Rewards": 5.0,
     "Blocks Per 10 Minutes": 32.0,
-    "Online Config": true
+    "Online Config": true,
+    "Ports": {
+        "harvester": 1490,
+        "farmer": 1489,
+        "fullNode": 1758,
+        "wallet": 1736,
+        "daemon": 16322
+    }
 }
